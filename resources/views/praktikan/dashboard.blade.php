@@ -139,20 +139,28 @@
                                     </div>
                                     <div class="space-y-1">
                                         <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider">Terisi</p>
+                                        @php
+                                            $percent =
+                                                $p->kuota_praktikan > 0
+                                                    ? ($p->pendaftarans_count / $p->kuota_praktikan) * 100
+                                                    : 0;
+                                            $percent = min($percent, 100);
+                                        @endphp
                                         <div class="flex items-center gap-2">
                                             <div class="h-1.5 flex-grow bg-slate-100 rounded-full overflow-hidden">
-                                                <div class="h-full bg-emerald-500 rounded-full" style="width: 0%"></div>
+                                                <div class="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                                                    style="width: {{ $percent }}%"></div>
                                             </div>
-                                            <p class="text-xs font-bold text-emerald-600">0%</p>
+                                            <p class="text-xs font-bold text-emerald-600">{{ round($percent) }}%</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <button
+                                <a href="{{ route('praktikan.pendaftaran.create', $p->id) }}"
                                     class="w-full py-2.5 rounded-xl bg-[#001f3f] text-white text-[10px] font-bold uppercase tracking-[0.2em] shadow-lg shadow-[#001f3f]/10 transition-all hover:bg-[#002d5a] active:scale-[0.98] flex items-center justify-center gap-2 group-hover:gap-3">
                                     Daftar Praktikum
                                     <i class="fas fa-arrow-right text-[10px]"></i>
-                                </button>
+                                </a>
                             </div>
                         </div>
                     @endforeach

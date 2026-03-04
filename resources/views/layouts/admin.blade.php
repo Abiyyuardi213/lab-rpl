@@ -17,17 +17,19 @@
     <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
 </head>
 
-<body class="bg-gray-50/50 min-h-screen font-sans antialiased text-slate-800">
+<body class="bg-gray-50/50 min-h-screen font-sans antialiased text-slate-800 flex flex-col">
 
     <!-- Floating Navbar -->
     @include('admin.components.admin-navbar')
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-20 sm:py-24">
+    <main class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-20 sm:py-24 flex-grow w-full">
         @yield('content')
     </main>
 
-    @include('admin.components.admin-footer')
+    <div class="mt-auto">
+        @include('admin.components.admin-footer')
+    </div>
 
     @if (session('login_success') || session('success'))
         <script>

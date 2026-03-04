@@ -20,4 +20,14 @@ class Praktikum extends Model
         'kuota_praktikan',
         'status_praktikum',
     ];
+
+    public function sesis()
+    {
+        return $this->hasMany(SesiPraktikum::class, 'praktikum_id');
+    }
+
+    public function pendaftarans()
+    {
+        return $this->hasMany(PendaftaranPraktikum::class, 'praktikum_id');
+    }
 }

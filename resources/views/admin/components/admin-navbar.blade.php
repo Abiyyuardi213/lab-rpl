@@ -18,11 +18,18 @@
             <!-- Middle: Nav Links -->
             <div class="hidden lg:flex items-center space-x-6">
                 @if (Auth::user()->role && Auth::user()->role->name === 'Praktikan')
-                    <a href="{{ route('admin.praktikan.dashboard') }}"
-                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/praktikan/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                    <a href="{{ route('praktikan.dashboard') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('praktikan/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                         Dashboard
                         <span
-                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/praktikan/dashboard') ? 'w-full' : '' }}"></span>
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('praktikan/dashboard') ? 'w-full' : '' }}"></span>
+                    </a>
+
+                    <a href="{{ route('praktikan.pendaftaran.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('praktikan/riwayat-pendaftaran*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Riwayat Daftar
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('praktikan/riwayat-pendaftaran*') ? 'w-full' : '' }}"></span>
                     </a>
                 @else
                     <a href="{{ url('/admin/dashboard') }}"
@@ -60,6 +67,13 @@
                         Praktikum
                         <span
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/praktikum*') ? 'w-full' : '' }}"></span>
+                    </a>
+
+                    <a href="{{ route('admin.pendaftaran.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/pendaftaran*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Pendaftaran
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/pendaftaran*') ? 'w-full' : '' }}"></span>
                     </a>
 
                     <a href="{{ route('admin.praktikan.index') }}"
@@ -130,8 +144,11 @@
     <div id="admin-mobile-menu" class="hidden lg:hidden bg-white border-t border-slate-100 shadow-2xl">
         <div class="px-3 py-3 sm:p-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
             @if (Auth::user()->role && Auth::user()->role->name === 'Praktikan')
-                <a href="{{ route('admin.praktikan.dashboard') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/praktikan/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
+                <a href="{{ route('praktikan.dashboard') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('praktikan/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
+                <a href="{{ route('praktikan.pendaftaran.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('praktikan/riwayat-pendaftaran*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Riwayat
+                    Pendaftaran</a>
             @else
                 <a href="{{ url('/admin/dashboard') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
@@ -147,6 +164,9 @@
                 <a href="{{ route('admin.praktikum.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Praktikum</a>
+                <a href="{{ route('admin.pendaftaran.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/pendaftaran*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    Pendaftaran</a>
                 <a href="{{ route('admin.praktikan.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/praktikan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Praktikan</a>

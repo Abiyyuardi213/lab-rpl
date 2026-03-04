@@ -43,4 +43,9 @@ class User extends Authenticatable
             'status' => 'boolean',
         ];
     }
+
+    public function pendaftarans()
+    {
+        return $this->hasMany(PendaftaranPraktikum::class, 'user_id');
+    }
 }

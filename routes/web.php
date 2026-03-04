@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // Guest Routes
@@ -22,6 +23,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/', function () {
+        if (Auth::user()->role && Auth::user()->role->name === 'Praktikan') {
+            return redirect()->route('praktikan.dashboard');
+        }
         return redirect()->route('admin.dashboard');
     });
 
@@ -43,6 +47,13 @@ Route::middleware('auth')->group(function () {
         // Praktikum Management
         Route::resource('praktikum', \App\Http\Controllers\PraktikumController::class);
         Route::patch('praktikum/{id}/toggle-status', [\App\Http\Controllers\PraktikumController::class, 'toggleStatus'])->name('praktikum.toggle-status');
+        Route::post('praktikum/{praktikum_id}/sesi', [\App\Http\Controllers\SesiPraktikumController::class, 'store'])->name('praktikum.sesi.store');
+        Route::delete('praktikum/sesi/{id}', [\App\Http\Controllers\SesiPraktikumController::class, 'destroy'])->name('praktikum.sesi.destroy');
+
+        // Pendaftaran Management (Admin)
+        Route::get('/pendaftaran', [\App\Http\Controllers\Admin\PendaftaranController::class, 'index'])->name('pendaftaran.index');
+        Route::get('/pendaftaran/{id}', [\App\Http\Controllers\Admin\PendaftaranController::class, 'show'])->name('pendaftaran.show');
+        Route::patch('/pendaftaran/{id}/status', [\App\Http\Controllers\Admin\PendaftaranController::class, 'updateStatus'])->name('pendaftaran.update-status');
 
         // Praktikan Management
         Route::resource('praktikan', \App\Http\Controllers\PraktikanController::class);
@@ -52,11 +63,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/kaprodi', fn() => 'Kaprodi Index')->name('kaprodi.index');
         Route::get('/prodi', fn() => 'Prodi Index')->name('prodi.index');
         Route::get('/profile/edit', fn() => 'Profile Edit')->name('profile.edit');
-
-        // Praktikan Section
-        Route::prefix('praktikan')->name('praktikan.')->middleware(['auth', 'role.praktikan'])->group(function () {
-            Route::get('/dashboard', [\App\Http\Controllers\Praktikan\DashboardController::class, 'index'])->name('dashboard');
-        });
 
         Route::prefix('mahasiswa-cuti')->name('mahasiswa-cuti.')->group(function () {
             Route::get('/dashboard', fn() => 'Cuti Dashboard')->name('dashboard');
@@ -77,6 +83,14 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengajuan-ruangan', fn() => 'Pengajuan Index')->name('pengajuan-ruangan.index');
         Route::get('/legalisir', fn() => 'Legalisir Index')->name('legalisir.index');
         Route::get('/pengumuman', fn() => 'Pengumuman Index')->name('pengumuman.index');
+    });
+
+    // Praktikan Section
+    Route::prefix('praktikan')->name('praktikan.')->middleware(['role.praktikan'])->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\Praktikan\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/daftar-praktikum/{praktikum_id}', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'create'])->name('pendaftaran.create');
+        Route::post('/daftar-praktikum', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'store'])->name('pendaftaran.store');
+        Route::get('/riwayat-pendaftaran', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'index'])->name('pendaftaran.index');
     });
 });
 

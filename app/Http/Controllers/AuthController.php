@@ -33,7 +33,7 @@ class AuthController extends Controller
             }
 
             if (Auth::user()->role->name === 'Praktikan') {
-                return redirect()->intended(route('admin.praktikan.dashboard'))->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
+                return redirect()->intended(route('praktikan.dashboard'))->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
             }
 
             return redirect()->intended(route('admin.dashboard'))->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
@@ -118,7 +118,7 @@ class AuthController extends Controller
                 ]);
             }
 
-            return redirect()->intended(route('admin.praktikan.dashboard'))->with('login_success', 'Selamat datang praktikan, ' . Auth::user()->name . '!');
+            return redirect()->intended(route('praktikan.dashboard'))->with('login_success', 'Selamat datang praktikan, ' . Auth::user()->name . '!');
         }
 
         return back()->withErrors([
