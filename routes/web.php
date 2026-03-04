@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::get('/login-aslab', [AuthController::class, 'showAslabLogin'])->name('login.aslab');
+    Route::post('/login-aslab', [AuthController::class, 'aslabLogin'])->name('login.aslab.post');
+    Route::get('/login-praktikan', [AuthController::class, 'showPraktikanLogin'])->name('login.praktikan');
+    Route::post('/login-praktikan', [AuthController::class, 'praktikanLogin'])->name('login.praktikan.post');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
@@ -22,9 +26,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
         // Role Management
         Route::resource('role', RoleController::class);
@@ -34,10 +36,28 @@ Route::middleware('auth')->group(function () {
         Route::resource('user', UserController::class);
         Route::patch('user/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
 
-        // Placeholders for other modules
+        // Aslab Management
+        Route::resource('aslab', \App\Http\Controllers\AslabController::class);
+        Route::patch('aslab/{id}/toggle-status', [\App\Http\Controllers\AslabController::class, 'toggleStatus'])->name('aslab.toggle-status');
+
+        // Praktikum Management
+        Route::resource('praktikum', \App\Http\Controllers\PraktikumController::class);
+        Route::patch('praktikum/{id}/toggle-status', [\App\Http\Controllers\PraktikumController::class, 'toggleStatus'])->name('praktikum.toggle-status');
+
+        // Praktikan Management
+        Route::resource('praktikan', \App\Http\Controllers\PraktikanController::class);
+        Route::patch('praktikan/{id}/toggle-status', [\App\Http\Controllers\PraktikanController::class, 'toggleStatus'])->name('praktikan.toggle-status');
+
+        // User Actions
         Route::get('/kaprodi', fn() => 'Kaprodi Index')->name('kaprodi.index');
         Route::get('/prodi', fn() => 'Prodi Index')->name('prodi.index');
         Route::get('/profile/edit', fn() => 'Profile Edit')->name('profile.edit');
+
+        // Praktikan Section
+        Route::prefix('praktikan')->name('praktikan.')->middleware(['auth', 'role.praktikan'])->group(function () {
+            Route::get('/dashboard', [\App\Http\Controllers\Praktikan\DashboardController::class, 'index'])->name('dashboard');
+        });
+
         Route::prefix('mahasiswa-cuti')->name('mahasiswa-cuti.')->group(function () {
             Route::get('/dashboard', fn() => 'Cuti Dashboard')->name('dashboard');
             Route::get('/', fn() => 'Cuti Index')->name('index');

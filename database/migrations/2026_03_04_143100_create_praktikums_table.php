@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('praktikums', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name')->unique(); // e.g., admin
-            $table->string('display_name')->nullable(); // e.g., Administrator
-            $table->string('description')->nullable();
-            $table->boolean('status')->default(true);
+            $table->string('kode_praktikum')->unique();
+            $table->string('nama_praktikum');
+            $table->string('periode_praktikum');
+            $table->integer('kuota_praktikan');
+            $table->enum('status_praktikum', ['open_registration', 'on_progress', 'finished'])->default('open_registration');
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('praktikums');
     }
 };

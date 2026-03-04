@@ -1,120 +1,54 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', $title ?? 'Admin Dashboard') - Lab RPL</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <!-- Font Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-
-    <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
+    <title>@yield('title', 'Admin Dashboard') - HMIF Admin</title>
+    <link rel="shortcut icon" href="{{ asset('image/icon-hmif.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/icon-hmif.png') }}" type="image/x-icon">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <style>
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
-            background: #18181b !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 0.5rem !important;
-        }
-
-        .dataTables_wrapper .dataTables_filter input {
-            border: 1px solid #e4e4e7 !important;
-            border-radius: 0.5rem !important;
-            padding: 0.4rem 0.8rem !important;
-            outline: none !important;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
+    <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
 </head>
 
-<body class="bg-[#f8f9fa] font-sans text-zinc-900 antialiased overflow-hidden">
-    <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar -->
-        @include('layouts.partials.sidebar')
+<body class="bg-gray-50/50 min-h-screen font-sans antialiased text-slate-800">
 
-        <!-- Main Content Area -->
-        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <!-- Navbar -->
-            @include('layouts.partials.navbar')
+    <!-- Floating Navbar -->
+    @include('admin.components.admin-navbar')
 
-            <!-- Page Content -->
-            <main id="main-content" class="flex-1 overflow-y-auto px-6 py-6">
-                @yield('content')
-            </main>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-20 sm:py-24">
+        @yield('content')
+    </main>
 
-            <!-- Footer Fixed at Bottom -->
-            @include('layouts.partials.footer')
-        </div>
-    </div>
+    @include('admin.components.admin-footer')
 
-    @yield('scripts')
+    @if (session('login_success') || session('success'))
+        <script>
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
 
-    <script>
-        // SPA Custom Logic
-        document.addEventListener('click', async (e) => {
-            const link = e.target.closest('a[data-spa]');
-            if (link) {
-                e.preventDefault();
-                const url = link.href;
-                await navigateTo(url);
-            }
-        });
-
-        async function navigateTo(url) {
-            try {
-                const response = await fetch(url);
-                const htmlText = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlText, 'text/html');
-
-                const newContent = doc.getElementById('main-content').innerHTML;
-                document.getElementById('main-content').innerHTML = newContent;
-
-                const newTitle = doc.querySelector('title').innerText;
-                document.title = newTitle;
-
-                window.history.pushState({}, '', url);
-
-                // Re-initialize scripts if needed (like DataTables)
-                initializePlugins();
-            } catch (error) {
-                console.error('Navigation failed:', error);
-                window.location.href = url; // Fallback
-            }
-        }
-
-        window.addEventListener('popstate', () => {
-            navigateTo(window.location.href);
-        });
-
-        function initializePlugins() {
-            if ($.fn.DataTable.isDataTable('.datatable')) {
-                $('.datatable').DataTable().destroy();
-            }
-            if ($('.datatable').length) {
-                $('.datatable').DataTable({
-                    language: {
-                        url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
-                    }
-                });
-            }
-        }
-
-        $(document).ready(function() {
-            initializePlugins();
-        });
-    </script>
+            Toast.fire({
+                icon: 'success',
+                title: '{{ session('login_success') ?? session('success') }}'
+            })
+        </script>
+    @endif
 </body>
 
 </html>

@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Role extends Model
+class Praktikum extends Model
 {
     use HasFactory, HasUuids;
 
@@ -14,8 +14,10 @@ class Role extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'name',
-        'display_name',
-        'description',
+        'kode_praktikum',
+        'nama_praktikum',
+        'periode_praktikum',
+        'kuota_praktikan',
+        'status_praktikum',
     ];
 }

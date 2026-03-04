@@ -32,12 +32,98 @@ class AuthController extends Controller
                 ]);
             }
 
-            return redirect()->intended(route('admin.dashboard'));
+            if (Auth::user()->role->name === 'Praktikan') {
+                return redirect()->intended(route('admin.praktikan.dashboard'))->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
+            }
+
+            return redirect()->intended(route('admin.dashboard'))->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
         }
 
         return back()->withErrors([
             'username' => 'Username atau password salah.',
         ])->onlyInput('username');
+    }
+
+    public function showAslabLogin()
+    {
+        if (Auth::check()) {
+            return redirect()->route('admin.dashboard');
+        }
+        return view('auth.login-aslab');
+    }
+
+    public function aslabLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'npm' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if (Auth::attempt($credentials, $request->remember)) {
+            $request->session()->regenerate();
+
+            if (!Auth::user()->status) {
+                Auth::logout();
+                return back()->withErrors([
+                    'npm' => 'Akun Anda sedang dinonaktifkan.',
+                ]);
+            }
+
+            // Validasi Role Aslab
+            if (Auth::user()->role->name !== 'Aslab') {
+                Auth::logout();
+                return back()->withErrors([
+                    'npm' => 'Halaman ini khusus untuk Asisten Laboratorium.',
+                ]);
+            }
+
+            return redirect()->intended(route('admin.dashboard'))->with('login_success', 'Selamat datang kembali aslab, ' . Auth::user()->name . '!');
+        }
+
+        return back()->withErrors([
+            'npm' => 'NPM atau password salah.',
+        ])->onlyInput('npm');
+    }
+
+    public function showPraktikanLogin()
+    {
+        if (Auth::check()) {
+            return redirect()->route('admin.dashboard');
+        }
+        return view('auth.login-praktikan');
+    }
+
+    public function praktikanLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'npm' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if (Auth::attempt($credentials, $request->remember)) {
+            $request->session()->regenerate();
+
+            if (!Auth::user()->status) {
+                Auth::logout();
+                return back()->withErrors([
+                    'npm' => 'Akun Anda sedang dinonaktifkan.',
+                ]);
+            }
+
+            // Validasi Role Praktikan
+            if (Auth::user()->role->name !== 'Praktikan') {
+                Auth::logout();
+                return back()->withErrors([
+                    'npm' => 'Halaman ini khusus untuk Praktikan.',
+                ]);
+            }
+
+            return redirect()->intended(route('admin.praktikan.dashboard'))->with('login_success', 'Selamat datang praktikan, ' . Auth::user()->name . '!');
+        }
+
+        return back()->withErrors([
+            'npm' => 'NPM atau password salah.',
+        ])->onlyInput('npm');
     }
 
     public function showRegister()
@@ -51,19 +137,20 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'username' => 'required|string|unique:users,username',
+            'npm' => 'required|string|unique:users,npm|unique:users,username',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        $role = \App\Models\Role::where('role_name', 'Praktikan')->first();
+        $role = \App\Models\Role::where('name', 'Praktikan')->first();
         if (!$role) {
             return back()->withErrors(['error' => 'Sistem Belum Siap: Role Praktikan tidak ditemukan.']);
         }
 
         \App\Models\User::create([
-            'username' => $request->username,
+            'username' => $request->npm,
+            'npm' => $request->npm,
             'name' => $request->name,
             'email' => $request->email,
             'password' => \Illuminate\Support\Facades\Hash::make($request->password),
@@ -71,7 +158,7 @@ class AuthController extends Controller
             'status' => true,
         ]);
 
-        return redirect()->route('login')->with('success', 'Pendaftaran berhasil. Silakan login.');
+        return redirect()->route('login.praktikan')->with('success', 'Pendaftaran berhasil. Silakan login menggunakan NPM Anda.');
     }
 
     public function logout(Request $request)
@@ -79,6 +166,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login');
+        return redirect()->route('login')->with('logout_success', 'Anda telah berhasil logout.');
     }
 }

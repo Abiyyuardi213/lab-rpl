@@ -2,80 +2,60 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Role;
 use Illuminate\Http\Request;
+use App\Models\Role;
 
 class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::orderBy('created_at', 'asc')->get();
+        $roles = Role::all();
         return view('admin.role.index', compact('roles'));
-    }
-
-    public function create()
-    {
-        return view('admin.role.create');
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'role_name' => 'required|string|max:255',
-            'role_description' => 'nullable|string',
-            'role_status' => 'required|boolean',
+            'name' => 'required|unique:roles,name',
+            'display_name' => 'required',
         ]);
 
-        Role::createRole($request->all());
+        Role::create($request->all());
 
-        return redirect()->route('admin.role.index')->with('success', 'Role berhasil ditambahkan.');
-    }
-
-    public function edit($id)
-    {
-        $role = Role::findOrFail($id);
-        return view('admin.role.edit', compact('role'));
+        return redirect()->back()->with('success', 'Role berhasil ditambahkan');
     }
 
     public function update(Request $request, $id)
     {
+        $role = Role::findOrFail($id);
+
         $request->validate([
-            'role_name' => 'required|string|max:255',
-            'role_description' => 'nullable|string',
-            'role_status' => 'required|boolean',
+            'name' => 'required|unique:roles,name,' . $id,
+            'display_name' => 'required',
         ]);
 
-        $role = Role::findOrFail($id);
-        $role->updateRole($request->all());
+        $role->update($request->all());
 
-        return redirect()->route('admin.role.index')->with('success', 'Role berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Role berhasil diperbarui');
     }
 
     public function destroy($id)
     {
         $role = Role::findOrFail($id);
-        $role->deleteRole();
+        $role->delete();
 
-        return redirect()->route('admin.role.index')->with('success', 'Role berhasil dihapus.');
+        return redirect()->back()->with('success', 'Role berhasil dihapus');
     }
 
     public function toggleStatus($id)
     {
-        try {
-            $role = Role::findOrFail($id);
-            $role->toggleStatus();
+        $role = Role::findOrFail($id);
+        $role->status = !$role->status;
+        $role->save();
 
-            session()->flash('success', 'Status role berhasil diperbarui.');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Status role berhasil diperbarui.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memperbarui status.'
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Status role berhasil diperbarui.'
+        ]);
     }
 }

@@ -8,34 +8,40 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
-class UserController extends Controller
+class AslabController extends Controller
 {
     public function index()
     {
-        $users = User::with('role')->orderBy('created_at', 'desc')->get();
-        return view('admin.user.index', compact('users'));
+        $aslabRole = Role::where('name', 'Aslab')->first();
+        if (!$aslabRole) {
+            return redirect()->back()->with('error', 'Role Aslab tidak ditemukan.');
+        }
+        $aslabs = User::where('role_id', $aslabRole->id)->orderBy('created_at', 'desc')->get();
+        return view('admin.aslab.index', compact('aslabs'));
     }
 
     public function create()
     {
-        $roles = Role::whereIn('name', ['Admin', 'Aslab'])->get();
-        return view('admin.user.create', compact('roles'));
+        return view('admin.aslab.create');
     }
 
     public function store(Request $request)
     {
+        $aslabRole = Role::where('name', 'Aslab')->first();
+
         $request->validate([
-            'username' => 'required|string|unique:users,username',
-            'npm' => 'nullable|string|unique:users,npm',
+            'username' => 'nullable|string|unique:users,username',
+            'npm' => 'required|string|unique:users,npm',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'role_id' => 'required|exists:roles,id',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $data = $request->all();
+        $data['username'] = $request->username ?: $request->npm;
         $data['password'] = Hash::make($request->password);
+        $data['role_id'] = $aslabRole->id;
 
         if ($request->hasFile('profile_picture')) {
             $data['profile_picture'] = $request->file('profile_picture')->store('profile', 'public');
@@ -43,56 +49,61 @@ class UserController extends Controller
 
         User::create($data);
 
-        return redirect()->route('admin.user.index')->with('success', 'User berhasil ditambahkan.');
+        return redirect()->route('admin.aslab.index')->with('success', 'Aslab berhasil ditambahkan.');
+    }
+
+    public function show($id)
+    {
+        $aslab = User::findOrFail($id);
+        return view('admin.aslab.show', compact('aslab'));
     }
 
     public function edit($id)
     {
-        $user = User::findOrFail($id);
-        $roles = Role::whereIn('name', ['Admin', 'Aslab'])->get();
-        return view('admin.user.edit', compact('user', 'roles'));
+        $aslab = User::findOrFail($id);
+        return view('admin.aslab.edit', compact('aslab'));
     }
 
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        $aslab = User::findOrFail($id);
 
         $request->validate([
-            'username' => 'required|string|unique:users,username,' . $id,
-            'npm' => 'nullable|string|unique:users,npm,' . $id,
+            'username' => 'nullable|string|unique:users,username,' . $id,
+            'npm' => 'required|string|unique:users,npm,' . $id,
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8',
-            'role_id' => 'required|exists:roles,id',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $data = $request->except('password');
+        $data['username'] = $request->username ?: $request->npm;
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
 
         if ($request->hasFile('profile_picture')) {
-            if ($user->profile_picture) {
-                Storage::delete('public/' . $user->profile_picture);
+            if ($aslab->profile_picture) {
+                Storage::delete('public/' . $aslab->profile_picture);
             }
             $data['profile_picture'] = $request->file('profile_picture')->store('profile', 'public');
         }
 
-        $user->update($data);
+        $aslab->update($data);
 
-        return redirect()->route('admin.user.index')->with('success', 'User berhasil diperbarui.');
+        return redirect()->route('admin.aslab.index')->with('success', 'Aslab berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
-        if ($user->profile_picture) {
-            Storage::delete('public/' . $user->profile_picture);
+        $aslab = User::findOrFail($id);
+        if ($aslab->profile_picture) {
+            Storage::delete('public/' . $aslab->profile_picture);
         }
-        $user->delete();
+        $aslab->delete();
 
-        return redirect()->route('admin.user.index')->with('success', 'User berhasil dihapus.');
+        return redirect()->route('admin.aslab.index')->with('success', 'Aslab berhasil dihapus.');
     }
 
     public function toggleStatus($id)
@@ -103,7 +114,7 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Status user berhasil diperbarui.'
+            'message' => 'Status aslab berhasil diperbarui.'
         ]);
     }
 }

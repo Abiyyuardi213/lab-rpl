@@ -11,24 +11,24 @@ class RoleSeeder extends Seeder
     {
         $roles = [
             [
-                'role_name' => 'Admin',
-                'role_description' => 'Administrator with full access',
-                'role_status' => true,
+                'name' => 'Admin',
+                'display_name' => 'Administrator',
+                'description' => 'Administrator with full access',
             ],
             [
-                'role_name' => 'Aslab',
-                'role_description' => 'Asisten Laboratorium',
-                'role_status' => true,
+                'name' => 'Aslab',
+                'display_name' => 'Asisten Laboratorium',
+                'description' => 'Asisten Laboratorium',
             ],
             [
-                'role_name' => 'Praktikan',
-                'role_description' => 'User Praktikan',
-                'role_status' => true,
+                'name' => 'Praktikan',
+                'display_name' => 'Praktikan',
+                'description' => 'User Praktikan',
             ],
         ];
 
         foreach ($roles as $role) {
-            Role::createRole($role);
+            Role::create($role);
         }
     }
 }
