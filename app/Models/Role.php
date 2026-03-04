@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Role extends Model
 {
+    use HasUuids;
+
     protected $table = 'role';
     protected $keyType = 'string';
     public $incrementing = false;
@@ -16,15 +18,6 @@ class Role extends Model
         'role_description',
         'role_status',
     ];
-
-    protected static function booted()
-    {
-        static::creating(function ($role) {
-            if (!$role->id) {
-                $role->id = (string) Str::uuid();
-            }
-        });
-    }
 
     public static function createRole($data)
     {
@@ -42,11 +35,6 @@ class Role extends Model
             'role_description' => $data['role_description'] ?? $this->role_description,
             'role_status' => $data['role_status'] ?? $this->role_status,
         ]);
-    }
-
-    public function deleteRole()
-    {
-        return $this->delete();
     }
 
     public function toggleStatus()
