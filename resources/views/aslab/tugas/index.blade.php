@@ -212,7 +212,7 @@
                         class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] transition-all">
                         <option value="">-- Pilih Mahasiswa --</option>
                         @foreach ($students as $s)
-                            <option value="{{ $s->id }}">{{ $s->user->name }} -
+                            <option value="{{ $s->id }}">{{ $s->praktikan->user->name }} -
                                 {{ $s->praktikum->nama_praktikum }}</option>
                         @endforeach
                     </select>

@@ -40,7 +40,7 @@ class Praktikum extends Model
 
     public function aslabs()
     {
-        return $this->belongsToMany(User::class, 'aslab_praktikums', 'praktikum_id', 'aslab_id')
+        return $this->belongsToMany(Aslab::class, 'aslab_praktikums', 'praktikum_id', 'aslab_id')
             ->withPivot('id', 'kuota')
             ->withTimestamps();
     }

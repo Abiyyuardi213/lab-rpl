@@ -28,6 +28,13 @@ class Aslab extends Model
         return $this->hasMany(AslabPraktikum::class, 'aslab_id');
     }
 
+    public function praktikums()
+    {
+        return $this->belongsToMany(Praktikum::class, 'aslab_praktikums', 'aslab_id', 'praktikum_id')
+            ->withPivot('id', 'kuota')
+            ->withTimestamps();
+    }
+
     public function assignedStudents()
     {
         return $this->hasMany(PendaftaranPraktikum::class, 'aslab_id');

@@ -111,11 +111,11 @@
                                         <div class="flex items-center gap-3">
                                             <div
                                                 class="w-8 h-8 rounded-xl bg-[#001f3f]/5 flex items-center justify-center text-[10px] font-black text-[#001f3f] border border-[#001f3f]/10 shadow-sm">
-                                                {{ substr($student->aslab->name, 0, 1) }}
+                                                {{ substr($student->aslab->user->name, 0, 1) }}
                                             </div>
                                             <span
-                                                class="text-xs {{ $student->aslab_id === Auth::id() ? 'text-[#001f3f]' : 'text-slate-400' }}">
-                                                {{ $student->aslab_id === Auth::id() ? 'ANDA' : $student->aslab->name }}
+                                                class="text-xs {{ $student->aslab_id === Auth::user()->aslab->id ? 'text-[#001f3f]' : 'text-slate-400' }}">
+                                                {{ $student->aslab_id === Auth::user()->aslab->id ? 'ANDA' : $student->aslab->user->name }}
                                             </span>
                                         </div>
                                     @else
@@ -137,7 +137,7 @@
                                                 Klaim Mahasiswa
                                             </button>
                                         </form>
-                                    @elseif($student->aslab_id === Auth::id())
+                                    @elseif($student->aslab_id === Auth::user()->aslab->id)
                                         <span
                                             class="inline-flex px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full border border-emerald-100 uppercase tracking-widest">
                                             <i class="fas fa-check-circle mr-2"></i>
@@ -186,7 +186,7 @@
                                 <span class="text-slate-400 italic">Aslab:</span>
                                 @if ($student->aslab)
                                     <span
-                                        class="text-[#001f3f]">{{ $student->aslab_id === Auth::id() ? 'ANDA' : $student->aslab->name }}</span>
+                                        class="text-[#001f3f]">{{ $student->aslab_id === Auth::user()->aslab->id ? 'ANDA' : $student->aslab->user->name }}</span>
                                 @else
                                     <span class="text-rose-400">Belum Ada</span>
                                 @endif
@@ -203,7 +203,7 @@
                                         Klaim Mahasiswa Sekarang
                                     </button>
                                 </form>
-                            @elseif($student->aslab_id === Auth::id())
+                            @elseif($student->aslab_id === Auth::user()->aslab->id)
                                 <div
                                     class="w-full py-4 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-2xl border border-emerald-100 uppercase tracking-widest text-center flex items-center justify-center gap-2">
                                     <i class="fas fa-check-circle"></i>

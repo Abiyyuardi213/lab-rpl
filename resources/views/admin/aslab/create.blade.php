@@ -30,21 +30,6 @@
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
-                                    <label for="username"
-                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight flex items-center justify-between">
-                                        Username
-                                        <span
-                                            class="text-[10px] font-medium text-zinc-400 normal-case italic">Opsional</span>
-                                    </label>
-                                    <input type="text" name="username" id="username" value="{{ old('username') }}"
-                                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
-                                        placeholder="Kosongkan jika sama dengan NPM">
-                                    @error('username')
-                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="space-y-2">
                                     <label for="npm"
                                         class="text-sm font-bold text-zinc-700 uppercase tracking-tight">NPM</label>
                                     <input type="text" name="npm" id="npm" value="{{ old('npm') }}"
@@ -54,9 +39,7 @@
                                         <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label for="name"
                                         class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Nama
@@ -68,7 +51,9 @@
                                         <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
+                            </div>
 
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label for="email"
                                         class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Email</label>
@@ -79,33 +64,7 @@
                                         <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
-                            </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2">
-                                    <label for="jurusan"
-                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Jurusan</label>
-                                    <input type="text" name="jurusan" id="jurusan" value="{{ old('jurusan') }}"
-                                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
-                                        placeholder="Teknik Informatika">
-                                    @error('jurusan')
-                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label for="angkatan"
-                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Angkatan</label>
-                                    <input type="text" name="angkatan" id="angkatan" value="{{ old('angkatan') }}"
-                                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
-                                        placeholder="2024">
-                                    @error('angkatan')
-                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label for="no_hp"
                                         class="text-sm font-bold text-zinc-700 uppercase tracking-tight">No. HP</label>
@@ -116,7 +75,20 @@
                                         <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
+                            </div>
 
+                            <div class="space-y-2">
+                                <label for="angkatan"
+                                    class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Angkatan</label>
+                                <input type="text" name="angkatan" id="angkatan" value="{{ old('angkatan') }}"
+                                    class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
+                                    placeholder="2024">
+                                @error('angkatan')
+                                    <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label for="password"
                                         class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Password</label>
@@ -124,7 +96,7 @@
                                         <input type="password" name="password" id="password"
                                             class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
                                             placeholder="••••••••" required>
-                                        <button type="button" onclick="togglePassword()"
+                                        <button type="button" onclick="togglePassword('password', 'eye-icon')"
                                             class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors">
                                             <i class="fas fa-eye text-xs" id="eye-icon"></i>
                                         </button>
@@ -132,6 +104,22 @@
                                     @error('password')
                                         <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
                                     @enderror
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="password_confirmation"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Konfirmasi
+                                        Password</label>
+                                    <div class="relative">
+                                        <input type="password" name="password_confirmation" id="password_confirmation"
+                                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
+                                            placeholder="••••••••" required>
+                                        <button type="button"
+                                            onclick="togglePassword('password_confirmation', 'eye-icon-confirm')"
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors">
+                                            <i class="fas fa-eye text-xs" id="eye-icon-confirm"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -251,15 +239,15 @@
             }, 200);
         }
 
-        function togglePassword() {
-            const password = document.getElementById('password');
-            const icon = document.getElementById('eye-icon');
-            if (password.type === 'password') {
-                password.type = 'text';
+        function togglePassword(inputId = 'password', iconId = 'eye-icon') {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
                 icon.classList.remove('fa-eye');
                 icon.classList.add('fa-eye-slash');
             } else {
-                password.type = 'password';
+                input.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
             }

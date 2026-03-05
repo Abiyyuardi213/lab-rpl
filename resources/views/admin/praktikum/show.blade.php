@@ -253,9 +253,9 @@
                                 @forelse($praktikum->aslabs as $aslab)
                                     <tr class="hover:bg-zinc-50/50 transition-colors">
                                         <td class="px-6 py-4">
-                                            <div class="font-bold text-zinc-900">{{ $aslab->name }}</div>
+                                            <div class="font-bold text-zinc-900">{{ $aslab->user->name }}</div>
                                         </td>
-                                        <td class="px-6 py-4 text-zinc-500">{{ $aslab->email }}</td>
+                                        <td class="px-6 py-4 text-zinc-500">{{ $aslab->user->email }}</td>
                                         <td class="px-6 py-4">
                                             <div class="text-zinc-600 font-bold">{{ $aslab->pivot->kuota }} Mhs</div>
                                         </td>
@@ -295,7 +295,7 @@
                                     class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
                                     <option value="">-- Pilih Aslab --</option>
                                     @foreach ($allAslabs as $aslab)
-                                        <option value="{{ $aslab->id }}">{{ $aslab->name }} ({{ $aslab->email }})
+                                        <option value="{{ $aslab->id }}">{{ $aslab->npm }} | {{ $aslab->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -378,7 +378,8 @@
                                                         <option value="{{ $as->id }}"
                                                             {{ $pendaftaran->aslab_id == $as->id ? 'selected' : '' }}
                                                             {{ $isFull && $pendaftaran->aslab_id != $as->id ? 'disabled' : '' }}>
-                                                            {{ $as->name }} ({{ $curr }}/{{ $max }})
+                                                            {{ $as->user->name }}
+                                                            ({{ $curr }}/{{ $max }})
                                                         </option>
                                                     @endforeach
                                                 </select>

@@ -121,12 +121,19 @@ class PraktikumController extends Controller
         ]);
 
         $praktikum = Praktikum::findOrFail($praktikum_id);
+        $user = \App\Models\User::with('aslab')->findOrFail($request->aslab_id);
 
-        if ($praktikum->aslabs()->where('aslab_id', $request->aslab_id)->exists()) {
+        if (!$user->aslab) {
+            return back()->with('error', 'User ini bukan Asisten Laboratorium yang valid.');
+        }
+
+        $aslab_model_id = $user->aslab->id;
+
+        if ($praktikum->aslabs()->where('aslab_id', $aslab_model_id)->exists()) {
             return back()->with('error', 'Aslab ini sudah ditugaskan pada praktikum ini.');
         }
 
-        $praktikum->aslabs()->attach($request->aslab_id, [
+        $praktikum->aslabs()->attach($aslab_model_id, [
             'id' => (string) \Illuminate\Support\Str::uuid(),
             'kuota' => $request->kuota
         ]);
@@ -145,7 +152,7 @@ class PraktikumController extends Controller
     public function assignStudentToAslab(Request $request, $pendaftaran_id)
     {
         $request->validate([
-            'aslab_id' => 'required|exists:users,id',
+            'aslab_id' => 'required|exists:aslabs,id',
         ]);
 
         $pendaftaran = \App\Models\PendaftaranPraktikum::findOrFail($pendaftaran_id);

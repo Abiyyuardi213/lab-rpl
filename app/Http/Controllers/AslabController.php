@@ -34,19 +34,17 @@ class AslabController extends Controller
         $aslabRole = Role::where('name', 'Aslab')->first();
 
         $request->validate([
-            'username' => 'nullable|string|unique:users,username',
             'npm' => 'required|string|unique:aslabs,npm',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'jurusan' => 'nullable|string',
             'angkatan' => 'nullable|string',
             'no_hp' => 'nullable|string',
         ]);
 
         $userData = [
-            'username' => $request->username ?: $request->npm,
+            'username' => $request->npm,
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -63,7 +61,7 @@ class AslabController extends Controller
         Aslab::create([
             'user_id' => $user->id,
             'npm' => $request->npm,
-            'jurusan' => $request->jurusan,
+            'jurusan' => 'Teknik Informatika',
             'angkatan' => $request->angkatan,
             'no_hp' => $request->no_hp,
         ]);
@@ -88,19 +86,17 @@ class AslabController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'username' => 'nullable|string|unique:users,username,' . $id,
             'npm' => 'required|string|unique:aslabs,npm,' . ($user->aslab ? $user->aslab->id : 'NULL'),
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
-            'password' => 'nullable|string|min:8',
+            'password' => 'nullable|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'jurusan' => 'nullable|string',
             'angkatan' => 'nullable|string',
             'no_hp' => 'nullable|string',
         ]);
 
         $userData = [
-            'username' => $request->username ?: $request->npm,
+            'username' => $request->npm,
             'name' => $request->name,
             'email' => $request->email,
         ];
@@ -122,7 +118,7 @@ class AslabController extends Controller
             ['user_id' => $user->id],
             [
                 'npm' => $request->npm,
-                'jurusan' => $request->jurusan,
+                'jurusan' => 'Teknik Informatika',
                 'angkatan' => $request->angkatan,
                 'no_hp' => $request->no_hp,
             ]

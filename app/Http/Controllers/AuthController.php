@@ -63,12 +63,12 @@ class AuthController extends Controller
 
     public function aslabLogin(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'npm' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($credentials, $request->remember)) {
+        if (Auth::attempt(['username' => $request->npm, 'password' => $request->password], $request->remember)) {
             $request->session()->regenerate();
 
             if (!Auth::user()->status) {
@@ -107,12 +107,12 @@ class AuthController extends Controller
 
     public function praktikanLogin(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'npm' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($credentials, $request->remember)) {
+        if (Auth::attempt(['username' => $request->npm, 'password' => $request->password], $request->remember)) {
             $request->session()->regenerate();
 
             if (!Auth::user()->status) {
@@ -149,7 +149,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'npm' => 'required|string|unique:users,npm|unique:users,username',
+            'npm' => 'required|string|unique:users,username|unique:praktikans,npm|unique:aslabs,npm',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
@@ -160,17 +160,28 @@ class AuthController extends Controller
             return back()->withErrors(['error' => 'Sistem Belum Siap: Role Praktikan tidak ditemukan.']);
         }
 
-        \App\Models\User::create([
-            'username' => $request->npm,
-            'npm' => $request->npm,
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
-            'role_id' => $role->id,
-            'status' => true,
-        ]);
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            $user = \App\Models\User::create([
+                'username' => $request->npm,
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+                'role_id' => $role->id,
+                'status' => true,
+            ]);
 
-        return redirect()->route('login.praktikan')->with('success', 'Pendaftaran berhasil. Silakan login menggunakan NPM Anda.');
+            \App\Models\Praktikan::create([
+                'user_id' => $user->id,
+                'npm' => $request->npm,
+            ]);
+
+            \Illuminate\Support\Facades\DB::commit();
+            return redirect()->route('login.praktikan')->with('success', 'Pendaftaran berhasil. Silakan login menggunakan NPM Anda.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return back()->withErrors(['error' => 'Pendaftaran gagal: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function logout(Request $request)

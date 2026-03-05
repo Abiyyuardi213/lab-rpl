@@ -18,7 +18,7 @@ class PendaftaranController extends Controller
             return redirect()->back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
-        $myPraktikums = $aslab->aslabPraktikums;
+        $myPraktikums = $aslab->praktikums;
         $praktikumIds = $myPraktikums->pluck('id');
 
         $students = PendaftaranPraktikum::with(['praktikan.user', 'praktikum', 'sesi', 'aslab'])
