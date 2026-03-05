@@ -18,7 +18,7 @@ class UserController extends Controller
 
     public function create()
     {
-        $roles = Role::whereIn('name', ['Admin', 'Aslab'])->get();
+        $roles = Role::whereIn('name', ['Super Admin', 'Admin', 'Aslab'])->get();
         return view('admin.user.create', compact('roles'));
     }
 
@@ -49,7 +49,7 @@ class UserController extends Controller
     public function edit($id)
     {
         $user = User::findOrFail($id);
-        $roles = Role::whereIn('name', ['Admin', 'Aslab'])->get();
+        $roles = Role::whereIn('name', ['Super Admin', 'Admin', 'Aslab'])->get();
         return view('admin.user.edit', compact('user', 'roles'));
     }
 

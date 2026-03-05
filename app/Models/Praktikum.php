@@ -16,9 +16,16 @@ class Praktikum extends Model
     protected $fillable = [
         'kode_praktikum',
         'nama_praktikum',
+        'daftar_dosen',
+        'daftar_kelas_mk',
         'periode_praktikum',
         'kuota_praktikan',
         'status_praktikum',
+    ];
+
+    protected $casts = [
+        'daftar_dosen' => 'array',
+        'daftar_kelas_mk' => 'array',
     ];
 
     public function sesis()
@@ -29,5 +36,12 @@ class Praktikum extends Model
     public function pendaftarans()
     {
         return $this->hasMany(PendaftaranPraktikum::class, 'praktikum_id');
+    }
+
+    public function aslabs()
+    {
+        return $this->belongsToMany(User::class, 'aslab_praktikums', 'praktikum_id', 'aslab_id')
+            ->withPivot('id', 'kuota')
+            ->withTimestamps();
     }
 }

@@ -29,16 +29,16 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('admin.dashboard');
     });
 
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware(['role.admin'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
-        // Role Management
-        Route::resource('role', RoleController::class);
-        Route::patch('role/{id}/toggle-status', [RoleController::class, 'toggleStatus'])->name('role.toggle-status');
-
-        // User Management
-        Route::resource('user', UserController::class);
-        Route::patch('user/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
+        // Role & User Management (Super Admin ONLY)
+        Route::middleware('role.superadmin')->group(function () {
+            Route::resource('role', RoleController::class);
+            Route::patch('role/{id}/toggle-status', [RoleController::class, 'toggleStatus'])->name('role.toggle-status');
+            Route::resource('user', UserController::class);
+            Route::patch('user/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('user.toggle-status');
+        });
 
         // Aslab Management
         Route::resource('aslab', \App\Http\Controllers\AslabController::class);
@@ -49,6 +49,9 @@ Route::middleware('auth')->group(function () {
         Route::patch('praktikum/{id}/toggle-status', [\App\Http\Controllers\PraktikumController::class, 'toggleStatus'])->name('praktikum.toggle-status');
         Route::post('praktikum/{praktikum_id}/sesi', [\App\Http\Controllers\SesiPraktikumController::class, 'store'])->name('praktikum.sesi.store');
         Route::delete('praktikum/sesi/{id}', [\App\Http\Controllers\SesiPraktikumController::class, 'destroy'])->name('praktikum.sesi.destroy');
+        Route::post('praktikum/{praktikum_id}/aslab', [\App\Http\Controllers\PraktikumController::class, 'storeAslab'])->name('praktikum.aslab.store');
+        Route::delete('praktikum/aslab/{id}', [\App\Http\Controllers\PraktikumController::class, 'destroyAslab'])->name('praktikum.aslab.destroy');
+        Route::patch('praktikum/pendaftaran/{pendaftaran_id}/assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'assignStudentToAslab'])->name('praktikum.pendaftaran.assign-aslab');
 
         // Pendaftaran Management (Admin)
         Route::get('/pendaftaran', [\App\Http\Controllers\Admin\PendaftaranController::class, 'index'])->name('pendaftaran.index');
@@ -62,7 +65,8 @@ Route::middleware('auth')->group(function () {
         // User Actions
         Route::get('/kaprodi', fn() => 'Kaprodi Index')->name('kaprodi.index');
         Route::get('/prodi', fn() => 'Prodi Index')->name('prodi.index');
-        Route::get('/profile/edit', fn() => 'Profile Edit')->name('profile.edit');
+        Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
         Route::prefix('mahasiswa-cuti')->name('mahasiswa-cuti.')->group(function () {
             Route::get('/dashboard', fn() => 'Cuti Dashboard')->name('dashboard');
@@ -85,12 +89,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengumuman', fn() => 'Pengumuman Index')->name('pengumuman.index');
     });
 
+    // Aslab Section
+    Route::prefix('aslab')->name('aslab.')->middleware(['role.aslab'])->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\Aslab\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/pendaftaran', [\App\Http\Controllers\Aslab\PendaftaranController::class, 'index'])->name('pendaftaran.index');
+        Route::patch('/pendaftaran/{id}/assign', [\App\Http\Controllers\Aslab\PendaftaranController::class, 'assign'])->name('pendaftaran.assign');
+        Route::resource('tugas', \App\Http\Controllers\Aslab\TugasController::class);
+    });
+
     // Praktikan Section
     Route::prefix('praktikan')->name('praktikan.')->middleware(['role.praktikan'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Praktikan\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/daftar-praktikum/{praktikum_id}', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'create'])->name('pendaftaran.create');
         Route::post('/daftar-praktikum', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'store'])->name('pendaftaran.store');
         Route::get('/riwayat-pendaftaran', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'index'])->name('pendaftaran.index');
+        Route::get('/pendaftaran/{id}/progress', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'progress'])->name('pendaftaran.progress');
+        Route::post('/tugas/{tugas_id}/submit', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'submitTugas'])->name('pendaftaran.submit-tugas');
     });
 });
 

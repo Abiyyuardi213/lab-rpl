@@ -63,10 +63,19 @@
                                     <p class="text-xs font-bold text-zinc-700 capitalize">{{ $p->sesi->hari }}</p>
                                 </div>
                             </div>
-                            <div class="space-y-1">
-                                <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Waktu</p>
-                                <p class="text-xs font-bold text-zinc-700">{{ substr($p->sesi->jam_mulai, 0, 5) }} -
-                                    {{ substr($p->sesi->jam_selesai, 0, 5) }} WIB</p>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div class="space-y-1">
+                                    <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Waktu</p>
+                                    <p class="text-xs font-bold text-zinc-700">{{ substr($p->sesi->jam_mulai, 0, 5) }} -
+                                        {{ substr($p->sesi->jam_selesai, 0, 5) }} WIB</p>
+                                </div>
+                                <div class="space-y-1 pt-2 border-t border-zinc-50">
+                                    <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Dosen & Kelas
+                                    </p>
+                                    <p class="text-xs font-bold text-[#001f3f]">{{ $p->dosen_pengampu }}</p>
+                                    <p class="text-[10px] font-medium text-zinc-500 uppercase">
+                                        {{ $p->asal_kelas_mata_kuliah }}</p>
+                                </div>
                             </div>
 
                             @if ($p->status == 'rejected' && $p->catatan)
@@ -74,6 +83,14 @@
                                     <p class="text-[9px] font-black text-rose-600 uppercase mb-1">Catatan Penolakan:</p>
                                     <p class="text-xs text-rose-700 italic">"{{ $p->catatan }}"</p>
                                 </div>
+                            @endif
+
+                            @if ($p->status == 'verified')
+                                <a href="{{ route('praktikan.pendaftaran.progress', $p->id) }}"
+                                    class="w-full flex items-center justify-center gap-2 py-3 bg-[#001f3f] text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#002d5a] transition-all shadow-md active:scale-95 mt-2">
+                                    <i class="fas fa-tasks"></i>
+                                    Lihat Progress Praktikum
+                                </a>
                             @endif
                         </div>
 

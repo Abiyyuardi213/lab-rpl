@@ -12,9 +12,10 @@ class PendaftaranPraktikum extends Model
     use HasFactory, HasUuids;
 
     protected $fillable = [
-        'user_id',
+        'praktikan_id',
         'praktikum_id',
         'sesi_id',
+        'aslab_id',
         'no_hp',
         'dosen_pengampu',
         'kelas',
@@ -30,9 +31,14 @@ class PendaftaranPraktikum extends Model
     public $incrementing = false;
     protected $keyType = 'string';
 
-    public function user()
+    public function praktikan()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Praktikan::class, 'praktikan_id');
+    }
+
+    public function aslab()
+    {
+        return $this->belongsTo(Aslab::class, 'aslab_id');
     }
 
     public function praktikum()
@@ -43,5 +49,10 @@ class PendaftaranPraktikum extends Model
     public function sesi()
     {
         return $this->belongsTo(SesiPraktikum::class, 'sesi_id');
+    }
+
+    public function tugasAsistensis()
+    {
+        return $this->hasMany(TugasAsistensi::class, 'pendaftaran_id');
     }
 }

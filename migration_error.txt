@@ -1,0 +1,131 @@
+
+   INFO  Running migrations.  
+
+  2026_03_05_081316_refactor_foreign_keys_to_use_sub_tables  8.74ms FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[42000]: Syntax error or access violation: 1091 Can't DROP 'pendaftaran_praktikums_user_id_foreign'; check that column/key exists (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: lab_rpl, SQL: alter table `pendaftaran_praktikums` drop foreign key `pendaftaran_praktikums_user_id_foreign`)
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:838
+    834Γûò             $exceptionType = $this->isUniqueConstraintError($e)
+    835Γûò                 ? UniqueConstraintViolationException::class
+    836Γûò                 : QueryException::class;
+    837Γûò 
+  Γ₧£ 838Γûò             throw new $exceptionType(
+    839Γûò                 $this->getNameWithReadWriteType(),
+    840Γûò                 $query,
+    841Γûò                 $this->prepareBindings($bindings),
+    842Γûò                 $e,
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:584
+      PDOException::("SQLSTATE[42000]: Syntax error or access violation: 1091 Can't DROP 'pendaftaran_praktikums_user_id_foreign'; check that column/key exists")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:584
+      PDOStatement::execute()
+
+  3   vendor\laravel\framework\src\Illuminate\Database\Connection.php:827
+      Illuminate\Database\Connection::Illuminate\Database\{closure}("alter table `pendaftaran_praktikums` drop foreign key `pendaftaran_praktikums_user_id_foreign`", [])
+
+  4   vendor\laravel\framework\src\Illuminate\Database\Connection.php:794
+      Illuminate\Database\Connection::runQueryCallback("alter table `pendaftaran_praktikums` drop foreign key `pendaftaran_praktikums_user_id_foreign`", [], Object(Closure))
+
+  5   vendor\laravel\framework\src\Illuminate\Database\Connection.php:573
+      Illuminate\Database\Connection::run("alter table `pendaftaran_praktikums` drop foreign key `pendaftaran_praktikums_user_id_foreign`", [], Object(Closure))
+
+  6   vendor\laravel\framework\src\Illuminate\Database\Schema\Blueprint.php:121
+      Illuminate\Database\Connection::statement("alter table `pendaftaran_praktikums` drop foreign key `pendaftaran_praktikums_user_id_foreign`")
+
+  7   vendor\laravel\framework\src\Illuminate\Database\Schema\Builder.php:686
+      Illuminate\Database\Schema\Blueprint::build()
+
+  8   vendor\laravel\framework\src\Illuminate\Database\Schema\Builder.php:494
+      Illuminate\Database\Schema\Builder::build(Object(Illuminate\Database\Schema\Blueprint))
+
+  9   vendor\laravel\framework\src\Illuminate\Support\Facades\Facade.php:363
+      Illuminate\Database\Schema\Builder::table("pendaftaran_praktikums", Object(Closure))
+
+  10  database\migrations\2026_03_05_081316_refactor_foreign_keys_to_use_sub_tables.php:15
+      Illuminate\Support\Facades\Facade::__callStatic("table")
+
+  11  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:517
+      Illuminate\Database\Migrations\Migration@anonymous\C:\laragon\www\lab-rpl\database\migrations\2026_03_05_081316_refactor_foreign_keys_to_use_sub_tables.php:7$fd::up()
+
+  12  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:442
+      Illuminate\Database\Migrations\Migrator::runMethod(Object(Illuminate\Database\MySqlConnection), Object(Illuminate\Database\Migrations\Migration@anonymous\C:\laragon\www\lab-rpl\database\migrations\2026_03_05_081316_refactor_foreign_keys_to_use_sub_tables.php:7$fd), "up")
+
+  13  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:451
+      Illuminate\Database\Migrations\Migrator::Illuminate\Database\Migrations\{closure}()
+
+  14  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:253
+      Illuminate\Database\Migrations\Migrator::runMigration(Object(Illuminate\Database\Migrations\Migration@anonymous\C:\laragon\www\lab-rpl\database\migrations\2026_03_05_081316_refactor_foreign_keys_to_use_sub_tables.php:7$fd), "up")
+
+  15  vendor\laravel\framework\src\Illuminate\Console\View\Components\Task.php:41
+      Illuminate\Database\Migrations\Migrator::Illuminate\Database\Migrations\{closure}()
+
+  16  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:814
+      Illuminate\Console\View\Components\Task::render("2026_03_05_081316_refactor_foreign_keys_to_use_sub_tables", Object(Closure))
+
+  17  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:253
+      Illuminate\Database\Migrations\Migrator::write("Illuminate\Console\View\Components\Task", "2026_03_05_081316_refactor_foreign_keys_to_use_sub_tables", Object(Closure))
+
+  18  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:211
+      Illuminate\Database\Migrations\Migrator::runUp("C:\laragon\www\lab-rpl\database\migrations/2026_03_05_081316_refactor_foreign_keys_to_use_sub_tables.php")
+
+  19  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:138
+      Illuminate\Database\Migrations\Migrator::runPending([])
+
+  20  vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\MigrateCommand.php:116
+      Illuminate\Database\Migrations\Migrator::run([])
+
+  21  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:671
+      Illuminate\Database\Console\Migrations\MigrateCommand::Illuminate\Database\Console\Migrations\{closure}()
+
+  22  vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\MigrateCommand.php:109
+      Illuminate\Database\Migrations\Migrator::usingConnection(Object(Closure))
+
+  23  vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\MigrateCommand.php:88
+      Illuminate\Database\Console\Migrations\MigrateCommand::runMigrations()
+
+  24  vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:36
+      Illuminate\Database\Console\Migrations\MigrateCommand::handle()
+
+  25  vendor\laravel\framework\src\Illuminate\Container\Util.php:43
+      Illuminate\Container\BoundMethod::Illuminate\Container\{closure}()
+
+  26  vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:96
+      Illuminate\Container\Util::unwrapIfClosure(Object(Closure))
+
+  27  vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:35
+      Illuminate\Container\BoundMethod::callBoundMethod(Object(Illuminate\Foundation\Application), Object(Closure))
+
+  28  vendor\laravel\framework\src\Illuminate\Container\Container.php:799
+      Illuminate\Container\BoundMethod::call(Object(Illuminate\Foundation\Application), [])
+
+  29  vendor\laravel\framework\src\Illuminate\Console\Command.php:211
+      Illuminate\Container\Container::call()
+
+  30  vendor\symfony\console\Command\Command.php:341
+      Illuminate\Console\Command::execute(Object(Symfony\Component\Console\Input\ArgvInput), Object(Illuminate\Console\OutputStyle))
+
+  31  vendor\laravel\framework\src\Illuminate\Console\Command.php:180
+      Symfony\Component\Console\Command\Command::run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Illuminate\Console\OutputStyle))
+
+  32  vendor\symfony\console\Application.php:1117
+      Illuminate\Console\Command::run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+
+  33  vendor\symfony\console\Application.php:356
+      Symfony\Component\Console\Application::doRunCommand(Object(Illuminate\Database\Console\Migrations\MigrateCommand), Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+
+  34  vendor\symfony\console\Application.php:195
+      Symfony\Component\Console\Application::doRun(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+
+  35  vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php:198
+      Symfony\Component\Console\Application::run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+
+  36  vendor\laravel\framework\src\Illuminate\Foundation\Application.php:1235
+      Illuminate\Foundation\Console\Kernel::handle(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+
+  37  artisan:16
+      Illuminate\Foundation\Application::handleCommand(Object(Symfony\Component\Console\Input\ArgvInput))
+

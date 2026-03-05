@@ -29,11 +29,11 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                         <div class="space-y-1">
                             <dt class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Nama Lengkap</dt>
-                            <dd class="text-sm font-bold text-zinc-900">{{ $pendaftaran->user->name }}</dd>
+                            <dd class="text-sm font-bold text-zinc-900">{{ $pendaftaran->praktikan->user->name }}</dd>
                         </div>
                         <div class="space-y-1">
                             <dt class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">NPM</dt>
-                            <dd class="text-sm font-bold text-[#001f3f] font-mono">{{ $pendaftaran->user->npm }}</dd>
+                            <dd class="text-sm font-bold text-[#001f3f] font-mono">{{ $pendaftaran->praktikan->npm }}</dd>
                         </div>
                         <div class="space-y-1">
                             <dt class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Praktikum / Sesi</dt>

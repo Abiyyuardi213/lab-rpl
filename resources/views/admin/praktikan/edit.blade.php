@@ -86,98 +86,139 @@
                                 </div>
                             </div>
 
-                            <div class="space-y-2">
-                                <label for="password"
-                                    class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Password <span
-                                        class="lowercase font-medium text-zinc-400 font-sans tracking-normal">(Kosongkan
-                                        jika tidak ingin diubah)</span></label>
-                                <div class="relative">
-                                    <input type="password" name="password" id="password"
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="jurusan"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Jurusan</label>
+                                    <input type="text" name="jurusan" id="jurusan"
+                                        value="{{ old('jurusan', $praktikan->jurusan) }}"
                                         class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
-                                        placeholder="••••••••">
-                                    <button type="button" onclick="togglePassword()"
-                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors">
-                                        <i class="fas fa-eye text-xs" id="eye-icon"></i>
+                                        placeholder="Teknik Informatika">
+                                    @error('jurusan')
+                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="angkatan"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Angkatan</label>
+                                    <input type="text" name="angkatan" id="angkatan"
+                                        value="{{ old('angkatan', $praktikan->angkatan) }}"
+                                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
+                                        placeholder="2024">
+                                    @error('angkatan')
+                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="no_hp"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">No. HP</label>
+                                    <input type="text" name="no_hp" id="no_hp"
+                                        value="{{ old('no_hp', $praktikan->no_hp) }}"
+                                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
+                                        placeholder="08123456789">
+                                    @error('no_hp')
+                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="password"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Password <span
+                                            class="lowercase font-medium text-zinc-400 font-sans tracking-normal">(Kosongkan
+                                            jika tidak ingin diubah)</span></label>
+                                    <div class="relative">
+                                        <input type="password" name="password" id="password"
+                                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
+                                            placeholder="••••••••">
+                                        <button type="button" onclick="togglePassword()"
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors">
+                                            <i class="fas fa-eye text-xs" id="eye-icon"></i>
+                                        </button>
+                                    </div>
+                                    @error('password')
+                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3 pt-2">
+                            <a href="{{ route('admin.praktikan.index') }}" data-spa
+                                class="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-6 text-sm font-bold text-zinc-600 transition-all hover:bg-zinc-50 active:scale-95">
+                                Batal
+                            </a>
+                            <button type="submit"
+                                class="inline-flex h-10 items-center justify-center rounded-lg bg-[#001f3f] px-8 text-sm font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a] active:scale-95">
+                                Perbarui Data Praktikan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Profile Picture -->
+                    <div class="space-y-6">
+                        <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+                            <h3 class="text-lg font-semibold text-zinc-900 mb-6 flex items-center gap-2">
+                                <i class="fas fa-camera text-primary text-sm"></i>
+                                Foto Profil
+                            </h3>
+
+                            <div class="flex flex-col items-center gap-6">
+                                <div id="preview-container"
+                                    class="relative h-48 w-48 rounded-2xl border-2 {{ $praktikan->profile_picture ? 'border-solid border-[#001f3f]/10' : 'border-dashed border-zinc-200' }} bg-zinc-50/50 flex items-center justify-center overflow-hidden group transition-all hover:border-[#001f3f]/20 hover:bg-white">
+                                    <div id="placeholder-text"
+                                        class="{{ $praktikan->profile_picture ? 'hidden' : '' }} text-center p-4">
+                                        <i
+                                            class="fas fa-cloud-arrow-up text-3xl text-zinc-300 mb-2 group-hover:scale-110 transition-transform"></i>
+                                        <p class="text-xs font-semibold text-zinc-400">Klik untuk ganti gambar</p>
+                                    </div>
+                                    @if ($praktikan->profile_picture)
+                                        <img id="image-preview"
+                                            src="{{ asset('storage/' . $praktikan->profile_picture) }}"
+                                            class="h-full w-full object-cover">
+                                    @else
+                                        <img id="image-preview" class="hidden h-full w-full object-cover">
+                                    @endif
+
+                                    <button type="button" onclick="removeImage()" id="remove-btn"
+                                        class="{{ $praktikan->profile_picture ? 'flex scale-100' : 'hidden scale-0' }} absolute top-2 right-2 h-7 w-7 rounded-lg bg-rose-500 text-white items-center justify-center shadow-lg hover:bg-rose-600 transition-all active:scale-90 origin-center">
+                                        <i class="fas fa-times text-xs"></i>
                                     </button>
                                 </div>
-                                @error('password')
-                                    <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <a href="{{ route('admin.praktikan.index') }}" data-spa
-                            class="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-6 text-sm font-bold text-zinc-600 transition-all hover:bg-zinc-50 active:scale-95">
-                            Batal
-                        </a>
-                        <button type="submit"
-                            class="inline-flex h-10 items-center justify-center rounded-lg bg-[#001f3f] px-8 text-sm font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a] active:scale-95">
-                            Perbarui Data Praktikan
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Right Column: Profile Picture -->
-                <div class="space-y-6">
-                    <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-                        <h3 class="text-lg font-semibold text-zinc-900 mb-6 flex items-center gap-2">
-                            <i class="fas fa-camera text-primary text-sm"></i>
-                            Foto Profil
-                        </h3>
-
-                        <div class="flex flex-col items-center gap-6">
-                            <div id="preview-container"
-                                class="relative h-48 w-48 rounded-2xl border-2 {{ $praktikan->profile_picture ? 'border-solid border-[#001f3f]/10' : 'border-dashed border-zinc-200' }} bg-zinc-50/50 flex items-center justify-center overflow-hidden group transition-all hover:border-[#001f3f]/20 hover:bg-white">
-                                <div id="placeholder-text"
-                                    class="{{ $praktikan->profile_picture ? 'hidden' : '' }} text-center p-4">
-                                    <i
-                                        class="fas fa-cloud-arrow-up text-3xl text-zinc-300 mb-2 group-hover:scale-110 transition-transform"></i>
-                                    <p class="text-xs font-semibold text-zinc-400">Klik untuk ganti gambar</p>
-                                </div>
-                                @if ($praktikan->profile_picture)
-                                    <img id="image-preview" src="{{ asset('storage/' . $praktikan->profile_picture) }}"
-                                        class="h-full w-full object-cover">
-                                @else
-                                    <img id="image-preview" class="hidden h-full w-full object-cover">
-                                @endif
-
-                                <button type="button" onclick="removeImage()" id="remove-btn"
-                                    class="{{ $praktikan->profile_picture ? 'flex scale-100' : 'hidden scale-0' }} absolute top-2 right-2 h-7 w-7 rounded-lg bg-rose-500 text-white items-center justify-center shadow-lg hover:bg-rose-600 transition-all active:scale-90 origin-center">
-                                    <i class="fas fa-times text-xs"></i>
-                                </button>
-                            </div>
-
-                            <div class="w-full space-y-3">
-                                <input type="file" name="profile_picture" id="profile_picture" class="hidden"
-                                    accept="image/*" onchange="previewImage(this)">
-                                <button type="button" onclick="document.getElementById('profile_picture').click()"
-                                    class="w-full inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-sm font-bold text-zinc-700 shadow-sm transition-all hover:bg-zinc-50 hover:text-zinc-900 active:scale-95">
-                                    <i class="fas fa-image text-xs"></i>
-                                    {{ $praktikan->profile_picture ? 'Ganti Gambar' : 'Pilih Gambar' }}
-                                </button>
-                                <div class="p-3 rounded-lg bg-zinc-50 border border-zinc-100 italic">
-                                    <p class="text-[10px] text-zinc-500 leading-relaxed text-center">
-                                        Format yang didukung: JPG, JPEG, atau PNG.<br>Maksimal ukuran file adalah 2MB.
-                                    </p>
+                                <div class="w-full space-y-3">
+                                    <input type="file" name="profile_picture" id="profile_picture" class="hidden"
+                                        accept="image/*" onchange="previewImage(this)">
+                                    <button type="button" onclick="document.getElementById('profile_picture').click()"
+                                        class="w-full inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 text-sm font-bold text-zinc-700 shadow-sm transition-all hover:bg-zinc-50 hover:text-zinc-900 active:scale-95">
+                                        <i class="fas fa-image text-xs"></i>
+                                        {{ $praktikan->profile_picture ? 'Ganti Gambar' : 'Pilih Gambar' }}
+                                    </button>
+                                    <div class="p-3 rounded-lg bg-zinc-50 border border-zinc-100 italic">
+                                        <p class="text-[10px] text-zinc-500 leading-relaxed text-center">
+                                            Format yang didukung: JPG, JPEG, atau PNG.<br>Maksimal ukuran file adalah 2MB.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
+                            @error('profile_picture')
+                                <p class="text-[10px] font-medium text-rose-500 mt-2 text-center">{{ $message }}</p>
+                            @enderror
                         </div>
-                        @error('profile_picture')
-                            <p class="text-[10px] font-medium text-rose-500 mt-2 text-center">{{ $message }}</p>
-                        @enderror
-                    </div>
 
-                    <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-5">
-                        <h4
-                            class="text-sm font-bold text-emerald-800 flex items-center gap-2 mb-2 uppercase tracking-wider">
-                            <i class="fas fa-check-circle"></i>
-                            Identitas Terverifikasi
-                        </h4>
-                        <p class="text-xs text-emerald-700 leading-relaxed">
-                            Pastikan data NPM sesuai dengan kartu tanda mahasiswa aktif.
-                        </p>
+                        <div class="rounded-xl bg-emerald-50 border border-emerald-100 p-5">
+                            <h4
+                                class="text-sm font-bold text-emerald-800 flex items-center gap-2 mb-2 uppercase tracking-wider">
+                                <i class="fas fa-check-circle"></i>
+                                Identitas Terverifikasi
+                            </h4>
+                            <p class="text-xs text-emerald-700 leading-relaxed">
+                                Pastikan data NPM sesuai dengan kartu tanda mahasiswa aktif.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

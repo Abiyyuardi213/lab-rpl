@@ -9,8 +9,17 @@
                     <div class="flex flex-col">
                         <span class="font-bold text-base sm:text-lg leading-tight text-slate-900 tracking-tight">Lab
                             RPL</span>
-                        <span
-                            class="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest">{{ Auth::user()->role && Auth::user()->role->name === 'Praktikan' ? 'Mahasiswa' : 'AdminPanel' }}</span>
+                        <span class="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest">
+                            @if (Auth::user()->role && Auth::user()->role->name === 'Praktikan')
+                                Mahasiswa
+                            @elseif(Auth::user()->role && Auth::user()->role->name === 'Aslab')
+                                Lab Assistant
+                            @elseif(Auth::user()->role && Auth::user()->role->name === 'Super Admin')
+                                Super Admin
+                            @else
+                                Admin Panel
+                            @endif
+                        </span>
                     </div>
                 </a>
             </div>
@@ -31,6 +40,27 @@
                         <span
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('praktikan/riwayat-pendaftaran*') ? 'w-full' : '' }}"></span>
                     </a>
+                @elseif (Auth::user()->role && Auth::user()->role->name === 'Aslab')
+                    <a href="{{ route('aslab.dashboard') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('aslab/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Dashboard
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('aslab/dashboard') ? 'w-full' : '' }}"></span>
+                    </a>
+
+                    <a href="{{ route('aslab.pendaftaran.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('aslab/pendaftaran*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Daftar Bimbingan
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('aslab/pendaftaran*') ? 'w-full' : '' }}"></span>
+                    </a>
+
+                    <a href="{{ route('aslab.tugas.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('aslab/tugas*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Tugas Asistensi
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('aslab/tugas*') ? 'w-full' : '' }}"></span>
+                    </a>
                 @else
                     <a href="{{ url('/admin/dashboard') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
@@ -41,12 +71,14 @@
 
                     <div class="h-4 w-px bg-slate-200"></div>
 
-                    <a href="{{ route('admin.role.index') }}"
-                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/role*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
-                        Role
-                        <span
-                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/role*') ? 'w-full' : '' }}"></span>
-                    </a>
+                    @if (Auth::user()->role->name === 'Super Admin')
+                        <a href="{{ route('admin.role.index') }}"
+                            class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/role*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                            Role
+                            <span
+                                class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/role*') ? 'w-full' : '' }}"></span>
+                        </a>
+                    @endif
 
                     <a href="{{ route('admin.aslab.index') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/aslab*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
@@ -55,12 +87,14 @@
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/aslab*') ? 'w-full' : '' }}"></span>
                     </a>
 
-                    <a href="{{ route('admin.user.index') }}"
-                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/user*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
-                        User
-                        <span
-                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/user*') ? 'w-full' : '' }}"></span>
-                    </a>
+                    @if (Auth::user()->role->name === 'Super Admin')
+                        <a href="{{ route('admin.user.index') }}"
+                            class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/user*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                            User
+                            <span
+                                class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/user*') ? 'w-full' : '' }}"></span>
+                        </a>
+                    @endif
 
                     <a href="{{ route('admin.praktikum.index') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/praktikum*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
@@ -103,21 +137,25 @@
                     <div
                         class="absolute top-full right-0 pt-3 w-56 hidden group-hover:block transition-all animate-in fade-in slide-in-from-top-2">
                         <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden">
-                            <div class="px-4 py-3 bg-slate-50/50 border-b border-slate-100">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Signed in as
-                                </p>
-                                <p class="text-sm font-bold text-slate-900 truncate">{{ Auth::user()->email }}</p>
+                            <div class="px-4 py-3 mb-2 rounded-xl bg-slate-50/50">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Signed
+                                    in as</p>
+                                <p class="text-sm font-black text-slate-900 truncate tracking-tight lowercase">
+                                    {{ Auth::user()->email }}</p>
                             </div>
-                            <div class="p-1">
-                                <a href="{{ url('/') }}"
-                                    class="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 rounded-lg hover:bg-slate-50">
-                                    <i class="fas fa-external-link-alt text-xs"></i>
-                                    Lihat Website
+
+                            <div class="space-y-1">
+                                <a href="{{ url('/admin/dashboard') }}"
+                                    class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-500 rounded-xl hover:bg-zinc-50 hover:text-zinc-900 transition-all uppercase tracking-widest">
+                                    <i class="fas fa-tachometer-alt w-4"></i> Dashboard
+                                </a>
+                                <a href="{{ route('admin.profile.edit') }}"
+                                    class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-500 rounded-xl hover:bg-zinc-50 hover:text-zinc-900 transition-all uppercase tracking-widest">
+                                    <i class="fas fa-user-circle w-4"></i> Pengaturan Profil
                                 </a>
                                 <button type="button" onclick="confirmLogout()"
-                                    class="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-rose-600 rounded-lg hover:bg-rose-50 font-bold">
-                                    <i class="fas fa-sign-out-alt text-xs"></i>
-                                    Logout
+                                    class="w-full text-left flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-rose-600 rounded-xl hover:bg-rose-50 transition-all uppercase tracking-widest">
+                                    <i class="fas fa-sign-out-alt w-4"></i> Logout
                                 </button>
                             </div>
                         </div>
@@ -149,18 +187,31 @@
                 <a href="{{ route('praktikan.pendaftaran.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('praktikan/riwayat-pendaftaran*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Riwayat
                     Pendaftaran</a>
+            @elseif(Auth::user()->role && Auth::user()->role->name === 'Aslab')
+                <a href="{{ route('aslab.dashboard') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
+                <a href="{{ route('aslab.pendaftaran.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/pendaftaran*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Daftar
+                    Bimbingan</a>
+                <a href="{{ route('aslab.tugas.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/tugas*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Tugas
+                    Asistensi</a>
             @else
                 <a href="{{ url('/admin/dashboard') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
-                <a href="{{ route('admin.role.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/role*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
-                    Role</a>
+                @if (Auth::user()->role->name === 'Super Admin')
+                    <a href="{{ route('admin.role.index') }}"
+                        class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/role*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                        Role</a>
+                @endif
                 <a href="{{ route('admin.aslab.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/aslab*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Aslab</a>
-                <a href="{{ route('admin.user.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/user*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
-                    User</a>
+                @if (Auth::user()->role->name === 'Super Admin')
+                    <a href="{{ route('admin.user.index') }}"
+                        class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/user*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                        User</a>
+                @endif
                 <a href="{{ route('admin.praktikum.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Praktikum</a>

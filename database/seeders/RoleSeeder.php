@@ -11,24 +11,29 @@ class RoleSeeder extends Seeder
     {
         $roles = [
             [
+                'name' => 'Super Admin',
+                'display_name' => 'Super Administrator',
+                'description' => 'Akses penuh ke semua fitur sistem termasuk manajemen peran dan pengguna.',
+            ],
+            [
                 'name' => 'Admin',
                 'display_name' => 'Administrator',
-                'description' => 'Administrator with full access',
+                'description' => 'Akses ke semua fitur praktikum kecuali manajemen peran dan pengguna.',
             ],
             [
                 'name' => 'Aslab',
                 'display_name' => 'Asisten Laboratorium',
-                'description' => 'Asisten Laboratorium',
+                'description' => 'Asisten Laboratorium untuk mengelola bimbingan dan tugas.',
             ],
             [
                 'name' => 'Praktikan',
                 'display_name' => 'Praktikan',
-                'description' => 'User Praktikan',
+                'description' => 'Mahasiswa praktikan yang mendaftar praktikum.',
             ],
         ];
 
         foreach ($roles as $role) {
-            Role::create($role);
+            Role::updateOrCreate(['name' => $role['name']], $role);
         }
     }
 }

@@ -10,6 +10,12 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->role->name === 'Praktikan') {
+                return redirect()->route('praktikan.dashboard');
+            } elseif ($user->role->name === 'Aslab') {
+                return redirect()->route('aslab.dashboard');
+            }
             return redirect()->route('admin.dashboard');
         }
         return view('auth.login');
@@ -47,6 +53,9 @@ class AuthController extends Controller
     public function showAslabLogin()
     {
         if (Auth::check()) {
+            if (Auth::user()->role->name === 'Aslab') {
+                return redirect()->route('aslab.dashboard');
+            }
             return redirect()->route('admin.dashboard');
         }
         return view('auth.login-aslab');
@@ -77,7 +86,7 @@ class AuthController extends Controller
                 ]);
             }
 
-            return redirect()->intended(route('admin.dashboard'))->with('login_success', 'Selamat datang kembali aslab, ' . Auth::user()->name . '!');
+            return redirect()->intended(route('aslab.dashboard'))->with('login_success', 'Selamat datang kembali aslab, ' . Auth::user()->name . '!');
         }
 
         return back()->withErrors([
@@ -88,6 +97,9 @@ class AuthController extends Controller
     public function showPraktikanLogin()
     {
         if (Auth::check()) {
+            if (Auth::user()->role->name === 'Praktikan') {
+                return redirect()->route('praktikan.dashboard');
+            }
             return redirect()->route('admin.dashboard');
         }
         return view('auth.login-praktikan');

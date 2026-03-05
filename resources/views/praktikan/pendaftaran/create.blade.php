@@ -78,15 +78,46 @@
                             <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Pilih Sesi
+                    <div class="space-y-4 md:col-span-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-zinc-100">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Dosen Pengampu
+                                    MK</label>
+                                <select name="dosen_pengampu" required
+                                    class="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] transition-all">
+                                    <option value="">Pilih Dosen Pengampu</option>
+                                    @foreach ($praktikum->daftar_dosen ?? [] as $dosen)
+                                        <option value="{{ $dosen }}"
+                                            {{ old('dosen_pengampu') == $dosen ? 'selected' : '' }}>{{ $dosen }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('dosen_pengampu')
+                                    <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Asal Kelas Mata
+                                    Kuliah</label>
+                                <select name="asal_kelas_mata_kuliah" required
+                                    class="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] transition-all">
+                                    <option value="">Pilih Kelas MK</option>
+                                    @foreach ($praktikum->daftar_kelas_mk ?? [] as $kelas)
+                                        <option value="{{ $kelas }}"
+                                            {{ old('asal_kelas_mata_kuliah') == $kelas ? 'selected' : '' }}>
+                                            {{ $kelas }}</option>
+                                    @endforeach
+                                </select>
+                                @error('asal_kelas_mata_kuliah')
+                                    <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block pt-4">Pilih Sesi
                             Praktikum</label>
-                        <p class="text-[9px] text-zinc-400 italic mb-2">Pilih sesi untuk melihat detail Dosen & Kelas MK.
-                        </p>
-                    </div>
-                    <div class="space-y-1 md:col-span-2">
-                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Pilih Sesi
-                            Praktikum</label>
+                        <p class="text-[9px] text-zinc-400 italic mb-2">Pilih jadwal sesi yang tersedia untuk dikuti.</p>
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                             @forelse($praktikum->sesis as $sesi)
                                 @php $isFull = $sesi->pendaftarans()->count() >= $sesi->kuota; @endphp
@@ -94,21 +125,14 @@
                                     class="relative flex flex-col p-4 rounded-xl border cursor-pointer transition-all {{ $isFull ? 'bg-zinc-50 border-zinc-100 opacity-60 cursor-not-allowed' : 'bg-white border-zinc-200 hover:border-[#001f3f] hover:bg-zinc-50' }}">
                                     <input type="radio" name="sesi_id" value="{{ $sesi->id }}"
                                         {{ $isFull ? 'disabled' : '' }} required
+                                        {{ old('sesi_id') == $sesi->id ? 'checked' : '' }}
                                         class="absolute top-4 right-4 h-4 w-4 text-[#001f3f] focus:ring-[#001f3f] border-zinc-300">
                                     <span class="text-sm font-bold text-zinc-900">{{ $sesi->nama_sesi }}</span>
                                     <div class="mt-1 space-y-0.5">
-                                        <div class="flex items-center gap-1.5 text-[10px] font-medium text-zinc-500">
-                                            <i class="fas fa-user-tie text-[9px]"></i>
-                                            <span>{{ $sesi->dosen_pengampu }}</span>
-                                        </div>
-                                        <div class="flex items-center gap-1.5 text-[10px] font-medium text-zinc-500">
-                                            <i class="fas fa-door-open text-[9px]"></i>
-                                            <span>Kelas: {{ $sesi->asal_kelas_mata_kuliah }}</span>
-                                        </div>
                                         <div class="flex items-center gap-1.5 text-[10px] font-medium text-zinc-400">
                                             <i class="fas fa-clock text-[9px]"></i>
                                             <span>{{ $sesi->hari }}, {{ substr($sesi->jam_mulai, 0, 5) }} -
-                                                {{ substr($sesi->jam_selesai, 0, 5) }}</span>
+                                                {{ substr($sesi->jam_selesai, 0, 5) }} WIB</span>
                                         </div>
                                     </div>
                                     <div class="mt-2 flex items-center justify-between">

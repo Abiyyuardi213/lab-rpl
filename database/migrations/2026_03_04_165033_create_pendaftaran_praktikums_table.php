@@ -11,25 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('pendaftaran_praktikums')) {
-            Schema::create('pendaftaran_praktikums', function (Blueprint $table) {
-                $table->uuid('id')->primary();
-                $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-                $table->foreignUuid('praktikum_id')->constrained('praktikums')->onDelete('cascade');
-                $table->foreignUuid('sesi_id')->constrained('sesi_praktikums')->onDelete('cascade');
-                $table->string('no_hp');
-                $table->string('dosen_pengampu');
-                $table->enum('kelas', ['pagi', 'malam']);
-                $table->string('asal_kelas_mata_kuliah');
-                $table->string('bukti_krs');
-                $table->string('bukti_pembayaran');
-                $table->string('foto_almamater');
-                $table->boolean('is_mengulang')->default(false);
-                $table->enum('status', ['pending', 'verified', 'rejected'])->default('pending');
-                $table->text('catatan')->nullable();
-                $table->timestamps();
-            });
-        }
+        Schema::create('pendaftaran_praktikums', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('praktikum_id')->constrained('praktikums')->onDelete('cascade');
+            $table->foreignUuid('sesi_id')->constrained('sesi_praktikums')->onDelete('cascade');
+            $table->string('no_hp');
+            $table->string('dosen_pengampu');
+            $table->enum('kelas', ['pagi', 'malam']);
+            $table->string('asal_kelas_mata_kuliah');
+            $table->string('bukti_krs');
+            $table->string('bukti_pembayaran');
+            $table->string('foto_almamater');
+            $table->boolean('is_mengulang')->default(false);
+            $table->enum('status', ['pending', 'verified', 'rejected'])->default('pending');
+            $table->text('catatan')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**

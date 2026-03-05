@@ -86,36 +86,76 @@
                                 </div>
                             </div>
 
-                            <div class="space-y-2">
-                                <label for="password"
-                                    class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Password <span
-                                        class="lowercase font-medium text-zinc-400 font-sans tracking-normal">(Kosongkan
-                                        jika tidak ingin diubah)</span></label>
-                                <div class="relative">
-                                    <input type="password" name="password" id="password"
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="jurusan"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Jurusan</label>
+                                    <input type="text" name="jurusan" id="jurusan"
+                                        value="{{ old('jurusan', $aslab->jurusan) }}"
                                         class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
-                                        placeholder="••••••••">
-                                    <button type="button" onclick="togglePassword()"
-                                        class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors">
-                                        <i class="fas fa-eye text-xs" id="eye-icon"></i>
-                                    </button>
+                                        placeholder="Teknik Informatika">
+                                    @error('jurusan')
+                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
-                                @error('password')
-                                    <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
-                                @enderror
+
+                                <div class="space-y-2">
+                                    <label for="angkatan"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Angkatan</label>
+                                    <input type="text" name="angkatan" id="angkatan"
+                                        value="{{ old('angkatan', $aslab->angkatan) }}"
+                                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
+                                        placeholder="2024">
+                                    @error('angkatan')
+                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="no_hp"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">No. HP</label>
+                                    <input type="text" name="no_hp" id="no_hp"
+                                        value="{{ old('no_hp', $aslab->no_hp) }}"
+                                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
+                                        placeholder="08123456789">
+                                    @error('no_hp')
+                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="password"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Password <span
+                                            class="lowercase font-medium text-zinc-400 font-sans tracking-normal">(Kosongkan
+                                            jika tidak ingin diubah)</span></label>
+                                    <div class="relative">
+                                        <input type="password" name="password" id="password"
+                                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
+                                            placeholder="••••••••">
+                                        <button type="button" onclick="togglePassword()"
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors">
+                                            <i class="fas fa-eye text-xs" id="eye-icon"></i>
+                                        </button>
+                                    </div>
+                                    @error('password')
+                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="flex items-center justify-end gap-3 pt-2">
-                        <a href="{{ route('admin.aslab.index') }}" data-spa
-                            class="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-6 text-sm font-bold text-zinc-600 transition-all hover:bg-zinc-50 active:scale-95">
-                            Batal
-                        </a>
-                        <button type="submit"
-                            class="inline-flex h-10 items-center justify-center rounded-lg bg-[#001f3f] px-8 text-sm font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a] active:scale-95">
-                            Perbarui Data Aslab
-                        </button>
+                        <div class="flex items-center justify-end gap-3 pt-2">
+                            <a href="{{ route('admin.aslab.index') }}" data-spa
+                                class="inline-flex h-10 items-center justify-center rounded-lg border border-zinc-200 bg-white px-6 text-sm font-bold text-zinc-600 transition-all hover:bg-zinc-50 active:scale-95">
+                                Batal
+                            </a>
+                            <button type="submit"
+                                class="inline-flex h-10 items-center justify-center rounded-lg bg-[#001f3f] px-8 text-sm font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a] active:scale-95">
+                                Perbarui Data Aslab
+                            </button>
+                        </div>
                     </div>
                 </div>
 

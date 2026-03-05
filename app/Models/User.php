@@ -16,7 +16,6 @@ class User extends Authenticatable
 
     protected $fillable = [
         'username',
-        'npm',
         'name',
         'email',
         'password',
@@ -35,6 +34,16 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
 
+    public function aslab()
+    {
+        return $this->hasOne(Aslab::class, 'user_id');
+    }
+
+    public function praktikan()
+    {
+        return $this->hasOne(Praktikan::class, 'user_id');
+    }
+
     protected function casts(): array
     {
         return [
@@ -46,6 +55,36 @@ class User extends Authenticatable
 
     public function pendaftarans()
     {
-        return $this->hasMany(PendaftaranPraktikum::class, 'user_id');
+        return $this->hasManyThrough(PendaftaranPraktikum::class, Praktikan::class, 'user_id', 'praktikan_id', 'id', 'id');
+    }
+
+    public function assignedStudents()
+    {
+        return $this->hasManyThrough(PendaftaranPraktikum::class, Aslab::class, 'user_id', 'aslab_id', 'id', 'id');
+    }
+
+    public function aslabPraktikums()
+    {
+        return $this->aslab ? $this->aslab->aslabPraktikums() : collect();
+    }
+
+    public function getNpmAttribute()
+    {
+        return $this->praktikan?->npm ?? $this->aslab?->npm;
+    }
+
+    public function getJurusanAttribute()
+    {
+        return $this->praktikan?->jurusan ?? $this->aslab?->jurusan;
+    }
+
+    public function getAngkatanAttribute()
+    {
+        return $this->praktikan?->angkatan ?? $this->aslab?->angkatan;
+    }
+
+    public function getNoHpAttribute()
+    {
+        return $this->praktikan?->no_hp ?? $this->aslab?->no_hp;
     }
 }

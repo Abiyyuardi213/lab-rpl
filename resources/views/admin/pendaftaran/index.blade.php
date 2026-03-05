@@ -47,13 +47,13 @@
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="h-9 w-9 rounded-full bg-zinc-100 flex items-center justify-center border border-zinc-200 overflow-hidden">
-                                            <img src="{{ $p->foto_almamater ? asset('storage/' . $p->foto_almamater) : 'https://ui-avatars.com/api/?name=' . urlencode($p->user->name) }}"
+                                            <img src="{{ $p->foto_almamater ? asset('storage/' . $p->foto_almamater) : 'https://ui-avatars.com/api/?name=' . urlencode($p->praktikan->user->name) }}"
                                                 class="h-full w-full object-cover">
                                         </div>
                                         <div>
-                                            <div class="font-bold text-zinc-900">{{ $p->user->name }}</div>
+                                            <div class="font-bold text-zinc-900">{{ $p->praktikan->user->name }}</div>
                                             <div class="text-[10px] font-bold text-[#001f3f] font-mono uppercase">
-                                                {{ $p->user->npm }}</div>
+                                                {{ $p->praktikan->npm }}</div>
                                         </div>
                                     </div>
                                 </td>

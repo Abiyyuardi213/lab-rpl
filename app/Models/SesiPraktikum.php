@@ -14,8 +14,6 @@ class SesiPraktikum extends Model
     protected $fillable = [
         'praktikum_id',
         'nama_sesi',
-        'dosen_pengampu',
-        'asal_kelas_mata_kuliah',
         'hari',
         'jam_mulai',
         'jam_selesai',

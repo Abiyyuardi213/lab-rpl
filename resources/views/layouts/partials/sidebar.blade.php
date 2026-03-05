@@ -40,10 +40,10 @@
                 </div>
             </div>
             <div class="overflow-hidden">
-                <h6 class="text-sm font-bold text-zinc-800 truncate leading-tight">
+                <h6 class="text-sm font-black text-zinc-800 truncate leading-tight">
                     {{ $currentUser->username ?? 'Guest Account' }}</h6>
-                <p class="text-[11px] font-bold text-zinc-400 mt-1 uppercase tracking-wider leading-none">
-                    {{ $currentUser->role->role_name ?? 'Administrator' }}</p>
+                <p class="text-[11px] font-black text-zinc-400 mt-1 uppercase tracking-wider leading-none">
+                    {{ $currentUser->role->display_name ?? 'Administrator' }}</p>
             </div>
         </div>
     </div>
@@ -57,8 +57,39 @@
             <span>Dashboard</span>
         </a>
 
-        @if ($currentUser && $currentUser->role && strtolower($currentUser->role->role_name) === 'admin')
-            <!-- Manajemen Pengguna -->
+        <!-- Manajemen Laboratorium -->
+        <div class="pt-6 pb-2 px-3">
+            <p class="text-xs font-bold text-zinc-400 uppercase tracking-[0.2em]">Manajemen Lab</p>
+        </div>
+
+        <div class="space-y-1">
+            <a href="{{ route('admin.praktikum.index') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 {{ request()->routeIs('admin.praktikum.*') ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900' }}">
+                <i class="fas fa-flask w-4 text-center text-[10px]"></i>
+                <span>Data Praktikum</span>
+            </a>
+
+            <a href="{{ route('admin.pendaftaran.index') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 {{ request()->routeIs('admin.pendaftaran.*') ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900' }}">
+                <i class="fas fa-clipboard-list w-4 text-center text-[10px]"></i>
+                <span>Pendaftaran</span>
+            </a>
+
+            <a href="{{ route('admin.aslab.index') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 {{ request()->routeIs('admin.aslab.*') ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900' }}">
+                <i class="fas fa-user-tie w-4 text-center text-[10px]"></i>
+                <span>Data Aslab</span>
+            </a>
+
+            <a href="{{ route('admin.praktikan.index') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 {{ request()->routeIs('admin.praktikan.*') ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900' }}">
+                <i class="fas fa-user-graduate w-4 text-center text-[10px]"></i>
+                <span>Data Praktikan</span>
+            </a>
+        </div>
+
+        @if ($currentUser && $currentUser->role && $currentUser->role->name === 'Super Admin')
+            <!-- Manajemen Pengguna (Super Admin ONLY) -->
             <div class="pt-6 pb-2 px-3">
                 <p class="text-xs font-bold text-zinc-400 uppercase tracking-[0.2em]">Manajemen User</p>
             </div>

@@ -117,16 +117,13 @@
                                 <tr>
                                     <th
                                         class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                                        Sesi / Dosen</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                                        Asal Kelas MK</th>
+                                        Sesi</th>
                                     <th
                                         class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
                                         Waktu</th>
                                     <th
                                         class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                                        Kuota</th>
+                                        Kuota Terisi</th>
                                     <th
                                         class="px-6 py-3 text-right text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
                                         Aksi</th>
@@ -137,12 +134,6 @@
                                     <tr class="hover:bg-zinc-50/50 transition-colors">
                                         <td class="px-6 py-4">
                                             <div class="font-bold text-zinc-900">{{ $sesi->nama_sesi }}</div>
-                                            <div class="text-[10px] text-zinc-500 font-medium">
-                                                {{ $sesi->dosen_pengampu ?? '-' }}</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-xs font-semibold text-zinc-700 uppercase">
-                                                {{ $sesi->asal_kelas_mata_kuliah ?? '-' }}</div>
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="text-zinc-600 font-medium capitalize">{{ $sesi->hari }}</div>
@@ -195,16 +186,6 @@
                                     class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
                             </div>
                             <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Dosen Pengampu</label>
-                                <input type="text" name="dosen_pengampu" placeholder="Nama Dosen" required
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Asal Kelas MK</label>
-                                <input type="text" name="asal_kelas_mata_kuliah" placeholder="Contoh: 4IA01" required
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
-                            </div>
-                            <div class="space-y-1">
                                 <label class="text-[10px] font-bold text-zinc-500 uppercase">Hari</label>
                                 <select name="hari" required
                                     class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
@@ -217,13 +198,6 @@
                                     <option value="Minggu">Minggu</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Kuota Mhs</label>
-                                <input type="number" name="kuota" placeholder="30" required min="1"
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
-                            </div>
                             <div class="space-y-1">
                                 <label class="text-[10px] font-bold text-zinc-500 uppercase">Jam Mulai</label>
                                 <input type="time" name="jam_mulai" required
@@ -235,11 +209,208 @@
                                     class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
                             </div>
                         </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Kuota Mhs</label>
+                                <input type="number" name="kuota" placeholder="30" required min="1"
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                            </div>
+                        </div>
                         <button type="submit"
                             class="w-full py-2.5 bg-[#001f3f] text-white rounded-lg text-xs font-bold hover:bg-[#002d5a] transition-all active:scale-[0.98] shadow-sm">
                             SIMPAN SESI BARU
                         </button>
                     </form>
+                </div>
+
+                <!-- Aslab Management Card -->
+                <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
+                        <h3 class="font-bold text-zinc-900 flex items-center gap-2">
+                            <i class="fas fa-users-cog text-[#001f3f]"></i>
+                            Manajemen Aslab Praktikum
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-zinc-50/50 border-b border-zinc-100">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Nama Aslab</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Email</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Kuota</th>
+                                    <th
+                                        class="px-6 py-3 text-right text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-100">
+                                @forelse($praktikum->aslabs as $aslab)
+                                    <tr class="hover:bg-zinc-50/50 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="font-bold text-zinc-900">{{ $aslab->name }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 text-zinc-500">{{ $aslab->email }}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-zinc-600 font-bold">{{ $aslab->pivot->kuota }} Mhs</div>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <form action="{{ route('admin.praktikum.aslab.destroy', $aslab->pivot->id) }}"
+                                                method="POST" class="inline">
+                                                @csrf @method('DELETE')
+                                                <button type="submit"
+                                                    onclick="return confirm('Hapus penugasan aslab ini?')"
+                                                    class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
+                                                    <i class="fas fa-user-minus text-[10px]"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4"
+                                            class="px-6 py-10 text-center text-zinc-400 italic font-medium">Belum ada aslab
+                                            yang ditugaskan</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Add Aslab Form -->
+                    <div class="p-6 border-t border-zinc-100 bg-zinc-50/30">
+                        <h4 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">Tugaskan Aslab Baru
+                        </h4>
+                        <form action="{{ route('admin.praktikum.aslab.store', $praktikum->id) }}" method="POST"
+                            class="flex flex-wrap gap-4 items-end">
+                            @csrf
+                            <div class="flex-1 min-w-[200px] space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Pilih Aslab</label>
+                                <select name="aslab_id" required
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                                    <option value="">-- Pilih Aslab --</option>
+                                    @foreach ($allAslabs as $aslab)
+                                        <option value="{{ $aslab->id }}">{{ $aslab->name }} ({{ $aslab->email }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="w-32 space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Kuota</label>
+                                <input type="number" name="kuota" required min="1" placeholder="Maks"
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                            </div>
+                            <button type="submit"
+                                class="px-6 py-2 bg-[#001f3f] text-white rounded-lg text-xs font-bold hover:bg-[#002d5a] transition-all active:scale-[0.98]">
+                                TUGASKAN
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Registered Students Card -->
+                <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden mt-6">
+                    <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
+                        <h3 class="font-bold text-zinc-900 flex items-center gap-2">
+                            <i class="fas fa-user-graduate text-[#001f3f]"></i>
+                            Daftar Praktikan Terdaftar
+                        </h3>
+                        <span class="bg-zinc-100 text-zinc-600 px-2 py-0.5 rounded text-[10px] font-bold">
+                            Total: {{ $praktikum->pendaftarans->count() }} Orang
+                        </span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-zinc-50/50 border-b border-zinc-100">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Mahasiswa</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Sesi</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Aslab Bimbingan</th>
+                                    <th
+                                        class="px-6 py-3 text-center text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-100">
+                                @forelse($praktikum->pendaftarans as $pendaftaran)
+                                    <tr class="hover:bg-zinc-50/50 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="font-bold text-zinc-900">{{ $pendaftaran->user->name }}</div>
+                                            <div class="text-[10px] text-zinc-400 font-mono">{{ $pendaftaran->user->npm }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-zinc-600 font-semibold">{{ $pendaftaran->sesi->nama_sesi }}
+                                            </div>
+                                            <div class="text-[10px] text-zinc-400">{{ $pendaftaran->sesi->hari }},
+                                                {{ substr($pendaftaran->sesi->jam_mulai, 0, 5) }}-{{ substr($pendaftaran->sesi->jam_selesai, 0, 5) }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <form
+                                                action="{{ route('admin.praktikum.pendaftaran.assign-aslab', $pendaftaran->id) }}"
+                                                method="POST">
+                                                @csrf @method('PATCH')
+                                                <select name="aslab_id" onchange="this.form.submit()"
+                                                    class="text-[11px] font-semibold bg-zinc-50 border border-zinc-200 rounded-lg px-2 py-1 focus:ring-1 focus:ring-[#001f3f] focus:border-[#001f3f] w-full max-w-[150px]">
+                                                    <option value="">-- Pilih Aslab --</option>
+                                                    @foreach ($praktikum->aslabs as $as)
+                                                        @php
+                                                            // Optional: check quota here?
+                                                            $curr = $as
+                                                                ->assignedStudents()
+                                                                ->where('praktikum_id', $praktikum->id)
+                                                                ->count();
+                                                            $max = $as->pivot->kuota;
+                                                            $isFull = $curr >= $max;
+                                                        @endphp
+                                                        <option value="{{ $as->id }}"
+                                                            {{ $pendaftaran->aslab_id == $as->id ? 'selected' : '' }}
+                                                            {{ $isFull && $pendaftaran->aslab_id != $as->id ? 'disabled' : '' }}>
+                                                            {{ $as->name }} ({{ $curr }}/{{ $max }})
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </form>
+                                        </td>
+                                        <td class="px-6 py-4 text-center">
+                                            @php
+                                                $statusBadge = [
+                                                    'pending' => 'bg-amber-50 text-amber-700 border-amber-100',
+                                                    'verified' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                                                    'rejected' => 'bg-rose-50 text-rose-700 border-rose-100',
+                                                ];
+                                                $st =
+                                                    $statusBadge[$pendaftaran->status] ??
+                                                    'bg-zinc-50 text-zinc-500 border-zinc-100';
+                                            @endphp
+                                            <span
+                                                class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $st }} uppercase">
+                                                {{ $pendaftaran->status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4"
+                                            class="px-6 py-10 text-center text-zinc-400 italic font-medium">
+                                            Belum ada praktikan yang mendaftar</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

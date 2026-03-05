@@ -108,6 +108,30 @@
                                 </dd>
                             </div>
                             <div>
+                                <dt class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] mb-1">Jurusan
+                                </dt>
+                                <dd class="text-sm font-semibold text-zinc-900 flex items-center gap-2">
+                                    <i class="fas fa-building text-zinc-300"></i>
+                                    {{ $aslab->jurusan ?? '-' }}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] mb-1">Angkatan
+                                </dt>
+                                <dd class="text-sm font-semibold text-zinc-900 flex items-center gap-2">
+                                    <i class="fas fa-calendar-alt text-zinc-300"></i>
+                                    {{ $aslab->angkatan ?? '-' }}
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] mb-1">No. HP
+                                </dt>
+                                <dd class="text-sm font-semibold text-zinc-900 flex items-center gap-2">
+                                    <i class="fas fa-phone text-zinc-300"></i>
+                                    {{ $aslab->no_hp ?? '-' }}
+                                </dd>
+                            </div>
+                            <div>
                                 <dt class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] mb-1">Status
                                     Verifikasi</dt>
                                 <dd class="text-sm font-semibold text-emerald-600 flex items-center gap-2">

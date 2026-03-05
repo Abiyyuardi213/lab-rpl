@@ -129,7 +129,7 @@
         &copy; {{ date('Y') }} LabRPL TEKNIK INFORMATIKA ITATS
     </p>
 
-    @if (session('logout_success'))
+    @if (session('logout_success') || session('login_success') || session('success'))
         <script>
             const Toast = Swal.mixin({
                 toast: true,
@@ -145,7 +145,7 @@
 
             Toast.fire({
                 icon: 'success',
-                title: '{{ session('logout_success') }}'
+                title: '{{ session('logout_success') ?? (session('login_success') ?? session('success')) }}'
             })
         </script>
     @endif

@@ -11,8 +11,6 @@ class SesiPraktikumController extends Controller
     {
         $request->validate([
             'nama_sesi' => 'required|string|max:255',
-            'dosen_pengampu' => 'required|string|max:255',
-            'asal_kelas_mata_kuliah' => 'required|string|max:255',
             'hari' => 'required|string',
             'jam_mulai' => 'required',
             'jam_selesai' => 'required',
@@ -22,8 +20,6 @@ class SesiPraktikumController extends Controller
         SesiPraktikum::create([
             'praktikum_id' => $praktikum_id,
             'nama_sesi' => $request->nama_sesi,
-            'dosen_pengampu' => $request->dosen_pengampu,
-            'asal_kelas_mata_kuliah' => $request->asal_kelas_mata_kuliah,
             'hari' => $request->hari,
             'jam_mulai' => $request->jam_mulai,
             'jam_selesai' => $request->jam_selesai,

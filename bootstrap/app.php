@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role.praktikan' => \App\Http\Middleware\EnsurePraktikanRole::class,
+            'role.aslab' => \App\Http\Middleware\EnsureAslabRole::class,
+            'role.admin' => \App\Http\Middleware\EnsureAdminRole::class,
+            'role.superadmin' => \App\Http\Middleware\EnsureSuperAdminRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

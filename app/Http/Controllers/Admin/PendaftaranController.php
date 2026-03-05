@@ -10,7 +10,7 @@ class PendaftaranController extends Controller
 {
     public function index(Request $request)
     {
-        $query = PendaftaranPraktikum::with(['user', 'praktikum', 'sesi']);
+        $query = PendaftaranPraktikum::with(['praktikan.user', 'praktikum', 'sesi']);
 
         if ($request->status) {
             $query->where('status', $request->status);
@@ -22,7 +22,7 @@ class PendaftaranController extends Controller
 
     public function show($id)
     {
-        $pendaftaran = PendaftaranPraktikum::with(['user', 'praktikum', 'sesi'])->findOrFail($id);
+        $pendaftaran = PendaftaranPraktikum::with(['praktikan.user', 'praktikum', 'sesi'])->findOrFail($id);
         return view('admin.pendaftaran.show', compact('pendaftaran'));
     }
 

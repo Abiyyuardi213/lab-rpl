@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Praktikan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,10 @@ class PraktikanController extends Controller
         if (!$praktikanRole) {
             return redirect()->back()->with('error', 'Role Praktikan tidak ditemukan.');
         }
-        $praktikans = User::where('role_id', $praktikanRole->id)->orderBy('created_at', 'desc')->get();
+        $praktikans = User::where('role_id', $praktikanRole->id)
+            ->with('praktikan')
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('admin.praktikan.index', compact('praktikans'));
     }
 
@@ -31,66 +35,98 @@ class PraktikanController extends Controller
 
         $request->validate([
             'username' => 'nullable|string|unique:users,username',
-            'npm' => 'required|string|unique:users,npm',
+            'npm' => 'required|string|unique:praktikans,npm',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'jurusan' => 'nullable|string',
+            'angkatan' => 'nullable|string',
+            'no_hp' => 'nullable|string',
         ]);
 
-        $data = $request->all();
-        $data['username'] = $request->username ?: $request->npm;
-        $data['password'] = Hash::make($request->password);
-        $data['role_id'] = $praktikanRole->id;
+        $userData = [
+            'username' => $request->username ?: $request->npm,
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role_id' => $praktikanRole->id,
+            'status' => true,
+        ];
 
         if ($request->hasFile('profile_picture')) {
-            $data['profile_picture'] = $request->file('profile_picture')->store('profile', 'public');
+            $userData['profile_picture'] = $request->file('profile_picture')->store('profile', 'public');
         }
 
-        User::create($data);
+        $user = User::create($userData);
+
+        Praktikan::create([
+            'user_id' => $user->id,
+            'npm' => $request->npm,
+            'jurusan' => $request->jurusan,
+            'angkatan' => $request->angkatan,
+            'no_hp' => $request->no_hp,
+        ]);
 
         return redirect()->route('admin.praktikan.index')->with('success', 'Praktikan berhasil ditambahkan.');
     }
 
     public function show($id)
     {
-        $praktikan = User::findOrFail($id);
+        $praktikan = User::with('praktikan')->findOrFail($id);
         return view('admin.praktikan.show', compact('praktikan'));
     }
 
     public function edit($id)
     {
-        $praktikan = User::findOrFail($id);
+        $praktikan = User::with('praktikan')->findOrFail($id);
         return view('admin.praktikan.edit', compact('praktikan'));
     }
 
     public function update(Request $request, $id)
     {
-        $praktikan = User::findOrFail($id);
+        $user = User::findOrFail($id);
 
         $request->validate([
             'username' => 'nullable|string|unique:users,username,' . $id,
-            'npm' => 'required|string|unique:users,npm,' . $id,
+            'npm' => 'required|string|unique:praktikans,npm,' . ($user->praktikan ? $user->praktikan->id : 'NULL'),
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'jurusan' => 'nullable|string',
+            'angkatan' => 'nullable|string',
+            'no_hp' => 'nullable|string',
         ]);
 
-        $data = $request->except('password');
-        $data['username'] = $request->username ?: $request->npm;
+        $userData = [
+            'username' => $request->username ?: $request->npm,
+            'name' => $request->name,
+            'email' => $request->email,
+        ];
+
         if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
+            $userData['password'] = Hash::make($request->password);
         }
 
         if ($request->hasFile('profile_picture')) {
-            if ($praktikan->profile_picture) {
-                Storage::delete('public/' . $praktikan->profile_picture);
+            if ($user->profile_picture) {
+                Storage::delete('public/' . $user->profile_picture);
             }
-            $data['profile_picture'] = $request->file('profile_picture')->store('profile', 'public');
+            $userData['profile_picture'] = $request->file('profile_picture')->store('profile', 'public');
         }
 
-        $praktikan->update($data);
+        $user->update($userData);
+
+        $user->praktikan()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'npm' => $request->npm,
+                'jurusan' => $request->jurusan,
+                'angkatan' => $request->angkatan,
+                'no_hp' => $request->no_hp,
+            ]
+        );
 
         return redirect()->route('admin.praktikan.index')->with('success', 'Praktikan berhasil diperbarui.');
     }
