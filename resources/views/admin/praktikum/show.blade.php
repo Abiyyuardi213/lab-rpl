@@ -114,7 +114,8 @@
                 </div>
 
                 <!-- Jadwal Praktikum Management Card -->
-                <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden mt-6">
+                <div id="jadwal-section"
+                    class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden mt-6">
                     <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
                         <h3 class="font-bold text-zinc-900 flex items-center gap-2">
                             <i class="fas fa-calendar-check text-[#001f3f]"></i>
@@ -158,7 +159,8 @@
                                             <div class="text-zinc-600">{{ $jadwal->ruangan ?? '-' }}</div>
                                         </td>
                                         <td class="px-6 py-4 text-right">
-                                            <form action="{{ route('admin.praktikum.jadwal.destroy', $jadwal->id) }}"
+                                            <form
+                                                action="{{ route('admin.praktikum.jadwal.destroy', $jadwal->id) }}#jadwal-section"
                                                 method="POST" class="inline">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" onclick="return confirm('Hapus jadwal ini?')"
@@ -180,14 +182,15 @@
                 </div>
 
                 <!-- Add Jadwal Form Section -->
-                <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden p-6 mt-6">
+                <div id="add-jadwal-section"
+                    class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden p-6 mt-6">
                     <h4
                         class="text-xs font-bold text-zinc-900 uppercase tracking-widest flex items-center gap-2 mb-6 border-b border-zinc-100 pb-2">
                         <i class="fas fa-plus text-[#001f3f]"></i>
                         Tambah Jadwal Pelaksanaan (Modul)
                     </h4>
-                    <form action="{{ route('admin.praktikum.jadwal.store', $praktikum->id) }}" method="POST"
-                        class="space-y-4">
+                    <form action="{{ route('admin.praktikum.jadwal.store', $praktikum->id) }}#jadwal-section"
+                        method="POST" class="space-y-4">
                         @csrf
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                             <div class="space-y-1 lg:col-span-2">
@@ -240,7 +243,8 @@
                 </div>
 
                 <!-- Session Management Card -->
-                <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
+                <div id="sesi-section"
+                    class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
                     <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
                         <h3 class="font-bold text-zinc-900 flex items-center gap-2">
                             <i class="fas fa-calendar-alt text-[#001f3f]"></i>
@@ -284,14 +288,20 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 text-right">
-                                            <form action="{{ route('admin.praktikum.sesi.destroy', $sesi->id) }}"
-                                                method="POST" class="inline">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" onclick="return confirm('Hapus sesi ini?')"
-                                                    class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
-                                                    <i class="fas fa-trash-alt text-[10px]"></i>
+                                            <div class="flex items-center justify-end gap-1 text-center">
+                                                <button type="button" onclick="editSesi({{ json_encode($sesi) }})"
+                                                    class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-zinc-100 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 transition-colors">
+                                                    <i class="fas fa-edit text-[10px]"></i>
                                                 </button>
-                                            </form>
+                                                <form
+                                                    action="{{ route('admin.praktikum.sesi.destroy', $sesi->id) }}#sesi-section"
+                                                    method="POST" class="inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" onclick="return confirm('Hapus sesi ini?')"
+                                                        class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
+                                                        <i class="fas fa-trash-alt text-[10px]"></i>
+                                                    </button>
+                                                </form>
                                         </td>
                                     </tr>
                                 @empty
@@ -307,13 +317,14 @@
                 </div>
 
                 <!-- Add Session Section -->
-                <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden p-6">
+                <div id="add-sesi-section"
+                    class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden p-6">
                     <h4
                         class="text-xs font-bold text-zinc-900 uppercase tracking-widest flex items-center gap-2 mb-6 border-b border-zinc-100 pb-2">
                         <i class="fas fa-plus text-[#001f3f]"></i>
                         Tambah Sesi Baru
                     </h4>
-                    <form action="{{ route('admin.praktikum.sesi.store', $praktikum->id) }}" method="POST"
+                    <form action="{{ route('admin.praktikum.sesi.store', $praktikum->id) }}#sesi-section" method="POST"
                         class="space-y-4">
                         @csrf
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -361,7 +372,8 @@
                 </div>
 
                 <!-- Aslab Management Card -->
-                <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
+                <div id="aslab-section"
+                    class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
                     <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
                         <h3 class="font-bold text-zinc-900 flex items-center gap-2">
                             <i class="fas fa-users-cog text-[#001f3f]"></i>
@@ -397,7 +409,8 @@
                                             <div class="text-zinc-600 font-bold">{{ $aslab->pivot->kuota }} Mhs</div>
                                         </td>
                                         <td class="px-6 py-4 text-right">
-                                            <form action="{{ route('admin.praktikum.aslab.destroy', $aslab->pivot->id) }}"
+                                            <form
+                                                action="{{ route('admin.praktikum.aslab.destroy', $aslab->pivot->id) }}#aslab-section"
                                                 method="POST" class="inline">
                                                 @csrf @method('DELETE')
                                                 <button type="submit"
@@ -423,8 +436,8 @@
                     <div class="p-6 border-t border-zinc-100 bg-zinc-50/30">
                         <h4 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">Tugaskan Aslab Baru
                         </h4>
-                        <form action="{{ route('admin.praktikum.aslab.store', $praktikum->id) }}" method="POST"
-                            class="flex flex-wrap gap-4 items-end">
+                        <form action="{{ route('admin.praktikum.aslab.store', $praktikum->id) }}#aslab-section"
+                            method="POST" class="flex flex-wrap gap-4 items-end">
                             @csrf
                             <div class="flex-1 min-w-[200px] space-y-1">
                                 <label class="text-[10px] font-bold text-zinc-500 uppercase">Pilih Aslab</label>
@@ -451,7 +464,8 @@
                 </div>
 
                 <!-- Registered Students Card -->
-                <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden mt-6">
+                <div id="mahasiswa-section"
+                    class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden mt-6">
                     <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
                         <h3 class="font-bold text-zinc-900 flex items-center gap-2">
                             <i class="fas fa-user-graduate text-[#001f3f]"></i>
@@ -495,8 +509,8 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <form
-                                                action="{{ route('admin.praktikum.pendaftaran.assign-aslab', $pendaftaran->id) }}"
+                                            <form id="assign-aslab-form-{{ $pendaftaran->id }}"
+                                                action="{{ route('admin.praktikum.pendaftaran.assign-aslab', $pendaftaran->id) }}#mahasiswa-section"
                                                 method="POST">
                                                 @csrf @method('PATCH')
                                                 <select name="aslab_id" onchange="this.form.submit()"
@@ -610,12 +624,96 @@
         </div>
     </div>
 
+    <!-- Edit Session Modal -->
+    <div id="editSesiModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-zinc-900/50 backdrop-blur-sm transition-opacity"></div>
+            <div class="relative bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
+                <div class="p-6 border-b border-zinc-100 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-zinc-900">Ubah Sesi Praktikum</h3>
+                    <button type="button" onclick="closeEditSesi()" class="text-zinc-400 hover:text-zinc-500">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="editSesiForm" method="POST">
+                    @csrf @method('PATCH')
+                    <div class="p-6 space-y-4">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase">Nama Sesi</label>
+                            <input type="text" name="nama_sesi" id="edit_nama_sesi" required
+                                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Hari</label>
+                                <select name="hari" id="edit_hari" required
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                                    <option value="Senin">Senin</option>
+                                    <option value="Selasa">Selasa</option>
+                                    <option value="Rabu">Rabu</option>
+                                    <option value="Kamis">Kamis</option>
+                                    <option value="Jumat">Jumat</option>
+                                    <option value="Sabtu">Sabtu</option>
+                                    <option value="Minggu">Minggu</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Kuota Mhs</label>
+                                <input type="number" name="kuota" id="edit_kuota" required min="1"
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Jam Mulai</label>
+                                <input type="time" name="jam_mulai" id="edit_jam_mulai" required
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Jam Selesai</label>
+                                <input type="time" name="jam_selesai" id="edit_jam_selesai" required
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-zinc-50 flex items-center justify-end gap-3">
+                        <button type="button" onclick="closeEditSesi()"
+                            class="px-4 py-2 text-xs font-bold text-zinc-500 hover:text-zinc-700">BATAL</button>
+                        <button type="submit"
+                            class="px-6 py-2 bg-[#001f3f] text-white rounded-lg text-xs font-bold hover:bg-[#002d5a] transition-all">
+                            SIMPAN PERUBAHAN
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <form id="delete-form" action="{{ route('admin.praktikum.destroy', $praktikum->id) }}" method="POST"
         class="hidden">
         @csrf @method('DELETE')
     </form>
 
     <script>
+        function editSesi(sesi) {
+            const form = document.getElementById('editSesiForm');
+            form.action = `/admin/praktikum/sesi/${sesi.id}#sesi-section`;
+
+            document.getElementById('edit_nama_sesi').value = sesi.nama_sesi;
+            document.getElementById('edit_hari').value = sesi.hari;
+            document.getElementById('edit_kuota').value = sesi.kuota;
+            document.getElementById('edit_jam_mulai').value = sesi.jam_mulai.substring(0, 5);
+            document.getElementById('edit_jam_selesai').value = sesi.jam_selesai.substring(0, 5);
+
+            document.getElementById('editSesiModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeEditSesi() {
+            document.getElementById('editSesiModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
         function updateStatus(newStatus) {
             Swal.fire({
                 title: 'Update Status?',

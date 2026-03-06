@@ -29,6 +29,22 @@ class SesiPraktikumController extends Controller
         return redirect()->back()->with('success', 'Sesi praktikum berhasil ditambahkan.');
     }
 
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'nama_sesi' => 'required|string|max:255',
+            'hari' => 'required|string',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required',
+            'kuota' => 'required|integer|min:1',
+        ]);
+
+        $sesi = SesiPraktikum::findOrFail($id);
+        $sesi->update($request->all());
+
+        return redirect()->back()->with('success', 'Sesi praktikum berhasil diperbarui.');
+    }
+
     public function destroy($id)
     {
         $sesi = SesiPraktikum::findOrFail($id);

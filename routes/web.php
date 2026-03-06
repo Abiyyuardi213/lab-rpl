@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('praktikum/{id}/toggle-status', [\App\Http\Controllers\PraktikumController::class, 'toggleStatus'])->name('praktikum.toggle-status');
         Route::get('praktikum/{praktikum_id}/sesi', fn($id) => redirect()->route('admin.praktikum.show', $id));
         Route::post('praktikum/{praktikum_id}/sesi', [\App\Http\Controllers\SesiPraktikumController::class, 'store'])->name('praktikum.sesi.store');
+        Route::patch('praktikum/sesi/{id}', [\App\Http\Controllers\SesiPraktikumController::class, 'update'])->name('praktikum.sesi.update');
         Route::delete('praktikum/sesi/{id}', [\App\Http\Controllers\SesiPraktikumController::class, 'destroy'])->name('praktikum.sesi.destroy');
         Route::get('praktikum/{praktikum_id}/aslab', fn($id) => redirect()->route('admin.praktikum.show', $id));
         Route::post('praktikum/{praktikum_id}/aslab', [\App\Http\Controllers\PraktikumController::class, 'storeAslab'])->name('praktikum.aslab.store');
