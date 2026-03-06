@@ -66,7 +66,7 @@ class AslabController extends Controller
             'no_hp' => $request->no_hp,
         ]);
 
-        return redirect()->route('admin.aslab.index')->with('success', 'Aslab berhasil ditambahkan.');
+        return redirect()->route('admin.aslab.index', ['last_page' => '1'])->with('success', 'Aslab berhasil ditambahkan.');
     }
 
     public function show($id)

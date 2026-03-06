@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::get('/login', fn() => redirect()->route('login.praktikan'))->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
     Route::get('/login-aslab', [AuthController::class, 'showAslabLogin'])->name('login.aslab');
     Route::post('/login-aslab', [AuthController::class, 'aslabLogin'])->name('login.aslab.post');

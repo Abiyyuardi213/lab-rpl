@@ -68,7 +68,7 @@ class PraktikanController extends Controller
             'no_hp' => $request->no_hp,
         ]);
 
-        return redirect()->route('admin.praktikan.index')->with('success', 'Praktikan berhasil ditambahkan.');
+        return redirect()->route('admin.praktikan.index', ['last_page' => '1'])->with('success', 'Praktikan berhasil ditambahkan.');
     }
 
     public function show($id)

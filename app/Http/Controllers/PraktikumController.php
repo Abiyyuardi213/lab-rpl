@@ -51,7 +51,7 @@ class PraktikumController extends Controller
             'ada_tugas_akhir' => $request->ada_tugas_akhir,
         ]);
 
-        return redirect()->route('admin.praktikum.index')->with('success', 'Praktikum berhasil ditambahkan.');
+        return redirect()->route('admin.praktikum.index', ['last_page' => '1'])->with('success', 'Praktikum berhasil ditambahkan.');
     }
 
     public function show($id)
@@ -110,7 +110,7 @@ class PraktikumController extends Controller
 
         $praktikum->update($request->all());
 
-        return redirect()->route('admin.praktikum.index')->with('success', 'Praktikum berhasil diperbarui.');
+        return redirect()->route('admin.praktikum.index', ['last_page' => '1'])->with('success', 'Praktikum berhasil diperbarui.');
     }
 
     public function destroy($id)

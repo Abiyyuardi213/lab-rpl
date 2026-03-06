@@ -200,6 +200,10 @@
                 $('#customLength').on('change', function() {
                     table.page.len($(this).val()).draw();
                 });
+
+                @if (request('last_page'))
+                    table.page('last').draw(false);
+                @endif
             }
         });
 
