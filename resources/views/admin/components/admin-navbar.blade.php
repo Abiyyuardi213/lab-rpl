@@ -11,7 +11,7 @@
                             RPL</span>
                         <span class="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-widest">
                             @if (Auth::user()->role && Auth::user()->role->name === 'Praktikan')
-                                Mahasiswa
+                                Praktikan
                             @elseif(Auth::user()->role && Auth::user()->role->name === 'Aslab')
                                 Lab Assistant
                             @elseif(Auth::user()->role && Auth::user()->role->name === 'Super Admin')

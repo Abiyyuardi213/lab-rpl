@@ -89,7 +89,7 @@ class PendaftaranController extends Controller
 
     public function progress($id)
     {
-        $pendaftaran = PendaftaranPraktikum::with(['praktikum', 'aslab', 'tugasAsistensis' => function ($q) {
+        $pendaftaran = PendaftaranPraktikum::with(['praktikum', 'aslab.user', 'tugasAsistensis' => function ($q) {
             $q->orderBy('created_at', 'desc');
         }])
             ->where('id', $id)

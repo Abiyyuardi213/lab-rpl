@@ -25,13 +25,13 @@
                 @if ($pendaftaran->aslab)
                     <div
                         class="w-16 h-16 rounded-full bg-[#001f3f]/10 border-2 border-[#001f3f]/20 flex items-center justify-center mb-3">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode($pendaftaran->aslab->name) }}&background=001f3f&color=fff&bold=true"
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($pendaftaran->aslab->user->name) }}&background=001f3f&color=fff&bold=true"
                             class="w-full h-full rounded-full">
                     </div>
-                    <h3 class="font-bold text-slate-900 leading-tight">{{ $pendaftaran->aslab->name }}</h3>
+                    <h3 class="font-bold text-slate-900 leading-tight">{{ $pendaftaran->aslab->user->name }}</h3>
                     <p class="text-[10px] text-slate-500 font-medium mt-1 uppercase">{{ $pendaftaran->aslab->npm }}</p>
                     <div class="mt-4 pt-4 border-t border-slate-50 w-full">
-                        <a href="mailto:{{ $pendaftaran->aslab->email }}"
+                        <a href="mailto:{{ $pendaftaran->aslab->user->email }}"
                             class="text-xs font-bold text-[#001f3f] hover:underline flex items-center justify-center gap-2">
                             <i class="fas fa-envelope"></i>
                             Hubungi Aslab

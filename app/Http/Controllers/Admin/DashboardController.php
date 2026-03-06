@@ -23,7 +23,7 @@ class DashboardController extends Controller
         ];
 
         // Fetch real activities
-        $recentRegistrations = \App\Models\PendaftaranPraktikum::with(['user', 'praktikum'])
+        $recentRegistrations = \App\Models\PendaftaranPraktikum::with(['praktikan.user', 'praktikum'])
             ->latest()
             ->take(8)
             ->get()
@@ -31,7 +31,7 @@ class DashboardController extends Controller
                 return (object)[
                     'type' => 'Registration',
                     'title' => 'Pendaftaran ' . ($item->praktikum->nama_praktikum ?? 'Praktikum'),
-                    'user' => $item->user->name ?? 'User',
+                    'user' => $item->praktikan->user->name ?? 'User',
                     'time' => $item->created_at,
                     'badge' => 'New Pendaftar',
                     'badge_color' => 'bg-blue-100 text-blue-700 border-blue-200',
@@ -40,7 +40,7 @@ class DashboardController extends Controller
                 ];
             });
 
-        $recentSubmissions = \App\Models\TugasAsistensi::with(['pendaftaran.user'])
+        $recentSubmissions = \App\Models\TugasAsistensi::with(['pendaftaran.praktikan.user'])
             ->where('status', 'submitted')
             ->latest('updated_at')
             ->take(8)
@@ -49,7 +49,7 @@ class DashboardController extends Controller
                 return (object)[
                     'type' => 'Submission',
                     'title' => 'Tugas "' . $item->judul . '" dikirim',
-                    'user' => $item->pendaftaran->user->name ?? 'Praktikan',
+                    'user' => $item->pendaftaran->praktikan->user->name ?? 'Praktikan',
                     'time' => $item->updated_at,
                     'badge' => 'Submitted',
                     'badge_color' => 'bg-amber-100 text-amber-700 border-amber-200',

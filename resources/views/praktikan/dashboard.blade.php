@@ -70,6 +70,126 @@
             </div>
         </div>
 
+        <!-- Progress Asistensi Section -->
+        @if ($activePendaftarans->isNotEmpty())
+            <div class="mt-10">
+                <div class="flex items-center gap-3 mb-6">
+                    <div
+                        class="h-8 w-8 rounded-lg bg-[#001f3f] flex items-center justify-center text-white shadow-lg shadow-[#001f3f]/10">
+                        <i class="fas fa-chart-line text-[10px]"></i>
+                    </div>
+                    <h2 class="text-lg font-bold text-slate-900 uppercase tracking-tight">Progress Asistensi & Modul</h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    @foreach ($activePendaftarans as $ap)
+                        <div
+                            class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col p-6 space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-50 pb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-[#001f3f]/5 p-2 rounded-xl text-[#001f3f]">
+                                        <i class="fas fa-book-reader"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-sm font-black text-slate-900 uppercase tracking-tight">
+                                            {{ $ap->praktikum->nama_praktikum }}</h4>
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">
+                                            Aslab: {{ $ap->aslab->user->name ?? 'Belum Ditugaskan' }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('praktikan.pendaftaran.progress', $ap->id) }}"
+                                    class="text-[10px] font-black text-[#001f3f] uppercase hover:underline">Detail</a>
+                            </div>
+
+                            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                                @forelse($ap->tugasAsistensis as $idx => $t)
+                                    <div class="flex items-center flex-none group">
+                                        <div class="relative flex flex-col items-center gap-2 min-w-[70px]">
+                                            @php
+                                                $statusColor = match ($t->status) {
+                                                    'reviewed' => 'bg-emerald-500 text-white border-emerald-500',
+                                                    'submitted' => 'bg-amber-100 text-amber-600 border-amber-200',
+                                                    default => 'bg-slate-50 text-slate-400 border-slate-200',
+                                                };
+                                                $icon = match ($t->status) {
+                                                    'reviewed' => 'fa-check-double',
+                                                    'submitted' => 'fa-arrow-up',
+                                                    default => 'fa-hourglass-start',
+                                                };
+                                            @endphp
+                                            <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 text-xs font-black {{ $statusColor }} transition-all"
+                                                title="{{ $t->status }}">
+                                                <i class="fas {{ $icon }}"></i>
+                                            </div>
+                                            <span
+                                                class="text-[9px] font-black text-slate-400 uppercase tracking-tighter truncate max-w-[60px]">{{ $t->judul }}</span>
+                                        </div>
+                                        @if (!$loop->last)
+                                            <div
+                                                class="w-8 h-0.5 {{ $t->status == 'reviewed' ? 'bg-emerald-500' : 'bg-slate-100' }}">
+                                            </div>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <div class="py-4 w-full text-center">
+                                        <p class="text-[10px] text-slate-400 font-bold uppercase italic tracking-widest">
+                                            Belum ada tugas dari aslab</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        <!-- Peringatan Asistensi Alert -->
+        @php
+            $pendingTasks = collect();
+            foreach ($activePendaftarans as $ap) {
+                foreach ($ap->tugasAsistensis as $t) {
+                    if ($t->status == 'pending') {
+                        $pendingTasks->push([
+                            'praktikum' => $ap->praktikum->nama_praktikum,
+                            'modul' => $t->judul,
+                            'pendaftaran_id' => $ap->id,
+                        ]);
+                    }
+                }
+            }
+        @endphp
+
+        @if ($pendingTasks->isNotEmpty())
+            <div class="mt-8 space-y-3">
+                @foreach ($pendingTasks as $pt)
+                    <div
+                        class="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-2xl shadow-sm animate-in slide-in-from-left duration-500">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="h-10 w-10 rounded-full bg-rose-500 flex items-center justify-center text-white shrink-0 shadow-lg shadow-rose-500/20">
+                                <i class="fas fa-exclamation-triangle text-sm"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-xs sm:text-sm font-bold text-rose-900 uppercase tracking-tight">
+                                    Peringatan Asistensi
+                                </p>
+                                <p class="text-[10px] sm:text-xs text-rose-700 mt-0.5 leading-relaxed">
+                                    Anda belum bisa mengikuti praktikum <span
+                                        class="font-black italic">"{{ $pt['praktikum'] }}"</span> pada bagian <span
+                                        class="font-black italic underline">{{ $pt['modul'] }}</span> karena belum
+                                    melaksanakan asistensi aslab.
+                                </p>
+                            </div>
+                            <a href="{{ route('praktikan.pendaftaran.progress', $pt['pendaftaran_id']) }}"
+                                class="shrink-0 px-4 py-2 bg-rose-600 text-white text-[9px] font-black rounded-xl uppercase tracking-widest hover:bg-rose-700 transition-all shadow-md shadow-rose-600/10">
+                                Kerjakan
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
         <!-- Upcoming Schedules -->
         <div class="mt-10">
             <div class="flex items-center gap-3 mb-6">
@@ -82,11 +202,32 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 @forelse($upcomingSchedules as $jadwal)
+                    @php
+                        $now = \Carbon\Carbon::now();
+                        $start = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $jadwal->waktu_mulai);
+                        $end = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $jadwal->waktu_selesai);
+
+                        $isFinished = $now->greaterThan($end);
+                        $isOngoing = $now->between($start, $end);
+
+                        $statusLabel = 'Aktif';
+                        $statusClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
+
+                        if ($isFinished) {
+                            $statusLabel = 'Selesai';
+                            $statusClass = 'bg-slate-100 text-slate-500 border-slate-200';
+                        } elseif ($isOngoing) {
+                            $statusLabel = 'Berlangsung';
+                            $statusClass = 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse';
+                        }
+                    @endphp
                     <div
-                        class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500/50 transition-all group">
+                        class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500/50 transition-all group {{ $isFinished ? 'opacity-70' : '' }}">
                         <div class="flex justify-between items-start mb-3">
                             <span
-                                class="text-[9px] font-black bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded uppercase tracking-widest border border-emerald-100">Aktif</span>
+                                class="text-[9px] font-black {{ $statusClass }} px-2 py-0.5 rounded uppercase tracking-widest border">
+                                {{ $statusLabel }}
+                            </span>
                             <div class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
                                 {{ $jadwal->praktikum->kode_praktikum }}</div>
                         </div>
@@ -107,11 +248,18 @@
                                 <span class="text-[10px] font-bold text-slate-700">{{ substr($jadwal->waktu_mulai, 0, 5) }}
                                     - {{ substr($jadwal->waktu_selesai, 0, 5) }} WIB</span>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-location-dot text-[10px] text-slate-400"></i>
-                                <span
-                                    class="text-[10px] font-bold text-slate-700">{{ $jadwal->ruangan ?? 'Laboratorium RPL' }}</span>
-                            </div>
+                            @if ($isFinished)
+                                <div
+                                    class="mt-2 text-[8px] font-black text-rose-500 uppercase tracking-widest border-t border-dashed border-rose-100 pt-2 animate-bounce">
+                                    <i class="fas fa-info-circle mr-1"></i> Menunggu Jadwal Modul Selanjutnya
+                                </div>
+                            @else
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-location-dot text-[10px] text-slate-400"></i>
+                                    <span
+                                        class="text-[10px] font-bold text-slate-700">{{ $jadwal->ruangan ?? 'Laboratorium RPL' }}</span>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @empty

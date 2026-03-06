@@ -28,19 +28,26 @@ class DashboardController extends Controller
 
         // Upcoming schedules for the praktikan
         $upcomingSchedules = collect();
+        $activePendaftarans = collect();
+
         if ($praktikan) {
-            $pendaftaranIds = $praktikan->pendaftarans()
+            $activePendaftarans = $praktikan->pendaftarans()
                 ->where('status', 'verified')
-                ->pluck('praktikum_id');
+                ->with(['praktikum', 'tugasAsistensis' => function ($q) {
+                    $q->orderBy('created_at', 'asc');
+                }])
+                ->get();
+
+            $pendaftaranIds = $activePendaftarans->pluck('praktikum_id');
 
             $upcomingSchedules = \App\Models\JadwalPraktikum::with('praktikum')
                 ->whereIn('praktikum_id', $pendaftaranIds)
-                ->where('tanggal', '>=', now()->toDateString())
+                ->where('tanggal', '>=', now()->subDay()->toDateString())
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('waktu_mulai', 'asc')
                 ->get();
         }
 
-        return view('praktikan.dashboard', compact('praktikums', 'upcomingSchedules'));
+        return view('praktikan.dashboard', compact('praktikums', 'upcomingSchedules', 'activePendaftarans'));
     }
 }
