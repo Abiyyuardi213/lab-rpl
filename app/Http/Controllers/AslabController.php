@@ -19,7 +19,7 @@ class AslabController extends Controller
         }
         $aslabs = User::where('role_id', $aslabRole->id)
             ->with('aslab')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->get();
         return view('admin.aslab.index', compact('aslabs'));
     }

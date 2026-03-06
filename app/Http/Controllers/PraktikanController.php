@@ -19,7 +19,7 @@ class PraktikanController extends Controller
         }
         $praktikans = User::where('role_id', $praktikanRole->id)
             ->with('praktikan')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->get();
         return view('admin.praktikan.index', compact('praktikans'));
     }

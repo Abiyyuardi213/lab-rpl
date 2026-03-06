@@ -10,7 +10,7 @@ class PraktikumController extends Controller
 {
     public function index()
     {
-        $praktikums = Praktikum::orderBy('created_at', 'desc')->get();
+        $praktikums = Praktikum::orderBy('created_at', 'asc')->get();
         return view('admin.praktikum.index', compact('praktikums'));
     }
 
