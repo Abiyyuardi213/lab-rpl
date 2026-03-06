@@ -21,11 +21,14 @@ class Praktikum extends Model
         'periode_praktikum',
         'kuota_praktikan',
         'status_praktikum',
+        'jumlah_modul',
+        'ada_tugas_akhir',
     ];
 
     protected $casts = [
         'daftar_dosen' => 'array',
         'daftar_kelas_mk' => 'array',
+        'ada_tugas_akhir' => 'boolean',
     ];
 
     public function sesis()
@@ -43,5 +46,10 @@ class Praktikum extends Model
         return $this->belongsToMany(Aslab::class, 'aslab_praktikums', 'praktikum_id', 'aslab_id')
             ->withPivot('id', 'kuota')
             ->withTimestamps();
+    }
+
+    public function jadwals()
+    {
+        return $this->hasMany(JadwalPraktikum::class, 'praktikum_id');
     }
 }

@@ -5,7 +5,7 @@
 @section('content')
     <div class="space-y-8">
         <!-- Welcome Section -->
-        <div class="relative overflow-hidden bg-[#001f3f] rounded-[2.5rem] p-6 md:p-12 shadow-2xl shadow-[#001f3f]/20">
+        <div class="relative overflow-hidden bg-[#001f3f] rounded-3xl p-6 md:p-12 shadow-2xl shadow-[#001f3f]/20">
             <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8 md:gap-12">
                 <div class="space-y-4 md:space-y-6">
                     <div
@@ -124,6 +124,36 @@
                                 </div>
                             </div>
 
+                            @if ($praktikum->jadwals->count() > 0)
+                                <div class="mb-6">
+                                    <h5
+                                        class="text-[10px] md:text-xs font-black text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                        <i class="fas fa-calendar-check text-[#001f3f]"></i> Jadwal Pelaksanaan
+                                    </h5>
+                                    <div class="space-y-2">
+                                        @foreach ($praktikum->jadwals as $jadwal)
+                                            <div
+                                                class="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between hover:border-[#001f3f]/30 transition-colors">
+                                                <div>
+                                                    <p class="text-xs font-bold text-slate-900">{{ $jadwal->judul_modul }}
+                                                    </p>
+                                                    <p class="text-[9px] font-medium text-slate-500 mt-0.5">
+                                                        {{ \Carbon\Carbon::parse($jadwal->tanggal)->translatedFormat('d M Y') }}
+                                                        •
+                                                        {{ substr($jadwal->waktu_mulai, 0, 5) }}-{{ substr($jadwal->waktu_selesai, 0, 5) }}
+                                                        WIB
+                                                    </p>
+                                                </div>
+                                                <div
+                                                    class="text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+                                                    {{ $jadwal->ruangan ?? 'Daring' }}
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
                             <a href="{{ route('aslab.pendaftaran.index') }}?praktikum={{ $praktikum->id }}"
                                 class="w-full py-4 bg-[#001f3f] rounded-2xl text-[10px] font-black text-white flex items-center justify-center gap-3 hover:bg-[#002d5a] transition-all shadow-lg shadow-[#001f3f]/20 active:scale-[0.98]">
                                 <i class="fas fa-users-viewfinder"></i>
@@ -185,7 +215,7 @@
 
                 <!-- System Stats Card -->
                 <div
-                    class="bg-gradient-to-br from-[#001f3f] to-[#003366] p-8 rounded-[2.5rem] shadow-2xl shadow-[#001f3f]/30 text-white overflow-hidden relative group">
+                    class="bg-gradient-to-br from-[#001f3f] to-[#003366] p-8 rounded-3xl shadow-2xl shadow-[#001f3f]/30 text-white overflow-hidden relative group">
                     <div class="relative z-10">
                         <div
                             class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center mb-6 border border-white/10">

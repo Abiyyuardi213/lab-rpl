@@ -24,11 +24,10 @@ class TugasController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $students = PendaftaranPraktikum::with('praktikan.user', 'praktikum')
-            ->where('aslab_id', $aslabId)
-            ->get();
+        // Get unique praktikums that this aslab is assisting
+        $praktikums = $aslab->praktikums;
 
-        return view('aslab.tugas.index', compact('tugas', 'students'));
+        return view('aslab.tugas.index', compact('tugas', 'praktikums'));
     }
 
     public function store(Request $request)
@@ -39,27 +38,39 @@ class TugasController extends Controller
         }
 
         $request->validate([
-            'pendaftaran_id' => 'required|exists:pendaftaran_praktikums,id',
+            'praktikum_id' => 'required|exists:praktikums,id',
             'judul' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
+            'file_tugas' => 'nullable|file|mimes:pdf,doc,docx,zip,rar|max:5120',
             'due_date' => 'nullable|date',
         ]);
 
-        $pendaftaran = PendaftaranPraktikum::findOrFail($request->pendaftaran_id);
-        if ($pendaftaran->aslab_id !== $aslab->id) {
-            return back()->with('error', 'Mahasiswa ini bukan bimbingan Anda.');
+        $filePath = null;
+        if ($request->hasFile('file_tugas')) {
+            $filePath = $request->file('file_tugas')->store('tugas_soal', 'public');
         }
 
-        TugasAsistensi::create([
-            'pendaftaran_id' => $request->pendaftaran_id,
-            'aslab_id' => $aslab->id,
-            'judul' => $request->judul,
-            'deskripsi' => $request->deskripsi,
-            'due_date' => $request->due_date,
-            'status' => 'pending'
-        ]);
+        $students = PendaftaranPraktikum::where('aslab_id', $aslab->id)
+            ->where('praktikum_id', $request->praktikum_id)
+            ->get();
 
-        return back()->with('success', 'Tugas asistensi berhasil diberikan.');
+        if ($students->isEmpty()) {
+            return back()->with('error', 'Anda belum memiliki mahasiswa bimbingan di praktikum ini.');
+        }
+
+        foreach ($students as $student) {
+            TugasAsistensi::create([
+                'pendaftaran_id' => $student->id,
+                'aslab_id' => $aslab->id,
+                'judul' => $request->judul,
+                'deskripsi' => $request->deskripsi,
+                'file_tugas' => $filePath,
+                'due_date' => $request->due_date,
+                'status' => 'pending'
+            ]);
+        }
+
+        return back()->with('success', 'Tugas asistensi berhasil diberikan kepada ' . $students->count() . ' mahasiswa.');
     }
 
     public function update(Request $request, $id)

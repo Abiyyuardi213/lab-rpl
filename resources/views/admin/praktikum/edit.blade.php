@@ -70,6 +70,35 @@
                                     @enderror
                                 </div>
                             </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Jumlah
+                                        Modul</label>
+                                    <input type="number" name="jumlah_modul" required min="0"
+                                        value="{{ old('jumlah_modul', $praktikum->jumlah_modul) }}" placeholder="e.g., 4"
+                                        class="flex h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50/30 px-4 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] outline-none @error('jumlah_modul') border-rose-500 @enderror">
+                                    <p class="text-[9px] text-zinc-400 font-medium italic mt-1">Sistem akan menyesuaikan
+                                        opsi jadwal berdasarkan jumlah modul.</p>
+                                    @error('jumlah_modul')
+                                        <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Tugas
+                                        Akhir</label>
+                                    <select name="ada_tugas_akhir" required
+                                        class="flex h-12 w-full rounded-xl border border-zinc-200 bg-zinc-50/30 px-4 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] outline-none @error('ada_tugas_akhir') border-rose-500 @enderror">
+                                        <option value="0" {{ $praktikum->ada_tugas_akhir == 0 ? 'selected' : '' }}>
+                                            Tidak Ada Tugas Akhir</option>
+                                        <option value="1" {{ $praktikum->ada_tugas_akhir == 1 ? 'selected' : '' }}>Ada
+                                            Tugas Akhir</option>
+                                    </select>
+                                    @error('ada_tugas_akhir')
+                                        <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
 

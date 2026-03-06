@@ -99,8 +99,144 @@
                                     </span>
                                 </dd>
                             </div>
+                            <div class="space-y-1">
+                                <dt class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Kurikulum
+                                    Praktikum</dt>
+                                <dd class="text-sm font-semibold text-zinc-900">
+                                    {{ $praktikum->jumlah_modul }} Modul
+                                    @if ($praktikum->ada_tugas_akhir)
+                                        + 1 Tugas Akhir
+                                    @endif
+                                </dd>
+                            </div>
                         </dl>
                     </div>
+                </div>
+
+                <!-- Jadwal Praktikum Management Card -->
+                <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden mt-6">
+                    <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
+                        <h3 class="font-bold text-zinc-900 flex items-center gap-2">
+                            <i class="fas fa-calendar-check text-[#001f3f]"></i>
+                            Jadwal Pelaksanaan (Modul)
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-zinc-50/50 border-b border-zinc-100">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Modul / Pertemuan</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Tanggal & Waktu</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Ruangan</th>
+                                    <th
+                                        class="px-6 py-3 text-right text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                                        Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-100">
+                                @forelse($praktikum->jadwals as $jadwal)
+                                    <tr class="hover:bg-zinc-50/50 transition-colors">
+                                        <td class="px-6 py-4">
+                                            <div class="font-bold text-zinc-900">{{ $jadwal->judul_modul }}</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-zinc-600 font-medium capitalize">
+                                                {{ \Carbon\Carbon::parse($jadwal->tanggal)->translatedFormat('d F Y') }}
+                                            </div>
+                                            <div class="text-[10px] text-zinc-400 font-mono italic">
+                                                {{ substr($jadwal->waktu_mulai, 0, 5) }} -
+                                                {{ substr($jadwal->waktu_selesai, 0, 5) }} WIB
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-zinc-600">{{ $jadwal->ruangan ?? '-' }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <form action="{{ route('admin.praktikum.jadwal.destroy', $jadwal->id) }}"
+                                                method="POST" class="inline">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" onclick="return confirm('Hapus jadwal ini?')"
+                                                    class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
+                                                    <i class="fas fa-trash-alt text-[10px]"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-10 text-center text-zinc-400 italic font-medium">
+                                            Belum ada jadwal pelaksanaan yang ditambahkan</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Add Jadwal Form Section -->
+                <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden p-6 mt-6">
+                    <h4
+                        class="text-xs font-bold text-zinc-900 uppercase tracking-widest flex items-center gap-2 mb-6 border-b border-zinc-100 pb-2">
+                        <i class="fas fa-plus text-[#001f3f]"></i>
+                        Tambah Jadwal Pelaksanaan (Modul)
+                    </h4>
+                    <form action="{{ route('admin.praktikum.jadwal.store', $praktikum->id) }}" method="POST"
+                        class="space-y-4">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div class="space-y-1 lg:col-span-2">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Judul Modul</label>
+                                @if (count($availableModules) > 0)
+                                    <select name="judul_modul" required
+                                        class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                                        <option value="">-- Pilih Modul --</option>
+                                        @foreach ($availableModules as $modul)
+                                            <option value="{{ $modul }}"
+                                                {{ in_array($modul, $scheduledModules) ? 'disabled' : '' }}>
+                                                {{ $modul }}
+                                                {{ in_array($modul, $scheduledModules) ? '(Sudah Dijadwalkan)' : '' }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <input type="text" name="judul_modul" placeholder="Modul 1: Pengenalan" required
+                                        class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                                @endif
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Tanggal</label>
+                                <input type="date" name="tanggal" required
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Waktu Mulai</label>
+                                <input type="time" name="waktu_mulai" required
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Waktu Selesai</label>
+                                <input type="time" name="waktu_selesai" required
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="space-y-1 lg:col-span-2">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Ruangan (Opsional)</label>
+                                <input type="text" name="ruangan" placeholder="Lab R 301 / Daring"
+                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                            </div>
+                        </div>
+                        <button type="submit"
+                            class="w-full py-2.5 bg-[#001f3f] text-white rounded-lg text-xs font-bold hover:bg-[#002d5a] transition-all active:scale-[0.98] shadow-sm">
+                            SIMPAN JADWAL
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Session Management Card -->
@@ -160,7 +296,8 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-10 text-center text-zinc-400 italic font-medium">
+                                        <td colspan="5"
+                                            class="px-6 py-10 text-center text-zinc-400 italic font-medium">
                                             Belum ada sesi yang dibuat</td>
                                     </tr>
                                 @endforelse

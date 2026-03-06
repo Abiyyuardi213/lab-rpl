@@ -103,6 +103,13 @@
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/praktikum*') ? 'w-full' : '' }}"></span>
                     </a>
 
+                    <a href="{{ route('admin.jadwal-praktikum.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/jadwal-praktikum*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Jadwal
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/jadwal-praktikum*') ? 'w-full' : '' }}"></span>
+                    </a>
+
                     <a href="{{ route('admin.pendaftaran.index') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/pendaftaran*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                         Pendaftaran
@@ -145,11 +152,24 @@
                             </div>
 
                             <div class="space-y-1">
-                                <a href="{{ url('/admin/dashboard') }}"
+                                @php
+                                    $dashboardUrl = url('/admin/dashboard');
+                                    $profileEditRoute = 'admin.profile.edit';
+                                    if (Auth::user()->role) {
+                                        if (Auth::user()->role->name === 'Praktikan') {
+                                            $dashboardUrl = route('praktikan.dashboard');
+                                            $profileEditRoute = 'praktikan.profile.edit';
+                                        } elseif (Auth::user()->role->name === 'Aslab') {
+                                            $dashboardUrl = route('aslab.dashboard');
+                                            $profileEditRoute = 'aslab.profile.edit';
+                                        }
+                                    }
+                                @endphp
+                                <a href="{{ $dashboardUrl }}"
                                     class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-500 rounded-xl hover:bg-zinc-50 hover:text-zinc-900 transition-all uppercase tracking-widest">
                                     <i class="fas fa-tachometer-alt w-4"></i> Dashboard
                                 </a>
-                                <a href="{{ route('admin.profile.edit') }}"
+                                <a href="{{ route($profileEditRoute) }}"
                                     class="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-500 rounded-xl hover:bg-zinc-50 hover:text-zinc-900 transition-all uppercase tracking-widest">
                                     <i class="fas fa-user-circle w-4"></i> Pengaturan Profil
                                 </a>
@@ -178,6 +198,7 @@
         </div>
     </div>
 
+    <!-- Mobile Menu -->
     <!-- Mobile Menu -->
     <div id="admin-mobile-menu" class="hidden lg:hidden bg-white border-t border-slate-100 shadow-2xl">
         <div class="px-3 py-3 sm:p-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
@@ -215,6 +236,9 @@
                 <a href="{{ route('admin.praktikum.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Praktikum</a>
+                <a href="{{ route('admin.jadwal-praktikum.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/jadwal-praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    Jadwal</a>
                 <a href="{{ route('admin.pendaftaran.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/pendaftaran*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Pendaftaran</a>
@@ -229,6 +253,7 @@
         </div>
     </div>
 </nav>
+
 
 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
     @csrf

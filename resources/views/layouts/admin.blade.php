@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin Dashboard') - HMIF Admin</title>
+    <title>@yield('title', 'Admin Dashboard') - Lab RPL ITATS</title>
     <link rel="shortcut icon" href="{{ asset('image/icon-hmif.png') }}" type="image/x-icon">
     <link rel="icon" href="{{ asset('image/icon-hmif.png') }}" type="image/x-icon">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -15,6 +15,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
     <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
+
+    <!-- PWA & Apple Mobile Web Support -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#001f3f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Lab RPL">
+    <link rel="apple-touch-icon" href="{{ asset('image/rplmini.png') }}">
+    <link rel="apple-touch-startup-image" href="{{ asset('image/rplmini.png') }}">
 </head>
 
 <body class="bg-gray-50/50 min-h-screen font-sans antialiased text-slate-800 flex flex-col">
@@ -51,6 +61,19 @@
             })
         </script>
     @endif
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then((registration) => {
+                    console.log('ServiceWorker registered with scope:', registration.scope);
+                }).catch((error) => {
+                    console.error('ServiceWorker registration failed:', error);
+                });
+            });
+        }
+    </script>
 </body>
 
 </html>

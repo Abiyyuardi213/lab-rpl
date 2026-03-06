@@ -14,7 +14,9 @@ class DashboardController extends Controller
         $user = Auth::user();
         $assignedCount = $user->assignedStudents()->count();
         $totalQuota = $user->aslab ? $user->aslab->aslabPraktikums()->sum('kuota') : 0;
-        $myPraktikums = $user->aslab ? $user->aslab->praktikums : collect();
+        $myPraktikums = $user->aslab ? $user->aslab->praktikums()->with(['jadwals' => function ($q) {
+            $q->orderBy('tanggal', 'asc')->orderBy('waktu_mulai', 'asc');
+        }])->get() : collect();
 
         return view('aslab.dashboard.index', compact('assignedCount', 'totalQuota', 'myPraktikums'));
     }

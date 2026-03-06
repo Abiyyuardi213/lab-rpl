@@ -16,6 +16,7 @@ class TugasAsistensi extends Model
         'aslab_id',
         'judul',
         'deskripsi',
+        'file_tugas',
         'due_date',
         'status',
         'file_mahasiswa',

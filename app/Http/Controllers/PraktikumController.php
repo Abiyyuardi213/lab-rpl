@@ -30,6 +30,8 @@ class PraktikumController extends Controller
             'daftar_dosen.*' => 'required|string|max:255',
             'daftar_kelas_mk' => 'required|array|min:1',
             'daftar_kelas_mk.*' => 'required|string|max:255',
+            'jumlah_modul' => 'required|integer|min:0',
+            'ada_tugas_akhir' => 'required|boolean',
         ]);
 
         $kode = 'PRK-' . strtoupper(Str::random(6));
@@ -45,6 +47,8 @@ class PraktikumController extends Controller
             'status_praktikum' => $request->status_praktikum,
             'daftar_dosen' => $request->daftar_dosen,
             'daftar_kelas_mk' => $request->daftar_kelas_mk,
+            'jumlah_modul' => $request->jumlah_modul,
+            'ada_tugas_akhir' => $request->ada_tugas_akhir,
         ]);
 
         return redirect()->route('admin.praktikum.index')->with('success', 'Praktikum berhasil ditambahkan.');
@@ -56,6 +60,9 @@ class PraktikumController extends Controller
             'sesis' => function ($q) {
                 $q->withCount('pendaftarans');
             },
+            'jadwals' => function ($q) {
+                $q->orderBy('tanggal', 'asc')->orderBy('waktu_mulai', 'asc');
+            },
             'aslabs',
             'pendaftarans.user',
             'pendaftarans.sesi',
@@ -65,7 +72,17 @@ class PraktikumController extends Controller
         $aslabRole = \App\Models\Role::where('name', 'Aslab')->first();
         $allAslabs = $aslabRole ? \App\Models\User::where('role_id', $aslabRole->id)->get() : collect();
 
-        return view('admin.praktikum.show', compact('praktikum', 'allAslabs'));
+        // Calculate available modules for scheduling
+        $scheduledModules = $praktikum->jadwals->pluck('judul_modul')->toArray();
+        $availableModules = [];
+        for ($i = 1; $i <= $praktikum->jumlah_modul; $i++) {
+            $availableModules[] = "Modul $i";
+        }
+        if ($praktikum->ada_tugas_akhir) {
+            $availableModules[] = "Tugas Akhir";
+        }
+
+        return view('admin.praktikum.show', compact('praktikum', 'allAslabs', 'availableModules', 'scheduledModules'));
     }
 
     public function edit($id)
@@ -87,6 +104,8 @@ class PraktikumController extends Controller
             'daftar_dosen.*' => 'required|string|max:255',
             'daftar_kelas_mk' => 'required|array|min:1',
             'daftar_kelas_mk.*' => 'required|string|max:255',
+            'jumlah_modul' => 'required|integer|min:0',
+            'ada_tugas_akhir' => 'required|boolean',
         ]);
 
         $praktikum->update($request->all());
@@ -170,5 +189,36 @@ class PraktikumController extends Controller
         $pendaftaran->save();
 
         return back()->with('success', 'Aslab berhasil disematkan ke mahasiswa.');
+    }
+
+    public function storeJadwal(Request $request, $praktikum_id)
+    {
+        $request->validate([
+            'judul_modul' => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'waktu_mulai' => 'required',
+            'waktu_selesai' => 'required|after:waktu_mulai',
+            'ruangan' => 'nullable|string|max:255',
+        ]);
+
+        $praktikum = Praktikum::findOrFail($praktikum_id);
+
+        $praktikum->jadwals()->create([
+            'judul_modul' => $request->judul_modul,
+            'tanggal' => $request->tanggal,
+            'waktu_mulai' => $request->waktu_mulai,
+            'waktu_selesai' => $request->waktu_selesai,
+            'ruangan' => $request->ruangan,
+        ]);
+
+        return back()->with('success', 'Jadwal Modul Praktikum berhasil ditambahkan.');
+    }
+
+    public function destroyJadwal($id)
+    {
+        $jadwal = \App\Models\JadwalPraktikum::findOrFail($id);
+        $jadwal->delete();
+
+        return back()->with('success', 'Jadwal Modul Praktikum berhasil dihapus.');
     }
 }

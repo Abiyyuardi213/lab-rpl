@@ -54,11 +54,19 @@ Route::middleware('auth')->group(function () {
         Route::post('praktikum/{praktikum_id}/aslab', [\App\Http\Controllers\PraktikumController::class, 'storeAslab'])->name('praktikum.aslab.store');
         Route::delete('praktikum/aslab/{id}', [\App\Http\Controllers\PraktikumController::class, 'destroyAslab'])->name('praktikum.aslab.destroy');
         Route::patch('praktikum/pendaftaran/{pendaftaran_id}/assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'assignStudentToAslab'])->name('praktikum.pendaftaran.assign-aslab');
+        // Jadwal Praktikum
+        Route::post('praktikum/{praktikum_id}/jadwal', [\App\Http\Controllers\PraktikumController::class, 'storeJadwal'])->name('praktikum.jadwal.store');
+        Route::delete('praktikum/jadwal/{id}', [\App\Http\Controllers\PraktikumController::class, 'destroyJadwal'])->name('praktikum.jadwal.destroy');
+        Route::resource('jadwal-praktikum', \App\Http\Controllers\JadwalPraktikumController::class)->except(['create', 'edit', 'show']);
 
         // Pendaftaran Management (Admin)
         Route::get('/pendaftaran', [\App\Http\Controllers\Admin\PendaftaranController::class, 'index'])->name('pendaftaran.index');
         Route::get('/pendaftaran/{id}', [\App\Http\Controllers\Admin\PendaftaranController::class, 'show'])->name('pendaftaran.show');
         Route::patch('/pendaftaran/{id}/status', [\App\Http\Controllers\Admin\PendaftaranController::class, 'updateStatus'])->name('pendaftaran.update-status');
+
+        // Profile Management (Admin)
+        Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
         // Praktikan Management
         Route::resource('praktikan', \App\Http\Controllers\PraktikanController::class);
@@ -67,13 +75,12 @@ Route::middleware('auth')->group(function () {
         // User Actions
         Route::get('/kaprodi', fn() => 'Kaprodi Index')->name('kaprodi.index');
         Route::get('/prodi', fn() => 'Prodi Index')->name('prodi.index');
-        Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
-        Route::patch('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 
         Route::prefix('mahasiswa-cuti')->name('mahasiswa-cuti.')->group(function () {
             Route::get('/dashboard', fn() => 'Cuti Dashboard')->name('dashboard');
             Route::get('/', fn() => 'Cuti Index')->name('index');
         });
+
         Route::get('/periode', fn() => 'Periode Index')->name('periode.index');
         Route::prefix('fasilitas')->name('fasilitas.')->group(function () {
             Route::get('/dashboard', fn() => 'Fasilitas Dashboard')->name('dashboard');
@@ -91,22 +98,34 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengumuman', fn() => 'Pengumuman Index')->name('pengumuman.index');
     });
 
+    // Removed global profile routes
+
     // Aslab Section
     Route::prefix('aslab')->name('aslab.')->middleware(['role.aslab'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Aslab\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/pendaftaran', [\App\Http\Controllers\Aslab\PendaftaranController::class, 'index'])->name('pendaftaran.index');
         Route::patch('/pendaftaran/{id}/assign', [\App\Http\Controllers\Aslab\PendaftaranController::class, 'assign'])->name('pendaftaran.assign');
         Route::resource('tugas', \App\Http\Controllers\Aslab\TugasController::class);
+
+        // Profile Management (Aslab)
+        Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     });
 
     // Praktikan Section
-    Route::prefix('praktikan')->name('praktikan.')->middleware(['role.praktikan'])->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\Praktikan\DashboardController::class, 'index'])->name('dashboard');
-        Route::get('/daftar-praktikum/{praktikum_id}', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'create'])->name('pendaftaran.create');
-        Route::post('/daftar-praktikum', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'store'])->name('pendaftaran.store');
-        Route::get('/riwayat-pendaftaran', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'index'])->name('pendaftaran.index');
-        Route::get('/pendaftaran/{id}/progress', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'progress'])->name('pendaftaran.progress');
-        Route::post('/tugas/{tugas_id}/submit', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'submitTugas'])->name('pendaftaran.submit-tugas');
+    Route::prefix('praktikan')->name('praktikan.')->group(function () {
+        Route::middleware(['role.praktikan'])->group(function () {
+            Route::get('/dashboard', [\App\Http\Controllers\Praktikan\DashboardController::class, 'index'])->name('dashboard');
+            Route::get('/daftar-praktikum/{praktikum_id}', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'create'])->name('pendaftaran.create');
+            Route::post('/daftar-praktikum', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'store'])->name('pendaftaran.store');
+            Route::get('/riwayat-pendaftaran', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'index'])->name('pendaftaran.index');
+            Route::get('/pendaftaran/{id}/progress', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'progress'])->name('pendaftaran.progress');
+            Route::post('/tugas/{tugas_id}/submit', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'submitTugas'])->name('pendaftaran.submit-tugas');
+
+            // Profile Management (Praktikan)
+            Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+            Route::patch('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+        });
     });
 });
 
@@ -115,8 +134,4 @@ Route::name('notifications.')->group(function () {
     Route::post('/notifications/read-all', fn() => back())->name('readAll');
     Route::get('/notifications/{id}/go', fn() => back())->name('go');
     Route::get('/notifications', fn() => 'Notifications Index')->name('index');
-});
-
-Route::name('users.')->group(function () {
-    Route::get('/user/profile/edit', fn() => 'User Profile Edit')->name('profile.edit');
 });

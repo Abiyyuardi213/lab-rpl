@@ -120,6 +120,15 @@
                                     @endif
                                 </div>
                                 <p class="text-sm text-slate-600 leading-relaxed">{{ $t->deskripsi }}</p>
+                                @if ($t->file_tugas)
+                                    <div class="mt-3">
+                                        <a href="{{ asset('storage/' . $t->file_tugas) }}" target="_blank"
+                                            class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold border border-blue-100 hover:bg-blue-100 transition-all">
+                                            <i class="fas fa-file-download"></i>
+                                            UNDUH SOAL/MODUL
+                                        </a>
+                                    </div>
+                                @endif
                                 <div
                                     class="flex items-center gap-4 text-[10px] font-bold uppercase tracking-tight text-slate-400">
                                     <span class="flex items-center gap-1.5">

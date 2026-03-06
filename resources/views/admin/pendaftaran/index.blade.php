@@ -96,9 +96,23 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-center gap-2">
                                         <a href="{{ route('admin.pendaftaran.show', $p->id) }}"
-                                            class="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-600 hover:bg-[#001f3f] hover:text-white transition-all shadow-sm active:scale-95 group">
+                                            class="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-600 hover:bg-[#001f3f] hover:text-white transition-all shadow-sm active:scale-95 group"
+                                            title="Detail Pendaftaran">
                                             <i class="fas fa-eye text-xs"></i>
                                         </a>
+
+                                        @if ($p->status === 'pending')
+                                            <button onclick="updateStatus('{{ $p->id }}', 'verified')"
+                                                class="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all shadow-sm active:scale-95"
+                                                title="Verifikasi Mahasiswa">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </button>
+                                            <button onclick="updateStatus('{{ $p->id }}', 'rejected')"
+                                                class="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-95"
+                                                title="Tolak Pendaftaran">
+                                                <i class="fas fa-times text-xs"></i>
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -117,4 +131,101 @@
             </div>
         </div>
     </div>
+    <script>
+        function updateStatus(id, status) {
+            let url = "{{ route('admin.pendaftaran.update-status', ':id') }}".replace(':id', id);
+
+            if (status === 'verified') {
+                Swal.fire({
+                    title: 'Verifikasi Pendaftaran?',
+                    text: "Konfirmasi bahwa data mahasiswa sudah sesuai.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#f1f5f9',
+                    confirmButtonText: 'Ya, Verifikasi',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'rounded-[1.5rem]',
+                        confirmButton: 'px-6 py-2.5 rounded-xl font-bold text-xs',
+                        cancelButton: 'px-6 py-2.5 rounded-xl font-bold text-xs text-zinc-600'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        submitStatusForm(url, status);
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Tolak Pendaftaran?',
+                    text: "Berikan alasan penolakan untuk mahasiswa.",
+                    icon: 'warning',
+                    input: 'textarea',
+                    inputPlaceholder: 'Tulis alasan penolakan di sini...',
+                    inputAttributes: {
+                        'aria-label': 'Tulis alasan penolakan di sini'
+                    },
+                    showCancelButton: true,
+                    confirmButtonColor: '#f43f5e',
+                    cancelButtonColor: '#f1f5f9',
+                    confirmButtonText: 'Ya, Tolak',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'Anda harus memberikan alasan penolakan!'
+                        }
+                    },
+                    customClass: {
+                        popup: 'rounded-[1.5rem]',
+                        confirmButton: 'px-6 py-2.5 rounded-xl font-bold text-xs',
+                        cancelButton: 'px-6 py-2.5 rounded-xl font-bold text-xs text-zinc-600',
+                        input: 'rounded-xl text-sm border-zinc-200'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        submitStatusForm(url, status, result.value);
+                    }
+                });
+            }
+        }
+
+        function submitStatusForm(url, status, catatan = '') {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+
+            const csrfToken = '{{ csrf_token() }}';
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'PATCH';
+            form.appendChild(methodInput);
+
+            const statusInput = document.createElement('input');
+            statusInput.type = 'hidden';
+            statusInput.name = 'status';
+            statusInput.value = status;
+            form.appendChild(statusInput);
+
+            if (catatan) {
+                const catatanInput = document.createElement('input');
+                catatanInput.type = 'hidden';
+                catatanInput.name = 'catatan';
+                catatanInput.value = catatan;
+                form.appendChild(catatanInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
 @endsection

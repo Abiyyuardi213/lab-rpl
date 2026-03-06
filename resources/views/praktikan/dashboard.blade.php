@@ -46,10 +46,11 @@
                         <i class="fas fa-flask text-lg"></i>
                     </div>
                 </div>
-                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Praktikum Berlangsung</h3>
-                <p class="text-xl font-bold text-slate-900">0 Praktikum</p>
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Praktikum Diikuti</h3>
+                <p class="text-xl font-bold text-slate-900">
+                    {{ Auth::user()->praktikan->pendaftarans()->where('status', 'verified')->count() }} Praktikum</p>
                 <div class="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2">
-                    <p class="text-[10px] text-slate-500 font-medium">Belum terdaftar di kelas manapun</p>
+                    <p class="text-[10px] text-slate-500 font-medium tracking-tight">Terverifikasi di sistem</p>
                 </div>
             </div>
 
@@ -58,15 +59,68 @@
                 <div class="flex items-center justify-between mb-4">
                     <div
                         class="h-10 w-10 rounded-xl bg-purple-50 flex items-center justify-center border border-purple-100 text-purple-600">
-                        <i class="fas fa-calendar-check text-lg"></i>
+                        <i class="fas fa-calendar-alt text-lg"></i>
                     </div>
                 </div>
-                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Total Kehadiran</h3>
-                <p class="text-xl font-bold text-slate-900">N/A</p>
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Jadwal Mendatang</h3>
+                <p class="text-xl font-bold text-slate-900">{{ $upcomingSchedules->count() }} Agenda</p>
                 <div class="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 text-slate-500">
-                    <i class="fas fa-exclamation-circle text-[10px]"></i>
-                    <p class="text-[10px] font-medium italic">Data segera hadir</p>
+                    <p class="text-[10px] font-medium tracking-tight italic">Cek jadwal pelaksanaan praktikum</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Schedules -->
+        <div class="mt-10">
+            <div class="flex items-center gap-3 mb-6">
+                <div
+                    class="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/10">
+                    <i class="fas fa-clock text-[10px]"></i>
+                </div>
+                <h2 class="text-lg font-bold text-slate-900 uppercase tracking-tight">Jadwal Praktikum Mendatang</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                @forelse($upcomingSchedules as $jadwal)
+                    <div
+                        class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500/50 transition-all group">
+                        <div class="flex justify-between items-start mb-3">
+                            <span
+                                class="text-[9px] font-black bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded uppercase tracking-widest border border-emerald-100">Aktif</span>
+                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                                {{ $jadwal->praktikum->kode_praktikum }}</div>
+                        </div>
+                        <h4
+                            class="text-sm font-bold text-slate-900 line-clamp-1 uppercase group-hover:text-emerald-600 transition-colors">
+                            {{ $jadwal->judul_modul }}</h4>
+                        <p class="text-[11px] font-medium text-slate-500 mb-3 line-clamp-1 italic">
+                            {{ $jadwal->praktikum->nama_praktikum }}</p>
+
+                        <div class="space-y-2 pt-3 border-t border-slate-50">
+                            <div class="flex items-center gap-2">
+                                <i class="far fa-calendar text-[10px] text-slate-400"></i>
+                                <span
+                                    class="text-[10px] font-bold text-slate-700">{{ \Carbon\Carbon::parse($jadwal->tanggal)->translatedFormat('l, d M Y') }}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="far fa-clock text-[10px] text-slate-400"></i>
+                                <span class="text-[10px] font-bold text-slate-700">{{ substr($jadwal->waktu_mulai, 0, 5) }}
+                                    - {{ substr($jadwal->waktu_selesai, 0, 5) }} WIB</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-location-dot text-[10px] text-slate-400"></i>
+                                <span
+                                    class="text-[10px] font-bold text-slate-700">{{ $jadwal->ruangan ?? 'Laboratorium RPL' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div
+                        class="col-span-1 md:col-span-2 lg:col-span-4 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 p-8 text-center">
+                        <p class="text-xs text-slate-400 font-medium italic">Tidak ada jadwal praktikum mendatang untuk
+                            Anda.</p>
+                    </div>
+                @endforelse
             </div>
         </div>
 
@@ -156,11 +210,19 @@
                                     </div>
                                 </div>
 
-                                <a href="{{ route('praktikan.pendaftaran.create', $p->id) }}"
-                                    class="w-full py-2.5 rounded-xl bg-[#001f3f] text-white text-[10px] font-bold uppercase tracking-[0.2em] shadow-lg shadow-[#001f3f]/10 transition-all hover:bg-[#002d5a] active:scale-[0.98] flex items-center justify-center gap-2 group-hover:gap-3">
-                                    Daftar Praktikum
-                                    <i class="fas fa-arrow-right text-[10px]"></i>
-                                </a>
+                                @if ($p->pendaftarans->isNotEmpty())
+                                    <div
+                                        class="w-full py-2.5 rounded-xl bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-[0.2em] border border-emerald-100 flex items-center justify-center gap-2">
+                                        Sudah Terdaftar
+                                        <i class="fas fa-check-double text-[10px]"></i>
+                                    </div>
+                                @else
+                                    <a href="{{ route('praktikan.pendaftaran.create', $p->id) }}"
+                                        class="w-full py-2.5 rounded-xl bg-[#001f3f] text-white text-[10px] font-bold uppercase tracking-[0.2em] shadow-lg shadow-[#001f3f]/10 transition-all hover:bg-[#002d5a] active:scale-[0.98] flex items-center justify-center gap-2 group-hover:gap-3">
+                                        Daftar Praktikum
+                                        <i class="fas fa-arrow-right text-[10px]"></i>
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     @endforeach
