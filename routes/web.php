@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
-    Route::get('/login', fn() => redirect()->route('login.praktikan'))->name('login');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
     Route::get('/login-aslab', [AuthController::class, 'showAslabLogin'])->name('login.aslab');
     Route::post('/login-aslab', [AuthController::class, 'aslabLogin'])->name('login.aslab.post');
@@ -18,16 +18,20 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
-// Authenticated Routes
-Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    Route::get('/', function () {
+Route::get('/', function () {
+    if (Auth::check()) {
         if (Auth::user()->role && Auth::user()->role->name === 'Praktikan') {
             return redirect()->route('praktikan.dashboard');
         }
         return redirect()->route('admin.dashboard');
-    });
+    }
+    return redirect()->route('login.praktikan');
+});
+
+// Authenticated Routes
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 
     Route::prefix('admin')->name('admin.')->middleware(['role.admin'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');

@@ -98,22 +98,7 @@
 
             <div class="h-[1px] bg-zinc-200/50 w-full"></div>
 
-            <div class="text-center">
-                <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">Ingin mendaftar sebagai
-                    praktikan?</p>
-                <div class="flex flex-col gap-2">
-                    <a href="{{ route('register') }}"
-                        class="inline-flex items-center gap-2 justify-center w-full py-2.5 rounded-xl border border-zinc-200 bg-white text-xs font-black text-zinc-900 hover:bg-zinc-50 transition-all active:scale-[0.98] uppercase tracking-widest">
-                        <span>Daftar Sekarang</span>
-                        <i class="fas fa-user-plus text-[10px]"></i>
-                    </a>
-                    <a href="{{ route('login.aslab') }}"
-                        class="inline-flex items-center gap-2 justify-center w-full py-2.5 rounded-xl border border-zinc-200 bg-[#001f3f]/5 text-xs font-black text-[#001f3f] hover:bg-[#001f3f]/10 transition-all active:scale-[0.98] uppercase tracking-widest">
-                        <span>Login sebagai Aslab</span>
-                        <i class="fas fa-user-gear text-[10px]"></i>
-                    </a>
-                </div>
-            </div>
+
         </div>
     </div>
 

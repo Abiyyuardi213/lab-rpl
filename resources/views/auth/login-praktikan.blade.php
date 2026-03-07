@@ -23,7 +23,7 @@
         <div class="mb-6 flex justify-center">
             <img src="{{ asset('image/rplmini.png') }}" class="h-24 w-auto object-contain" alt="Logo">
         </div>
-        <h1 class="text-2xl font-bold tracking-tight text-zinc-900">LabRPL AdminPanel</h1>
+        <h1 class="text-2xl font-bold tracking-tight text-zinc-900">Laboratorium Rekayasa Perangkat Lunak</h1>
         <p class="text-sm text-zinc-500 mt-2 max-w-sm mx-auto">Sistem Informasi Laboratorium Rekayasa Perangkat Lunak -
             ITATS</p>
     </div>
@@ -115,11 +115,6 @@
                 </a>
             </div>
 
-            <div class="text-center pt-2">
-                <a href="{{ route('login') }}"
-                    class="text-[10px] font-bold text-zinc-400 hover:text-[#001f3f] transition-colors uppercase tracking-widest">Login
-                    Sebagai Admin</a>
-            </div>
         </div>
     </div>
 
