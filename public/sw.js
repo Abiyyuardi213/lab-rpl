@@ -9,7 +9,7 @@
 
 const CACHE_NAME = "lab-rpl-v1.3"; // Increment version to force update
 const STATIC_ASSETS = [
-    "/image/rplmini.png",
+    "/image/logo-RPL.jpg",
     "/manifest.json",
 ];
 

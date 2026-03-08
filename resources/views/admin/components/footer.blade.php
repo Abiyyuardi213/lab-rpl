@@ -4,7 +4,7 @@
             <!-- Branding -->
             <div class="col-span-1 md:col-span-1">
                 <div class="flex items-center gap-3 mb-6">
-                    <img src="{{ asset('image/rplmini.png') }}" alt="LabRPL Logo" class="w-12 h-12 object-contain">
+                    <img src="{{ asset('image/logo-RPL.jpg') }}" alt="LabRPL Logo" class="w-12 h-12 object-contain">
                     <div class="flex flex-col">
                         <h3 class="font-extrabold text-slate-900 leading-tight">LAB RPL ITATS</h3>
                         <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Informatika</span>

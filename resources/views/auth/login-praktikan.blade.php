@@ -13,6 +13,10 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -21,7 +25,7 @@
     <!-- Header Section -->
     <div class="text-center mb-8">
         <div class="mb-6 flex justify-center">
-            <img src="{{ asset('image/rplmini.png') }}" class="h-24 w-auto object-contain" alt="Logo">
+            <img src="{{ asset('image/logo-RPL.jpg') }}" class="h-24 w-auto object-contain" alt="Logo">
         </div>
         <h1 class="text-2xl font-bold tracking-tight text-zinc-900">Laboratorium Rekayasa Perangkat Lunak</h1>
         <p class="text-sm text-zinc-500 mt-2 max-w-sm mx-auto">Sistem Informasi Laboratorium Rekayasa Perangkat Lunak -

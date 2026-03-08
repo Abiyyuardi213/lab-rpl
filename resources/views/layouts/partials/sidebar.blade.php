@@ -4,7 +4,7 @@
     <div class="h-20 flex items-center px-6 border-b border-zinc-100 bg-white">
         <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-4 group">
             <div class="flex-shrink-0">
-                <img src="{{ asset('image/rplmini.png') }}" alt="Logo RPL"
+                <img src="{{ asset('image/logo-RPL.jpg') }}" alt="Logo RPL"
                     class="h-10 w-auto object-contain transition-transform duration-500 group-hover:rotate-[5deg]">
             </div>
             <div class="flex items-center gap-3">

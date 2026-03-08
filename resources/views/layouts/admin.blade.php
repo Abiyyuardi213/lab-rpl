@@ -5,8 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Dashboard') - Lab RPL ITATS</title>
-    <link rel="shortcut icon" href="{{ asset('image/icon-hmif.png') }}" type="image/x-icon">
-    <link rel="icon" href="{{ asset('image/icon-hmif.png') }}" type="image/x-icon">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -23,8 +24,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Lab RPL">
-    <link rel="apple-touch-icon" href="{{ asset('image/rplmini.png') }}">
-    <link rel="apple-touch-startup-image" href="{{ asset('image/rplmini.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('image/logo-RPL.jpg') }}">
+    <link rel="apple-touch-startup-image" href="{{ asset('image/logo-RPL.jpg') }}">
 </head>
 
 <body class="bg-gray-50/50 min-h-screen font-sans antialiased text-slate-800 flex flex-col">

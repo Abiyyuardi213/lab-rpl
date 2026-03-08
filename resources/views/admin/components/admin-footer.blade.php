@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-2">
-                <img src="{{ asset('image/rplmini.png') }}" alt="Logo" class="w-6 h-6 object-contain">
+                <img src="{{ asset('image/logo-RPL.jpg') }}" alt="Logo" class="w-6 h-6 object-contain">
                 <span class="text-xs font-bold text-slate-900 tracking-tight">Lab RPL Informatikax ITATS</span>
             </div>
 

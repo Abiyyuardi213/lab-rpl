@@ -8,6 +8,10 @@
     <meta name="description"
         content="Website resmi Himpunan Mahasiswa Informatika ITATS. Informasi struktur organisasi, divisi, program kerja, kegiatan, dan pengumuman/berita.">
 
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
+
     {{-- Tailwind CSS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -164,7 +168,8 @@
                 <div>
                     <h3 class="text-sm font-semibold mb-3">Navigasi</h3>
                     <ul class="space-y-2">
-                        <li><a href="/struktur-organisasi" class="text-sm hover:underline">Struktur Organisasi</a></li>
+                        <li><a href="/struktur-organisasi" class="text-sm hover:underline">Struktur Organisasi</a>
+                        </li>
                         <li><a href="/program-kerja" class="text-sm hover:underline">Program Kerja</a></li>
                         <li><a href="/kegiatan" class="text-sm hover:underline">Kegiatan</a></li>
                         <li><a href="/pengumuman" class="text-sm hover:underline">Pengumuman & Berita</a></li>
