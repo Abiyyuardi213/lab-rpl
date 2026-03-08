@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -18,15 +19,19 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
-Route::get('/', function () {
+Route::get('/', [WelcomeController::class, 'index'])->name('home');
+Route::get('/tentang', [WelcomeController::class, 'about'])->name('about');
+
+// Dashboard redirection for logged in users
+Route::get('/home', function () {
     if (Auth::check()) {
         if (Auth::user()->role && Auth::user()->role->name === 'Praktikan') {
             return redirect()->route('praktikan.dashboard');
         }
         return redirect()->route('admin.dashboard');
     }
-    return redirect()->route('login.praktikan');
-});
+    return redirect()->route('home');
+})->name('dashboard.redirect');
 
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
