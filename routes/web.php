@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\PresensiController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -122,6 +123,10 @@ Route::middleware('auth')->group(function () {
         Route::patch('/pendaftaran/{id}/assign', [\App\Http\Controllers\Aslab\PendaftaranController::class, 'assign'])->name('pendaftaran.assign');
         Route::resource('tugas', \App\Http\Controllers\Aslab\TugasController::class);
 
+        // Presensi (Aslab)
+        Route::get('/presensi/scan', [PresensiController::class, 'scan'])->name('presensi.scan');
+        Route::post('/presensi/check-in', [PresensiController::class, 'checkIn'])->name('presensi.check-in');
+
         // Profile Management (Aslab)
         Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
@@ -136,6 +141,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/riwayat-pendaftaran', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'index'])->name('pendaftaran.index');
             Route::get('/pendaftaran/{id}/progress', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'progress'])->name('pendaftaran.progress');
             Route::post('/tugas/{tugas_id}/submit', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'submitTugas'])->name('pendaftaran.submit-tugas');
+
+            // Presensi (Praktikan)
+            Route::get('/presensi/generate-qr/{jadwal_id}', [PresensiController::class, 'generateQR'])->name('presensi.generate-qr');
 
             // Profile Management (Praktikan)
             Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');

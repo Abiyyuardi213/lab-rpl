@@ -19,4 +19,9 @@ class JadwalPraktikum extends Model
     {
         return $this->belongsTo(Praktikum::class);
     }
+
+    public function presensis()
+    {
+        return $this->hasMany(Presensi::class, 'jadwal_id');
+    }
 }

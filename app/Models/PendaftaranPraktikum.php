@@ -55,4 +55,9 @@ class PendaftaranPraktikum extends Model
     {
         return $this->hasMany(TugasAsistensi::class, 'pendaftaran_id');
     }
+
+    public function presensis()
+    {
+        return $this->hasMany(Presensi::class, 'pendaftaran_id');
+    }
 }

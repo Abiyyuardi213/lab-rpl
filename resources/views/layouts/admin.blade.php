@@ -26,6 +26,7 @@
     <meta name="apple-mobile-web-app-title" content="Lab RPL">
     <link rel="apple-touch-icon" href="{{ asset('image/logo-RPL.jpg') }}">
     <link rel="apple-touch-startup-image" href="{{ asset('image/logo-RPL.jpg') }}">
+    @stack('styles')
 </head>
 
 <body class="bg-gray-50/50 min-h-screen font-sans antialiased text-slate-800 flex flex-col">
@@ -75,6 +76,7 @@
             });
         }
     </script>
+    @stack('scripts')
 </body>
 
 </html>

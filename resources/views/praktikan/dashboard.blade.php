@@ -261,6 +261,16 @@
                                 </div>
                             @endif
                         </div>
+
+                        @if ($isOngoing || (!$isFinished && $now->diffInMinutes($start) <= 60))
+                            <div class="mt-4">
+                                <a href="{{ route('praktikan.presensi.generate-qr', $jadwal->id) }}"
+                                    class="w-full py-2 bg-emerald-600 border border-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-600/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                                    <i class="fas fa-qrcode"></i>
+                                    Presensi Sekarang
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 @empty
                     <div

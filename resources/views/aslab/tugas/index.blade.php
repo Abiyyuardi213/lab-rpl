@@ -134,10 +134,11 @@
                                             class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm border border-emerald-100">
                                             <i class="fas fa-marker text-[10px]"></i>
                                         </button>
-                                        <form action="{{ route('aslab.tugas.destroy', $t->id) }}" method="POST"
+                                        <form id="delete-form-{{ $t->id }}"
+                                            action="{{ route('aslab.tugas.destroy', $t->id) }}" method="POST"
                                             class="inline">
                                             @csrf @method('DELETE')
-                                            <button type="submit" onclick="return confirm('Hapus tugas ini?')"
+                                            <button type="button" onclick="confirmDelete('{{ $t->id }}')"
                                                 class="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm border border-rose-100">
                                                 <i class="fas fa-trash-alt text-[10px]"></i>
                                             </button>
@@ -230,9 +231,10 @@
                                 <i class="fas fa-marker"></i>
                                 Review
                             </button>
-                            <form action="{{ route('aslab.tugas.destroy', $t->id) }}" method="POST" class="col-span-1">
+                            <form id="delete-form-mobile-{{ $t->id }}"
+                                action="{{ route('aslab.tugas.destroy', $t->id) }}" method="POST" class="col-span-1">
                                 @csrf @method('DELETE')
-                                <button type="submit" onclick="return confirm('Hapus tugas ini?')"
+                                <button type="button" onclick="confirmDelete('{{ $t->id }}', true)"
                                     class="w-full py-3 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center border border-rose-100">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
@@ -379,6 +381,49 @@
 
             document.getElementById('modal-review').classList.remove('hidden');
         }
+
+        function confirmDelete(id, isMobile = false) {
+            Swal.fire({
+                title: 'Hapus Tugas?',
+                text: "Tugas ini akan dihapus permanen dari sistem!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#f1f5f9',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-3xl',
+                    confirmButton: 'px-6 py-3 rounded-xl font-bold text-sm',
+                    cancelButton: 'px-6 py-3 rounded-xl font-bold text-sm text-slate-600'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const formId = isMobile ? `delete-form-mobile-${id}` : `delete-form-${id}`;
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
+
+        @if (session('success'))
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: '{{ session('success') }}'
+            });
+        @endif
 
         // Close modal on click outside
         window.onclick = function(event) {

@@ -61,6 +61,13 @@
                         <span
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('aslab/tugas*') ? 'w-full' : '' }}"></span>
                     </a>
+
+                    <a href="{{ route('aslab.presensi.scan') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('aslab/presensi*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Scanner Presensi
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('aslab/presensi*') ? 'w-full' : '' }}"></span>
+                    </a>
                 @else
                     <a href="{{ url('/admin/dashboard') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
@@ -224,6 +231,9 @@
                 <a href="{{ route('aslab.tugas.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/tugas*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Tugas
                     Asistensi</a>
+                <a href="{{ route('aslab.presensi.scan') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/presensi*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Scanner
+                    Presensi</a>
             @else
                 <a href="{{ url('/admin/dashboard') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
