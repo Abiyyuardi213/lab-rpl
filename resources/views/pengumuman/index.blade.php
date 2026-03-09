@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @section('title', 'Daftar Pengumuman — Lab RPL ITATS')
-@section('meta_description', 'Kumpulan berita dan pengumuman terbaru seputar Laboratorium Rekayasa Perangkat Lunak
+@section('meta_description',
+    'Kumpulan berita dan pengumuman terbaru seputar Laboratorium Rekayasa Perangkat Lunak
     ITATS.')
 
 
@@ -14,65 +15,35 @@
         </div>
 
         {{-- Hero Section --}}
-        <section class="relative z-10 max-w-screen-xl mx-auto px-6 pt-16 md:pt-24 pb-20">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                {{-- Left: Content --}}
-                <div class="flex flex-col gap-8">
-                    <div
-                        class="inline-flex w-fit items-center gap-3 rounded-full bg-blue-50 border border-blue-100 px-4 py-1.5 text-xs font-bold text-blue-600 shadow-sm">
-                        <span class="relative flex h-2 w-2">
-                            <span
-                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-                        </span>
-                        UPDATE TERKINI • LAB RPL
-                    </div>
-
-                    <h1
-                        class="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight text-slate-900 italic">
-                        Pengumuman <br>
-                        <span class="text-blue-600 not-italic">& Berita Terbaru</span>
-                    </h1>
-
-                    <p class="text-lg md:text-xl text-slate-500 max-w-prose leading-relaxed font-medium">
-                        Ikuti perkembangan terbaru mengenai jadwal praktikum, kegiatan laboratorium, dan informasi penting
-                        lainnya untuk seluruh praktikan Lab RPL ITATS.
-                    </p>
-
-                    <div class="flex flex-wrap items-center gap-4 pt-4">
-                        <a href="#list-pengumuman"
-                            class="inline-flex items-center justify-center whitespace-nowrap rounded-2xl text-sm font-bold transition-all hover:scale-105 active:scale-95 bg-blue-600 text-white hover:bg-blue-700 h-14 px-10 shadow-xl shadow-blue-600/20">
-                            Lihat Pengumuman
-                            <i class="fas fa-arrow-down ml-3 text-xs opacity-70"></i>
-                        </a>
-                        <a href="{{ route('login.praktikan') }}"
-                            class="inline-flex items-center justify-center whitespace-nowrap rounded-2xl text-sm font-bold transition-all hover:scale-105 active:scale-95 bg-slate-50 text-slate-700 hover:bg-slate-100 h-14 px-10 border border-slate-200 shadow-sm">
-                            Portal Praktikan
-                        </a>
-                    </div>
+        <section class="relative z-10 max-w-screen-2xl mx-auto px-6 md:px-10 pt-10 md:pt-16 pb-12">
+            <div class="text-center max-w-4xl mx-auto flex flex-col items-center gap-6 relative z-10">
+                <div
+                    class="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-500 mb-2">
+                    <span class="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(37,99,235,0.4)]"></span>
+                    Update Terkini • Lab RPL
                 </div>
 
-                {{-- Right: Visual --}}
-                <div class="relative group hidden lg:block">
-                    <div
-                        class="absolute -inset-4 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-[2.5rem] blur opacity-10 group-hover:opacity-20 transition duration-1000">
-                    </div>
-                    <div
-                        class="relative aspect-[4/3] rounded-[2rem] overflow-hidden border-8 border-white shadow-2xl shadow-blue-900/10">
-                        <img src="{{ asset('image/praktikum1.jpg') }}" alt="Kegiatan Laboratorium"
-                            class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent">
-                        </div>
-                        <div class="absolute bottom-10 left-10 right-10 text-white">
-                            <div class="flex items-center gap-3 mb-3">
-                                <span class="h-[2px] w-8 bg-blue-500"></span>
-                                <span class="text-xs font-black uppercase tracking-[0.2em] text-blue-400">Pusat
-                                    Informasi</span>
-                            </div>
-                            <h3 class="font-extrabold text-3xl leading-tight">Menciptakan Inovasi Lewat Lab RPL</h3>
-                        </div>
-                    </div>
+                <h1
+                    class="text-balance text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight text-black">
+                    Pusat <span class="text-[#1a4fa0]">Pengumuman & Berita</span>
+                </h1>
+
+                <p class="text-lg text-slate-600 max-w-prose leading-relaxed">
+                    Ikuti perkembangan terbaru mengenai jadwal praktikum, kegiatan laboratorium, dan informasi penting
+                    lainnya untuk seluruh praktikan Lab RPL ITATS.
+                </p>
+
+                <div class="flex flex-wrap items-center justify-center gap-4 mt-2">
+                    <a href="#list-pengumuman"
+                        class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-12 px-8 py-2 shadow-lg shadow-[#1a4fa0]/25">
+                        Lihat Pengumuman
+                    </a>
+                    <a href="{{ route('login.praktikan') }}"
+                        class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all hover:scale-105 hover:bg-slate-100 h-12 px-8 py-2 border-2 border-slate-200 text-slate-700 bg-white">
+                        Portal Praktikan
+                    </a>
                 </div>
+                <div class="w-16 h-1 bg-[#1a4fa0] mt-4 rounded-full"></div>
             </div>
         </section>
 
