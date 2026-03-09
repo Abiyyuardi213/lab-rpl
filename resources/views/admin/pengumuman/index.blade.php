@@ -135,6 +135,15 @@
         </div>
     </div>
 
+    @push('styles')
+        <style>
+            .dataTables_empty {
+                padding: 0 !important;
+                background-color: transparent !important;
+            }
+        </style>
+    @endpush
+
     @push('scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
@@ -144,6 +153,22 @@
                     dom: 't<"flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
                     language: {
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                        infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                        infoFiltered: "(disaring dari _MAX_ total data)",
+                        lengthMenu: "Tampilkan _MENU_ data",
+                        loadingRecords: "Memuat...",
+                        processing: "Sedang memproses...",
+                        search: "Cari:",
+                        zeroRecords: "Pengumuman tidak ditemukan",
+                        emptyTable: `
+                            <div class="flex flex-col items-center justify-center py-20 text-zinc-400">
+                                <div class="h-20 w-20 rounded-full bg-zinc-50 flex items-center justify-center mb-4 border border-zinc-100 shadow-inner">
+                                    <i class="fas fa-bullhorn text-3xl opacity-20"></i>
+                                </div>
+                                <h3 class="text-sm font-black uppercase tracking-[0.2em] text-zinc-400">Data Kosong</h3>
+                                <p class="text-[10px] italic mt-1 font-medium tracking-tight">Belum ada pengumuman yang dipublikasikan saat ini.</p>
+                            </div>
+                        `,
                         paginate: {
                             next: '<i class="fas fa-chevron-right text-[10px]"></i>',
                             previous: '<i class="fas fa-chevron-left text-[10px]"></i>'
