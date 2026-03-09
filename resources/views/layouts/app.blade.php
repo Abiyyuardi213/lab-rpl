@@ -4,9 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPL ITATS — Teknik Informatika</title>
-    <meta name="description"
-        content="Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika.">
+    <title>@yield('title', 'RPL ITATS — Teknik Informatika')</title>
+    <meta name="description" content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika.')">
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">

@@ -40,7 +40,7 @@
                         class="absolute -inset-1 bg-gradient-to-r from-[#1a4fa0] to-blue-400 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200">
                     </div>
                     <div
-                        class="relative aspect-video lg:aspect-square rounded-2xl overflow-hidden border-4 border-white shadow-2xl">
+                        class="relative aspect-video lg:aspect-[3/2] rounded-2xl overflow-hidden border-4 border-white shadow-2xl">
                         <img src="{{ asset('image/praktikum1.jpg') }}" alt="Aktivitas Lab RPL"
                             class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>

@@ -123,6 +123,13 @@
                         <span
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/praktikan*') ? 'w-full' : '' }}"></span>
                     </a>
+
+                    <a href="{{ route('admin.pengumuman.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/pengumuman*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Pengumuman
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/pengumuman*') ? 'w-full' : '' }}"></span>
+                    </a>
                 @endif
             </div>
 
@@ -245,6 +252,9 @@
                 <a href="{{ route('admin.praktikan.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/praktikan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Praktikan</a>
+                <a href="{{ route('admin.pengumuman.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/pengumuman*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    Pengumuman</a>
             @endif
             <div class="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-slate-100">
                 <button onclick="confirmLogout()"

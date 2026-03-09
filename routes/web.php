@@ -21,6 +21,10 @@ Route::middleware('guest')->group(function () {
 
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 Route::get('/tentang', [WelcomeController::class, 'about'])->name('about');
+Route::get('/praktikum', [WelcomeController::class, 'praktikum'])->name('praktikum.public');
+Route::get('/struktur-organisasi', [WelcomeController::class, 'organization'])->name('organization');
+Route::get('/pengumuman', [WelcomeController::class, 'pengumuman'])->name('pengumuman.public');
+Route::get('/pengumuman/{slug}', [WelcomeController::class, 'pengumumanDetail'])->name('pengumuman.show');
 
 // Dashboard redirection for logged in users
 Route::get('/home', function () {
@@ -105,7 +109,8 @@ Route::middleware('auth')->group(function () {
         });
         Route::get('/pengajuan-ruangan', fn() => 'Pengajuan Index')->name('pengajuan-ruangan.index');
         Route::get('/legalisir', fn() => 'Legalisir Index')->name('legalisir.index');
-        Route::get('/pengumuman', fn() => 'Pengumuman Index')->name('pengumuman.index');
+        Route::resource('pengumuman', \App\Http\Controllers\Admin\PengumumanController::class);
+        Route::patch('pengumuman/{pengumuman}/toggle-status', [\App\Http\Controllers\Admin\PengumumanController::class, 'toggleStatus'])->name('pengumuman.toggle-status');
     });
 
     // Removed global profile routes
