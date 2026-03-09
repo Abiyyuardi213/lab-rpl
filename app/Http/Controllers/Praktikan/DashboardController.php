@@ -40,7 +40,11 @@ class DashboardController extends Controller
 
             $pendaftaranIds = $activePendaftarans->pluck('praktikum_id');
 
-            $upcomingSchedules = \App\Models\JadwalPraktikum::with('praktikum')
+            $upcomingSchedules = \App\Models\JadwalPraktikum::with(['praktikum', 'presensis' => function ($q) use ($praktikan) {
+                $q->whereHas('pendaftaran', function ($pq) use ($praktikan) {
+                    $pq->where('praktikan_id', $praktikan->id);
+                });
+            }])
                 ->whereIn('praktikum_id', $pendaftaranIds)
                 ->where('tanggal', '>=', now()->subDay()->toDateString())
                 ->orderBy('tanggal', 'asc')

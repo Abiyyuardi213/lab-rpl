@@ -129,6 +129,33 @@ class PresensiController extends Controller
         ]);
     }
 
+    public function checkStatus($jadwal_id)
+    {
+        $user = Auth::user();
+        $praktikan = $user->praktikan;
+
+        if (!$praktikan) {
+            return response()->json(['present' => false]);
+        }
+
+        $jadwal = JadwalPraktikum::findOrFail($jadwal_id);
+
+        $pendaftaran = PendaftaranPraktikum::where('praktikan_id', $praktikan->id)
+            ->where('praktikum_id', $jadwal->praktikum_id)
+            ->where('status', 'verified')
+            ->first();
+
+        if (!$pendaftaran) {
+            return response()->json(['present' => false]);
+        }
+
+        $present = Presensi::where('jadwal_id', $jadwal->id)
+            ->where('pendaftaran_id', $pendaftaran->id)
+            ->exists();
+
+        return response()->json(['present' => $present]);
+    }
+
     private function parseModulNumber($judul)
     {
         // Extract number from "Modul X"

@@ -85,6 +85,33 @@
                         `QR Kadaluarsa dalam ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
                     timeLeft--;
                 }, 1000);
+
+                // Polling for manual check status
+                const pollStatus = setInterval(() => {
+                    fetch(`{{ route('praktikan.presensi.check-status', $jadwal->id) }}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.present) {
+                                clearInterval(pollStatus);
+                                clearInterval(countdown);
+
+                                Swal.fire({
+                                    title: 'Presensi Berhasil!',
+                                    text: 'Terima kasih, kehadiran Anda telah dicatat oleh sistem.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#059669',
+                                    confirmButtonText: 'Kembali ke Dashboard',
+                                    customClass: {
+                                        popup: 'rounded-3xl',
+                                        confirmButton: 'px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-xs'
+                                    }
+                                }).then(() => {
+                                    window.location.href = "{{ route('praktikan.dashboard') }}";
+                                });
+                            }
+                        })
+                        .catch(err => console.error('Polling error:', err));
+                }, 5000); // Check every 5 seconds
             });
         </script>
     @endpush

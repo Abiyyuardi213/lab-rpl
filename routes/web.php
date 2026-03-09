@@ -144,6 +144,7 @@ Route::middleware('auth')->group(function () {
 
             // Presensi (Praktikan)
             Route::get('/presensi/generate-qr/{jadwal_id}', [PresensiController::class, 'generateQR'])->name('presensi.generate-qr');
+            Route::get('/presensi/check-status/{jadwal_id}', [PresensiController::class, 'checkStatus'])->name('presensi.check-status');
 
             // Profile Management (Praktikan)
             Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');

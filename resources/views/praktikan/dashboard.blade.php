@@ -212,8 +212,12 @@
 
                         $statusLabel = 'Aktif';
                         $statusClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
+                        $hasPresensi = $jadwal->presensis->isNotEmpty();
 
-                        if ($isFinished) {
+                        if ($hasPresensi) {
+                            $statusLabel = 'Hadir';
+                            $statusClass = 'bg-emerald-500 text-white border-emerald-400';
+                        } elseif ($isFinished) {
                             $statusLabel = 'Selesai';
                             $statusClass = 'bg-slate-100 text-slate-500 border-slate-200';
                         } elseif ($isOngoing) {
@@ -222,7 +226,7 @@
                         }
                     @endphp
                     <div
-                        class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500/50 transition-all group {{ $isFinished ? 'opacity-70' : '' }}">
+                        class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500/50 transition-all group {{ $isFinished && !$hasPresensi ? 'opacity-70' : '' }}">
                         <div class="flex justify-between items-start mb-3">
                             <span
                                 class="text-[9px] font-black {{ $statusClass }} px-2 py-0.5 rounded uppercase tracking-widest border">
@@ -248,10 +252,10 @@
                                 <span class="text-[10px] font-bold text-slate-700">{{ substr($jadwal->waktu_mulai, 0, 5) }}
                                     - {{ substr($jadwal->waktu_selesai, 0, 5) }} WIB</span>
                             </div>
-                            @if ($isFinished)
+                            @if ($isFinished && !$hasPresensi)
                                 <div
                                     class="mt-2 text-[8px] font-black text-rose-500 uppercase tracking-widest border-t border-dashed border-rose-100 pt-2 animate-bounce">
-                                    <i class="fas fa-info-circle mr-1"></i> Menunggu Jadwal Modul Selanjutnya
+                                    <i class="fas fa-info-circle mr-1"></i> Sesi Telah Berakhir
                                 </div>
                             @else
                                 <div class="flex items-center gap-2">
@@ -262,7 +266,15 @@
                             @endif
                         </div>
 
-                        @if ($isOngoing || (!$isFinished && $now->diffInMinutes($start) <= 60))
+                        @if ($hasPresensi)
+                            <div class="mt-4">
+                                <div
+                                    class="w-full py-2 bg-emerald-50 border border-emerald-200 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2">
+                                    <i class="fas fa-check-circle"></i>
+                                    Sudah Presensi
+                                </div>
+                            </div>
+                        @elseif ($isOngoing || (!$isFinished && $now->diffInMinutes($start) <= 60))
                             <div class="mt-4">
                                 <a href="{{ route('praktikan.presensi.generate-qr', $jadwal->id) }}"
                                     class="w-full py-2 bg-emerald-600 border border-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-600/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
