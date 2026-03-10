@@ -55,9 +55,14 @@
                                     'bg-emerald-50 text-emerald-600' =>
                                         $p->status_praktikum === 'open_registration',
                                     'bg-amber-50 text-amber-600' => $p->status_praktikum === 'on_progress',
+                                    'bg-rose-50 text-rose-600' => $p->status_praktikum === 'finished',
                                     'bg-slate-100 text-slate-500' => $p->status_praktikum === 'closed',
                                 ])>
-                                    {{ str_replace('_', ' ', $p->status_praktikum) }}
+                                    @if ($p->status_praktikum === 'finished')
+                                        Selesai / Berakhir
+                                    @else
+                                        {{ str_replace('_', ' ', $p->status_praktikum) }}
+                                    @endif
                                 </span>
                             </div>
 
@@ -88,12 +93,26 @@
                                 </div>
                             </div>
 
-                            <a href="{{ route('login.praktikan') }}"
-                                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-50 text-[#1a4fa0] font-bold hover:bg-[#1a4fa0] hover:text-white transition-all duration-300 group/btn">
-                                Daftar Praktikum
-                                <i
-                                    class="fas fa-arrow-right text-xs transform group-hover/btn:translate-x-1 transition-transform"></i>
-                            </a>
+                            @if ($p->status_praktikum === 'open_registration')
+                                <a href="{{ route('login.praktikan') }}"
+                                    class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-50 text-[#1a4fa0] font-bold hover:bg-[#1a4fa0] hover:text-white transition-all duration-300 group/btn shadow-sm">
+                                    Daftar Praktikum
+                                    <i
+                                        class="fas fa-arrow-right text-xs transform group-hover/btn:translate-x-1 transition-transform"></i>
+                                </a>
+                            @elseif($p->status_praktikum === 'on_progress')
+                                <button disabled
+                                    class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-100 text-slate-400 font-bold cursor-not-allowed">
+                                    <i class="fas fa-spinner fa-spin text-xs"></i>
+                                    Sedang Berjalan
+                                </button>
+                            @else
+                                <button disabled
+                                    class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-100 text-slate-400 font-bold cursor-not-allowed">
+                                    <i class="fas fa-lock text-xs"></i>
+                                    Pendaftaran Ditutup
+                                </button>
+                            @endif
                         </div>
                     @empty
                         <div class="col-span-full py-20 text-center">

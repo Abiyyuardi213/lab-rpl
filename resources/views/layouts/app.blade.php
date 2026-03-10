@@ -15,6 +15,8 @@
         rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     {{-- Tailwind CSS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -228,6 +230,27 @@
             });
         });
     </script>
+
+    {{-- Notification Handler --}}
+    @if (session('logout_success'))
+        <script>
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: "{{ session('logout_success') }}",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'rounded-2xl shadow-xl border border-emerald-100',
+                    title: 'text-sm font-bold text-slate-800'
+                }
+            });
+        </script>
+    @endif
+
+    @yield('scripts')
 </body>
 
 </html>
