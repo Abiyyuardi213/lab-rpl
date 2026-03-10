@@ -26,6 +26,8 @@ Route::get('/praktikum', [WelcomeController::class, 'praktikum'])->name('praktik
 Route::get('/struktur-organisasi', [WelcomeController::class, 'organization'])->name('organization');
 Route::get('/pengumuman', [WelcomeController::class, 'pengumuman'])->name('pengumuman.public');
 Route::get('/pengumuman/{slug}', [WelcomeController::class, 'pengumumanDetail'])->name('pengumuman.show');
+Route::get('/kegiatan', [WelcomeController::class, 'kegiatan'])->name('kegiatan.public');
+Route::get('/kegiatan/{slug}', [WelcomeController::class, 'kegiatanDetail'])->name('kegiatan.show');
 
 // Dashboard redirection for logged in users
 Route::get('/home', function () {
@@ -112,6 +114,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/legalisir', fn() => 'Legalisir Index')->name('legalisir.index');
         Route::resource('pengumuman', \App\Http\Controllers\Admin\PengumumanController::class);
         Route::patch('pengumuman/{pengumuman}/toggle-status', [\App\Http\Controllers\Admin\PengumumanController::class, 'toggleStatus'])->name('pengumuman.toggle-status');
+        Route::resource('kegiatan', \App\Http\Controllers\Admin\KegiatanController::class);
+        Route::patch('kegiatan/{kegiatan}/toggle-status', [\App\Http\Controllers\Admin\KegiatanController::class, 'toggleStatus'])->name('kegiatan.toggle-status');
     });
 
     // Removed global profile routes

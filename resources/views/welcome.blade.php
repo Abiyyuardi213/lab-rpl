@@ -157,6 +157,62 @@
         </div>
     </section>
 
+    {{-- Latest Activities --}}
+    @if ($latestKegiatans->count() > 0)
+        <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-24 border-t border-slate-100">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                <div class="max-w-xl">
+                    <h4 class="text-blue-600 font-black tracking-[0.3em] uppercase text-xs mb-4">Update Lab</h4>
+                    <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">Dokumentasi
+                        <br> <span class="text-[#1a4fa0]">Kegiatan Terkini</span></h2>
+                </div>
+                <a href="{{ route('kegiatan.public') }}"
+                    class="group flex items-center gap-3 bg-slate-50 hover:bg-[#1a4fa0] px-6 py-3 rounded-2xl transition-all duration-300">
+                    <span class="text-sm font-bold text-slate-600 group-hover:text-white transition-colors">Lihat Semua
+                        Report</span>
+                    <i class="fas fa-arrow-right text-xs text-slate-400 group-hover:text-white transition-colors"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                @foreach ($latestKegiatans as $k)
+                    <article
+                        class="group relative bg-white rounded-[2rem] border border-slate-200 overflow-hidden hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-500 flex flex-col h-full">
+                        <div class="relative h-48 overflow-hidden shrink-0">
+                            @if ($k->gambar)
+                                <img src="{{ asset('storage/' . $k->gambar) }}"
+                                    class="w-full h-full object-cover transition duration-700 group-hover:scale-110">
+                            @else
+                                <div class="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300">
+                                    <i class="fas fa-camera text-4xl"></i>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="p-8 flex flex-col flex-1">
+                            <div
+                                class="flex items-center gap-2 mb-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <i class="far fa-calendar-alt text-blue-500"></i>
+                                {{ $k->tanggal_kegiatan->translatedFormat('d M Y') }}
+                            </div>
+                            <h3
+                                class="text-lg font-extrabold text-slate-900 mb-4 group-hover:text-[#1a4fa0] transition-colors line-clamp-2">
+                                {{ $k->judul }}</h3>
+                            <p class="text-sm text-slate-500 line-clamp-3 mb-6 leading-relaxed">
+                                {{ strip_tags($k->konten) }}</p>
+                            <div class="mt-auto border-t border-slate-50 pt-6">
+                                <a href="{{ route('kegiatan.show', $k->slug) }}"
+                                    class="inline-flex items-center gap-2 text-xs font-black text-[#1a4fa0] uppercase tracking-widest group/btn py-1 px-3 rounded-lg hover:bg-blue-50 transition-all">
+                                    BACA REPORT <i
+                                        class="fas fa-arrow-right text-[10px] transform group-hover/btn:translate-x-1 transition-transform"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
     {{-- About Section --}}
     <section id="tentang" class="bg-slate-50 py-20 px-6">
         <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -189,7 +245,8 @@
             </div>
             <div class="order-1 lg:order-2">
                 <h4 class="text-primary font-bold tracking-widest uppercase text-sm mb-4">Tentang Laboratorium</h4>
-                <h2 class="text-4xl font-extrabold text-slate-900 mb-6 leading-tight">Membangun Fondasi <br> Perangkat Lunak
+                <h2 class="text-4xl font-extrabold text-slate-900 mb-6 leading-tight">Membangun Fondasi <br> Perangkat
+                    Lunak
                     Berkualitas</h2>
                 <div class="space-y-4 text-slate-600 leading-relaxed">
                     <p>Laboratorium Rekayasa Perangkat Lunak (RPL) ITATS didedikasikan untuk eksplorasi dan riset dalam
@@ -206,7 +263,8 @@
                     </div>
                     <div>
                         <div class="text-primary font-bold text-xl">Misi</div>
-                        <p class="text-sm text-slate-500 mt-2">Mencetak praktikan yang mahir dalam analisis dan pengembangan
+                        <p class="text-sm text-slate-500 mt-2">Mencetak praktikan yang mahir dalam analisis dan
+                            pengembangan
                             sistem cerdas.</p>
                     </div>
                 </div>

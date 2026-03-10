@@ -6,6 +6,7 @@ use App\Models\Praktikum;
 use App\Models\Aslab;
 use App\Models\Praktikan;
 use App\Models\Pengumuman;
+use App\Models\Kegiatan;
 use Illuminate\Http\Request;
 
 class WelcomeController extends Controller
@@ -24,7 +25,10 @@ class WelcomeController extends Controller
         // Get latest active/open praktikum
         $latestPraktikum = \App\Models\Praktikum::whereIn('status_praktikum', ['open_registration', 'on_progress'])->latest()->first();
 
-        return view('welcome', compact('stats', 'latestPraktikum'));
+        // Get latest activities
+        $latestKegiatans = \App\Models\Kegiatan::where('is_active', true)->latest()->take(3)->get();
+
+        return view('welcome', compact('stats', 'latestPraktikum', 'latestKegiatans'));
     }
 
     public function about()
@@ -75,5 +79,30 @@ class WelcomeController extends Controller
             ->get();
 
         return view('pengumuman.show', compact('pengumuman', 'recentPengumumans'));
+    }
+    public function kegiatan()
+    {
+        $kegiatans = Kegiatan::with('user')
+            ->where('is_active', true)
+            ->latest()
+            ->paginate(9);
+
+        return view('kegiatan.index', compact('kegiatans'));
+    }
+
+    public function kegiatanDetail($slug)
+    {
+        $kegiatan = Kegiatan::with('user')
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $recentKegiatans = Kegiatan::where('is_active', true)
+            ->where('id', '!=', $kegiatan->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('kegiatan.show', compact('kegiatan', 'recentKegiatans'));
     }
 }
