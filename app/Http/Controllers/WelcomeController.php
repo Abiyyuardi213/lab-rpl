@@ -46,11 +46,28 @@ class WelcomeController extends Controller
     {
         $kepalaLab = config('lab-rpl.kepala_lab');
 
-        $aslabs = \App\Models\Aslab::with('user')
+        $allAslabs = \App\Models\Aslab::with('user')
             ->whereHas('user', function ($q) {
                 $q->where('status', true);
             })
             ->get();
+
+        // Hierarchy ordering
+        $hierarchy = [
+            'Koordinator Laboratorium',
+            'Koordinator Praktikum Pemrograman Terstruktur',
+            'Koordinator Praktikum Struktur Data',
+            'Koordinator Praktikum Basis Data',
+            'Sekretaris',
+            'Bendahara',
+            'Admin',
+            'Anggota'
+        ];
+
+        $aslabs = $allAslabs->sortBy(function ($aslab) use ($hierarchy) {
+            $index = array_search($aslab->jabatan, $hierarchy);
+            return $index === false ? 99 : $index;
+        });
 
         return view('struktur-organisasi', compact('kepalaLab', 'aslabs'));
     }

@@ -52,6 +52,7 @@
                             <th class="px-6 align-middle font-medium text-zinc-500 w-12 text-center">NO</th>
                             <th class="px-6 align-middle font-medium text-zinc-500">NPM</th>
                             <th class="px-6 align-middle font-medium text-zinc-500">NAMA ASLAB</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500">JABATAN</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-center">STATUS</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-right">AKSI</th>
                         </tr>
@@ -79,6 +80,12 @@
                                             <span class="text-xs text-zinc-500">{{ $aslab->email }}</span>
                                         </div>
                                     </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold bg-zinc-50 border border-zinc-100 text-[#001f3f] uppercase tracking-wider">
+                                        {{ $aslab->aslab?->jabatan ?? 'Anggota' }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <button onclick="toggleAslabStatus('{{ $aslab->id }}')"
@@ -175,7 +182,7 @@
                     },
                     columnDefs: [{
                         orderable: false,
-                        targets: [4]
+                        targets: [5]
                     }]
                 });
 

@@ -13,6 +13,7 @@ class Aslab extends Model
     protected $fillable = [
         'user_id',
         'npm',
+        'jabatan',
         'no_hp',
         'jurusan',
         'angkatan',

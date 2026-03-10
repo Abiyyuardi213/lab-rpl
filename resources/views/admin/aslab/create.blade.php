@@ -77,15 +77,50 @@
                                 </div>
                             </div>
 
-                            <div class="space-y-2">
-                                <label for="angkatan"
-                                    class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Angkatan</label>
-                                <input type="text" name="angkatan" id="angkatan" value="{{ old('angkatan') }}"
-                                    class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
-                                    placeholder="2024">
-                                @error('angkatan')
-                                    <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
-                                @enderror
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                                <div class="space-y-2 text-left">
+                                    <label for="angkatan"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Angkatan</label>
+                                    <input type="text" name="angkatan" id="angkatan" value="{{ old('angkatan') }}"
+                                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
+                                        placeholder="2024">
+                                    @error('angkatan')
+                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="jabatan"
+                                        class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Jabatan
+                                        Struktur</label>
+                                    <select name="jabatan" id="jabatan"
+                                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"
+                                        required>
+                                        <option value="Anggota" {{ old('jabatan') == 'Anggota' ? 'selected' : '' }}>Anggota
+                                            Aslab</option>
+                                        <option value="Koordinator Laboratorium"
+                                            {{ old('jabatan') == 'Koordinator Laboratorium' ? 'selected' : '' }}>
+                                            Koordinator Laboratorium</option>
+                                        <option value="Koordinator Praktikum Pemrograman Terstruktur"
+                                            {{ old('jabatan') == 'Koordinator Praktikum Pemrograman Terstruktur' ? 'selected' : '' }}>
+                                            Koordinator Praktikum Pemrograman Terstruktur</option>
+                                        <option value="Koordinator Praktikum Struktur Data"
+                                            {{ old('jabatan') == 'Koordinator Praktikum Struktur Data' ? 'selected' : '' }}>
+                                            Koordinator Praktikum Struktur Data</option>
+                                        <option value="Koordinator Praktikum Basis Data"
+                                            {{ old('jabatan') == 'Koordinator Praktikum Basis Data' ? 'selected' : '' }}>
+                                            Koordinator Praktikum Basis Data</option>
+                                        <option value="Sekretaris" {{ old('jabatan') == 'Sekretaris' ? 'selected' : '' }}>
+                                            Sekretaris</option>
+                                        <option value="Bendahara" {{ old('jabatan') == 'Bendahara' ? 'selected' : '' }}>
+                                            Bendahara</option>
+                                        <option value="Admin" {{ old('jabatan') == 'Admin' ? 'selected' : '' }}>Admin
+                                        </option>
+                                    </select>
+                                    @error('jabatan')
+                                        <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -58,54 +58,85 @@
                 {{-- Asisten Laboratorium (Second Tier) --}}
                 <div class="mt-8 border-t border-slate-200 pt-16 relative">
                     {{-- Horizontal Connecting Line for Desktop --}}
+                    {{-- Horizontal Connecting Line for Desktop --}}
                     <div class="absolute top-0 left-0 w-0.5 h-10 bg-slate-300 hidden md:block" style="left: 50%;"></div>
 
                     <div class="text-center mb-16">
                         <h4 class="text-[#1a4fa0] font-bold tracking-widest uppercase text-xs">Asisten Laboratorium</h4>
-                        <p class="text-slate-500 text-sm mt-2">Dukungan teknis dan bimbingan praktikum mahasiswa.</p>
+                        <p class="text-slate-500 text-sm mt-2">Kepengurusan dan Anggota Lab RPL ITATS</p>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        @forelse($aslabs as $aslab)
-                            <div
-                                class="group relative bg-white rounded-3xl p-6 border border-slate-200 hover:border-[#1a4fa0]/30 hover:shadow-xl transition-all duration-500">
-                                <div class="relative w-24 h-24 mx-auto mb-6">
-                                    <div
-                                        class="absolute inset-0 bg-[#1a4fa0]/10 rounded-2xl group-hover:scale-110 transition-transform">
-                                    </div>
-                                    <img src="{{ $aslab->user->profile_picture ? asset('storage/' . $aslab->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($aslab->user->name) . '&background=f1f5f9&color=64748b' }}"
-                                        alt="{{ $aslab->user->name }}"
-                                        class="relative w-full h-full rounded-2xl object-cover border-2 border-white shadow-sm">
-                                </div>
-                                <div class="text-center">
-                                    <h5
-                                        class="text-sm font-bold text-slate-900 leading-tight mb-1 group-hover:text-[#1a4fa0] transition-colors">
-                                        {{ $aslab->user->name }}
-                                    </h5>
-                                    <p class="text-xs text-slate-500 mb-4">{{ $aslab->jurusan }} • {{ $aslab->angkatan }}
-                                    </p>
-                                    <div class="flex items-center justify-center gap-2">
-                                        <span
-                                            class="text-[9px] font-bold text-slate-400 border border-slate-100 px-2 py-0.5 rounded shadow-sm">
-                                            NPM: {{ $aslab->npm }}
-                                        </span>
-                                    </div>
-                                </div>
+                    @php
+                        $korlab = $aslabs->where('jabatan', 'Koordinator Laboratorium');
+                        $korpraktikum = $aslabs->filter(function ($aslab) {
+                            return str_contains($aslab->jabatan, 'Koordinator Praktikum');
+                        });
+                        $manajemen = $aslabs->whereIn('jabatan', ['Sekretaris', 'Bendahara', 'Admin']);
+                        $anggota = $aslabs->where('jabatan', 'Anggota');
+                    @endphp
+
+                    {{-- Koordinator Laboratorium --}}
+                    @if ($korlab->count() > 0)
+                        <div class="flex justify-center mb-16">
+                            @foreach ($korlab as $aslab)
+                                @include('partials.aslab-card', ['aslab' => $aslab, 'width' => 'w-72'])
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- Koordinator Praktikum --}}
+                    @if ($korpraktikum->count() > 0)
+                        <div class="mb-16">
+                            <h5 class="text-center text-[#1a4fa0] font-bold text-[10px] uppercase tracking-[0.2em] mb-8">
+                                Koordinator Praktikum</h5>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                                @foreach ($korpraktikum as $aslab)
+                                    @include('partials.aslab-card', ['aslab' => $aslab])
+                                @endforeach
                             </div>
-                        @empty
-                            <div class="col-span-full py-12 text-center text-slate-400">
-                                <i class="fas fa-users-slash text-4xl mb-4 opacity-20"></i>
-                                <p>Data asisten belum dipublikasikan.</p>
+                        </div>
+                    @endif
+
+                    {{-- Manajemen (Bendahara, Sekretaris, Admin) --}}
+                    @if ($manajemen->count() > 0)
+                        <div class="mb-16">
+                            <h5 class="text-center text-[#1a4fa0] font-bold text-[10px] uppercase tracking-[0.2em] mb-8">
+                                Sekretaris, Bendahara & Admin</h5>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                                @foreach ($manajemen as $aslab)
+                                    @include('partials.aslab-card', ['aslab' => $aslab])
+                                @endforeach
                             </div>
-                        @endforelse
-                    </div>
+                        </div>
+                    @endif
+
+                    {{-- Anggota --}}
+                    @if ($anggota->count() > 0)
+                        <div>
+                            <h5 class="text-center text-[#1a4fa0] font-bold text-[10px] uppercase tracking-[0.2em] mb-8">
+                                Anggota Asisten Laboratorium</h5>
+                            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                                @foreach ($anggota as $aslab)
+                                    @include('partials.aslab-card', ['aslab' => $aslab])
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($aslabs->isEmpty())
+                        <div class="col-span-full py-12 text-center text-slate-400">
+                            <i class="fas fa-users-slash text-4xl mb-4 opacity-20"></i>
+                            <p>Data asisten belum dipublikasikan.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </section>
 
         {{-- Culture Section --}}
         <section class="py-24 max-w-7xl mx-auto px-6">
-            <div class="bg-[#1a4fa0] rounded-[3rem] p-12 md:p-20 text-white relative overflow-hidden">
+            <div
+                class="bg-[#1a4fa0] rounded-[3rem] p-12 md:p-20 text-white relative overflow-hidden shadow-2xl shadow-blue-900/10">
                 <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                 <div class="absolute bottom-0 left-0 w-64 h-64 bg-blue-400/10 rounded-full -ml-20 -mb-20 blur-2xl"></div>
 
@@ -137,4 +168,85 @@
             </div>
         </section>
     </div>
+
+@section('scripts')
+    <script>
+        function showAslabDetail(data) {
+            Swal.fire({
+                html: `
+                        <div class="text-left p-2">
+                            <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
+                                <div class="shrink-0 relative group">
+                                    <div class="absolute -inset-1 bg-gradient-to-tr from-[#1a4fa0] to-blue-300 rounded-[2rem] blur opacity-25"></div>
+                                    <img src="${data.foto}" alt="${data.name}" class="relative w-40 h-40 object-cover rounded-[2rem] border-4 border-white shadow-xl">
+                                </div>
+                                <div class="flex-1 text-center md:text-left pt-2">
+                                    <h3 class="text-2xl font-black text-slate-900 leading-tight">${data.name}</h3>
+                                    <p class="text-[#1a4fa0] font-bold uppercase tracking-wider text-xs mb-6 mt-1">${data.jabatan}</p>
+                                    
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div class="space-y-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[#1a4fa0]">
+                                                    <i class="fas fa-id-badge text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest leading-none mb-1">NPM</p>
+                                                    <p class="text-sm font-bold text-slate-700">${data.npm}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[#1a4fa0]">
+                                                    <i class="fas fa-graduation-cap text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest leading-none mb-1">Jurusan</p>
+                                                    <p class="text-sm font-bold text-slate-700">${data.jurusan}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[#1a4fa0]">
+                                                    <i class="fas fa-calendar-check text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest leading-none mb-1">Angkatan</p>
+                                                    <p class="text-sm font-bold text-slate-700">${data.angkatan}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[#1a4fa0]">
+                                                    <i class="fas fa-envelope text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest leading-none mb-1">Email</p>
+                                                    <p class="text-sm font-bold text-slate-700 truncate w-40" title="${data.email}">${data.email}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-8 pt-6 border-t border-slate-100 flex items-center gap-4">
+                                        <a href="https://wa.me/${data.no_hp.replace(/\D/g,'')}" target="_blank" class="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-[#1a4fa0] transition-colors shadow-lg">
+                                            <i class="fab fa-whatsapp"></i> Hubungi Aslab
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                width: 'auto',
+                maxWidth: '100%',
+                padding: '1.5rem',
+                showConfirmButton: false,
+                showCloseButton: true,
+                customClass: {
+                    popup: 'rounded-[2.5rem] overflow-hidden border-2 border-slate-50 shadow-2xl',
+                    closeButton: 'hover:text-[#1a4fa0] transition-colors'
+                }
+            });
+        }
+    </script>
+@endsection
 @endsection

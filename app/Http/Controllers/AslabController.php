@@ -40,6 +40,7 @@ class AslabController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'angkatan' => 'nullable|string',
+            'jabatan' => 'required|string',
             'no_hp' => 'nullable|string',
         ]);
 
@@ -61,6 +62,7 @@ class AslabController extends Controller
         Aslab::create([
             'user_id' => $user->id,
             'npm' => $request->npm,
+            'jabatan' => $request->jabatan,
             'jurusan' => 'Teknik Informatika',
             'angkatan' => $request->angkatan,
             'no_hp' => $request->no_hp,
@@ -92,6 +94,7 @@ class AslabController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'angkatan' => 'nullable|string',
+            'jabatan' => 'required|string',
             'no_hp' => 'nullable|string',
         ]);
 
@@ -118,6 +121,7 @@ class AslabController extends Controller
             ['user_id' => $user->id],
             [
                 'npm' => $request->npm,
+                'jabatan' => $request->jabatan,
                 'jurusan' => 'Teknik Informatika',
                 'angkatan' => $request->angkatan,
                 'no_hp' => $request->no_hp,
