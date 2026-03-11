@@ -181,8 +181,8 @@
                             if (data.success) {
                                 count++;
                                 scanCount.innerText = count;
-                                addLog(data.nama, data.status, 'success');
-                                showResultModal(true, data.message);
+                                addLog(data.nama, data.sesi, data.status, 'success');
+                                showResultModal(true, data.message, data.sesi);
                             } else {
                                 showResultModal(false, data.message);
                             }
@@ -192,7 +192,7 @@
                         });
                 }
 
-                function addLog(name, status, type) {
+                function addLog(name, sesi, status, type) {
                     if (count === 1) logContainer.innerHTML = ''; // Clear empty message
 
                     const time = new Date().toLocaleTimeString('id-ID', {
@@ -208,6 +208,7 @@
                             <div class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-black">${name.charAt(0)}</div>
                             <div>
                                 <p class="text-[11px] font-bold text-slate-900">${name}</p>
+                                <p class="text-[9px] text-slate-500 font-medium">${sesi}</p>
                                 <p class="text-[8px] text-slate-400 font-medium uppercase tracking-widest">${time} WIB</p>
                             </div>
                         </div>
@@ -222,7 +223,7 @@
                     processingModal.classList.add('flex');
                 }
 
-                function showResultModal(success, message) {
+                function showResultModal(success, message, sesi = '') {
                     const icon = success ? 'fa-check-circle text-emerald-500' : 'fa-times-circle text-rose-500';
                     const buttonClass = success ? 'bg-emerald-600' : 'bg-rose-600';
 
@@ -231,6 +232,7 @@
                         <i class="fas ${icon} text-6xl"></i>
                         <p class="mt-6 font-bold text-slate-900 uppercase tracking-tight text-lg">${success ? 'Berhasil!' : 'Gagal!'}</p>
                         <p class="text-sm text-slate-500 mt-2">${message}</p>
+                        ${success ? `<p class="text-[10px] font-black text-emerald-600 bg-emerald-50 py-2 px-4 rounded-xl mt-3 uppercase tracking-widest border border-emerald-100">${sesi}</p>` : ''}
                         <button onclick="closeModal()" class="mt-8 w-full py-4 ${buttonClass} text-white font-black text-xs uppercase tracking-widest rounded-2xl shadow-lg transition-all active:scale-95">OK, Lanjut Scan</button>
                     </div>
                 `;

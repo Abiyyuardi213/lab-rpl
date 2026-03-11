@@ -127,7 +127,7 @@ class PresensiController extends Controller
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat validasi QR.'], 400);
         }
 
-        $pendaftaran = PendaftaranPraktikum::findOrFail($data['pendaftaran_id']);
+        $pendaftaran = PendaftaranPraktikum::with('sesi')->findOrFail($data['pendaftaran_id']);
         $jadwal = JadwalPraktikum::findOrFail($data['jadwal_id']);
 
         // Final validation 
@@ -153,10 +153,15 @@ class PresensiController extends Controller
             'status' => $status
         ]);
 
+        $sesiInfo = $pendaftaran->sesi ? 
+            "{$pendaftaran->sesi->nama_sesi} ({$pendaftaran->sesi->hari}, {$pendaftaran->sesi->jam_mulai}-{$pendaftaran->sesi->jam_selesai})" : 
+            "Tidak Terdaftar Sesi";
+
         return response()->json([
             'success' => true,
             'message' => 'Presensi berhasil: ' . $pendaftaran->praktikan->user->name,
             'nama' => $pendaftaran->praktikan->user->name,
+            'sesi' => $sesiInfo,
             'status' => $status
         ]);
     }
