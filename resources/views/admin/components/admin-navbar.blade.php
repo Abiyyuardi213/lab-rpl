@@ -163,14 +163,14 @@
                 </div>
 
                 <div class="relative group">
-                    <button
+                    <button id="profile-dropdown-button"
                         class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 p-0.5 border border-slate-200 focus:outline-none flex items-center justify-center overflow-hidden">
                         <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=f8fafc&color=0f172a&bold=true"
                             class="w-full h-full object-cover">
                     </button>
                     <!-- Dropdown -->
-                    <div
-                        class="absolute top-full right-0 pt-3 w-56 hidden group-hover:block transition-all animate-in fade-in slide-in-from-top-2">
+                    <div id="profile-dropdown-menu"
+                        class="absolute top-full right-0 pt-3 w-56 hidden group-hover:block lg:group-hover:block transition-all animate-in fade-in slide-in-from-top-2">
                         <div class="bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden">
                             <div class="px-4 py-3 mb-2 rounded-xl bg-slate-50/50">
                                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Signed
@@ -286,7 +286,26 @@
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/kegiatan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Kegiatan</a>
             @endif
+
+            {{-- Profile Link for Mobile --}}
             <div class="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-slate-100">
+                @php
+                    $profileEditRoute = 'admin.profile.edit';
+                    if (Auth::user()->role) {
+                        if (Auth::user()->role->name === 'Praktikan') {
+                            $profileEditRoute = 'praktikan.profile.edit';
+                        } elseif (Auth::user()->role->name === 'Aslab') {
+                            $profileEditRoute = 'aslab.profile.edit';
+                        }
+                    }
+                @endphp
+                <a href="{{ route($profileEditRoute) }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('*/profile/edit') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">
+                    <i class="fas fa-user-circle mr-2"></i> Pengaturan Profil
+                </a>
+            </div>
+
+            <div class="pt-2">
                 <button onclick="confirmLogout()"
                     class="w-full py-2.5 sm:py-3 bg-rose-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-rose-600/20">LOGOUT</button>
             </div>
@@ -303,6 +322,22 @@
     document.getElementById('admin-mobile-button').addEventListener('click', function() {
         const menu = document.getElementById('admin-mobile-menu');
         menu.classList.toggle('hidden');
+    });
+
+    // Profile Dropdown Toggle for Mobile
+    document.getElementById('profile-dropdown-button').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const dropdown = document.getElementById('profile-dropdown-menu');
+        dropdown.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('profile-dropdown-menu');
+        const button = document.getElementById('profile-dropdown-button');
+        if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.add('hidden');
+        }
     });
 
     function confirmLogout() {
