@@ -11,6 +11,10 @@ class AuthController extends Controller
     {
         if (Auth::check()) {
             $user = Auth::user();
+            if (!$user->role) {
+                Auth::logout();
+                return redirect()->route('login')->withErrors(['username' => 'Akun Anda tidak memiliki peran.']);
+            }
             if ($user->role->name === 'Praktikan') {
                 return redirect()->route('praktikan.dashboard');
             } elseif ($user->role->name === 'Aslab') {
@@ -53,8 +57,12 @@ class AuthController extends Controller
     public function showAslabLogin()
     {
         if (Auth::check()) {
-            if (Auth::user()->role->name === 'Aslab') {
+            $user = Auth::user();
+            if ($user->role && $user->role->name === 'Aslab') {
                 return redirect()->route('aslab.dashboard');
+            }
+            if ($user->role && $user->role->name === 'Praktikan') {
+                return redirect()->route('praktikan.dashboard');
             }
             return redirect()->route('admin.dashboard');
         }
@@ -97,10 +105,18 @@ class AuthController extends Controller
     public function showPraktikanLogin()
     {
         if (Auth::check()) {
-            if (Auth::user()->role->name === 'Praktikan') {
+            $user = Auth::user();
+            if ($user->role && $user->role->name === 'Praktikan') {
                 return redirect()->route('praktikan.dashboard');
             }
-            return redirect()->route('admin.dashboard');
+            
+            // If they have another role, take them to their dashboard
+            if ($user->role) {
+                return redirect()->route('admin.dashboard');
+            }
+            
+            // If logged in but no role, force logout
+            Auth::logout();
         }
         return view('auth.login-praktikan');
     }
@@ -190,5 +206,22 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('home')->with('logout_success', 'Anda telah berhasil logout.');
+    }
+    public function dashboardRedirect()
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            if (!$user->role) {
+                Auth::logout();
+                return redirect()->route('home');
+            }
+            
+            if ($user->role->name === 'Praktikan') {
+                return redirect()->route('praktikan.dashboard');
+            }
+            
+            return redirect()->route('admin.dashboard');
+        }
+        return redirect()->route('home');
     }
 }

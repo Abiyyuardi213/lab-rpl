@@ -31,15 +31,7 @@ Route::get('/kegiatan/{slug}', [WelcomeController::class, 'kegiatanDetail'])->na
 Route::get('/p/{token}', [PresensiController::class, 'publicVerify'])->name('presensi.public-verify');
 
 // Dashboard redirection for logged in users
-Route::get('/home', function () {
-    if (Auth::check()) {
-        if (Auth::user()->role && Auth::user()->role->name === 'Praktikan') {
-            return redirect()->route('praktikan.dashboard');
-        }
-        return redirect()->route('admin.dashboard');
-    }
-    return redirect()->route('home');
-})->name('dashboard.redirect');
+Route::get('/home', [AuthController::class, 'dashboardRedirect'])->name('dashboard.redirect');
 
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
