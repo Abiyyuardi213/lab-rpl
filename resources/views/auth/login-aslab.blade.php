@@ -14,12 +14,10 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- PWA & Apple Mobile Web Support -->
-    <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#001f3f">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Lab RPL">
     <link rel="apple-touch-icon" href="{{ asset('image/logo-RPL.jpg') }}">
     <link rel="apple-touch-startup-image" href="{{ asset('image/logo-RPL.jpg') }}">
 
