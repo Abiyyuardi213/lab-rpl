@@ -28,6 +28,7 @@ Route::get('/pengumuman', [WelcomeController::class, 'pengumuman'])->name('pengu
 Route::get('/pengumuman/{slug}', [WelcomeController::class, 'pengumumanDetail'])->name('pengumuman.show');
 Route::get('/kegiatan', [WelcomeController::class, 'kegiatan'])->name('kegiatan.public');
 Route::get('/kegiatan/{slug}', [WelcomeController::class, 'kegiatanDetail'])->name('kegiatan.show');
+Route::get('/p/{token}', [PresensiController::class, 'publicVerify'])->name('presensi.public-verify');
 
 // Dashboard redirection for logged in users
 Route::get('/home', function () {

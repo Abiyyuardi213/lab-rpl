@@ -8,7 +8,9 @@ use App\Models\PendaftaranPraktikum;
 use App\Models\TugasAsistensi;
 use App\Models\Presensi;
 use Illuminate\Support\Facades\Auth;
-use SimpleSoftwareIO\QrCode\Facades\QrCode; // We might need to install this or use JS
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PresensiController extends Controller
 {
@@ -61,16 +63,28 @@ class PresensiController extends Controller
             }
         }
 
-        // Generate QR Data
-        $data = [
+        // Generate a short, unique token for the QR code
+        $token = Str::random(32);
+        
+        // Store the attendance data in cache for 30 minutes
+        Cache::put("presensi_token_{$token}", [
             'pendaftaran_id' => $pendaftaran->id,
             'jadwal_id' => $jadwal->id,
-            'expires' => now()->addMinutes(30)->timestamp,
-        ];
+            'user_id' => $user->id,
+        ], now()->addMinutes(30));
 
-        $token = encrypt(json_encode($data));
+        // Use a full URL for the QR code so it's informative when scanned by generic apps
+        $qrUrl = route('home') . '/p/' . $token;
 
-        return view('praktikan.presensi.qr', compact('token', 'jadwal', 'pendaftaran'));
+        // Generate the SVG QR code using the new library
+        // We use a lower correction level (L) and larger size to make it scan faster
+        $qrCode = QrCode::size(300)
+            ->gradient(15, 23, 42, 30, 64, 175, 'diagonal') // slate-900 to a blue-ish
+            ->margin(1)
+            ->errorCorrection('M')
+            ->generate($qrUrl);
+
+        return view('praktikan.presensi.qr', compact('qrCode', 'qrUrl', 'jadwal', 'pendaftaran', 'token'));
     }
 
     public function scan()
@@ -85,14 +99,32 @@ class PresensiController extends Controller
         ]);
 
         try {
-            $json = decrypt($request->token);
-            $data = json_decode($json, true);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'QR Code tidak valid atau sudah kadaluarsa.'], 400);
-        }
+            // Check if it's a full URL and extract the token
+            $token = $request->token;
+            if (filter_var($token, FILTER_VALIDATE_URL)) {
+                $path = parse_url($token, PHP_URL_PATH);
+                $segments = explode('/', trim($path, '/'));
+                $token = end($segments);
+            }
 
-        if ($data['expires'] < now()->timestamp) {
-            return response()->json(['success' => false, 'message' => 'QR Code sudah kadaluarsa.'], 400);
+            // Retrieve data from cache
+            $data = Cache::get("presensi_token_{$token}");
+            
+            if (!$data) {
+                // Try fallback to encrypted token for backward compatibility during transition if needed
+                // But since we are changing it now, we can just return error
+                try {
+                    $json = decrypt($request->token);
+                    $data = json_decode($json, true);
+                    if ($data['expires'] < now()->timestamp) {
+                        return response()->json(['success' => false, 'message' => 'QR Code sudah kadaluarsa.'], 400);
+                    }
+                } catch (\Exception $e) {
+                    return response()->json(['success' => false, 'message' => 'QR Code tidak valid atau sudah kadaluarsa.'], 400);
+                }
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan saat validasi QR.'], 400);
         }
 
         $pendaftaran = PendaftaranPraktikum::findOrFail($data['pendaftaran_id']);
@@ -154,6 +186,27 @@ class PresensiController extends Controller
             ->exists();
 
         return response()->json(['present' => $present]);
+    }
+
+    public function publicVerify($token)
+    {
+        $data = Cache::get("presensi_token_{$token}");
+
+        if (!$data) {
+            return view('presensi.public-verify', [
+                'status' => 'expired',
+                'message' => 'QR Code ini sudah tidak berlaku atau sudah kadaluarsa.'
+            ]);
+        }
+
+        $pendaftaran = PendaftaranPraktikum::with(['praktikan.user', 'praktikum'])->find($data['pendaftaran_id']);
+
+        return view('presensi.public-verify', [
+            'status' => 'valid',
+            'message' => 'QR Code Valid',
+            'nama' => $pendaftaran->praktikan->user->name,
+            'praktikum' => $pendaftaran->praktikum->nama_praktikum
+        ]);
     }
 
     private function parseModulNumber($judul)

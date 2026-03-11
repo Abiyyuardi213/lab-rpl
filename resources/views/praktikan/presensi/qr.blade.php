@@ -18,11 +18,19 @@
 
             <div
                 class="relative bg-white p-8 rounded-3xl shadow-xl border border-slate-100 flex flex-col items-center space-y-6">
-                <div id="qrcode" class="p-2 bg-white rounded-xl shadow-inner border border-slate-50"></div>
+                <div id="qrcode-container" class="p-4 bg-white rounded-3xl shadow-inner border border-slate-50 relative">
+                    {!! $qrCode !!}
+                    <div id="expiration-overlay" class="absolute inset-0 flex items-center justify-center font-black text-rose-500 uppercase tracking-tighter text-xl hidden bg-white/90 rounded-3xl">
+                        Kadaluarsa
+                    </div>
+                </div>
 
-                <div class="text-center space-y-1">
+                <div class="text-center space-y-2">
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Scan by Lab Assistant</p>
                     <p id="timer" class="text-xs font-bold text-rose-500">QR Kadaluarsa dalam 30:00</p>
+                    <div class="mt-2 text-[9px] text-slate-300 break-all max-w-[200px] mx-auto font-mono">
+                        {{ $qrUrl }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -32,8 +40,7 @@
                 <div class="flex items-start gap-3">
                     <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
                     <p class="text-[11px] text-blue-700 leading-relaxed text-left font-medium">
-                        Tunjukkan QR Code ini kepada Asisten Laboratorium untuk melakukan absensi kehadiran. QR ini bersifat
-                        sementara.
+                        Tunjukkan QR Code ini kepada Asisten Laboratorium untuk melakukan absensi kehadiran. QR ini berisi link validasi yang akan dibaca oleh sistem.
                     </p>
                 </div>
             </div>
@@ -47,35 +54,20 @@
     </div>
 
     @push('scripts')
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const token = @json($token);
-
-                // Generate QR
-                new QRCode(document.getElementById("qrcode"), {
-                    text: token,
-                    width: 256,
-                    height: 256,
-                    colorDark: "#0f172a",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-
                 // Countdown Timer
                 let timeLeft = 30 * 60; // 30 minutes in seconds
                 const timerElement = document.getElementById('timer');
+                const overlay = document.getElementById('expiration-overlay');
+                const qrContent = document.querySelector('#qrcode-container svg');
 
                 const countdown = setInterval(() => {
                     if (timeLeft <= 0) {
                         clearInterval(countdown);
                         timerElement.innerText = "QR Kadaluarsa";
-                        document.getElementById('qrcode').classList.add('opacity-10');
-                        const overlay = document.createElement('div');
-                        overlay.className =
-                            "absolute inset-0 flex items-center justify-center font-black text-rose-500 uppercase tracking-tighter text-xl";
-                        overlay.innerText = "Kadaluarsa";
-                        document.getElementById('qrcode').parentElement.appendChild(overlay);
+                        if (qrContent) qrContent.style.opacity = "0.1";
+                        overlay.classList.remove('hidden');
                         return;
                     }
 
