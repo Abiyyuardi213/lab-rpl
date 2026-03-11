@@ -117,6 +117,13 @@
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/jadwal-praktikum*') ? 'w-full' : '' }}"></span>
                     </a>
 
+                    <a href="{{ route('admin.presensi.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/presensi*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Presensi
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/presensi*') ? 'w-full' : '' }}"></span>
+                    </a>
+
                     <a href="{{ route('admin.pendaftaran.index') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/pendaftaran*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                         Pendaftaran
@@ -263,6 +270,9 @@
                 <a href="{{ route('admin.jadwal-praktikum.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/jadwal-praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Jadwal</a>
+                <a href="{{ route('admin.presensi.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/presensi*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Riwayat
+                    Presensi</a>
                 <a href="{{ route('admin.pendaftaran.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/pendaftaran*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Pendaftaran</a>

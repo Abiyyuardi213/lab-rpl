@@ -74,9 +74,27 @@ class DashboardController extends Controller
                 ];
             });
 
+        $recentPresensis = \App\Models\Presensi::with(['pendaftaran.praktikan.user', 'jadwal'])
+            ->latest()
+            ->take(8)
+            ->get()
+            ->map(function ($item) {
+                return (object)[
+                    'type' => 'Attendance',
+                    'title' => 'Presensi: ' . ($item->jadwal->judul_modul ?? 'Modul'),
+                    'user' => $item->pendaftaran->praktikan->user->name ?? 'Praktikan',
+                    'time' => $item->created_at,
+                    'badge' => ucfirst($item->status),
+                    'badge_color' => $item->status === 'hadir' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-amber-100 text-amber-700 border-amber-200',
+                    'icon' => 'fas fa-clipboard-check',
+                    'icon_bg' => 'bg-indigo-100 text-indigo-600'
+                ];
+            });
+
         $activities = collect($recentRegistrations)
             ->concat($recentSubmissions)
             ->concat($recentUsers)
+            ->concat($recentPresensis)
             ->sortByDesc('time')
             ->take(10);
 

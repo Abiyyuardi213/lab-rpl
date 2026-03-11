@@ -107,6 +107,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/legalisir', fn() => 'Legalisir Index')->name('legalisir.index');
         Route::resource('pengumuman', \App\Http\Controllers\Admin\PengumumanController::class);
         Route::patch('pengumuman/{pengumuman}/toggle-status', [\App\Http\Controllers\Admin\PengumumanController::class, 'toggleStatus'])->name('pengumuman.toggle-status');
+        Route::resource('presensi', \App\Http\Controllers\Admin\PresensiController::class)->only(['index', 'destroy']);
         Route::resource('kegiatan', \App\Http\Controllers\Admin\KegiatanController::class);
         Route::patch('kegiatan/{kegiatan}/toggle-status', [\App\Http\Controllers\Admin\KegiatanController::class, 'toggleStatus'])->name('kegiatan.toggle-status');
     });

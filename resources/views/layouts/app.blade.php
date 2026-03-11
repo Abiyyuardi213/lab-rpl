@@ -10,6 +10,36 @@
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
     <link rel="icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
+
+    <!-- PWA & Apple Mobile Web Support -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#001f3f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Lab RPL">
+    <link rel="apple-touch-icon" href="{{ asset('image/logo-RPL.jpg') }}">
+    <link rel="apple-touch-startup-image" href="{{ asset('image/logo-RPL.jpg') }}">
+
+    <script>
+        (function(document, navigator, standalone) {
+            if ((standalone in navigator) && navigator[standalone]) {
+                var curnode, location = document.location,
+                    stop = /^(a|html)$/i;
+                document.addEventListener('click', function(e) {
+                    curnode = e.target;
+                    while (!(stop.test(curnode.nodeName))) {
+                        curnode = curnode.parentNode;
+                    }
+                    if ('href' in curnode && (curnode.href.indexOf('http') || ~curnode.href.indexOf(location.host)) && (
+                            curnode.getAttribute('target') !== '_blank')) {
+                        e.preventDefault();
+                        location.href = curnode.href;
+                    }
+                }, false);
+            }
+        })(document, window.navigator, 'standalone');
+    </script>
     <!-- Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">

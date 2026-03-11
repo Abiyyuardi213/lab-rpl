@@ -87,9 +87,36 @@ class PresensiController extends Controller
         return view('praktikan.presensi.qr', compact('qrCode', 'qrUrl', 'jadwal', 'pendaftaran', 'token'));
     }
 
-    public function scan()
+    public function scan(Request $request)
     {
-        return view('aslab.presensi.scan');
+        $aslab = Auth::user()->aslab;
+        if (!$aslab) {
+            return redirect()->back()->with('error', 'Data aslab tidak ditemukan.');
+        }
+
+        // Get practicums where this user is an aslab
+        $praktikumIds = $aslab->praktikums->pluck('id');
+
+        // Get schedules for today related to these practicums
+        $today = now()->toDateString();
+        
+        // Active schedules: Tanggal hari ini
+        $schedules = JadwalPraktikum::with(['praktikum', 'presensis.pendaftaran.praktikan.user'])
+            ->whereIn('praktikum_id', $praktikumIds)
+            ->where('tanggal', $today)
+            ->orderBy('waktu_mulai', 'asc')
+            ->get();
+
+        // Separate active and finished (based on current time)
+        $activeSchedules = $schedules->filter(function($j) {
+            return now()->lt(\Carbon\Carbon::parse($j->tanggal . ' ' . $j->waktu_selesai));
+        });
+
+        $finishedSchedules = $schedules->filter(function($j) {
+            return now()->gt(\Carbon\Carbon::parse($j->tanggal . ' ' . $j->waktu_selesai));
+        });
+
+        return view('aslab.presensi.scan', compact('activeSchedules', 'finishedSchedules'));
     }
 
     public function checkIn(Request $request)

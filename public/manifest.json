@@ -4,18 +4,21 @@
     "description": "Information System for RPL Laboratory",
     "start_url": "/",
     "display": "standalone",
+    "orientation": "portrait",
     "background_color": "#001f3f",
     "theme_color": "#001f3f",
     "icons": [
         {
             "src": "/image/logo-RPL.jpg",
             "sizes": "192x192",
-            "type": "image/jpeg"
+            "type": "image/jpeg",
+            "purpose": "any maskable"
         },
         {
             "src": "/image/logo-RPL.jpg",
             "sizes": "512x512",
-            "type": "image/jpeg"
+            "type": "image/jpeg",
+            "purpose": "any maskable"
         }
     ]
 }

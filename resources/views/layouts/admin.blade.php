@@ -26,6 +26,26 @@
     <meta name="apple-mobile-web-app-title" content="Lab RPL">
     <link rel="apple-touch-icon" href="{{ asset('image/logo-RPL.jpg') }}">
     <link rel="apple-touch-startup-image" href="{{ asset('image/logo-RPL.jpg') }}">
+
+    <script>
+        (function(document, navigator, standalone) {
+            if ((standalone in navigator) && navigator[standalone]) {
+                var curnode, location = document.location,
+                    stop = /^(a|html)$/i;
+                document.addEventListener('click', function(e) {
+                    curnode = e.target;
+                    while (!(stop.test(curnode.nodeName))) {
+                        curnode = curnode.parentNode;
+                    }
+                    if ('href' in curnode && (curnode.href.indexOf('http') || ~curnode.href.indexOf(location.host)) && (
+                            curnode.getAttribute('target') !== '_blank')) {
+                        e.preventDefault();
+                        location.href = curnode.href;
+                    }
+                }, false);
+            }
+        })(document, window.navigator, 'standalone');
+    </script>
     @stack('styles')
 </head>
 
