@@ -22,23 +22,18 @@
     <link rel="apple-touch-startup-image" href="{{ asset('image/logo-RPL.jpg') }}">
 
     <script>
-        (function(document, navigator, standalone) {
-            if ((standalone in navigator) && navigator[standalone]) {
-                var curnode, location = document.location,
-                    stop = /^(a|html)$/i;
-                document.addEventListener('click', function(e) {
-                    curnode = e.target;
-                    while (!(stop.test(curnode.nodeName))) {
-                        curnode = curnode.parentNode;
-                    }
-                    if ('href' in curnode && (curnode.href.indexOf('http') || ~curnode.href.indexOf(location.host)) && (
-                            curnode.getAttribute('target') !== '_blank')) {
-                        e.preventDefault();
-                        location.href = curnode.href;
-                    }
-                }, false);
+        // Safer fix for standalone mode links
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a');
+            if (link && 
+                link.href && 
+                link.href.indexOf('http') === 0 && 
+                link.href.indexOf(window.location.host) !== -1 &&
+                link.target !== '_blank') {
+                e.preventDefault();
+                window.location.href = link.href;
             }
-        })(document, window.navigator, 'standalone');
+        }, false);
     </script>
     <!-- Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
