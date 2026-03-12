@@ -15,9 +15,8 @@
                     Mengenal <span class="text-[#1a4fa0]">Lab. Rekayasa Perangkat Lunak</span>
                 </h1>
                 <p class="text-lg text-slate-600 max-w-prose leading-relaxed">
-                    Pusat keunggulan akademik yang berfokus pada riset desain sistem, pengembangan aplikasi modern, dan
-                    implementasi metodologi perangkat lunak terkini. Kami berdedikasi untuk mencetak tenaga ahli
-                    informatika yang kompeten.
+                    Pusat pembelajaran yang berfokus pada pengampuan praktikum Pemrograman Terstruktur, Struktur Data, dan
+                    Basis Data. Kami berdedikasi untuk membekali mahasiswa dengan keahlian fundamental dalam rekayasa perangkat lunak demi mencetak tenaga ahli informatika yang kompeten.
                 </p>
                 <div class="flex flex-wrap items-center justify-center gap-4 mt-2">
                     <a href="#visi-misi"
@@ -74,8 +73,7 @@
                     </div>
                     <h3 class="text-2xl font-bold text-slate-900 mb-4">Visi</h3>
                     <p class="text-slate-600 leading-relaxed text-lg italic">
-                        "Menjadi pusat riset dan pembelajaran Rekayasa Perangkat Lunak yang inovatif, unggul, dan relevan
-                        dengan kebutuhan industri teknologi global serta berkontribusi pada kemajuan masyarakat digital."
+                        "Menjadi laboratorium unggulan dalam pembentukan kemampuan fundamental rekayasa perangkat lunak melalui penguasaan algoritma dan basis data yang kompetitif bagi mahasiswa ITATS."
                     </p>
                 </div>
 
@@ -91,20 +89,17 @@
                         <li class="flex gap-4">
                             <span
                                 class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">1</span>
-                            <p>Menyelenggarakan kegiatan praktikum yang terstruktur dan berkualitas berbasis standar
-                                industri.</p>
+                            <p>Menyelenggarakan praktikum Pemrograman Terstruktur, Struktur Data, dan Basis Data yang berkualitas.</p>
                         </li>
                         <li class="flex gap-4">
                             <span
                                 class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">2</span>
-                            <p>Mendorong kolaborasi riset antara dosen dan mahasiswa dalam bidang pengembangan perangkat
-                                lunak.</p>
+                            <p>Membekali mahasiswa dengan kemampuan logika pemrograman yang kuat, optimasi struktur data, dan manajemen data yang efektif.</p>
                         </li>
                         <li class="flex gap-4">
                             <span
                                 class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">3</span>
-                            <p>Membekali mahasiswa dengan kemampuan analisis, desain arsitektur, dan pengujian kualitas
-                                sistem.</p>
+                            <p>Mencetak praktikan yang kompeten dan siap menghadapi tantangan pengembangan sistem di tingkat lanjut maupun industri.</p>
                         </li>
                     </ul>
                 </div>

@@ -8,8 +8,8 @@ return [
         'foto' => 'image/default-dosen.jpg', // Path ke foto jika ada
     ],
     'kontak' => [
-        'email' => 'labrpl.itats@gmail.com',
-        'instagram' => 'hmif_itats',
-        'alamat' => 'Gedung ITATS, Lantai 2, Surabaya',
+        'email' => 'lab.basprog@itats.ac.id',
+        'instagram' => 'lbp_itats',
+        'alamat' => 'Lab G2 LCSE ITATS',
     ]
 ];

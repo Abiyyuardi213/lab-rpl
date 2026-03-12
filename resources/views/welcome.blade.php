@@ -16,8 +16,8 @@
                     <span class="text-[#1a4fa0]">Perangkat Lunak</span>
                 </h1>
                 <p class="text-lg text-slate-600 max-w-prose leading-relaxed">
-                    Pusat keunggulan akademik untuk riset desain sistem, pengembangan aplikasi modern, dan implementasi
-                    metodologi perangkat lunak terkini di ITATS.
+                    Laboratorium yang mengampu praktikum Pemrograman Terstruktur, Struktur Data, dan Basis Data untuk
+                    mencetak praktikan yang kompeten dalam pengembangan perangkat lunak di ITATS.
                 </p>
                 <div class="flex flex-wrap items-center gap-4 mt-2">
                     <a href="{{ route('login.praktikan') }}"
@@ -249,23 +249,18 @@
                     Lunak
                     Berkualitas</h2>
                 <div class="space-y-4 text-slate-600 leading-relaxed">
-                    <p>Laboratorium Rekayasa Perangkat Lunak (RPL) ITATS didedikasikan untuk eksplorasi dan riset dalam
-                        pengembangan perangkat lunak yang andal, efisien, dan memiliki daya guna tinggi.</p>
-                    <p>Kami memfokuskan pada penguasaan lifecycle pengembangan perangkat lunak (SDLC), mulai dari analisis
-                        kebutuhan, perancangan arsitektur modern, hingga proses pengujian yang ketat demi menjamin kualitas
-                        sistem.</p>
+                    <p>Laboratorium Rekayasa Perangkat Lunak (RPL) ITATS didedikasikan untuk mengampu mata kuliah praktikum
+                        Pemrograman Terstruktur, Struktur Data, dan Basis Data demi membangun pondasi teknis yang kuat bagi mahasiswa.</p>
+                    <p>Kami memfokuskan pada penguasaan logika pemrograman, efisiensi algoritma, dan manajemen basis data yang terintegrasi untuk menjamin kualitas pemahaman mahasiswa dalam rekayasa perangkat lunak.</p>
                 </div>
                 <div class="mt-10 grid grid-cols-2 gap-8 border-t border-slate-200 pt-10">
                     <div>
                         <div class="text-primary font-bold text-xl">Visi</div>
-                        <p class="text-sm text-slate-500 mt-2">Menjadi pusat riset RPL yang inovatif dan relevan dengan
-                            industri global.</p>
+                        <p class="text-sm text-slate-500 mt-2">Menjadi laboratorium unggulan dalam pembentukan kemampuan fundamental rekayasa perangkat lunak melalui penguasaan algoritma dan basis data.</p>
                     </div>
                     <div>
                         <div class="text-primary font-bold text-xl">Misi</div>
-                        <p class="text-sm text-slate-500 mt-2">Mencetak praktikan yang mahir dalam analisis dan
-                            pengembangan
-                            sistem cerdas.</p>
+                        <p class="text-sm text-slate-500 mt-2">Mencetak praktikan yang mahir dalam logika pemrograman, optimasi struktur data, dan manajemen basis data.</p>
                     </div>
                 </div>
             </div>

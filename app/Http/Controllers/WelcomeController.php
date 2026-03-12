@@ -61,7 +61,8 @@ class WelcomeController extends Controller
             'Sekretaris',
             'Bendahara',
             'Admin',
-            'Anggota'
+            'Anggota',
+            'Anggota Laboratorium'
         ];
 
         $aslabs = $allAslabs->sortBy(function ($aslab) use ($hierarchy) {

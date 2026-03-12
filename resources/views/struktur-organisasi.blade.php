@@ -72,7 +72,14 @@
                             return str_contains($aslab->jabatan, 'Koordinator Praktikum');
                         });
                         $manajemen = $aslabs->whereIn('jabatan', ['Sekretaris', 'Bendahara', 'Admin']);
-                        $anggota = $aslabs->where('jabatan', 'Anggota');
+                        
+                        // Ambil sisa aslab yang belum ditampilkan di kategori atas
+                        $shownIds = $korlab->pluck('id')
+                            ->merge($korpraktikum->pluck('id'))
+                            ->merge($manajemen->pluck('id'))
+                            ->toArray();
+                        
+                        $anggota = $aslabs->whereNotIn('id', $shownIds);
                     @endphp
 
                     {{-- Koordinator Laboratorium --}}

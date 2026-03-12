@@ -25,9 +25,9 @@
         // Safer fix for standalone mode links
         document.addEventListener('click', function(e) {
             const link = e.target.closest('a');
-            if (link && 
-                link.href && 
-                link.href.indexOf('http') === 0 && 
+            if (link &&
+                link.href &&
+                link.href.indexOf('http') === 0 &&
                 link.href.indexOf(window.location.host) !== -1 &&
                 link.target !== '_blank') {
                 e.preventDefault();
@@ -209,8 +209,8 @@
                 <div id="kontak">
                     <h3 class="text-sm font-semibold mb-3">Kontak Lab</h3>
                     <ul class="space-y-2 text-sm text-slate-500">
-                        <li>Email: labrpl.itats@gmail.com</li>
-                        <li>Alamat: Lt. 2 Gd. Informatika, ITATS. Surabaya.</li>
+                        <li>Email: lab.basprog@itats.ac.id</li>
+                        <li>Alamat: Lab G2 LCSE, ITATS. Surabaya.</li>
                     </ul>
                 </div>
                 <div>
