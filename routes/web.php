@@ -97,6 +97,7 @@ Route::middleware('auth')->group(function () {
         });
         Route::get('/gedung', fn() => 'Gedung Index')->name('gedung.index');
         Route::get('/kelas', fn() => 'Kelas Index')->name('kelas.index');
+        Route::resource('penugasan', \App\Http\Controllers\Admin\PenugasanController::class);
         Route::get('/support', fn() => 'Support Index')->name('support.index');
         Route::get('/laboratorium', fn() => 'Laboratorium Index')->name('laboratorium.index');
         Route::prefix('peminjaman-ruangan')->name('peminjaman-ruangan.')->group(function () {
@@ -125,9 +126,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/presensi/scan', [PresensiController::class, 'scan'])->name('presensi.scan');
         Route::post('/presensi/check-in', [PresensiController::class, 'checkIn'])->name('presensi.check-in');
 
-        // Profile Management (Aslab)
         Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+
+        // Penugasan
+        Route::resource('penugasan', \App\Http\Controllers\Aslab\PenugasanController::class);
     });
 
     // Praktikan Section
@@ -147,6 +150,11 @@ Route::middleware('auth')->group(function () {
             // Profile Management (Praktikan)
             Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
             Route::patch('/profile/update', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+
+            // Penugasan
+            Route::get('/penugasan', [\App\Http\Controllers\Praktikan\PenugasanController::class, 'index'])->name('penugasan.index');
+            Route::get('/penugasan/{id}', [\App\Http\Controllers\Praktikan\PenugasanController::class, 'show'])->name('penugasan.show');
+            Route::get('/penugasan/{id}/download', [\App\Http\Controllers\Praktikan\PenugasanController::class, 'download'])->name('penugasan.download');
         });
     });
 });

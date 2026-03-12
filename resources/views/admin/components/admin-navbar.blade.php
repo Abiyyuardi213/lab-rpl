@@ -40,6 +40,13 @@
                         <span
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('praktikan/riwayat-pendaftaran*') ? 'w-full' : '' }}"></span>
                     </a>
+
+                    <a href="{{ route('praktikan.penugasan.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('praktikan/penugasan*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Soal Praktikum
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('praktikan/penugasan*') ? 'w-full' : '' }}"></span>
+                    </a>
                 @elseif (Auth::user()->role && Auth::user()->role->name === 'Aslab')
                     <a href="{{ route('aslab.dashboard') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('aslab/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
@@ -60,6 +67,13 @@
                         Tugas Asistensi
                         <span
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('aslab/tugas*') ? 'w-full' : '' }}"></span>
+                    </a>
+
+                    <a href="{{ route('aslab.penugasan.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('aslab/penugasan*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Penugasan Sesi
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('aslab/penugasan*') ? 'w-full' : '' }}"></span>
                     </a>
 
                     <a href="{{ route('aslab.presensi.scan') }}"
@@ -143,6 +157,13 @@
                         Pengumuman
                         <span
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/pengumuman*') ? 'w-full' : '' }}"></span>
+                    </a>
+
+                    <a href="{{ route('admin.penugasan.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/penugasan*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Penugasan
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/penugasan*') ? 'w-full' : '' }}"></span>
                     </a>
 
                     <a href="{{ route('admin.kegiatan.index') }}"
@@ -236,6 +257,9 @@
                 <a href="{{ route('praktikan.pendaftaran.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('praktikan/riwayat-pendaftaran*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Riwayat
                     Pendaftaran</a>
+                <a href="{{ route('praktikan.penugasan.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('praktikan/penugasan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Soal
+                    Praktikum</a>
             @elseif(Auth::user()->role && Auth::user()->role->name === 'Aslab')
                 <a href="{{ route('aslab.dashboard') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
@@ -245,6 +269,9 @@
                 <a href="{{ route('aslab.tugas.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/tugas*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Tugas
                     Asistensi</a>
+                <a href="{{ route('aslab.penugasan.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/penugasan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Penugasan
+                    Sesi</a>
                 <a href="{{ route('aslab.presensi.scan') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/presensi*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Scanner
                     Presensi</a>
@@ -282,6 +309,9 @@
                 <a href="{{ route('admin.pengumuman.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/pengumuman*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Pengumuman</a>
+                <a href="{{ route('admin.penugasan.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/penugasan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    Penugasan</a>
                 <a href="{{ route('admin.kegiatan.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/kegiatan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Kegiatan</a>

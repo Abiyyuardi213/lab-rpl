@@ -497,8 +497,8 @@
                                 @forelse($praktikum->pendaftarans as $pendaftaran)
                                     <tr class="hover:bg-zinc-50/50 transition-colors">
                                         <td class="px-6 py-4">
-                                            <div class="font-bold text-zinc-900">{{ $pendaftaran->user->name }}</div>
-                                            <div class="text-[10px] text-zinc-400 font-mono">{{ $pendaftaran->user->npm }}
+                                            <div class="font-bold text-zinc-900">{{ $pendaftaran->praktikan->user->name }}</div>
+                                            <div class="text-[10px] text-zinc-400 font-mono">{{ $pendaftaran->praktikan->npm }}
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">

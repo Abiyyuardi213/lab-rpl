@@ -64,7 +64,7 @@ class PraktikumController extends Controller
                 $q->orderBy('tanggal', 'asc')->orderBy('waktu_mulai', 'asc');
             },
             'aslabs',
-            'pendaftarans.user',
+            'pendaftarans.praktikan.user',
             'pendaftarans.sesi',
             'pendaftarans.aslab'
         ])->findOrFail($id);
