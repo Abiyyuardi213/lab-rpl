@@ -78,6 +78,17 @@
         </script>
     @endif
 
+    @if (session('error') || $errors->any())
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Terjadi Kesalahan',
+                text: '{{ session('error') ?? $errors->first() }}',
+                confirmButtonColor: '#001f3f'
+            });
+        </script>
+    @endif
+
     <!-- PWA Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
