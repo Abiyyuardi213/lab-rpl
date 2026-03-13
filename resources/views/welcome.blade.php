@@ -120,30 +120,34 @@
                         'color' => 'bg-indigo-500',
                         'title' => 'E-modul Praktikum',
                         'desc' => 'Unduh materi dan modul praktikum secara digital.',
+                        'link' => '#',
                     ],
                     [
                         'icon' => 'fa-edit',
                         'color' => 'bg-emerald-500',
                         'title' => 'Pendaftaran MBKM',
                         'desc' => 'Daftar konversi praktikum jalur MBKM/Project.',
+                        'link' => '#',
                     ],
                     [
                         'icon' => 'fa-users',
                         'color' => 'bg-amber-500',
                         'title' => 'Data Aslab',
                         'desc' => 'Kenali asisten laboratorium yang membimbing anda.',
+                        'link' => route('aslab.public'),
                     ],
                     [
                         'icon' => 'fa-bullhorn',
                         'color' => 'bg-rose-500',
                         'title' => 'Pengumuman',
                         'desc' => 'Informasi rilis jadwal dan nilai praktikum.',
+                        'link' => route('pengumuman.public'),
                     ],
                 ];
             @endphp
 
             @foreach ($services as $s)
-                <div
+                <a href="{{ $s['link'] }}"
                     class="group relative rounded-2xl border border-slate-100 p-8 bg-white shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300">
                     <div
                         class="w-12 h-12 rounded-xl {{ $s['color'] }} text-white flex items-center justify-center mb-6 shadow-lg shadow-inherit/20 group-hover:scale-110 transition-transform">
@@ -152,7 +156,7 @@
                     <h3 class="text-lg font-bold text-slate-900">{{ $s['title'] }}</h3>
                     <p class="text-sm text-slate-500 mt-3 leading-relaxed">{{ $s['desc'] }}</p>
                     <div class="w-12 h-1 bg-slate-100 mt-6 group-hover:w-full group-hover:bg-primary transition-all"></div>
-                </div>
+                </a>
             @endforeach
         </div>
     </section>

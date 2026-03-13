@@ -23,6 +23,7 @@ Route::middleware('guest')->group(function () {
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 Route::get('/tentang', [WelcomeController::class, 'about'])->name('about');
 Route::get('/praktikum', [WelcomeController::class, 'praktikum'])->name('praktikum.public');
+Route::get('/aslab', [WelcomeController::class, 'aslab'])->name('aslab.public');
 Route::get('/struktur-organisasi', [WelcomeController::class, 'organization'])->name('organization');
 Route::get('/pengumuman', [WelcomeController::class, 'pengumuman'])->name('pengumuman.public');
 Route::get('/pengumuman/{slug}', [WelcomeController::class, 'pengumumanDetail'])->name('pengumuman.show');
@@ -56,6 +57,7 @@ Route::middleware('auth')->group(function () {
         // Praktikum Management
         Route::resource('praktikum', \App\Http\Controllers\PraktikumController::class);
         Route::patch('praktikum/{id}/toggle-status', [\App\Http\Controllers\PraktikumController::class, 'toggleStatus'])->name('praktikum.toggle-status');
+        Route::get('praktikum/{id}/students', [\App\Http\Controllers\PraktikumController::class, 'students'])->name('praktikum.students');
         Route::get('praktikum/{praktikum_id}/sesi', fn($id) => redirect()->route('admin.praktikum.show', $id));
         Route::post('praktikum/{praktikum_id}/sesi', [\App\Http\Controllers\SesiPraktikumController::class, 'store'])->name('praktikum.sesi.store');
         Route::patch('praktikum/sesi/{id}', [\App\Http\Controllers\SesiPraktikumController::class, 'update'])->name('praktikum.sesi.update');
@@ -64,6 +66,7 @@ Route::middleware('auth')->group(function () {
         Route::post('praktikum/{praktikum_id}/aslab', [\App\Http\Controllers\PraktikumController::class, 'storeAslab'])->name('praktikum.aslab.store');
         Route::delete('praktikum/aslab/{id}', [\App\Http\Controllers\PraktikumController::class, 'destroyAslab'])->name('praktikum.aslab.destroy');
         Route::patch('praktikum/pendaftaran/{pendaftaran_id}/assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'assignStudentToAslab'])->name('praktikum.pendaftaran.assign-aslab');
+        Route::patch('praktikum/pendaftaran/{pendaftaran_id}/change-session', [\App\Http\Controllers\PraktikumController::class, 'changeStudentSession'])->name('praktikum.pendaftaran.change-session');
         // Jadwal Praktikum
         Route::post('praktikum/{praktikum_id}/jadwal', [\App\Http\Controllers\PraktikumController::class, 'storeJadwal'])->name('praktikum.jadwal.store');
         Route::delete('praktikum/jadwal/{id}', [\App\Http\Controllers\PraktikumController::class, 'destroyJadwal'])->name('praktikum.jadwal.destroy');
@@ -119,7 +122,6 @@ Route::middleware('auth')->group(function () {
     Route::prefix('aslab')->name('aslab.')->middleware(['role.aslab'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Aslab\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/pendaftaran', [\App\Http\Controllers\Aslab\PendaftaranController::class, 'index'])->name('pendaftaran.index');
-        Route::patch('/pendaftaran/{id}/assign', [\App\Http\Controllers\Aslab\PendaftaranController::class, 'assign'])->name('pendaftaran.assign');
         Route::resource('tugas', \App\Http\Controllers\Aslab\TugasController::class);
 
         // Presensi (Aslab)

@@ -168,7 +168,7 @@ class AuthController extends Controller
             'npm' => 'required|string|unique:users,username|unique:praktikans,npm|unique:aslabs,npm',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         $role = \App\Models\Role::where('name', 'Praktikan')->first();

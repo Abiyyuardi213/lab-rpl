@@ -1,15 +1,15 @@
-<div onclick="showAslabDetail({{ json_encode([
+<div data-aslab="{{ json_encode([
     'name' => $aslab->user->name,
     'npm' => $aslab->npm,
     'jurusan' => $aslab->jurusan,
     'angkatan' => $aslab->angkatan,
     'email' => $aslab->user->email,
-    'no_hp' => $aslab->no_hp,
+    'no_hp' => $aslab->no_hp ?? '-',
     'jabatan' => $aslab->jabatan,
     'foto' => $aslab->user->profile_picture
         ? asset('storage/' . $aslab->user->profile_picture)
-        : 'https://ui-avatars.com/api/?name=' . urlencode($aslab->user->name) . '&background=f1f5f9&color=64748b',
-]) }})"
+        : 'https://ui-avatars.com/api/?name=' . urlencode($aslab->user->name) . '&background=1a4fa0&color=fff&size=200',
+]) }}" onclick="showAslabDetail(this)"
     class="group cursor-pointer relative bg-white rounded-3xl p-6 border border-slate-200 hover:border-[#1a4fa0]/30 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 {{ $width ?? '' }}">
     <div class="relative w-24 h-24 mx-auto mb-6">
         <div

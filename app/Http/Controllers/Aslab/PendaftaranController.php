@@ -21,45 +21,14 @@ class PendaftaranController extends Controller
         $myPraktikums = $aslab->praktikums;
         $praktikumIds = $myPraktikums->pluck('id');
 
+        // Only show students already assigned to this specific aslab
         $students = PendaftaranPraktikum::with(['praktikan.user', 'praktikum', 'sesi', 'aslab'])
             ->whereIn('praktikum_id', $praktikumIds)
+            ->where('aslab_id', $aslab->id) // Restricted to self
             ->where('status', 'verified')
             ->orderBy('created_at', 'desc')
             ->get();
 
         return view('aslab.pendaftaran.index', compact('students', 'myPraktikums'));
-    }
-
-    public function assign(Request $request, $id)
-    {
-        $pendaftaran = PendaftaranPraktikum::findOrFail($id);
-        $aslab = Auth::user()->aslab;
-
-        if (!$aslab) {
-            return back()->with('error', 'Data aslab tidak ditemukan.');
-        }
-
-        // Check if aslab is in this practicum
-        $aslabPraktikum = AslabPraktikum::where('aslab_id', $aslab->id)
-            ->where('praktikum_id', $pendaftaran->praktikum_id)
-            ->first();
-
-        if (!$aslabPraktikum) {
-            return back()->with('error', 'Anda tidak ditugaskan pada praktikum ini.');
-        }
-
-        // Check quota
-        $currentCount = PendaftaranPraktikum::where('aslab_id', $aslab->id)
-            ->where('praktikum_id', $pendaftaran->praktikum_id)
-            ->count();
-
-        if ($currentCount >= $aslabPraktikum->kuota) {
-            return back()->with('error', 'Kuota bimbingan Anda untuk praktikum ini sudah penuh.');
-        }
-
-        $pendaftaran->aslab_id = $aslab->id;
-        $pendaftaran->save();
-
-        return back()->with('success', 'Mahasiswa berhasil Anda ambil sebagai bimbingan.');
     }
 }

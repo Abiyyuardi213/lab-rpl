@@ -182,20 +182,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
-                    <a href="{{ route('aslab.pendaftaran.index') }}"
-                        class="group block bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300">
-                        <div class="flex items-center gap-5">
-                            <div
-                                class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500 shadow-inner">
-                                <i class="fas fa-user-plus text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-black text-slate-900 uppercase">Ambil Bimbingan</p>
-                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Klaim
-                                    mahasiswa</p>
-                            </div>
-                        </div>
-                    </a>
+
 
                     <a href="{{ route('aslab.tugas.index') }}"
                         class="group block bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:border-[#001f3f] hover:shadow-xl hover:shadow-[#001f3f]/5 transition-all duration-300">

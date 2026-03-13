@@ -85,6 +85,19 @@ class PraktikumController extends Controller
         return view('admin.praktikum.show', compact('praktikum', 'allAslabs', 'availableModules', 'scheduledModules'));
     }
 
+    public function students($id)
+    {
+        $praktikum = Praktikum::with([
+            'aslabs',
+            'sesis',
+            'pendaftarans.praktikan.user',
+            'pendaftarans.sesi',
+            'pendaftarans.aslab'
+        ])->findOrFail($id);
+
+        return view('admin.praktikum.students', compact('praktikum'));
+    }
+
     public function edit($id)
     {
         $praktikum = Praktikum::findOrFail($id);
@@ -189,6 +202,32 @@ class PraktikumController extends Controller
         $pendaftaran->save();
 
         return back()->with('success', 'Aslab berhasil disematkan ke mahasiswa.');
+    }
+
+    public function changeStudentSession(Request $request, $pendaftaran_id)
+    {
+        $request->validate([
+            'sesi_id' => 'required|exists:sesi_praktikums,id',
+        ]);
+
+        $pendaftaran = \App\Models\PendaftaranPraktikum::findOrFail($pendaftaran_id);
+        $newSesi = \App\Models\SesiPraktikum::findOrFail($request->sesi_id);
+
+        // Verify session belongs to the same practicum
+        if ($newSesi->praktikum_id != $pendaftaran->praktikum_id) {
+            return back()->with('error', 'Sesi tidak valid untuk praktikum ini.');
+        }
+
+        // Check if new session is full
+        $currentPendaftarCount = \App\Models\PendaftaranPraktikum::where('sesi_id', $newSesi->id)->count();
+        if ($currentPendaftarCount >= $newSesi->kuota) {
+            return back()->with('error', 'Sesi tujuan sudah penuh (Kuota: ' . $newSesi->kuota . ').');
+        }
+
+        $pendaftaran->sesi_id = $request->sesi_id;
+        $pendaftaran->save();
+
+        return back()->with('success', 'Sesi mahasiswa berhasil dipindahkan.');
     }
 
     public function storeJadwal(Request $request, $praktikum_id)

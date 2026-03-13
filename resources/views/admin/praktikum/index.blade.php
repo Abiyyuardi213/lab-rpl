@@ -104,10 +104,16 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-end gap-1">
-                                        <a href="{{ route('admin.praktikum.show', $praktikum->id) }}" data-spa
-                                            class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-[#001f3f] hover:bg-zinc-100 transition-colors">
-                                            <i class="fas fa-eye text-xs"></i>
-                                        </a>
+                                        <a href="{{ route('admin.praktikum.students', $praktikum->id) }}" data-spa
+                                            class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-[#001f3f] hover:bg-zinc-100 transition-colors"
+                                            title="Daftar Praktikan">
+                                             <i class="fas fa-users text-xs"></i>
+                                         </a>
+                                         <a href="{{ route('admin.praktikum.show', $praktikum->id) }}" data-spa
+                                             class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-[#001f3f] hover:bg-zinc-100 transition-colors"
+                                             title="Detail Praktikum">
+                                             <i class="fas fa-eye text-xs"></i>
+                                         </a>
                                         <a href="{{ route('admin.praktikum.edit', $praktikum->id) }}" data-spa
                                             class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-[#001f3f] hover:bg-zinc-100 transition-colors">
                                             <i class="fas fa-edit text-xs"></i>

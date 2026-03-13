@@ -3,7 +3,7 @@
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-2">
                 <img src="{{ asset('image/logo-RPL.jpg') }}" alt="Logo" class="w-6 h-6 object-contain">
-                <span class="text-xs font-bold text-slate-900 tracking-tight">Lab RPL Informatikax ITATS</span>
+                <span class="text-xs font-bold text-slate-900 tracking-tight">Lab RPL Informatika ITATS</span>
             </div>
 
             <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">

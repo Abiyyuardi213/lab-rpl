@@ -7,13 +7,13 @@
         <!-- Header -->
         <div class="flex items-start justify-between">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-zinc-900 uppercase">Pendaftaran Mahasiswa</h1>
-                <p class="text-sm text-zinc-500 mt-1 italic">"Kelola dan ambil mahasiswa bimbingan Anda di sini."</p>
+                <h1 class="text-2xl font-bold tracking-tight text-zinc-900 uppercase">Mahasiswa Bimbingan</h1>
+                <p class="text-sm text-zinc-500 mt-1 italic">"Daftar mahasiswa yang telah ditugaskan Admin kepada Anda."</p>
             </div>
             <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
                 <a href="{{ route('aslab.dashboard') }}" class="hover:text-zinc-900 transition-colors">Home</a>
                 <span>/</span>
-                <span class="text-zinc-900 font-semibold">Pendaftaran</span>
+                <span class="text-zinc-900 font-semibold">Bimbingan</span>
             </div>
         </div>
 
@@ -21,7 +21,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach ($myPraktikums as $item)
                 @php
-                    $usedCount = Auth::user()->assignedStudents()->where('praktikum_id', $item->id)->count();
+                    $usedCount = Auth::user()->aslab->assignedStudents()->where('praktikum_id', $item->id)->count();
                     $quotaValue = $item->pivot->kuota;
                     $percent = $quotaValue > 0 ? ($usedCount / $quotaValue) * 100 : 0;
                 @endphp
@@ -87,8 +87,7 @@
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Mahasiswa</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Praktikum</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Sesi</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Aslab Bimbingan</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500 text-right text-[10px] uppercase tracking-wider">AKSI</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 font-medium text-[10px] uppercase tracking-wider">STATUS</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100 text-zinc-900">
@@ -113,46 +112,10 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @if ($student->aslab)
-                                        <div class="flex items-center gap-2">
-                                            @if($student->aslab_id === Auth::user()->aslab->id)
-                                                <div class="w-6 h-6 rounded-md bg-[#001f3f] flex items-center justify-center text-[10px] text-white shadow-sm border border-[#001f3f]/10">
-                                                    <i class="fas fa-user-check"></i>
-                                                </div>
-                                                <span class="text-[10px] font-black text-[#001f3f] uppercase tracking-widest">MILIK ANDA</span>
-                                            @else
-                                                <div class="w-6 h-6 rounded-md bg-zinc-100 flex items-center justify-center text-[10px] font-black text-zinc-400 border border-zinc-200 shadow-sm overflow-hidden">
-                                                    {{ substr($student->aslab->user->name, 0, 1) }}
-                                                </div>
-                                                <span class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest truncate max-w-[120px]">
-                                                    {{ $student->aslab->user->name }}
-                                                </span>
-                                            @endif
-                                        </div>
-                                    @else
-                                        <span class="text-[10px] text-rose-500 font-black uppercase tracking-widest flex items-center gap-1.5 italic">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                                            BELUM ADA ASLAB
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 text-right whitespace-nowrap">
-                                    @if (!$student->aslab_id)
-                                        <form action="{{ route('aslab.pendaftaran.assign', $student->id) }}" method="POST" id="assign-form-{{ $student->id }}">
-                                            @csrf @method('PATCH')
-                                            <button type="button" onclick="confirmAssign('{{ $student->id }}', '{{ addslashes($student->praktikan->user->name) }}')"
-                                                class="inline-flex h-8 items-center justify-center rounded-md bg-[#001f3f] px-3 py-1.5 text-[10px] font-bold text-white shadow-lg shadow-[#001f3f]/10 hover:bg-[#002d5a] transition-all uppercase tracking-widest">
-                                                KLAIM
-                                            </button>
-                                        </form>
-                                    @elseif($student->aslab_id === Auth::user()->aslab->id)
-                                        <span class="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-600 uppercase tracking-widest">
-                                            <i class="fas fa-check-double"></i>
-                                            VERIFIED
-                                        </span>
-                                    @else
-                                        <span class="text-[10px] text-zinc-300 font-bold uppercase tracking-widest italic">DIAMBIL</span>
-                                    @endif
+                                    <span class="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-600 uppercase tracking-widest">
+                                        <i class="fas fa-check-double text-[8px]"></i>
+                                        TERTUGAS
+                                    </span>
                                 </td>
                             </tr>
                         @endforeach
@@ -204,7 +167,7 @@
                     dom: 't<"flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
                     language: {
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                        emptyTable: "<div class='py-20 flex flex-col items-center justify-center space-y-3'><div class='h-16 w-16 rounded-2xl bg-zinc-50 flex items-center justify-center'><i class='fas fa-user-friends text-2xl text-zinc-300'></i></div><div class='text-center'><p class='text-zinc-900 font-semibold'>Tidak ada data pendaftaran</p><p class='text-zinc-500 text-xs mt-1'>Belum ada mahasiswa pendaftar yang terverifikasi di praktikum Anda.</p></div></div>",
+                        emptyTable: "<div class='py-20 flex flex-col items-center justify-center space-y-3'><div class='h-16 w-16 rounded-2xl bg-zinc-50 flex items-center justify-center'><i class='fas fa-user-friends text-2xl text-zinc-300'></i></div><div class='text-center'><p class='text-zinc-900 font-semibold'>Tidak ada mahasiswa bimbingan</p><p class='text-zinc-500 text-xs mt-1'>Admin belum menugaskan mahasiswa praktikan kepada Anda.</p></div></div>",
                         paginate: {
                             next: '<i class="fas fa-chevron-right text-[10px]"></i>',
                             previous: '<i class="fas fa-chevron-left text-[10px]"></i>'
@@ -212,7 +175,7 @@
                     },
                     columnDefs: [{
                         orderable: false,
-                        targets: [5]
+                        targets: [4]
                     }]
                 });
 
@@ -225,28 +188,6 @@
                 });
             }
         });
-
-        function confirmAssign(id, name) {
-            Swal.fire({
-                title: 'Klaim Mahasiswa?',
-                html: `Apakah Anda ingin mengambil <b class="text-[#001f3f]">${name}</b> sebagai mahasiswa bimbingan Anda?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#001f3f',
-                cancelButtonColor: '#f4f4f5',
-                confirmButtonText: 'Ya, Klaim!',
-                cancelButtonText: 'Batal',
-                reverseButtons: true,
-                customClass: {
-                    cancelButton: 'text-zinc-600 border border-zinc-200',
-                    confirmButton: 'bg-[#001f3f]'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('assign-form-' + id).submit();
-                }
-            });
-        }
 
         @if (session('success'))
             const Toast = Swal.mixin({
