@@ -379,7 +379,7 @@
                 <!-- Footer Action -->
                 <div class="px-8 py-5 bg-zinc-50 border-t border-zinc-100 text-center">
                     <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">Sudah memiliki akses?</p>
-                    <a href="{{ route('login') }}" class="inline-flex items-center gap-2 justify-center w-full py-2.5 rounded-xl border border-zinc-200 bg-white text-xs font-black text-zinc-900 hover:bg-zinc-50 transition-all active:scale-[0.98] uppercase tracking-widest shadow-sm">
+                    <a href="{{ route('login.praktikan') }}" class="inline-flex items-center gap-2 justify-center w-full py-2.5 rounded-xl border border-zinc-200 bg-white text-xs font-black text-zinc-900 hover:bg-zinc-50 transition-all active:scale-[0.98] uppercase tracking-widest shadow-sm">
                         <span>Masuk ke Akun</span>
                         <i class="fas fa-sign-in-alt text-[10px]"></i>
                     </a>
