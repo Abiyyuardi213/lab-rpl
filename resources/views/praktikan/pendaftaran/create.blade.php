@@ -185,29 +185,32 @@
                     <div class="space-y-2">
                         <label class="text-[11px] font-bold text-zinc-600 uppercase">Bukti KRS (PDF/JPG)</label>
                         <div class="relative group">
-                            <input type="file" name="bukti_krs" required
+                            <input type="file" name="bukti_krs" id="bukti_krs" required onchange="previewFile(this, 'preview_krs')"
                                 class="w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-[#001f3f] file:text-white hover:file:bg-[#002d5a] file:transition-all cursor-pointer border border-zinc-200 rounded-xl p-2 bg-zinc-50/50">
                         </div>
                         <p class="text-[9px] text-zinc-400 italic">Pastikan mata kuliah praktikum tertera di KRS.</p>
+                        <div id="preview_krs" class="mt-2 hidden"></div>
                         @error('bukti_krs')
                             <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
                         @enderror
                     </div>
                     <div class="space-y-2">
                         <label class="text-[11px] font-bold text-zinc-600 uppercase">Bukti Bayar (PDF/JPG)</label>
-                        <input type="file" name="bukti_pembayaran" required
+                        <input type="file" name="bukti_pembayaran" id="bukti_pembayaran" required onchange="previewFile(this, 'preview_pembayaran')"
                             class="w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-[#001f3f] file:text-white hover:file:bg-[#002d5a] file:transition-all cursor-pointer border border-zinc-200 rounded-xl p-2 bg-zinc-50/50">
                         <p class="text-[9px] text-zinc-400 italic">Upload struk pembayaran resmi dari bank/aplikasi.</p>
+                        <div id="preview_pembayaran" class="mt-2 hidden"></div>
                         @error('bukti_pembayaran')
                             <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
                         @enderror
                     </div>
                     <div class="space-y-2 md:col-span-2">
                         <label class="text-[11px] font-bold text-zinc-600 uppercase">Foto Beralmamater (JPG/PNG)</label>
-                        <input type="file" name="foto_almamater" required
+                        <input type="file" name="foto_almamater" id="foto_almamater" required onchange="previewFile(this, 'preview_foto')"
                             class="w-full text-xs text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-[#001f3f] file:text-white hover:file:bg-[#002d5a] file:transition-all cursor-pointer border border-zinc-200 rounded-xl p-2 bg-zinc-50/50">
                         <p class="text-[9px] text-zinc-400 italic">Gunakan foto terbaru dengan almamater rapi, background
                             polos.</p>
+                        <div id="preview_foto" class="mt-2 hidden"></div>
                         @error('foto_almamater')
                             <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
                         @enderror
@@ -224,3 +227,30 @@
         </form>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    function previewFile(input, previewId) {
+        const previewContainer = document.getElementById(previewId);
+        previewContainer.innerHTML = ''; // clear existing
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            // Cek apakah file adalah PDF dengan mengecek type atau extension
+            const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+            reader.onload = function(e) {
+                previewContainer.classList.remove('hidden');
+                if (isPdf) {
+                    previewContainer.innerHTML = '<iframe src="' + e.target.result + '" class="w-full h-48 md:h-64 rounded-lg border border-zinc-200" frameborder="0"></iframe>';
+                } else {
+                    previewContainer.innerHTML = '<img src="' + e.target.result + '" class="w-full h-auto max-h-64 object-contain rounded-lg border border-zinc-200" alt="Preview">';
+                }
+            }
+            reader.readAsDataURL(file);
+        } else {
+            previewContainer.classList.add('hidden');
+        }
+    }
+</script>
+@endpush
