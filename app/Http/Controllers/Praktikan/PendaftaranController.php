@@ -29,6 +29,7 @@ class PendaftaranController extends Controller
         // Cek apakah sudah pernah mendaftar
         $existing = PendaftaranPraktikum::where('praktikan_id', Auth::user()->praktikan->id)
             ->where('praktikum_id', $praktikum_id)
+            ->whereIn('status', ['pending', 'verified'])
             ->first();
 
         if ($existing) {
@@ -56,6 +57,16 @@ class PendaftaranController extends Controller
             'foto_almamater' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'is_mengulang' => 'required|boolean',
         ]);
+
+        // Pastikan tidak ada pendaftaran ganda yang aktif
+        $existing = PendaftaranPraktikum::where('praktikan_id', Auth::user()->praktikan->id)
+            ->where('praktikum_id', $request->praktikum_id)
+            ->whereIn('status', ['pending', 'verified'])
+            ->first();
+
+        if ($existing) {
+            return redirect()->route('praktikan.dashboard')->with('error', 'Anda sudah mendaftar pada praktikum ini.');
+        }
 
         $praktikum = Praktikum::findOrFail($request->praktikum_id);
         $sesi = SesiPraktikum::findOrFail($request->sesi_id);

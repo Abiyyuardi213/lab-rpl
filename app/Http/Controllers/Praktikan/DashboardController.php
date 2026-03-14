@@ -17,7 +17,8 @@ class DashboardController extends Controller
         $praktikums = Praktikum::withCount('pendaftarans')
             ->with(['pendaftarans' => function ($query) use ($praktikan) {
                 if ($praktikan) {
-                    $query->where('praktikan_id', $praktikan->id);
+                    $query->where('praktikan_id', $praktikan->id)
+                          ->whereIn('status', ['pending', 'verified']);
                 } else {
                     $query->whereRaw('1 = 0'); // Empty result if no praktikan info
                 }

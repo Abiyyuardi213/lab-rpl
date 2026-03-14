@@ -83,6 +83,12 @@
                                     <p class="text-[9px] font-black text-rose-600 uppercase mb-1">Catatan Penolakan:</p>
                                     <p class="text-xs text-rose-700 italic">"{{ $p->catatan }}"</p>
                                 </div>
+                                @if($p->praktikum->status_praktikum == 'open_registration')
+                                    <a href="{{ route('praktikan.pendaftaran.create', $p->praktikum_id) }}" class="w-full flex items-center justify-center gap-2 py-3 bg-rose-600 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-rose-700 transition-all shadow-md active:scale-95 mt-2">
+                                        <i class="fas fa-redo"></i>
+                                        Daftar Ulang
+                                    </a>
+                                @endif
                             @endif
 
                             @if ($p->status == 'verified')
