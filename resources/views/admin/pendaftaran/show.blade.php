@@ -81,11 +81,8 @@
                             </h4>
                         </div>
                         <div class="p-4 flex-grow aspect-[3/4] bg-zinc-100 group relative">
-                            @if (Str::endsWith($pendaftaran->bukti_krs, '.pdf'))
-                                <div class="w-full h-full flex flex-col items-center justify-center text-zinc-400">
-                                    <i class="fas fa-file-pdf text-4xl mb-2"></i>
-                                    <span class="text-[10px] font-bold">DOKUMEN PDF</span>
-                                </div>
+                            @if (Str::endsWith(strtolower($pendaftaran->bukti_krs), '.pdf'))
+                                <iframe src="{{ asset('storage/' . $pendaftaran->bukti_krs) }}" class="w-full h-full rounded-lg" frameborder="0"></iframe>
                             @else
                                 <img src="{{ asset('storage/' . $pendaftaran->bukti_krs) }}"
                                     class="w-full h-full object-contain">
@@ -105,11 +102,8 @@
                             </h4>
                         </div>
                         <div class="p-4 flex-grow aspect-[3/4] bg-zinc-100 group relative">
-                            @if (Str::endsWith($pendaftaran->bukti_pembayaran, '.pdf'))
-                                <div class="w-full h-full flex flex-col items-center justify-center text-zinc-400">
-                                    <i class="fas fa-file-pdf text-4xl mb-2"></i>
-                                    <span class="text-[10px] font-bold">DOKUMEN PDF</span>
-                                </div>
+                            @if (Str::endsWith(strtolower($pendaftaran->bukti_pembayaran), '.pdf'))
+                                <iframe src="{{ asset('storage/' . $pendaftaran->bukti_pembayaran) }}" class="w-full h-full rounded-lg" frameborder="0"></iframe>
                             @else
                                 <img src="{{ asset('storage/' . $pendaftaran->bukti_pembayaran) }}"
                                     class="w-full h-full object-contain">

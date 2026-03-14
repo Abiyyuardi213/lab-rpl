@@ -30,9 +30,9 @@
         // Safer fix for standalone mode links
         document.addEventListener('click', function(e) {
             const link = e.target.closest('a');
-            if (link && 
-                link.href && 
-                link.href.indexOf('http') === 0 && 
+            if (link &&
+                link.href &&
+                link.href.indexOf('http') === 0 &&
                 link.href.indexOf(window.location.host) !== -1 &&
                 link.target !== '_blank') {
                 e.preventDefault();
