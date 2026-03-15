@@ -14,8 +14,8 @@
                     }
                 @endphp
                 <a href="{{ $logoUrl }}" class="flex items-center gap-2 sm:gap-3">
-                    <img src="{{ asset('image/logo-RPL.jpg') }}" alt="LabRPL Logo"
-                        class="w-10 h-10 sm:w-12 sm:h-12 object-contain">
+                    <img src="{{ asset('image/rplmini.png') }}" alt="LabRPL Logo"
+                        class="w-8 h-8 sm:w-10 sm:h-10 object-contain">
                     <div class="flex flex-col">
                         <span class="font-bold text-base sm:text-lg leading-tight text-slate-900 tracking-tight">Lab
                             RPL</span>
