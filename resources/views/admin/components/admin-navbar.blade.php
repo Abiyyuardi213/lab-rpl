@@ -196,8 +196,14 @@
                 <div class="relative group">
                     <button id="profile-dropdown-button"
                         class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 p-0.5 border border-slate-200 focus:outline-none flex items-center justify-center overflow-hidden">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=f8fafc&color=0f172a&bold=true"
-                            class="w-full h-full object-cover">
+                        @if (Auth::user()->profile_picture)
+                            <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}"
+                                class="w-full h-full object-cover" alt="Profile Photo"
+                                onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=f8fafc&color=0f172a&bold=true';">
+                        @else
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=f8fafc&color=0f172a&bold=true"
+                                class="w-full h-full object-cover" alt="Avatar">
+                        @endif
                     </button>
                     <!-- Dropdown -->
                     <div id="profile-dropdown-menu"

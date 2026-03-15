@@ -29,7 +29,7 @@
                     </div>
                     <div>
                         <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none">Waktu Sistem</p>
-                        <p class="text-xs font-black text-white mt-1.5 tabular-nums leading-none">{{ $debugInfo['now'] }}</p>
+                        <p id="realtime-clock" class="text-xs font-black text-white mt-1.5 tabular-nums leading-none">{{ $debugInfo['now'] }}</p>
                     </div>
                 </div>
                 <div class="h-8 w-px bg-zinc-800"></div>
@@ -176,3 +176,39 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const clockElement = document.getElementById('realtime-clock');
+        if (clockElement) {
+            let timeParts = clockElement.textContent.trim().split(':');
+            if (timeParts.length === 3) {
+                let hours = parseInt(timeParts[0]);
+                let minutes = parseInt(timeParts[1]);
+                let seconds = parseInt(timeParts[2]);
+
+                setInterval(function() {
+                    seconds++;
+                    if (seconds >= 60) {
+                        seconds = 0;
+                        minutes++;
+                        if (minutes >= 60) {
+                            minutes = 0;
+                            hours++;
+                            if (hours >= 24) {
+                                hours = 0;
+                            }
+                        }
+                    }
+                    
+                    const h = String(hours).padStart(2, '0');
+                    const m = String(minutes).padStart(2, '0');
+                    const s = String(seconds).padStart(2, '0');
+                    clockElement.textContent = `${h}:${m}:${s}`;
+                }, 1000);
+            }
+        }
+    });
+</script>
+@endpush

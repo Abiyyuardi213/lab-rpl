@@ -25,8 +25,14 @@
                 @if ($pendaftaran->aslab)
                     <div
                         class="w-16 h-16 rounded-full bg-[#001f3f]/10 border-2 border-[#001f3f]/20 flex items-center justify-center mb-3">
-                        <img src="https://ui-avatars.com/api/?name={{ urlencode($pendaftaran->aslab->user->name) }}&background=001f3f&color=fff&bold=true"
-                            class="w-full h-full rounded-full">
+                        @if ($pendaftaran->aslab->user->profile_picture)
+                            <img src="{{ asset('storage/' . $pendaftaran->aslab->user->profile_picture) }}"
+                                class="w-full h-full rounded-full object-cover" alt="Profile Photo"
+                                onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ urlencode($pendaftaran->aslab->user->name) }}&background=001f3f&color=fff&bold=true';">
+                        @else
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($pendaftaran->aslab->user->name) }}&background=001f3f&color=fff&bold=true"
+                                class="w-full h-full rounded-full" alt="Avatar">
+                        @endif
                     </div>
                     <h3 class="font-bold text-slate-900 leading-tight">{{ $pendaftaran->aslab->user->name }}</h3>
                     <p class="text-[10px] text-slate-500 font-medium mt-1 uppercase">{{ $pendaftaran->aslab->npm }}</p>
