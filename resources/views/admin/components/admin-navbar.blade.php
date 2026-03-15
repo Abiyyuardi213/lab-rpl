@@ -3,7 +3,17 @@
         <div class="flex justify-between items-center h-16 sm:h-20">
             <!-- Left: Logo -->
             <div class="flex-shrink-0 flex items-center">
-                <a href="{{ url('/admin/dashboard') }}" class="flex items-center gap-2 sm:gap-3">
+                @php
+                    $logoUrl = url('/admin/dashboard');
+                    if (Auth::check() && Auth::user()->role) {
+                        if (Auth::user()->role->name === 'Praktikan') {
+                            $logoUrl = route('praktikan.dashboard');
+                        } elseif (Auth::user()->role->name === 'Aslab') {
+                            $logoUrl = route('aslab.dashboard');
+                        }
+                    }
+                @endphp
+                <a href="{{ $logoUrl }}" class="flex items-center gap-2 sm:gap-3">
                     <img src="{{ asset('image/logo-RPL.jpg') }}" alt="LabRPL Logo"
                         class="w-10 h-10 sm:w-12 sm:h-12 object-contain">
                     <div class="flex flex-col">
