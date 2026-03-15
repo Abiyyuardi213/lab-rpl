@@ -7,15 +7,21 @@
             </div>
 
             <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                &copy; {{ date('Y') }} AdminPanel. All rights reserved.
+                &copy; {{ date('Y') }}
+                @php
+                    $panelName = 'Admin Panel';
+                    if (Auth::check() && Auth::user()->role) {
+                        if (Auth::user()->role->name === 'Praktikan') {
+                            $panelName = 'Portal Praktikan';
+                        } elseif (Auth::user()->role->name === 'Aslab') {
+                            $panelName = 'Portal Aslab';
+                        }
+                    }
+                @endphp
+                {{ $panelName }}. All rights reserved.
             </p>
 
             <div class="flex gap-6">
-                <a href="{{ url('/') }}"
-                    class="text-[11px] font-bold text-slate-400 uppercase tracking-wider hover:text-primary transition-colors">
-                    Lihat Website
-                </a>
-                <span class="text-slate-200">|</span>
                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                     v1.0.0
                 </span>
