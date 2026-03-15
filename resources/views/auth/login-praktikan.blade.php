@@ -91,8 +91,12 @@
                             <i class="fas fa-lock text-sm"></i>
                         </span>
                         <input type="password" name="password" id="password"
-                            class="block w-full rounded-lg border border-zinc-300 pl-10 pr-3 py-2.5 text-sm transition-all focus:border-[#001f3f] focus:outline-none focus:ring-1 focus:ring-[#001f3f] placeholder:text-zinc-400 font-medium bg-zinc-50/30 focus:bg-white"
+                            class="block w-full rounded-lg border border-zinc-300 pl-10 pr-10 py-2.5 text-sm transition-all focus:border-[#001f3f] focus:outline-none focus:ring-1 focus:ring-[#001f3f] placeholder:text-zinc-400 font-medium bg-zinc-50/30 focus:bg-white"
                             placeholder="••••••••" required>
+                        <button type="button" onclick="togglePassword('password', this)"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-[#001f3f] transition-colors">
+                            <i class="fas fa-eye text-sm"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -103,7 +107,7 @@
                         <span class="text-sm text-zinc-600 group-hover:text-zinc-900 transition-colors">Ingat
                             saya</span>
                     </label>
-                    <a href="#"
+                    <a href="{{ route('password.request') }}"
                         class="text-sm font-medium text-zinc-500 hover:text-[#001f3f] transition-colors">Lupa
                         Password?</a>
                 </div>
@@ -172,6 +176,20 @@
             })
         </script>
     @endif
+
+    <script>
+        function togglePassword(id, btn) {
+            const input = document.getElementById(id);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+    </script>
 </body>
 
 </html>
