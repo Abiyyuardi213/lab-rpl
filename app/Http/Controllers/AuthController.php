@@ -34,6 +34,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
+            $request->session()->forget('url.intended'); // Hapus intended URL untuk cegah open redirect
 
             if (!Auth::user()->status) {
                 Auth::logout();
@@ -43,10 +44,10 @@ class AuthController extends Controller
             }
 
             if (Auth::user()->role->name === 'Praktikan') {
-                return redirect()->intended(route('praktikan.dashboard'))->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
+                return redirect()->route('praktikan.dashboard')->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
             }
 
-            return redirect()->intended(route('admin.dashboard'))->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
+            return redirect()->route('admin.dashboard')->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
         }
 
         return back()->withErrors([
@@ -78,6 +79,7 @@ class AuthController extends Controller
 
         if (Auth::attempt(['username' => $request->npm, 'password' => $request->password], $request->remember)) {
             $request->session()->regenerate();
+            $request->session()->forget('url.intended'); // Hapus intended URL untuk cegah open redirect
 
             if (!Auth::user()->status) {
                 Auth::logout();
@@ -94,7 +96,7 @@ class AuthController extends Controller
                 ]);
             }
 
-            return redirect()->intended(route('aslab.dashboard'))->with('login_success', 'Selamat datang kembali aslab, ' . Auth::user()->name . '!');
+            return redirect()->route('aslab.dashboard')->with('login_success', 'Selamat datang kembali aslab, ' . Auth::user()->name . '!');
         }
 
         return back()->withErrors([
@@ -130,6 +132,7 @@ class AuthController extends Controller
 
         if (Auth::attempt(['username' => $request->npm, 'password' => $request->password], $request->remember)) {
             $request->session()->regenerate();
+            $request->session()->forget('url.intended'); // Hapus intended URL untuk cegah open redirect
 
             if (!Auth::user()->status) {
                 Auth::logout();
@@ -146,7 +149,7 @@ class AuthController extends Controller
                 ]);
             }
 
-            return redirect()->intended(route('praktikan.dashboard'))->with('login_success', 'Selamat datang praktikan, ' . Auth::user()->name . '!');
+            return redirect()->route('praktikan.dashboard')->with('login_success', 'Selamat datang praktikan, ' . Auth::user()->name . '!');
         }
 
         return back()->withErrors([
@@ -168,7 +171,7 @@ class AuthController extends Controller
             'npm' => 'required|string|unique:users,username|unique:praktikans,npm|unique:aslabs,npm',
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         $role = \App\Models\Role::where('name', 'Praktikan')->first();
@@ -183,9 +186,10 @@ class AuthController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => \Illuminate\Support\Facades\Hash::make($request->password),
-                'role_id' => $role->id,
                 'status' => true,
             ]);
+            $user->role_id = $role->id;
+            $user->save();
 
             \App\Models\Praktikan::create([
                 'user_id' => $user->id,
@@ -196,7 +200,8 @@ class AuthController extends Controller
             return redirect()->route('login.praktikan')->with('success', 'Pendaftaran berhasil. Silakan login menggunakan NPM Anda.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\DB::rollBack();
-            return back()->withErrors(['error' => 'Pendaftaran gagal: ' . $e->getMessage()])->withInput();
+            \Illuminate\Support\Facades\Log::error('Pendaftaran gagal: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Pendaftaran gagal. Silakan coba lagi atau hubungi admin.'])->withInput();
         }
     }
 

@@ -14,8 +14,15 @@ class PendaftaranController extends Controller
 {
     public function index()
     {
+        $praktikan = Auth::user()->praktikan;
+
+        if (!$praktikan) {
+            return redirect()->route('praktikan.dashboard')
+                ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
+        }
+
         $pendaftarans = PendaftaranPraktikum::with(['praktikum', 'sesi'])
-            ->where('praktikan_id', Auth::user()->praktikan->id)
+            ->where('praktikan_id', $praktikan->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -26,8 +33,15 @@ class PendaftaranController extends Controller
     {
         $praktikum = Praktikum::with('sesis')->findOrFail($praktikum_id);
 
+        $praktikan = Auth::user()->praktikan;
+
+        if (!$praktikan) {
+            return redirect()->route('praktikan.dashboard')
+                ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
+        }
+
         // Cek apakah sudah pernah mendaftar
-        $existing = PendaftaranPraktikum::where('praktikan_id', Auth::user()->praktikan->id)
+        $existing = PendaftaranPraktikum::where('praktikan_id', $praktikan->id)
             ->where('praktikum_id', $praktikum_id)
             ->whereIn('status', ['pending', 'verified'])
             ->first();
@@ -59,7 +73,14 @@ class PendaftaranController extends Controller
         ]);
 
         // Pastikan tidak ada pendaftaran ganda yang aktif
-        $existing = PendaftaranPraktikum::where('praktikan_id', Auth::user()->praktikan->id)
+        $praktikan = Auth::user()->praktikan;
+
+        if (!$praktikan) {
+            return redirect()->route('praktikan.dashboard')
+                ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
+        }
+
+        $existing = PendaftaranPraktikum::where('praktikan_id', $praktikan->id)
             ->where('praktikum_id', $request->praktikum_id)
             ->whereIn('status', ['pending', 'verified'])
             ->first();
@@ -81,30 +102,43 @@ class PendaftaranController extends Controller
         $pathPembayaran = $request->file('bukti_pembayaran')->store('pendaftaran/pembayaran', 'public');
         $pathFoto = $request->file('foto_almamater')->store('pendaftaran/foto', 'public');
 
-        PendaftaranPraktikum::create([
-            'praktikan_id' => Auth::user()->praktikan->id,
-            'praktikum_id' => $request->praktikum_id,
-            'sesi_id' => $request->sesi_id,
-            'no_hp' => $request->no_hp ?: Auth::user()->praktikan->no_hp,
-            'dosen_pengampu' => $request->dosen_pengampu,
-            'kelas' => $request->kelas,
-            'asal_kelas_mata_kuliah' => $request->asal_kelas_mata_kuliah,
-            'bukti_krs' => $pathKrs,
-            'bukti_pembayaran' => $pathPembayaran,
-            'foto_almamater' => $pathFoto,
-            'is_mengulang' => $request->is_mengulang,
-            'status' => 'pending',
-        ]);
+        try {
+            PendaftaranPraktikum::create([
+                'praktikan_id' => $praktikan->id,
+                'praktikum_id' => $request->praktikum_id,
+                'sesi_id' => $request->sesi_id,
+                'no_hp' => $request->no_hp ?: $praktikan->no_hp,
+                'dosen_pengampu' => $request->dosen_pengampu,
+                'kelas' => $request->kelas,
+                'asal_kelas_mata_kuliah' => $request->asal_kelas_mata_kuliah,
+                'bukti_krs' => $pathKrs,
+                'bukti_pembayaran' => $pathPembayaran,
+                'foto_almamater' => $pathFoto,
+                'is_mengulang' => $request->is_mengulang,
+                'status' => 'pending',
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Unique constraint violation — race condition caught
+            return redirect()->route('praktikan.dashboard')->with('error', 'Anda sudah mendaftar pada praktikum ini.');
+        }
+
         return redirect()->route('praktikan.dashboard')->with('success', 'Pendaftaran praktikum berhasil dikirim. Silakan tunggu verifikasi admin.');
     }
 
     public function progress($id)
     {
+        $praktikan = Auth::user()->praktikan;
+
+        if (!$praktikan) {
+            return redirect()->route('praktikan.dashboard')
+                ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
+        }
+
         $pendaftaran = PendaftaranPraktikum::with(['praktikum', 'aslab.user', 'tugasAsistensis' => function ($q) {
             $q->orderBy('created_at', 'desc');
         }])
             ->where('id', $id)
-            ->where('praktikan_id', Auth::user()->praktikan->id)
+            ->where('praktikan_id', $praktikan->id)
             ->firstOrFail();
 
         return view('praktikan.pendaftaran.progress', compact('pendaftaran'));
@@ -112,12 +146,24 @@ class PendaftaranController extends Controller
 
     public function submitTugas(Request $request, $tugas_id)
     {
+        $praktikan = Auth::user()->praktikan;
+
+        if (!$praktikan) {
+            return redirect()->route('praktikan.dashboard')
+                ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
+        }
+
         $tugas = \App\Models\TugasAsistensi::findOrFail($tugas_id);
 
         // Ensure this task belongs to the user
         $pendaftaran = $tugas->pendaftaran;
-        if ($pendaftaran->praktikan_id !== Auth::user()->praktikan->id) {
+        if ($pendaftaran->praktikan_id !== $praktikan->id) {
             abort(403);
+        }
+
+        // Cegah overwrite tugas yang sudah dinilai
+        if ($tugas->status === 'reviewed') {
+            return back()->with('error', 'Tugas yang sudah dinilai tidak dapat diubah.');
         }
 
         $request->validate([

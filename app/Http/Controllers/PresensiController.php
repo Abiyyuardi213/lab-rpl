@@ -233,6 +233,13 @@ class PresensiController extends Controller
 
         $pendaftaran = PendaftaranPraktikum::with(['praktikan.user', 'praktikum'])->find($data['pendaftaran_id']);
 
+        if (!$pendaftaran || !$pendaftaran->praktikan || !$pendaftaran->praktikan->user) {
+            return view('presensi.public-verify', [
+                'status' => 'expired',
+                'message' => 'Data pendaftaran tidak ditemukan atau sudah dihapus.'
+            ]);
+        }
+
         return view('presensi.public-verify', [
             'status' => 'valid',
             'message' => 'QR Code Valid',

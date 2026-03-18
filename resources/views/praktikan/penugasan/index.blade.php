@@ -17,19 +17,19 @@
             </div>
         </div>
 
-        <!-- Debugging Info -->
+        {{-- Info Bar: Waktu & Hari saat ini --}}
+        @php
+            $now = \Carbon\Carbon::now('Asia/Jakarta');
+        @endphp
         <div class="p-4 bg-zinc-900 rounded-xl border border-zinc-800 shadow-2xl relative overflow-hidden group">
-            <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
-                <i class="fas fa-bug text-6xl text-white"></i>
-            </div>
             <div class="flex flex-wrap items-center gap-6 relative z-10">
                 <div class="flex items-center gap-3">
                     <div class="h-8 w-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400">
                         <i class="fas fa-clock text-xs"></i>
                     </div>
                     <div>
-                        <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none">Waktu Sistem</p>
-                        <p id="realtime-clock" class="text-xs font-black text-white mt-1.5 tabular-nums leading-none">{{ $debugInfo['now'] }}</p>
+                        <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none">Waktu Sekarang</p>
+                        <p id="realtime-clock" class="text-xs font-black text-white mt-1.5 tabular-nums leading-none">{{ $now->format('H:i:s') }}</p>
                     </div>
                 </div>
                 <div class="h-8 w-px bg-zinc-800"></div>
@@ -39,27 +39,7 @@
                     </div>
                     <div>
                         <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none">Hari Ini</p>
-                        <p class="text-xs font-black text-white mt-1.5 uppercase leading-none">{{ $debugInfo['day'] }}</p>
-                    </div>
-                </div>
-                <div class="h-8 w-px bg-zinc-800"></div>
-                <div class="flex items-center gap-3">
-                    <div class="h-8 w-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400">
-                        <i class="fas fa-fingerprint text-xs"></i>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none">Digit Akhir NPM</p>
-                        <p class="text-xs font-black text-zinc-400 mt-1.5 leading-none">***<span class="text-emerald-500">{{ $debugInfo['lastDigit'] }}</span></p>
-                    </div>
-                </div>
-                <div class="h-8 w-px bg-zinc-800"></div>
-                <div class="flex items-center gap-3">
-                    <div class="h-8 w-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400">
-                        <i class="fas fa-globe text-xs"></i>
-                    </div>
-                    <div>
-                        <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none">Timezone</p>
-                        <p class="text-xs font-black text-white mt-1.5 leading-none">{{ $debugInfo['timezone'] }}</p>
+                        <p class="text-xs font-black text-white mt-1.5 uppercase leading-none">{{ $now->locale('id')->dayName }}</p>
                     </div>
                 </div>
             </div>
@@ -133,17 +113,6 @@
                                 </div>
                             </div>
 
-                            <!-- Debug Per-Soal -->
-                            <div class="p-3 bg-zinc-50 rounded-lg border border-zinc-100 flex flex-col gap-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[8px] font-bold text-zinc-400 uppercase">Cek Hari ({{ $p->debug['hari_sesi'] }})</span>
-                                    <i class="fas {{ $p->debug['day_match'] ? 'fa-check-circle text-emerald-500' : 'fa-times-circle text-rose-500' }} text-[10px]"></i>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[8px] font-bold text-zinc-400 uppercase">Cek Jam ({{ substr($p->debug['jam_mulai'], 0, 5) }}-{{ substr($p->debug['jam_selesai'], 0, 5) }})</span>
-                                    <i class="fas {{ $p->debug['time_match'] ? 'fa-check-circle text-emerald-500' : 'fa-times-circle text-rose-500' }} text-[10px]"></i>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="mt-auto">

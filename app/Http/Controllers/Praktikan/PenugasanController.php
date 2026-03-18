@@ -15,14 +15,20 @@ class PenugasanController extends Controller
     public function index()
     {
         $user = Auth::user();
+        $praktikan = $user->praktikan;
+
+        if (!$praktikan) {
+            return redirect()->route('praktikan.dashboard')
+                ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
+        }
 
         $pendaftarans = PendaftaranPraktikum::with(['praktikum', 'sesi'])
-            ->where('praktikan_id', $user->praktikan->id)
+            ->where('praktikan_id', $praktikan->id)
             ->where('status', 'verified')
             ->get();
 
         $sesiIds = $pendaftarans->pluck('sesi_id')->toArray();
-        $npm = $user->praktikan->npm;
+        $npm = $praktikan->npm;
         $lastDigit = intval(substr($npm, -1));
 
         $penugasans = Penugasan::with(['praktikum', 'sesi', 'aslab.user'])
@@ -35,18 +41,11 @@ class PenugasanController extends Controller
         $currentDay = $now->locale('id')->dayName;
         $currentTime = $now->format('H:i:s');
 
-        $debugInfo = [
-            'now' => $currentTime,
-            'day' => $currentDay,
-            'lastDigit' => $lastDigit,
-            'timezone' => config('app.timezone')
-        ];
-
         foreach ($penugasans as $penugasan) {
             $sesi = $penugasan->sesi;
             $isAccessible = false;
-            
-            $dayMatch = ($sesi->hari === $currentDay);
+
+            $dayMatch = (strtolower($sesi->hari) === strtolower($currentDay));
             $timeMatch = ($currentTime >= $sesi->jam_mulai && $currentTime <= $sesi->jam_selesai);
 
             if ($dayMatch && $timeMatch) {
@@ -54,25 +53,25 @@ class PenugasanController extends Controller
             }
 
             $penugasan->is_accessible = $isAccessible;
-            $penugasan->debug = [
-                'day_match' => $dayMatch,
-                'time_match' => $timeMatch,
-                'hari_sesi' => $sesi->hari,
-                'jam_mulai' => $sesi->jam_mulai,
-                'jam_selesai' => $sesi->jam_selesai
-            ];
         }
 
-        return view('praktikan.penugasan.index', compact('penugasans', 'debugInfo'));
+        return view('praktikan.penugasan.index', compact('penugasans'));
     }
 
     public function show($id)
     {
         $user = Auth::user();
+        $praktikan = $user->praktikan;
+
+        if (!$praktikan) {
+            return redirect()->route('praktikan.dashboard')
+                ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
+        }
+
         $penugasan = Penugasan::with(['praktikum', 'sesi', 'aslab.user'])->findOrFail($id);
 
         // Check if student is registered in this session
-        $isRegistered = PendaftaranPraktikum::where('praktikan_id', $user->praktikan->id)
+        $isRegistered = PendaftaranPraktikum::where('praktikan_id', $praktikan->id)
             ->where('sesi_id', $penugasan->sesi_id)
             ->where('status', 'verified')
             ->exists();
@@ -81,7 +80,7 @@ class PenugasanController extends Controller
             abort(403, 'Anda tidak terdaftar dalam sesi praktikum ini.');
         }
 
-        $npm = $user->praktikan->npm;
+        $npm = $praktikan->npm;
         $lastDigit = intval(substr($npm, -1));
 
         if ($penugasan->kode_akhir_npm !== null && (int)$penugasan->kode_akhir_npm !== $lastDigit) {
@@ -94,7 +93,7 @@ class PenugasanController extends Controller
         $currentTime = $now->format('H:i:s');
 
         $sesi = $penugasan->sesi;
-        if ($sesi->hari !== $currentDay || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai) {
+        if (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai) {
             return redirect()->route('praktikan.penugasan.index')
                 ->with('error', 'Soal hanya dapat diakses pada jam sesi praktikum (' . $sesi->hari . ', ' . $sesi->jam_mulai . ' - ' . $sesi->jam_selesai . ').');
         }
@@ -105,10 +104,17 @@ class PenugasanController extends Controller
     public function download($id)
     {
         $user = Auth::user();
+        $praktikan = $user->praktikan;
+
+        if (!$praktikan) {
+            return redirect()->route('praktikan.dashboard')
+                ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
+        }
+
         $penugasan = Penugasan::with('sesi')->findOrFail($id);
 
         // 1. Check registration
-        $isRegistered = PendaftaranPraktikum::where('praktikan_id', $user->praktikan->id)
+        $isRegistered = PendaftaranPraktikum::where('praktikan_id', $praktikan->id)
             ->where('sesi_id', $penugasan->sesi_id)
             ->where('status', 'verified')
             ->exists();
@@ -118,7 +124,7 @@ class PenugasanController extends Controller
         }
 
         // 2. Check NPM Digit
-        $npm = $user->praktikan->npm;
+        $npm = $praktikan->npm;
         $lastDigit = intval(substr($npm, -1));
         if ($penugasan->kode_akhir_npm !== null && (int)$penugasan->kode_akhir_npm !== $lastDigit) {
             abort(403, 'Soal ini tidak ditujukan untuk NPM Anda.');
@@ -130,7 +136,7 @@ class PenugasanController extends Controller
         $currentTime = $now->format('H:i:s');
         $sesi = $penugasan->sesi;
 
-        if ($sesi->hari !== $currentDay || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai) {
+        if (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai) {
             return back()->with('error', 'File hanya dapat diunduh pada jam sesi praktikum.');
         }
 

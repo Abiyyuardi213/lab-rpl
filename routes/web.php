@@ -11,23 +11,23 @@ use Illuminate\Support\Facades\Route;
 // Guest Routes
 Route::middleware('guest')->group(function () {
     Route::get('/ghost', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/ghost', [AuthController::class, 'login'])->name('login.post');
+    Route::post('/ghost', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:10,1');
     Route::get('/login-aslab', [AuthController::class, 'showAslabLogin'])->name('login.aslab');
-    Route::post('/login-aslab', [AuthController::class, 'aslabLogin'])->name('login.aslab.post');
+    Route::post('/login-aslab', [AuthController::class, 'aslabLogin'])->name('login.aslab.post')->middleware('throttle:10,1');
     Route::get('/login-praktikan', [AuthController::class, 'showPraktikanLogin'])->name('login.praktikan');
-    Route::post('/login-praktikan', [AuthController::class, 'praktikanLogin'])->name('login.praktikan.post');
+    Route::post('/login-praktikan', [AuthController::class, 'praktikanLogin'])->name('login.praktikan.post')->middleware('throttle:10,1');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post')->middleware('throttle:5,1');
 
     // Password Reset Routes
     Route::get('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
         ->name('password.request');
     Route::post('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
-        ->name('password.email');
+        ->name('password.email')->middleware('throttle:5,1');
     Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])
         ->name('password.reset');
     Route::post('/reset-password', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])
-        ->name('password.update');
+        ->name('password.update')->middleware('throttle:5,1');
 });
 
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
@@ -172,7 +172,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Notifications placeholders
-Route::name('notifications.')->group(function () {
+Route::middleware('auth')->name('notifications.')->group(function () {
     Route::post('/notifications/read-all', fn() => back())->name('readAll');
     Route::get('/notifications/{id}/go', fn() => back())->name('go');
     Route::get('/notifications', fn() => 'Notifications Index')->name('index');
