@@ -45,20 +45,19 @@ class PraktikanController extends Controller
             'no_hp' => 'nullable|string',
         ]);
 
-        $userData = [
-            'username' => $request->username ?: $request->npm,
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role_id' => $praktikanRole->id,
-            'status' => true,
-        ];
+        $user = new User();
+        $user->username = $request->username ?: $request->npm;
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->role_id = $praktikanRole->id;
+        $user->status = true;
 
         if ($request->hasFile('profile_picture')) {
-            $userData['profile_picture'] = $request->file('profile_picture')->store('profile', 'public');
+            $user->profile_picture = $request->file('profile_picture')->store('profile', 'public');
         }
 
-        $user = User::create($userData);
+        $user->save();
 
         Praktikan::create([
             'user_id' => $user->id,

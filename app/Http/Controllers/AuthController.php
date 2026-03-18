@@ -45,6 +45,8 @@ class AuthController extends Controller
 
             if (Auth::user()->role->name === 'Praktikan') {
                 return redirect()->route('praktikan.dashboard')->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
+            } elseif (Auth::user()->role->name === 'Aslab') {
+                return redirect()->route('aslab.dashboard')->with('login_success', 'Selamat datang kembali aslab, ' . Auth::user()->name . '!');
             }
 
             return redirect()->route('admin.dashboard')->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');

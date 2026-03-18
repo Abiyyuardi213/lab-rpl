@@ -34,14 +34,18 @@ class UserController extends Controller
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $data = $request->all();
-        $data['password'] = Hash::make($request->password);
-
+        $user = new User();
+        $user->username = $request->username;
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->role_id = $request->role_id;
+        
         if ($request->hasFile('profile_picture')) {
-            $data['profile_picture'] = $request->file('profile_picture')->store('profile', 'public');
+            $user->profile_picture = $request->file('profile_picture')->store('profile', 'public');
         }
 
-        User::create($data);
+        $user->save();
 
         return redirect()->route('admin.user.index', ['last_page' => '1'])->with('success', 'User berhasil ditambahkan.');
     }
@@ -67,19 +71,23 @@ class UserController extends Controller
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $data = $request->except('password');
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->username = $request->username;
+        $user->role_id = $request->role_id;
+
         if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
+            $user->password = Hash::make($request->password);
         }
 
         if ($request->hasFile('profile_picture')) {
             if ($user->profile_picture) {
                 Storage::delete('public/' . $user->profile_picture);
             }
-            $data['profile_picture'] = $request->file('profile_picture')->store('profile', 'public');
+            $user->profile_picture = $request->file('profile_picture')->store('profile', 'public');
         }
 
-        $user->update($data);
+        $user->save();
 
         return redirect()->route('admin.user.index')->with('success', 'User berhasil diperbarui.');
     }
