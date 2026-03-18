@@ -40,6 +40,9 @@ Route::get('/pengumuman/{slug}', [WelcomeController::class, 'pengumumanDetail'])
 Route::get('/kegiatan', [WelcomeController::class, 'kegiatan'])->name('kegiatan.public');
 Route::get('/kegiatan/{slug}', [WelcomeController::class, 'kegiatanDetail'])->name('kegiatan.show');
 Route::get('/p/{token}', [PresensiController::class, 'publicVerify'])->name('presensi.public-verify');
+Route::get('/impostor', function () {
+    return view('impostor');
+})->name('impostor');
 
 // Dashboard redirection for logged in users
 Route::get('/home', [AuthController::class, 'dashboardRedirect'])->name('dashboard.redirect');

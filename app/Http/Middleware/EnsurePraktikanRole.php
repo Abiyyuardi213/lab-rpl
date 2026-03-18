@@ -21,8 +21,6 @@ class EnsurePraktikanRole
         }
 
         Auth::logout();
-        return redirect()->route('login.praktikan')->withErrors([
-            'npm' => 'Sesi Anda tidak valid atau Anda tidak memiliki akses ke halaman ini.',
-        ]);
+        return redirect()->route('impostor');
     }
 }

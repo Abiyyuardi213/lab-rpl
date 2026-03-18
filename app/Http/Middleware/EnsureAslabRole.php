@@ -20,8 +20,7 @@ class EnsureAslabRole
             return $next($request);
         }
 
-        return redirect()->route('login.aslab')->withErrors([
-            'npm' => 'Sesi Anda tidak valid atau Anda tidak memiliki akses ke halaman aslab.',
-        ]);
+        Auth::logout();
+        return redirect()->route('impostor');
     }
 }

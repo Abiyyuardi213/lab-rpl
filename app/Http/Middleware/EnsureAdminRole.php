@@ -21,8 +21,6 @@ class EnsureAdminRole
         }
 
         Auth::logout();
-        return redirect()->route('login')->withErrors([
-            'email' => 'Sesi Anda tidak valid atau Anda tidak memiliki akses ke halaman admin.',
-        ]);
+        return redirect()->route('impostor');
     }
 }
