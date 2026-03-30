@@ -66,10 +66,11 @@ class PendaftaranController extends Controller
             'dosen_pengampu' => 'required|string|max:255',
             'asal_kelas_mata_kuliah' => 'required|string|max:50',
             'kelas' => 'required|in:pagi,malam',
-            'bukti_krs' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'bukti_pembayaran' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'foto_almamater' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'bukti_krs' => 'required_unless:is_google_form,1|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'bukti_pembayaran' => 'required_unless:is_google_form,1|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'foto_almamater' => 'required_unless:is_google_form,1|image|mimes:jpg,jpeg,png|max:2048',
             'is_mengulang' => 'required|boolean',
+            'is_google_form' => 'boolean',
         ]);
 
         // Pastikan tidak ada pendaftaran ganda yang aktif
@@ -98,9 +99,9 @@ class PendaftaranController extends Controller
         }
 
         // Upload files
-        $pathKrs = $request->file('bukti_krs')->store('pendaftaran/krs', 'public');
-        $pathPembayaran = $request->file('bukti_pembayaran')->store('pendaftaran/pembayaran', 'public');
-        $pathFoto = $request->file('foto_almamater')->store('pendaftaran/foto', 'public');
+        $pathKrs = $request->hasFile('bukti_krs') ? $request->file('bukti_krs')->store('pendaftaran/krs', 'public') : null;
+        $pathPembayaran = $request->hasFile('bukti_pembayaran') ? $request->file('bukti_pembayaran')->store('pendaftaran/pembayaran', 'public') : null;
+        $pathFoto = $request->hasFile('foto_almamater') ? $request->file('foto_almamater')->store('pendaftaran/foto', 'public') : null;
 
         try {
             PendaftaranPraktikum::create([
@@ -115,6 +116,7 @@ class PendaftaranController extends Controller
                 'bukti_pembayaran' => $pathPembayaran,
                 'foto_almamater' => $pathFoto,
                 'is_mengulang' => $request->is_mengulang,
+                'is_google_form' => $request->is_google_form ?? false,
                 'status' => 'pending',
             ]);
         } catch (\Illuminate\Database\QueryException $e) {

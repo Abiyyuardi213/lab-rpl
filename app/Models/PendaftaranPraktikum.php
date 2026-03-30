@@ -24,6 +24,7 @@ class PendaftaranPraktikum extends Model
         'bukti_pembayaran',
         'foto_almamater',
         'is_mengulang',
+        'is_google_form',
         'status',
         'catatan',
     ];

@@ -64,11 +64,26 @@
                                 @endif
                             </dd>
                         </div>
+                        <div class="space-y-1">
+                            <dt class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Metode Pendaftaran</dt>
+                            <dd class="text-sm font-bold text-zinc-900">
+                                @if ($pendaftaran->is_google_form)
+                                    <span class="px-2 py-0.5 rounded text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase font-black tracking-tighter">
+                                        <i class="fab fa-google mr-1"></i> Google Form
+                                    </span>
+                                @else
+                                    <span class="px-2 py-0.5 rounded text-[10px] bg-zinc-50 text-zinc-500 border border-zinc-100 uppercase font-black tracking-tighter">
+                                        Manual Upload
+                                    </span>
+                                @endif
+                            </dd>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Documents Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    @if($pendaftaran->bukti_krs)
                     <div class="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col">
                         <div class="px-5 py-4 border-b border-zinc-100 bg-zinc-50/50">
                             <h4
@@ -89,7 +104,9 @@
                             @endif
                         </div>
                     </div>
+                    @endif
 
+                    @if($pendaftaran->bukti_pembayaran)
                     <div class="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col">
                         <div class="px-5 py-4 border-b border-zinc-100 bg-zinc-50/50">
                             <h4
@@ -110,7 +127,9 @@
                             @endif
                         </div>
                     </div>
+                    @endif
 
+                    @if($pendaftaran->foto_almamater)
                     <div
                         class="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden flex flex-col md:col-span-2">
                         <div class="px-5 py-4 border-b border-zinc-100 bg-zinc-50/50">
@@ -128,6 +147,17 @@
                                 class="max-h-96 rounded-xl shadow-lg">
                         </div>
                     </div>
+                    @endif
+
+                    @if($pendaftaran->is_google_form && !$pendaftaran->bukti_krs)
+                        <div class="md:col-span-2 p-12 text-center bg-indigo-50/50 border border-indigo-100 rounded-2xl border-dashed">
+                            <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fab fa-google text-indigo-600 text-2xl"></i>
+                            </div>
+                            <h4 class="text-sm font-bold text-indigo-900 uppercase tracking-widest mb-2">Terdaftar via Google Form</h4>
+                            <p class="text-[11px] text-indigo-600 max-w-sm mx-auto leading-relaxed">Pendaftar menyatakan sudah mengunggah berkas persyaratan melalui Google Form. Silakan verifikasi data melalui dashboard Google Form laboratorium.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
 

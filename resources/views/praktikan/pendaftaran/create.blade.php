@@ -177,11 +177,18 @@
 
             <!-- Uploads -->
             <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-                <h3 class="text-sm font-bold text-zinc-900 uppercase tracking-widest flex items-center gap-2 mb-6">
-                    <i class="fas fa-upload text-[#001f3f]"></i>
-                    Upload Dokumen Persyaratan
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-sm font-bold text-zinc-900 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fas fa-upload text-[#001f3f]"></i>
+                        Upload Dokumen Persyaratan
+                    </h3>
+                    <label class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100/50 border border-zinc-200 cursor-pointer hover:bg-zinc-100 transition-colors">
+                        <input type="checkbox" name="is_google_form" value="1" id="toggle_google_form"
+                            class="h-3.5 w-3.5 text-[#001f3f] focus:ring-[#001f3f] border-zinc-300 rounded">
+                        <span class="text-[10px] font-bold text-zinc-600 uppercase">Sudah upload via google form</span>
+                    </label>
+                </div>
+                <div id="upload_section" class="grid grid-cols-1 md:grid-cols-2 gap-8 transition-opacity duration-300">
                     <div class="space-y-2">
                         <label class="text-[11px] font-bold text-zinc-600 uppercase">Bukti KRS (PDF/JPG)</label>
                         <div class="relative group">
@@ -230,6 +237,28 @@
 
 @push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleGoogleForm = document.getElementById('toggle_google_form');
+        const uploadSection = document.getElementById('upload_section');
+        const fileInputs = uploadSection.querySelectorAll('input[type="file"]');
+
+        toggleGoogleForm.addEventListener('change', function() {
+            if (this.checked) {
+                uploadSection.classList.add('opacity-50');
+                fileInputs.forEach(input => {
+                    input.required = false;
+                    input.disabled = true;
+                });
+            } else {
+                uploadSection.classList.remove('opacity-50');
+                fileInputs.forEach(input => {
+                    input.required = true;
+                    input.disabled = false;
+                });
+            }
+        });
+    });
+
     function previewFile(input, previewId) {
         const previewContainer = document.getElementById(previewId);
         previewContainer.innerHTML = ''; // clear existing
