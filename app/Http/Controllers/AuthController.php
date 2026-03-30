@@ -170,10 +170,19 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'npm' => 'required|string|unique:users,username|unique:praktikans,npm|unique:aslabs,npm',
+            'npm' => [
+                'required',
+                'string',
+                'unique:users,username',
+                'unique:praktikans,npm',
+                'unique:aslabs,npm',
+                'regex:/^\d{2}\.\d{4}\.\d{1}\.\d{5}$/'
+            ],
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+        ], [
+            'npm.regex' => 'Format NPM tidak valid. Contoh: 06.2025.1.01111'
         ]);
 
         $role = \App\Models\Role::where('name', 'Praktikan')->first();
@@ -214,6 +223,20 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('home')->with('logout_success', 'Anda telah berhasil logout.');
     }
+    public function checkNpm(Request $request)
+    {
+        $npm = $request->query('npm');
+        if (!$npm) {
+            return response()->json(['exists' => false]);
+        }
+
+        $exists = \App\Models\User::where('username', $npm)->exists() || 
+                 \App\Models\Praktikan::where('npm', $npm)->exists() || 
+                 \App\Models\Aslab::where('npm', $npm)->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
     public function dashboardRedirect()
     {
         if (Auth::check()) {

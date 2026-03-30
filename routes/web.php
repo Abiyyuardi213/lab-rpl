@@ -176,6 +176,8 @@ Route::middleware('auth')->group(function () {
     });
 });
 
+Route::get('/check-npm', [\App\Http\Controllers\AuthController::class, 'checkNpm'])->name('check-npm');
+
 // Notifications placeholders
 Route::middleware('auth')->name('notifications.')->group(function () {
     Route::post('/notifications/read-all', fn() => back())->name('readAll');
