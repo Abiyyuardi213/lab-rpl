@@ -161,6 +161,7 @@
         $(document).ready(function() {
             if ($('#praktikanTable').length > 0) {
                 var table = $('#praktikanTable').DataTable({
+                    stateSave: true,
                     dom: 't<"flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
                     language: {
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
@@ -176,6 +177,12 @@
                     }]
                 });
 
+                // Jika ada parameter last_page di URL, paksa ke halaman terakhir
+                // Namun karena stateSave aktif, kita harus berhati-hati agar tidak konflik
+                @if (request('last_page'))
+                    table.page('last').draw(false);
+                @endif
+
                 $('#customSearch').on('keyup', function() {
                     table.search(this.value).draw();
                 });
@@ -183,10 +190,6 @@
                 $('#customLength').on('change', function() {
                     table.page.len($(this).val()).draw();
                 });
-
-                @if (request('last_page'))
-                    table.page('last').draw(false);
-                @endif
             }
         });
 
@@ -290,9 +293,10 @@
                                 showConfirmButton: false
                             });
 
-                            // Remove row from DataTable without reload
+                            // Remove row from DataTable without reload and stay on current page
                             const table = $('#praktikanTable').DataTable();
-                            table.row($(`#delete-form-${id}`).parents('tr')).remove().draw(false);
+                            const row = $(`#delete-form-${id}`).closest('tr');
+                            table.row(row).remove().draw(false);
                         }
                     })
                     .catch(error => {
