@@ -79,6 +79,8 @@ Route::middleware('auth')->group(function () {
         Route::post('praktikum/{praktikum_id}/aslab', [\App\Http\Controllers\PraktikumController::class, 'storeAslab'])->name('praktikum.aslab.store');
         Route::delete('praktikum/aslab/{id}', [\App\Http\Controllers\PraktikumController::class, 'destroyAslab'])->name('praktikum.aslab.destroy');
         Route::patch('praktikum/pendaftaran/{pendaftaran_id}/assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'assignStudentToAslab'])->name('praktikum.pendaftaran.assign-aslab');
+        Route::post('praktikum/{praktikum_id}/auto-assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'autoAssignAslab'])->name('praktikum.auto-assign-aslab');
+        Route::post('praktikum/{praktikum_id}/bulk-assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'bulkAssignAslab'])->name('praktikum.bulk-assign-aslab');
         Route::patch('praktikum/pendaftaran/{pendaftaran_id}/change-session', [\App\Http\Controllers\PraktikumController::class, 'changeStudentSession'])->name('praktikum.pendaftaran.change-session');
         // Jadwal Praktikum
         Route::post('praktikum/{praktikum_id}/jadwal', [\App\Http\Controllers\PraktikumController::class, 'storeJadwal'])->name('praktikum.jadwal.store');
