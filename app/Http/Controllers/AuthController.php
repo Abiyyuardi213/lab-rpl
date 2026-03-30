@@ -170,10 +170,19 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'npm' => 'required|string|unique:users,username|unique:praktikans,npm|unique:aslabs,npm',
+            'npm' => [
+                'required',
+                'string',
+                'unique:users,username',
+                'unique:praktikans,npm',
+                'unique:aslabs,npm',
+                'regex:/^\d{2}\.\d{4}\.\d{1}\.\d{5}$/'
+            ],
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+        ], [
+            'npm.regex' => 'Format NPM tidak valid. Contoh: 06.2025.1.01111'
         ]);
 
         $role = \App\Models\Role::where('name', 'Praktikan')->first();
