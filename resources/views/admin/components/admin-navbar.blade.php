@@ -195,14 +195,14 @@
 
                 <div class="relative group">
                     <button id="profile-dropdown-button"
-                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 p-0.5 border border-slate-200 focus:outline-none flex items-center justify-center overflow-hidden">
+                        class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden focus:outline-none focus:ring-2 focus:ring-slate-200 focus:ring-offset-2 transition-all">
                         @if (Auth::user()->profile_picture)
                             <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}"
-                                class="w-full h-full object-cover" alt="Profile Photo"
+                                class="w-full h-full object-cover flex-shrink-0" alt="Profile Photo"
                                 onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=f8fafc&color=0f172a&bold=true';">
                         @else
                             <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=f8fafc&color=0f172a&bold=true"
-                                class="w-full h-full object-cover" alt="Avatar">
+                                class="w-full h-full object-cover flex-shrink-0" alt="Avatar">
                         @endif
                     </button>
                     <!-- Dropdown -->
