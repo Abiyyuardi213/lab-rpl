@@ -79,7 +79,7 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <button onclick="togglePraktikanStatus('{{ $praktikan->id }}')"
+                                    <button onclick="togglePraktikanStatus('{{ $praktikan->id }}', this)"
                                         class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 {{ $praktikan->status ? 'bg-emerald-500' : 'bg-zinc-200' }}">
                                         <span
                                             class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ $praktikan->status ? 'translate-x-4' : 'translate-x-1' }}"></span>
@@ -190,29 +190,61 @@
             }
         });
 
-        function togglePraktikanStatus(id) {
+        function togglePraktikanStatus(id, btn) {
+            const span = btn.querySelector('span');
+            const isActive = btn.classList.contains('bg-emerald-500');
+
             fetch(`/admin/praktikan/${id}/toggle-status`, {
                 method: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
-            }).then(response => response.json()).then(data => {
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'Terjadi kesalahan saat memperbarui status.');
+                }
+                return data;
+            })
+            .then(data => {
                 if (data.success) {
                     const Toast = Swal.mixin({
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
-                        timer: 3000,
+                        timer: 2000,
                         timerProgressBar: true
                     });
+
+                    // Update UI without reload
+                    if (isActive) {
+                        btn.classList.remove('bg-emerald-500');
+                        btn.classList.add('bg-zinc-200');
+                        span.classList.remove('translate-x-4');
+                        span.classList.add('translate-x-1');
+                    } else {
+                        btn.classList.remove('bg-zinc-200');
+                        btn.classList.add('bg-emerald-500');
+                        span.classList.remove('translate-x-1');
+                        span.classList.add('translate-x-4');
+                    }
+
                     Toast.fire({
                         icon: 'success',
                         title: data.message
-                    }).then(() => {
-                        location.reload();
                     });
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: error.message || 'Terjadi kesalahan saat memperbarui status.'
+                });
             });
         }
 
@@ -222,18 +254,55 @@
                 text: "Data praktikan " + name + " akan dihapus secara permanen!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#001f3f',
+                confirmButtonColor: '#e11d48',
                 cancelButtonColor: '#f4f4f5',
                 confirmButtonText: 'Ya, hapus!',
                 cancelButtonText: 'Batal',
                 reverseButtons: true,
                 customClass: {
                     cancelButton: 'text-zinc-600 border border-zinc-200',
-                    confirmButton: 'bg-[#001f3f]'
+                    confirmButton: 'bg-rose-600'
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('delete-form-' + id).submit();
+                    fetch(`/admin/praktikan/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(async response => {
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Terjadi kesalahan saat menghapus data.');
+                        }
+                        return data;
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Terhapus!',
+                                text: data.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+
+                            // Remove row from DataTable without reload
+                            const table = $('#praktikanTable').DataTable();
+                            table.row($(`#delete-form-${id}`).parents('tr')).remove().draw(false);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: error.message || 'Terjadi kesalahan saat menghapus data.'
+                        });
+                    });
                 }
             })
         }

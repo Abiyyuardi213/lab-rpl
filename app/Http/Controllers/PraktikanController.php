@@ -132,13 +132,30 @@ class PraktikanController extends Controller
 
     public function destroy($id)
     {
-        $praktikan = User::findOrFail($id);
-        if ($praktikan->profile_picture) {
-            Storage::delete('public/' . $praktikan->profile_picture);
-        }
-        $praktikan->delete();
+        try {
+            $praktikan = User::findOrFail($id);
+            if ($praktikan->profile_picture) {
+                Storage::delete('public/' . $praktikan->profile_picture);
+            }
+            $praktikan->delete();
 
-        return redirect()->route('admin.praktikan.index')->with('success', 'Praktikan berhasil dihapus.');
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Praktikan berhasil dihapus.'
+                ]);
+            }
+
+            return redirect()->route('admin.praktikan.index')->with('success', 'Praktikan berhasil dihapus.');
+        } catch (\Exception $e) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus data: ' . $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
     }
 
     public function toggleStatus($id)
