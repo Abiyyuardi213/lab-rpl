@@ -126,7 +126,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100">
-                        @forelse($praktikum->pendaftarans as $pendaftaran)
+                        @foreach($praktikum->pendaftarans as $pendaftaran)
                             <tr class="hover:bg-zinc-50/30 transition-colors">
                                 <td class="px-6 py-4">
                                     <input type="checkbox" class="student-checkbox rounded border-zinc-300 text-[#001f3f] shadow-sm focus:ring-[#001f3f] cursor-pointer" value="{{ $pendaftaran->id }}">
@@ -197,21 +197,7 @@
                                     </span>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-20 text-center">
-                                    <div class="flex flex-col items-center justify-center space-y-3">
-                                        <div class="h-16 w-16 rounded-2xl bg-zinc-50 flex items-center justify-center border border-zinc-100">
-                                            <i class="fas fa-users-slash text-2xl text-zinc-200"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-zinc-900 font-bold uppercase tracking-tight">Belum ada praktikan</p>
-                                            <p class="text-zinc-500 text-xs italic mt-1">Mahasiswa belum mendaftar pada praktikum ini.</p>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -580,6 +566,7 @@
                     dom: 't<"flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
                     language: {
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ praktikan",
+                        emptyTable: "<div class='py-20 flex flex-col items-center justify-center space-y-3'><div class='h-16 w-16 rounded-2xl bg-zinc-50 flex items-center justify-center border border-zinc-100'><i class='fas fa-users-slash text-2xl text-zinc-200'></i></div><div><p class='text-zinc-900 font-bold uppercase tracking-tight'>Belum ada praktikan</p><p class='text-zinc-500 text-xs italic mt-1'>Mahasiswa belum mendaftar pada praktikum ini.</p></div></div>",
                         paginate: {
                             next: '<i class="fas fa-chevron-right text-[10px]"></i>',
                             previous: '<i class="fas fa-chevron-left text-[10px]"></i>'
