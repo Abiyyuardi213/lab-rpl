@@ -118,7 +118,7 @@
                 currentStep = step;
             };
 
-            window.nextStep = (e) => {
+            window.nextStep = async (e) => {
                 if (e) e.preventDefault();
                 const currentInputs = document.getElementById(`step-${currentStep}`).querySelectorAll(
                     'input[required]');
@@ -141,6 +141,23 @@
                             text: 'Format NPM harus: 06.202X.1.0XXXX',
                             confirmButtonColor: '#001f3f'
                         });
+                    } else {
+                        // Check if NPM exists via AJAX
+                        try {
+                            const response = await fetch(`/check-npm?npm=${npm}`);
+                            const data = await response.json();
+                            if (data.exists) {
+                                valid = false;
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'NPM Sudah Terdaftar',
+                                    text: 'NPM ini sudah memiliki akun. Silakan login atau hubungi admin.',
+                                    confirmButtonColor: '#001f3f'
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Error checking NPM:', error);
+                        }
                     }
                 }
 

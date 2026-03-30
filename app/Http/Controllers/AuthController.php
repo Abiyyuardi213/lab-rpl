@@ -223,6 +223,20 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('home')->with('logout_success', 'Anda telah berhasil logout.');
     }
+    public function checkNpm(Request $request)
+    {
+        $npm = $request->query('npm');
+        if (!$npm) {
+            return response()->json(['exists' => false]);
+        }
+
+        $exists = \App\Models\User::where('username', $npm)->exists() || 
+                 \App\Models\Praktikan::where('npm', $npm)->exists() || 
+                 \App\Models\Aslab::where('npm', $npm)->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
     public function dashboardRedirect()
     {
         if (Auth::check()) {
