@@ -18,17 +18,17 @@ Route::middleware('guest')->group(function () {
     Route::post('/login-praktikan', [AuthController::class, 'praktikanLogin'])->name('login.praktikan.post')->middleware('throttle:10,1');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.post')->middleware('throttle:5,1');
-
-    // Password Reset Routes
-    Route::get('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
-        ->name('password.request');
-    Route::post('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
-        ->name('password.email')->middleware('throttle:5,1');
-    Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])
-        ->name('password.reset');
-    Route::post('/reset-password', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])
-        ->name('password.update')->middleware('throttle:5,1');
 });
+
+// Password Reset Routes (Available for all to prevent route naming issues)
+Route::get('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])
+    ->name('password.request');
+Route::post('/forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
+    ->name('password.email')->middleware('throttle:5,1');
+Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])
+    ->name('password.reset');
+Route::post('/reset-password', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])
+    ->name('password.update')->middleware('throttle:5,1');
 
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 Route::get('/tentang', [WelcomeController::class, 'about'])->name('about');

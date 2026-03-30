@@ -95,7 +95,7 @@
                         <span class="text-sm text-zinc-600 group-hover:text-zinc-900 transition-colors">Ingat
                             saya</span>
                     </label>
-                    <a href="#"
+                    <a href="{{ route('password.request') }}"
                         class="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">Lupa
                         Password?</a>
                 </div>
