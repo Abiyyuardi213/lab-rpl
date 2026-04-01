@@ -221,9 +221,13 @@
     async function updateAssignment(el, url) {
         const token = document.querySelector('meta[name="csrf-token"]')?.content;
         const oldVal = el.getAttribute('data-original-value');
-        const payload = { [el.name || 'aslab_id']: el.value };
         
-        console.log('--- Updating Assignment ---');
+        // Convert empty string to null for robust backend processing (foreign keys)
+        const val = el.value === "" ? null : el.value;
+        const paramName = el.name || 'aslab_id';
+        const payload = { [paramName]: val };
+        
+        console.group('Assignment Update: ' + paramName);
         console.log('URL:', url);
         console.log('Payload:', payload);
 
@@ -231,26 +235,48 @@
         try {
             const r = await fetch(url, {
                 method: 'PATCH',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': token 
+                },
                 body: JSON.stringify(payload)
             });
 
-            const result = await r.json().catch(() => ({}));
-            console.log('Status:', r.status);
-            console.log('Response:', result);
+            console.log('HTTP Status:', r.status);
+            
+            const result = await r.json().catch(err => {
+                console.warn('Response is not JSON:', err);
+                return { message: 'Format respons salah' };
+            });
+            
+            console.log('Server Response:', result);
 
             if (r.ok) {
                 el.setAttribute('data-original-value', el.value);
-                Swal.fire({ icon: 'success', title: 'Berhasil', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+                Swal.fire({ 
+                    icon: 'success', 
+                    title: 'Tersimpan', 
+                    toast: true, 
+                    position: 'top-end', 
+                    showConfirmButton: false, 
+                    timer: 1500,
+                    background: '#001f3f',
+                    color: '#fff'
+                });
             } else {
-                throw new Error(result.message || 'Gagal memperbarui data');
+                let msg = result.message || 'Terjadi kesalahan pada server';
+                if (result.errors) msg = Object.values(result.errors).flat().join('\n');
+                throw new Error(msg);
             }
         } catch(e) {
-            console.error('Update Error:', e);
+            console.error('Update Failed:', e);
             el.value = oldVal;
-            Swal.fire('Gagal', e.message, 'error');
+            Swal.fire('Gagal Update', e.message, 'error');
+        } finally {
+            el.disabled = false;
+            console.groupEnd();
         }
-        el.disabled = false;
     }
 
     async function previewImport(input) {
