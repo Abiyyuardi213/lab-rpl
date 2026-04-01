@@ -96,6 +96,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pendaftaran', [\App\Http\Controllers\Admin\PendaftaranController::class, 'index'])->name('pendaftaran.index');
         Route::get('/pendaftaran/{id}', [\App\Http\Controllers\Admin\PendaftaranController::class, 'show'])->name('pendaftaran.show');
         Route::patch('/pendaftaran/{id}/status', [\App\Http\Controllers\Admin\PendaftaranController::class, 'updateStatus'])->name('pendaftaran.update-status');
+        Route::delete('/pendaftaran/{id}', [\App\Http\Controllers\Admin\PendaftaranController::class, 'destroy'])->name('pendaftaran.destroy');
 
         // Profile Management (Admin)
         Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
