@@ -73,7 +73,7 @@ class PendaftaranController extends Controller
             'is_google_form' => 'boolean',
         ]);
 
-        // Pastikan tidak ada pendaftaran ganda yang aktif
+        // Pastikan tidak ada pendaftaran ganda yang aktif (pending atau verified)
         $praktikan = Auth::user()->praktikan;
 
         if (!$praktikan) {
@@ -88,6 +88,21 @@ class PendaftaranController extends Controller
 
         if ($existing) {
             return redirect()->route('praktikan.dashboard')->with('error', 'Anda sudah mendaftar pada praktikum ini.');
+        }
+
+        $rejected = PendaftaranPraktikum::where('praktikan_id', $praktikan->id)
+            ->where('praktikum_id', $request->praktikum_id)
+            ->where('status', 'rejected')
+            ->first();
+
+        if ($rejected) {
+            $filesToDelete = ['bukti_krs', 'bukti_pembayaran', 'foto_almamater'];
+            foreach ($filesToDelete as $field) {
+                if ($rejected->$field && Storage::disk('public')->exists($rejected->$field)) {
+                    Storage::disk('public')->delete($rejected->$field);
+                }
+            }
+            $rejected->delete();
         }
 
         $praktikum = Praktikum::findOrFail($request->praktikum_id);

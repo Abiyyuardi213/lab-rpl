@@ -43,4 +43,21 @@ class PendaftaranController extends Controller
 
         return redirect()->route('admin.pendaftaran.index')->with('success', 'Status pendaftaran berhasil diperbarui.');
     }
+
+    public function destroy($id)
+    {
+        $pendaftaran = PendaftaranPraktikum::findOrFail($id);
+
+        // Hapus file-file terkait
+        $files = ['bukti_krs', 'bukti_pembayaran', 'foto_almamater'];
+        foreach ($files as $file) {
+            if ($pendaftaran->$file && \Illuminate\Support\Facades\Storage::disk('public')->exists($pendaftaran->$file)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($pendaftaran->$file);
+            }
+        }
+
+        $pendaftaran->delete();
+
+        return redirect()->route('admin.pendaftaran.index')->with('success', 'Data pendaftaran berhasil dihapus secara permanen.');
+    }
 }

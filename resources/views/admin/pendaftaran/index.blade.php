@@ -134,6 +134,14 @@
                                                 <i class="fas fa-times text-xs"></i>
                                             </button>
                                         @endif
+
+                                        @if ($p->status === 'rejected')
+                                            <button onclick="deletePendaftaran('{{ $p->id }}', '{{ $p->praktikan->user->name }}')"
+                                                class="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white transition-all shadow-sm active:scale-95"
+                                                title="Hapus Permanen">
+                                                <i class="fas fa-trash text-xs"></i>
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -312,6 +320,47 @@
 
             document.body.appendChild(form);
             form.submit();
+        }
+
+        function deletePendaftaran(id, name) {
+            Swal.fire({
+                title: 'Hapus pendaftaran?',
+                text: "Pendaftaran atas nama " + name + " akan dihapus secara permanen.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#f4f4f5',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-[1.5rem]',
+                    confirmButton: 'px-6 py-2.5 rounded-xl font-bold text-xs',
+                    cancelButton: 'px-6 py-2.5 rounded-xl font-bold text-xs text-zinc-600'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = "{{ route('admin.pendaftaran.destroy', ':id') }}".replace(':id', id);
+
+                    const csrfToken = '{{ csrf_token() }}';
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    form.appendChild(csrfInput);
+
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'DELETE';
+                    form.appendChild(methodInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
         }
     </script>
 @endsection

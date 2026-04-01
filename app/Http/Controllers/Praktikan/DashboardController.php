@@ -34,7 +34,7 @@ class DashboardController extends Controller
         if ($praktikan) {
             $activePendaftarans = $praktikan->pendaftarans()
                 ->where('status', 'verified')
-                ->with(['praktikum', 'tugasAsistensis' => function ($q) {
+                ->with(['praktikum', 'sesi', 'tugasAsistensis' => function ($q) {
                     $q->orderBy('created_at', 'asc');
                 }])
                 ->get();
