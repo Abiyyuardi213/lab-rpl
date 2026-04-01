@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Route;
 
 // Guest Routes
 Route::middleware('guest')->group(function () {
-    Route::get('/ghost', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/ghost', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:10,1');
+    Route::get('/bahlil', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/bahlil', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:10,1');
     Route::get('/login-aslab', [AuthController::class, 'showAslabLogin'])->name('login.aslab');
     Route::post('/login-aslab', [AuthController::class, 'aslabLogin'])->name('login.aslab.post')->middleware('throttle:10,1');
     Route::get('/login-praktikan', [AuthController::class, 'showPraktikanLogin'])->name('login.praktikan');
