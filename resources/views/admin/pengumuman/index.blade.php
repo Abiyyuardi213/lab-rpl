@@ -36,6 +36,13 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
+                    <select id="customLength"
+                        class="h-9 rounded-md border border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+                        <option value="10">10 data</option>
+                        <option value="25">25 data</option>
+                        <option value="50">50 data</option>
+                        <option value="100">100 data</option>
+                    </select>
                     <a href="{{ route('admin.pengumuman.create') }}"
                         class="inline-flex h-9 items-center justify-center rounded-md bg-[#1a4fa0] px-4 py-2 text-sm font-medium text-white shadow hover:bg-[#1a4fa0]/90 transition-colors">
                         <i class="fas fa-plus mr-2 text-xs"></i>
@@ -137,9 +144,40 @@
 
     @push('styles')
         <style>
-            .dataTables_empty {
+            .dataTables_wrapper .dataTables_info {
+                font-size: 11px;
+                color: #a1a1aa;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                border: 1px solid #e4e4e7 !important;
+                border-radius: 8px !important;
+                padding: 6px 14px !important;
+                font-size: 12px !important;
+                font-weight: 700 !important;
+                margin-left: 6px !important;
+                background: white !important;
+                color: #71717a !important;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+                background: #1a4fa0 !important;
+                border-color: #1a4fa0 !important;
+                color: white !important;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.current) {
+                background: #fafafa !important;
+                border-color: #d4d4d8 !important;
+                color: #1a4fa0 !important;
+            }
+
+            table.dataTable tbody td.dataTables_empty {
                 padding: 0 !important;
-                background-color: transparent !important;
+                border: none !important;
             }
         </style>
     @endpush
@@ -178,6 +216,10 @@
 
                 $('#customSearch').on('keyup', function() {
                     table.search(this.value).draw();
+                });
+
+                $('#customLength').on('change', function() {
+                    table.page.len($(this).val()).draw();
                 });
             });
 
