@@ -204,11 +204,38 @@
                 @forelse($upcomingSchedules as $jadwal)
                     @php
                         $now = \Carbon\Carbon::now();
-                        $start = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $jadwal->waktu_mulai);
-                        $end = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $jadwal->waktu_selesai);
+                        $studentPendaftaran = $activePendaftarans->firstWhere('praktikum_id', $jadwal->praktikum_id);
+                        $studentSesi = $studentPendaftaran ? $studentPendaftaran->sesi : null;
+
+                        // Use session times if available, otherwise fallback to schedule times
+                        $waktuMulai = $studentSesi ? $studentSesi->jam_mulai : $jadwal->waktu_mulai;
+                        $waktuSelesai = $studentSesi ? $studentSesi->jam_selesai : $jadwal->waktu_selesai;
+
+                        $start = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $waktuMulai);
+                        $end = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $waktuSelesai);
 
                         $isFinished = $now->greaterThan($end);
                         $isOngoing = $now->between($start, $end);
+                        $isCorrectDay = true;
+
+                        // Additional check: Does the session day match the schedule date?
+                        if ($studentSesi && $studentSesi->hari) {
+                            $daysMap = [
+                                'Minggu' => 0,
+                                'Senin' => 1,
+                                'Selasa' => 2,
+                                'Rabu' => 3,
+                                'Kamis' => 4,
+                                'Jumat' => 5,
+                                'Sabtu' => 6,
+                            ];
+                            $sessionDayIndex = $daysMap[$studentSesi->hari] ?? null;
+                            $jadwalDayIndex = \Carbon\Carbon::parse($jadwal->tanggal)->dayOfWeek;
+
+                            if ($sessionDayIndex !== null && $sessionDayIndex !== $jadwalDayIndex) {
+                                $isCorrectDay = false;
+                            }
+                        }
 
                         $statusLabel = 'Aktif';
                         $statusClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
@@ -220,13 +247,16 @@
                         } elseif ($isFinished) {
                             $statusLabel = 'Selesai';
                             $statusClass = 'bg-slate-100 text-slate-500 border-slate-200';
-                        } elseif ($isOngoing) {
+                        } elseif ($isOngoing && $isCorrectDay) {
                             $statusLabel = 'Berlangsung';
                             $statusClass = 'bg-amber-50 text-amber-600 border-amber-100 animate-pulse';
+                        } elseif (!$isCorrectDay) {
+                            $statusLabel = 'Bukan Sesi Anda';
+                            $statusClass = 'bg-rose-50 text-rose-600 border-rose-100';
                         }
                     @endphp
                     <div
-                        class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500/50 transition-all group {{ $isFinished && !$hasPresensi ? 'opacity-70' : '' }}">
+                        class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500/50 transition-all group {{ $isFinished && !$hasPresensi ? 'opacity-70' : '' }} {{ !$isCorrectDay ? 'grayscale-[0.5]' : '' }}">
                         <div class="flex justify-between items-start mb-3">
                             <span
                                 class="text-[9px] font-black {{ $statusClass }} px-2 py-0.5 rounded uppercase tracking-widest border">
@@ -249,13 +279,24 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <i class="far fa-clock text-[10px] text-slate-400"></i>
-                                <span class="text-[10px] font-bold text-slate-700">{{ substr($jadwal->waktu_mulai, 0, 5) }}
-                                    - {{ substr($jadwal->waktu_selesai, 0, 5) }} WIB</span>
+                                <span class="text-[10px] font-bold text-slate-700">
+                                    @if ($studentSesi)
+                                        {{ substr($studentSesi->jam_mulai, 0, 5) }} - {{ substr($studentSesi->jam_selesai, 0, 5) }} WIB
+                                        <span class="text-[8px] opacity-50 ml-1">({{ $studentSesi->nama_sesi }})</span>
+                                    @else
+                                        {{ substr($jadwal->waktu_mulai, 0, 5) }} - {{ substr($jadwal->waktu_selesai, 0, 5) }} WIB
+                                    @endif
+                                </span>
                             </div>
                             @if ($isFinished && !$hasPresensi)
                                 <div
                                     class="mt-2 text-[8px] font-black text-rose-500 uppercase tracking-widest border-t border-dashed border-rose-100 pt-2 animate-bounce">
                                     <i class="fas fa-info-circle mr-1"></i> Sesi Telah Berakhir
+                                </div>
+                            @elseif(!$isCorrectDay)
+                                <div
+                                    class="mt-2 text-[8px] font-black text-rose-500 uppercase tracking-widest border-t border-dashed border-rose-100 pt-2">
+                                    <i class="fas fa-exclamation-circle mr-1"></i> Sesuaikan dengan {{ $studentSesi->hari }}
                                 </div>
                             @else
                                 <div class="flex items-center gap-2">
@@ -274,7 +315,7 @@
                                     Sudah Presensi
                                 </div>
                             </div>
-                        @elseif ($isOngoing || (!$isFinished && $now->diffInMinutes($start) <= 60))
+                        @elseif ($isOngoing && $isCorrectDay)
                             <div class="mt-4">
                                 <a href="{{ route('praktikan.presensi.generate-qr', $jadwal->id) }}"
                                     class="w-full py-2 bg-emerald-600 border border-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-600/10 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
@@ -283,6 +324,7 @@
                                 </a>
                             </div>
                         @endif
+
                     </div>
                 @empty
                     <div
