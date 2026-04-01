@@ -51,6 +51,7 @@
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Praktikum & Sesi</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Kode NPM</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Judul Soal</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Dibuat Oleh</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Jadwal Sesi</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-right text-[10px] uppercase tracking-wider">AKSI</th>
                         </tr>
@@ -83,6 +84,15 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
+                                    <span @class([
+                                        'inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tight border',
+                                        'bg-blue-50 text-blue-700 border-blue-100' => !$p->aslab_id,
+                                        'bg-zinc-50 text-zinc-700 border-zinc-100' => $p->aslab_id,
+                                    ])>
+                                        {{ $p->aslab_id ? 'Asisten: ' . $p->aslab->user->name : 'Administrator' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
                                     <div class="flex flex-col">
                                         <span class="text-[10px] font-black text-[#001f3f] uppercase tracking-widest">{{ $p->sesi->hari }}</span>
                                         <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">{{ $p->sesi->jam_mulai }} - {{ $p->sesi->jam_selesai }}</span>
@@ -90,19 +100,25 @@
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
-                                        <button onclick="openEditModal('{{ $p->id }}', '{{ $p->kode_akhir_npm }}', '{{ addslashes($p->judul) }}', '{{ addslashes($p->deskripsi) }}')"
-                                            class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-amber-600 hover:bg-amber-50 transition-colors">
-                                            <i class="fas fa-edit text-xs"></i>
-                                        </button>
-                                        <form id="delete-form-{{ $p->id }}"
-                                            action="{{ route('aslab.penugasan.destroy', $p->id) }}" method="POST"
-                                            class="inline">
-                                            @csrf @method('DELETE')
-                                            <button type="button" onclick="confirmDelete('{{ $p->id }}')"
-                                                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-rose-600 hover:bg-rose-50 transition-colors">
-                                                <i class="fas fa-trash text-xs"></i>
+                                        @if ($p->aslab_id === Auth::user()->aslab->id)
+                                            <button onclick="openEditModal('{{ $p->id }}', '{{ $p->kode_akhir_npm }}', '{{ addslashes($p->judul) }}', '{{ addslashes($p->deskripsi) }}')"
+                                                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                                                title="Edit Tugas">
+                                                <i class="fas fa-edit text-xs"></i>
                                             </button>
-                                        </form>
+                                            <form id="delete-form-{{ $p->id }}"
+                                                action="{{ route('aslab.penugasan.destroy', $p->id) }}" method="POST"
+                                                class="inline">
+                                                @csrf @method('DELETE')
+                                                <button type="button" onclick="confirmDelete('{{ $p->id }}')"
+                                                    class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                                                    title="Hapus Tugas">
+                                                    <i class="fas fa-trash text-xs"></i>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="text-[10px] font-bold text-zinc-400 italic px-2">Read Only</span>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -312,7 +328,7 @@
                     },
                     columnDefs: [{
                         orderable: false,
-                        targets: [4]
+                        targets: [5]
                     }]
                 });
 

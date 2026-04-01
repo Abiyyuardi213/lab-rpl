@@ -19,8 +19,14 @@ class PenugasanController extends Controller
             return redirect()->back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
+        $praktikumIds = $aslab->praktikums->pluck('id');
+
         $penugasans = Penugasan::with(['praktikum', 'sesi'])
-            ->where('aslab_id', $aslab->id)
+            ->whereIn('praktikum_id', $praktikumIds)
+            ->where(function ($query) use ($aslab) {
+                $query->where('aslab_id', $aslab->id)
+                      ->orWhereNull('aslab_id');
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
