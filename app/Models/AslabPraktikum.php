@@ -15,6 +15,7 @@ class AslabPraktikum extends Model
         'aslab_id',
         'praktikum_id',
         'kuota',
+        'link_grup',
     ];
 
     public $incrementing = false;
