@@ -81,6 +81,11 @@ Route::middleware('auth')->group(function () {
         Route::patch('praktikum/pendaftaran/{pendaftaran_id}/assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'assignStudentToAslab'])->name('praktikum.pendaftaran.assign-aslab');
         Route::post('praktikum/{praktikum_id}/auto-assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'autoAssignAslab'])->name('praktikum.auto-assign-aslab');
         Route::post('praktikum/{praktikum_id}/bulk-assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'bulkAssignAslab'])->name('praktikum.bulk-assign-aslab');
+        Route::get('praktikum/{id}/export-students', [\App\Http\Controllers\PraktikumController::class, 'exportStudents'])->name('praktikum.export-students');
+        Route::get('praktikum/{id}/download-template', [\App\Http\Controllers\PraktikumController::class, 'downloadTemplate'])->name('praktikum.download-template');
+        Route::post('praktikum/{id}/import-students/preview', [\App\Http\Controllers\PraktikumController::class, 'previewImport'])->name('praktikum.import-preview');
+        Route::post('praktikum/{id}/import-students/confirm', [\App\Http\Controllers\PraktikumController::class, 'confirmImport'])->name('praktikum.import-confirm');
+        Route::post('praktikum/{id}/import-students', [\App\Http\Controllers\PraktikumController::class, 'importStudents'])->name('praktikum.import-students');
         Route::patch('praktikum/pendaftaran/{pendaftaran_id}/change-session', [\App\Http\Controllers\PraktikumController::class, 'changeStudentSession'])->name('praktikum.pendaftaran.change-session');
         // Jadwal Praktikum
         Route::post('praktikum/{praktikum_id}/jadwal', [\App\Http\Controllers\PraktikumController::class, 'storeJadwal'])->name('praktikum.jadwal.store');

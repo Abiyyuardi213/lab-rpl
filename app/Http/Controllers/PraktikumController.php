@@ -4,8 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Praktikum;
 use App\Models\TugasAsistensi;
+use App\Models\User;
+use App\Models\Aslab;
+use App\Models\AslabPraktikum;
+use App\Models\SesiPraktikum;
+use App\Models\PendaftaranPraktikum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PraktikumController extends Controller
 {
@@ -425,5 +432,254 @@ class PraktikumController extends Controller
             ->update(['aslab_id' => $request->aslab_id]);
 
         return response()->json(['success' => true, 'message' => "Berhasil memindahkan $netIncrease praktikan ke Aslab ini."]);
+    }
+
+    public function downloadTemplate($id)
+    {
+        $praktikum = Praktikum::findOrFail($id);
+        
+        $headers = [
+            'Content-type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=template-import-praktikan-{$praktikum->nama_praktikum}.csv",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $columns = ['Nama Lengkap', 'NPM', 'Dosen Pengampu', 'Pilih Sesi Praktikum', 'Aslab', 'Link Grup'];
+        
+        // Example data for the template
+        $example = [
+            ['Contoh Nama Mahasiswa', '21000001', 'Nama Dosen, S.T., M.T.', 'Sesi 1', 'Nama Aslab', 'https://chat.whatsapp.com/example'],
+        ];
+
+        $callback = function () use ($columns, $example) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            foreach ($example as $row) {
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function exportStudents($id)
+    {
+        $praktikum = Praktikum::findOrFail($id);
+        $students = PendaftaranPraktikum::where('praktikum_id', $id)
+            ->with(['praktikan.user', 'sesi', 'aslab.user'])
+            ->get();
+
+        $headers = [
+            'Content-type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=peserta-praktikum-{$praktikum->nama_praktikum}.csv",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $columns = ['Nama Lengkap', 'NPM', 'Dosen Pengampu', 'Pilih Sesi Praktikum', 'Aslab', 'Link Grup'];
+
+        $callback = function () use ($students, $columns, $id) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($students as $student) {
+                $aslabName = $student->aslab ? $student->aslab->user->name : '-';
+                $linkGrup = '-';
+
+                if ($student->aslab_id) {
+                    $aslabPraktikum = AslabPraktikum::where('aslab_id', $student->aslab_id)
+                        ->where('praktikum_id', $id)
+                        ->first();
+                    $linkGrup = $aslabPraktikum ? $aslabPraktikum->link_grup : '-';
+                }
+
+                fputcsv($file, [
+                    $student->praktikan->user->name,
+                    $student->praktikan->npm,
+                    $student->dosen_pengampu,
+                    $student->sesi ? $student->sesi->nama_sesi : '-',
+                    $aslabName,
+                    $linkGrup ?? '-',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function previewImport(Request $request, $id)
+    {
+        $request->validate([
+            'file' => 'required|file',
+        ]);
+
+        $praktikum = Praktikum::findOrFail($id);
+
+        $file = $request->file('file');
+        $path = $file->getRealPath();
+        
+        $data = [];
+        if (($handle = fopen($path, 'r')) !== FALSE) {
+            // Read header
+            $header = fgetcsv($handle, 1000, ",");
+            
+            // Fallback for semicolon if header has only 1 element and contains semicolons
+            if (count($header) == 1 && strpos($header[0], ';') !== false) {
+                rewind($handle);
+                $header = fgetcsv($handle, 1000, ";");
+                $separator = ";";
+            } else {
+                $separator = ",";
+            }
+
+            while (($row = fgetcsv($handle, 1000, $separator)) !== FALSE) {
+                if (count($row) >= 6) {
+                    $data[] = [
+                        'nama' => $row[0],
+                        'npm' => $row[1],
+                        'dosen' => $row[2],
+                        'sesi' => $row[3],
+                        'aslab' => $row[4],
+                        'link' => $row[5],
+                    ];
+                }
+            }
+            fclose($handle);
+        }
+        $csvData = file_get_contents($file->getPathname());
+        
+        $separator = strpos($csvData, ';') !== false ? ';' : ',';
+        $rows = array_map(function($line) use ($separator) {
+            return str_getcsv($line, $separator);
+        }, explode("\n", $csvData));
+
+        $header = array_shift($rows);
+        // Identify column indexes
+        $npmIdx = false; $namaIdx = false; $dosenIdx = false;
+        $sesiIdx = false; $aslabIdx = false; $linkIdx = false;
+
+        foreach ($header as $idx => $h_val) {
+            $h = strtolower(trim($h_val));
+            if ($h === 'npm') $npmIdx = $idx;
+            elseif ($h === 'nama' || $h === 'nama mahasiswa') $namaIdx = $idx;
+            elseif (stripos($h, 'dosen') !== false) $dosenIdx = $idx;
+            elseif (stripos($h, 'sesi') !== false) $sesiIdx = $idx;
+            elseif (stripos($h, 'aslab') !== false || stripos($h, 'asisten') !== false) $aslabIdx = $idx;
+            elseif (stripos($h, 'link') !== false || stripos($h, 'wa') !== false) $linkIdx = $idx;
+        }
+
+        if ($npmIdx === false) {
+            return back()->with('error', 'CSV harus memiliki kolom NPM.');
+        }
+
+        $previewData = [];
+        foreach ($rows as $row) {
+            if (empty($row) || count($row) < 1) continue;
+            
+            $npm = ($npmIdx !== false) ? ($row[$npmIdx] ?? null) : null;
+            if (!$npm) continue;
+
+            $pendaftaran = \App\Models\PendaftaranPraktikum::where('praktikum_id', $id)
+                ->whereHas('praktikan', function($q) use ($npm) {
+                    $q->where('npm', $npm);
+                })->first();
+
+            if (!$pendaftaran) continue;
+
+            $changes = [
+                'npm' => $npm,
+                'nama' => ($namaIdx !== false && isset($row[$namaIdx])) ? $row[$namaIdx] : ($pendaftaran->praktikan->user->name ?? 'Unknown'),
+                'old' => [
+                    'dosen' => $pendaftaran->dosen_pengampu ?? '-',
+                    'sesi' => $pendaftaran->sesi?->nama_sesi ?? '-',
+                    'aslab' => $pendaftaran->aslab?->user->name ?? '-',
+                ],
+                'new' => [
+                    'dosen_name' => ($dosenIdx !== false) ? ($row[$dosenIdx] ?? null) : null,
+                    'sesi_name' => ($sesiIdx !== false) ? ($row[$sesiIdx] ?? null) : null,
+                    'aslab_name' => ($aslabIdx !== false) ? ($row[$aslabIdx] ?? null) : null,
+                    'link_grup' => ($linkIdx !== false) ? ($row[$linkIdx] ?? null) : null,
+                ]
+            ];
+
+            $previewData[] = $changes;
+        }
+
+        return view('admin.praktikum.import-preview', compact('praktikum', 'previewData'));
+    }
+
+    public function confirmImport(Request $request, $id)
+    {
+        $data = json_decode($request->input('data'), true);
+        if (!$data) {
+            return redirect()->route('admin.praktikum.students', $id)->with('error', 'Data import tidak valid.');
+        }
+
+        $praktikum = Praktikum::findOrFail($id);
+        
+        DB::beginTransaction();
+        try {
+            $updatedCount = 0;
+            foreach ($data as $item) {
+                $pendaftaran = \App\Models\PendaftaranPraktikum::where('praktikum_id', $id)
+                    ->whereHas('praktikan', function($q) use ($item) {
+                        $q->where('npm', $item['npm']);
+                    })->first();
+
+                if (!$pendaftaran) continue;
+
+                $newData = $item['new'];
+
+                // 1. Dosen
+                if (!empty($newData['dosen_name']) && $newData['dosen_name'] !== '-') {
+                    $pendaftaran->dosen_pengampu = $newData['dosen_name'];
+                }
+
+                // 2. Sesi
+                if (!empty($newData['sesi_name']) && $newData['sesi_name'] !== '-') {
+                    $sesi = $praktikum->sesis()->where('nama_sesi', 'LIKE', '%' . $newData['sesi_name'] . '%')->first();
+                    if ($sesi) $pendaftaran->sesi_id = $sesi->id;
+                }
+
+                // 3. Aslab & Link Grup
+                if (!empty($newData['aslab_name']) && $newData['aslab_name'] !== '-') {
+                    $aslab = $praktikum->aslabs()->whereHas('user', function($q) use ($newData) {
+                        $q->where('name', 'LIKE', '%' . $newData['aslab_name'] . '%');
+                    })->first();
+
+                    if ($aslab) {
+                        $pendaftaran->aslab_id = $aslab->id;
+                        if (!empty($newData['link_grup']) && $newData['link_grup'] !== '-') {
+                           $pivot = \App\Models\AslabPraktikum::where('aslab_id', $aslab->id)
+                                ->where('praktikum_id', $id)
+                                ->first();
+                           if ($pivot) {
+                               $pivot->update(['link_grup' => $newData['link_grup']]);
+                           }
+                        }
+                    }
+                }
+
+                $pendaftaran->save();
+                $updatedCount++;
+            }
+
+            DB::commit();
+            return redirect()->route('admin.praktikum.students', $id)->with('success', "Berhasil mengupdate $updatedCount praktikan.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memproses import. Error: ' . $e->getMessage());
+        }
+    }
+
+    public function importStudents(Request $request, $id)
+    {
+        return $this->previewImport($request, $id);
     }
 }
