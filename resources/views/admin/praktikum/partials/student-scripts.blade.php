@@ -1,81 +1,23 @@
     {{-- ── STYLES ──────────────────────────────────────────────────────── --}}
     <style>
-
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
-        /* Breakpoint helper */
-        @media (min-width: 480px) {
-            .xs\:flex-row {
-                flex-direction: row;
-            }
-
-            .xs\:items-center {
-                align-items: center;
-            }
-
-            .xs\:flex-none {
-                flex: none;
-            }
-
-            .xs\:w-52 {
-                width: 13rem;
-            }
-
-            .xs\:inline {
-                display: inline;
-            }
-
-            .xs\:w-auto {
-                width: auto;
-            }
-        }
-
-        /* Kanban column height — full on desktop, fixed on mobile */
+        /* Kanban column height */
         .kanban-height {
-            height: 60vh;
-            min-height: 360px;
+            height: calc(100vh - 320px);
+            min-height: 500px;
         }
 
         @media (max-width: 767px) {
             .kanban-height {
                 height: 50vh;
-                min-height: 320px;
+                min-height: 400px;
             }
         }
 
-        /* Kanban column glass effect */
-        .kanban-col {
-            background: rgba(250, 250, 252, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-
-        /* Kanban cards */
-        .kanban-card {
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.04);
-        }
-
-        .kanban-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 31, 63, 0.08);
-        }
-
-        .kanban-card:active {
-            transform: translateY(0) scale(0.99);
-        }
-
-        /* Sortable ghost */
-        .sortable-ghost {
-            opacity: 0.4;
-            background: #f1f5f9 !important;
-            border: 2px dashed #cbd5e1 !important;
-            box-shadow: none !important;
-        }
-
-        /* Scrollbar */
+        /* Custom Scrollbar for Kanban */
         .kanban-dropzone::-webkit-scrollbar {
-            width: 3px;
+            width: 4px;
         }
 
         .kanban-dropzone::-webkit-scrollbar-track {
@@ -83,62 +25,43 @@
         }
 
         .kanban-dropzone::-webkit-scrollbar-thumb {
-            background: #e2e8f0;
-            border-radius: 99px;
+            background: #e4e4e7;
+            border-radius: 10px;
         }
 
         .kanban-dropzone:hover::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
+            background: #d4d4d8;
         }
 
-        /* Table scroll hint on mobile */
-        @media (max-width: 640px) {
-            .overflow-x-auto::after {
-                content: '';
-                position: absolute;
-                right: 0;
-                top: 0;
-                bottom: 0;
-                width: 32px;
-                background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.9));
-                pointer-events: none;
-            }
+        /* Sortable ghost */
+        .sortable-ghost {
+            opacity: 0.2;
+            background: #f8fafc !important;
+            border: 2px dashed #cbd5e1 !important;
+            box-shadow: none !important;
         }
 
-        /* Stagger animation for Transfer section */
-        @keyframes slideUpFade {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .sortable-drag {
+            opacity: 1 !important;
+            transform: rotate(2deg) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+            cursor: grabbing !important;
         }
 
-        .animate-stagger>div {
-            animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
+        /* Animation */
+        @keyframes kanbanFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .animate-stagger>div:nth-child(1) {
-            animation-delay: 0.04s;
-        }
-
-        .animate-stagger>div:nth-child(2) {
-            animation-delay: 0.08s;
-        }
-
-        .animate-stagger>div:nth-child(3) {
-            animation-delay: 0.12s;
+        .kanban-animate-in {
+            animation: kanbanFadeIn 0.3s ease-out forwards;
         }
 
         /* DataTables overrides */
         .dataTables_wrapper .dataTables_info {
             font-size: 11px;
-            color: #a1a1aa;
+            color: #71717a;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -170,7 +93,19 @@
         .dataTables_wrapper .dataTables_paginate {
             padding-top: 2px;
         }
+
+        /* Shimmer Animation */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Focus Ring Customization */
+        .focus-ring-blue {
+            @apply outline-none ring-4 ring-[#001f3f]/5 border-[#001f3f];
+        }
     </style>
+
 
     {{-- ── SCRIPTS ──────────────────────────────────────────────────────── --}}
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -228,23 +163,48 @@
 
             // Render Cards
             let html = '';
-            list.forEach(s => {
+            list.forEach((s, idx) => {
+                const delay = Math.min(idx * 30, 300);
                 html += `
-                    <div class="kanban-card bg-white px-3.5 py-3 rounded-xl cursor-grab active:cursor-grabbing group/card border border-zinc-100 hover:border-[#001f3f]/15 transition-all" data-pendaftaran-id="${s.id}">
-                        <div class="flex items-center justify-between gap-2">
-                            <span class="font-bold text-[12px] text-[#001f3f] leading-tight truncate">${s.name || 'N/A'}</span>
-                            <i class="fas fa-grip-dots-vertical text-zinc-200 group-hover/card:text-zinc-300 transition-colors flex-shrink-0 text-[10px]"></i>
-                        </div>
-                        <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                            <span class="font-mono text-[10px] text-zinc-500 bg-zinc-50 px-2 py-0.5 rounded-md border border-zinc-100">${s.npm || '-'}</span>
-                            <span class="text-[9px] text-[#001f3f]/70 bg-[#001f3f]/5 border border-[#001f3f]/8 px-2 py-0.5 rounded-md font-bold uppercase tracking-wide flex items-center gap-1">
-                                <i class="fas fa-clock text-[#001f3f]/30 text-[8px]"></i> ${s.sesi || '-'}
-                            </span>
+                    <div class="kanban-animate-in group/card relative bg-white border border-zinc-200 p-3 rounded-xl shadow-sm hover:shadow-md hover:border-zinc-300 transition-all cursor-grab active:cursor-grabbing" 
+                         style="animation-delay: ${delay}ms"
+                         data-pendaftaran-id="${s.id}">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-sm font-bold text-zinc-900 truncate group-hover/card:text-[#001f3f] transition-colors leading-tight mb-2">${s.name || 'N/A'}</h4>
+                                <div class="flex flex-wrap items-center gap-1.5">
+                                    <span class="inline-flex items-center font-mono text-[10px] text-zinc-500 bg-zinc-50 px-1.5 py-0.5 rounded border border-zinc-200/60 font-medium">
+                                        ${s.npm || '-'}
+                                    </span>
+                                    <span class="inline-flex items-center text-[9px] font-extrabold uppercase tracking-wider text-[#001f3f]/80 bg-[#001f3f]/5 px-1.5 py-0.5 rounded border border-[#001f3f]/10">
+                                        <i class="fas fa-clock mr-1 text-[8px] opacity-40"></i>
+                                        ${s.sesi || '-'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <div class="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-50 group-hover/card:bg-zinc-100 text-zinc-300 group-hover/card:text-zinc-500 transition-all border border-transparent group-hover/card:border-zinc-200">
+                                    <i class="fas fa-grip-vertical text-[10px]"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>`;
             });
-            dropzone.innerHTML = html || `<div class="flex flex-col items-center justify-center h-full py-10 text-center"><i class="fas fa-inbox text-zinc-200 text-3xl mb-3"></i><p class="text-xs text-zinc-400 font-medium">Tidak ada mahasiswa</p></div>`;
+            
+            if (!html) {
+                html = `
+                    <div class="flex flex-col items-center justify-center h-full py-12 px-6 text-center">
+                        <div class="w-16 h-16 rounded-2xl bg-zinc-50 flex items-center justify-center mb-4 border border-zinc-100">
+                            <i class="fas fa-inbox text-2xl text-zinc-200"></i>
+                        </div>
+                        <h5 class="text-sm font-bold text-zinc-900 mb-1">Kosong</h5>
+                        <p class="text-xs text-zinc-400 font-medium max-w-[180px]">Tidak ada mahasiswa yang terdaftar di aslab ini.</p>
+                    </div>`;
+            }
+            
+            dropzone.innerHTML = html;
             dropzone.setAttribute('data-aslab-id', selectVal);
+
 
             // Update Stats
             const textEl = document.getElementById(`transfer-text-${pane}`);
@@ -257,23 +217,31 @@
             if (textEl && progressEl) {
                 const count = list.length;
                 const kuota = aslabData.kuota || 0;
+                
                 if (selectVal === 'unassigned') {
-                    textEl.textContent = `${count}`;
+                    textEl.textContent = `${count} Praktikan`;
+                    textEl.className = 'text-[10px] font-bold font-mono text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded-full';
                     progressEl.style.width = '0%';
+                    if (glowEl) glowEl.className = 'absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-zinc-300 border-2 border-white ring-1 ring-zinc-200';
                 } else {
                     const isFull = count >= kuota && kuota > 0;
                     const pct = kuota > 0 ? Math.min(100, (count / kuota) * 100) : 0;
+                    
                     textEl.textContent = `${count} / ${kuota}`;
                     progressEl.style.width = `${pct}%`;
+                    
                     if (isFull) {
-                        textEl.className = 'text-xs text-rose-600 font-bold font-mono';
-                        progressEl.className = 'h-full bg-rose-500';
+                        textEl.className = 'text-[10px] font-bold font-mono text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100';
+                        progressEl.className = 'h-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.3)]';
+                        if (glowEl) glowEl.className = 'absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-rose-500 border-2 border-white ring-1 ring-rose-200 animate-pulse';
                     } else {
-                        textEl.className = 'text-xs text-[#001f3f] font-bold font-mono';
-                        progressEl.className = 'h-full bg-[#001f3f]';
+                        textEl.className = 'text-[10px] font-bold font-mono text-[#001f3f] bg-[#001f3f]/5 px-2 py-0.5 rounded-full border border-[#001f3f]/10';
+                        progressEl.className = 'h-full bg-[#001f3f] shadow-[0_0_8px_rgba(0,31,63,0.3)]';
+                        if (glowEl) glowEl.className = 'absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white ring-1 ring-emerald-200';
                     }
                 }
             }
+
 
             // Init Sortable (Destroy if exists)
             if (dropzone._sortable) dropzone._sortable.destroy();
@@ -353,11 +321,20 @@
                     info: "Menampilkan _START_–_END_ dari _TOTAL_ praktikan",
                     paginate: { next: '<i class="fas fa-chevron-right text-[9px]"></i>', previous: '<i class="fas fa-chevron-left text-[9px]"></i>' }
                 },
-                columnDefs: [{ orderable: false, targets: [0, 4] }]
+                columnDefs: [{ orderable: false, targets: [0, 3] }]
             });
 
             // Filters
             $('#studentSearch').on('keyup', function () { table.search(this.value).draw(); });
+
+            // Ctrl + K shortcut
+            $(document).on('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    $('#studentSearch').focus();
+                }
+            });
+
             $('#filterSesi').on('change', function () { table.column(2).search(this.value).draw(); });
             $('#filterAslab').on('change', function () {
                 const val = $(this).val();
@@ -444,5 +421,56 @@
                 el.value = original;
                 Swal.fire({ icon: 'error', title: e.message, toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
             } finally { el.disabled = false; }
+        }
+        async function previewImport(input) {
+            if (!input.files || !input.files[0]) return;
+            
+            openImportModal();
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            try {
+                const response = await fetch('{{ route('admin.praktikum.import-students', $praktikum->id) }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Gagal mengunggah file.');
+
+                const html = await response.text();
+                document.getElementById('importModalContent').innerHTML = html;
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: error.message
+                });
+                closeImportModal();
+            } finally {
+                input.value = ''; // Reset input
+            }
+        }
+
+        function openImportModal() {
+            const modal = document.getElementById('importReviewModal');
+            document.getElementById('importModalContent').innerHTML = `
+                <div class="p-12 flex flex-col items-center justify-center space-y-4">
+                    <div class="w-16 h-16 border-4 border-[#001f3f]/10 border-t-[#001f3f] rounded-full animate-spin"></div>
+                    <p class="text-xs font-black text-[#001f3f] uppercase tracking-widest text-center">Menganalisis File CSV...<br><span class="text-[9px] text-zinc-400 font-medium normal-case">Mohon tunggu sebentar</span></p>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeImportModal() {
+            const modal = document.getElementById('importReviewModal');
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
         }
     </script>
