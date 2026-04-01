@@ -16,7 +16,9 @@ class PendaftaranController extends Controller
             $query->where('status', $request->status);
         }
 
-        $pendaftarans = $query->orderBy('created_at', 'asc')->get();
+        $pendaftarans = $query->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END")
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('admin.pendaftaran.index', compact('pendaftarans'));
     }
 
