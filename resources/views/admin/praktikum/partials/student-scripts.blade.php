@@ -221,18 +221,35 @@
     async function updateAssignment(el, url) {
         const token = document.querySelector('meta[name="csrf-token"]')?.content;
         const oldVal = el.getAttribute('data-original-value');
+        const payload = { [el.name || 'aslab_id']: el.value };
+        
+        console.log('--- Updating Assignment ---');
+        console.log('URL:', url);
+        console.log('Payload:', payload);
+
         el.disabled = true;
         try {
             const r = await fetch(url, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
-                body: JSON.stringify({ [el.name || 'aslab_id']: el.value })
+                body: JSON.stringify(payload)
             });
+
+            const result = await r.json().catch(() => ({}));
+            console.log('Status:', r.status);
+            console.log('Response:', result);
+
             if (r.ok) {
                 el.setAttribute('data-original-value', el.value);
                 Swal.fire({ icon: 'success', title: 'Berhasil', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
-            } else throw new Error();
-        } catch(e) { el.value = oldVal; Swal.fire('Gagal', '', 'error'); }
+            } else {
+                throw new Error(result.message || 'Gagal memperbarui data');
+            }
+        } catch(e) {
+            console.error('Update Error:', e);
+            el.value = oldVal;
+            Swal.fire('Gagal', e.message, 'error');
+        }
         el.disabled = false;
     }
 

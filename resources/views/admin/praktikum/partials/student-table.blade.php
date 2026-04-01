@@ -176,7 +176,7 @@
                     </td>
                     <td class="px-4 py-3.5" data-search="{{ $p->sesi->nama_sesi }}">
                         <div class="relative group/sel max-w-[170px]">
-                            <select onchange="updateAssignment(this, '{{ route('admin.praktikum.pendaftaran.change-session', $p->id) }}')" data-original-value="{{ $p->sesi_id }}" name="sesi_id" class="appearance-none w-full h-8 pl-2.5 pr-7 text-[11px] font-semibold text-zinc-700 bg-white border border-zinc-200 rounded-lg focus:border-[#001f3f] cursor-pointer outline-none shadow-sm transition-all">
+                            <select name="sesi_id" onchange="updateAssignment(this, '{{ route('admin.praktikum.pendaftaran.change-session', $p->id) }}')" data-original-value="{{ $p->sesi_id }}" class="appearance-none w-full h-8 pl-2.5 pr-7 text-[11px] font-semibold text-zinc-700 bg-white border border-zinc-200 rounded-lg focus:border-[#001f3f] cursor-pointer outline-none shadow-sm transition-all">
                                 @foreach ($praktikum->sesis as $s)
                                     <option value="{{ $s->id }}" {{ $p->sesi_id == $s->id ? 'selected' : '' }}>{{ $s->nama_sesi }}</option>
                                 @endforeach
@@ -189,7 +189,7 @@
                     </td>
                     <td class="px-4 py-3.5" data-search="{{ $p->aslab ? $p->aslab->user->name : 'Pilih Aslab' }}">
                         <div class="relative group/sel max-w-[180px]">
-                            <select onchange="updateAssignment(this, '{{ route('admin.praktikum.pendaftaran.assign-aslab', $p->id) }}')" data-original-value="{{ $p->aslab_id }}" name="aslab_id" class="appearance-none w-full h-8 pl-2.5 pr-7 text-[11px] font-semibold text-zinc-700 bg-white border border-zinc-200 rounded-lg focus:border-[#001f3f] cursor-pointer outline-none shadow-sm transition-all">
+                            <select name="aslab_id" onchange="updateAssignment(this, '{{ route('admin.praktikum.pendaftaran.assign-aslab', $p->id) }}')" data-original-value="{{ $p->aslab_id }}" class="appearance-none w-full h-8 pl-2.5 pr-7 text-[11px] font-semibold text-zinc-700 bg-white border border-zinc-200 rounded-lg focus:border-[#001f3f] cursor-pointer outline-none shadow-sm transition-all">
                                 <option value="">— Belum Ditugaskan —</option>
                                 @foreach ($praktikum->aslabs as $as)
                                     <option value="{{ $as->id }}" {{ $p->aslab_id == $as->id ? 'selected' : '' }}>{{ $as->user->name }}</option>
