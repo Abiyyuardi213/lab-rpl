@@ -611,6 +611,10 @@ class PraktikumController extends Controller
             $previewData[] = $changes;
         }
 
+        if ($request->ajax()) {
+            return view('admin.praktikum.import-preview', compact('praktikum', 'previewData'))->render();
+        }
+
         return view('admin.praktikum.import-preview', compact('praktikum', 'previewData'));
     }
 
