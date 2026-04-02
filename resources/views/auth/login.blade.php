@@ -40,7 +40,7 @@
             }
         }, false);
     </script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback" defer></script>
 </head>
 
 <body class="bg-zinc-50 font-sans text-zinc-900 antialiased min-h-screen flex flex-col items-center justify-center p-4">
@@ -145,17 +145,21 @@
         &copy; {{ date('Y') }} LabRPL TEKNIK INFORMATIKA ITATS
     </p>
     <script>
-        const widgetId = turnstile.render("#turnstile-container", {
-            sitekey: "{{ config('services.turnstile.key') }}",
-            callback: function(token) {
-                console.log("Success:", token);
-            },
-        });
+        window.onloadTurnstileCallback = function() {
+            window.widgetId = turnstile.render("#turnstile-container", {
+                sitekey: "{{ config('services.turnstile.key') }}",
+                callback: function(token) {
+                    console.log("Success:", token);
+                },
+            });
+        };
     </script>
 
     @if (session('logout_success') || session('success'))
         <script>
-            turnstile.reset(widgetId);
+            if (typeof turnstile !== 'undefined' && window.widgetId) {
+                turnstile.reset(window.widgetId);
+            }
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end',
