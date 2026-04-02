@@ -13,7 +13,7 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {{-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script> --}}
 
     <!-- PWA & Apple Mobile Web Support -->
     <meta name="theme-color" content="#001f3f">
@@ -39,6 +39,7 @@
             }
         }, false);
     </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
 </head>
 
 <body class="bg-zinc-50 font-sans text-zinc-900 antialiased min-h-screen flex flex-col items-center justify-center p-4">
@@ -102,7 +103,9 @@
                         Password?</a>
                 </div>
 
-                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
+                <div class="flex items-center justify-center py-2">
+                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
+                </div>
 
                 <button type="submit"
                     class="w-full flex justify-center items-center gap-2 rounded-lg bg-zinc-900 px-4 py-3 text-sm font-bold text-white hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-sm mt-2">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -28,43 +29,57 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        Log::info('Login attempt started', ['username' => $request->username, 'ip' => $request->ip()]);
+
         $credentials = $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
             'cf-turnstile-response' => 'required',
         ]);
+
+        Log::info('Basic validation passed, verifying Turnstile');
+
         $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
             'secret'   => config('services.turnstile.secret'),
             'response' => $request->input('cf-turnstile-response'),
             'remoteip' => $request->ip(),
         ]);
+
         $outcome = $response->json();
-        // 3. Cek apakah verifikasi berhasil
+
         if (!$outcome['success']) {
+            Log::error('Turnstile verification failed', ['error-codes' => $outcome['error-codes'] ?? 'unknown']);
             return back()->withErrors([
                 'username' => 'Verifikasi keamanan gagal. Silakan coba lagi.',
             ])->withInput();
         }
 
-        if (Auth::attempt($credentials, $request->remember)) {
-            $request->session()->regenerate();
-            $request->session()->forget('url.intended'); // Hapus intended URL untuk cegah open redirect
+        Log::info('Turnstile verified, attempting authentication');
 
-            if (!Auth::user()->status) {
+        if (Auth::attempt(['username' => $request->username, 'password' => $request->password], $request->remember)) {
+            $user = Auth::user();
+            $request->session()->regenerate();
+            
+            Log::info('Auth successful', ['user_id' => $user->id, 'role' => $user->role->name ?? 'no role']);
+
+            if (!$user->status) {
+                Log::warning('User account disabled', ['user_id' => $user->id]);
                 Auth::logout();
                 return back()->withErrors([
                     'username' => 'Akun Anda sedang dinonaktifkan.',
                 ]);
             }
 
-            if (Auth::user()->role->name === 'Praktikan') {
-                return redirect()->route('praktikan.dashboard')->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
-            } elseif (Auth::user()->role->name === 'Aslab') {
-                return redirect()->route('aslab.dashboard')->with('login_success', 'Selamat datang kembali aslab, ' . Auth::user()->name . '!');
+            if ($user->role->name === 'Praktikan') {
+                return redirect()->route('praktikan.dashboard')->with('login_success', 'Selamat datang kembali, ' . $user->name . '!');
+            } elseif ($user->role->name === 'Aslab') {
+                return redirect()->route('aslab.dashboard')->with('login_success', 'Selamat datang kembali aslab, ' . $user->name . '!');
             }
 
-            return redirect()->route('admin.dashboard')->with('login_success', 'Selamat datang kembali, ' . Auth::user()->name . '!');
+            return redirect()->route('admin.dashboard')->with('login_success', 'Selamat datang kembali, ' . $user->name . '!');
         }
+
+        Log::warning('Auth failed: Invalid credentials', ['username' => $request->username]);
 
         return back()->withErrors([
             'username' => 'Username atau password salah.',

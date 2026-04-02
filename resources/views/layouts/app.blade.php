@@ -71,11 +71,10 @@
             --radius: 0.5rem;
         }
     </style>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
 
 <body class="font-sans antialiased bg-background text-foreground">
-    <div id="turnstile-container"></div>
+   
     {{-- Skip content --}}
     <a href="#main-content"
         class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] bg-primary text-primary-foreground px-3 py-2 rounded-md">
@@ -254,12 +253,7 @@
                     iconClose.classList.add('hidden');
                 }
             });
-            const widgetId = turnstile.render("#turnstile-container", {
-                sitekey: "0x4AAAAAACzUtbxmKxxRe58G",
-                callback: function(token) {
-                    console.log("Success:", token);
-                },
-            });
+           
         });
     </script>
 
