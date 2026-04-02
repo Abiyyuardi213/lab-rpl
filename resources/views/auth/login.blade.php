@@ -104,9 +104,8 @@
                 </div>
 
                 <div class="flex items-center justify-center py-2">
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACzUtbxmKxxRe58G"></div>
+                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
                 </div>
-                <div id="turnstile-container"></div>
 
                 <button type="submit"
                     class="w-full flex justify-center items-center gap-2 rounded-lg bg-zinc-900 px-4 py-3 text-sm font-bold text-white hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-sm mt-2">
@@ -162,12 +161,6 @@
                 icon: 'success',
                 title: '{{ session('logout_success') ?? session('success') }}'
             })
-            const widgetId = turnstile.render("#turnstile-container", {
-                sitekey: "0x4AAAAAACzUtbxmKxxRe58G",
-                callback: function(token) {
-                    console.log("Success:", token);
-                },
-            });
         </script>
     @endif
 </body>
