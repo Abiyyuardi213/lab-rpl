@@ -5,4 +5,4 @@ Disallow: /login
 Disallow: /register
 Disallow: /api/
 
-Sitemap: /sitemap.xml
+Sitemap: http://labrpl-itats.sistemin.site/sitemap.xml

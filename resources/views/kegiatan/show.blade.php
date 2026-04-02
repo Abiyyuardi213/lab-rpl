@@ -2,6 +2,30 @@
 
 @section('title', $kegiatan->judul . ' — Lab RPL ITATS')
 @section('meta_description', \Illuminate\Support\Str::limit(strip_tags($kegiatan->konten), 160))
+@section('meta_type', 'article')
+@if($kegiatan->gambar)
+@section('meta_image', asset('storage/' . $kegiatan->gambar))
+@endif
+
+@section('meta')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "Article",
+  "headline": "{{ addslashes($kegiatan->judul) }}",
+  "datePublished": "{{ $kegiatan->tanggal_kegiatan->toIso8601String() }}",
+  "dateModified": "{{ $kegiatan->updated_at->toIso8601String() }}",
+  "author": {
+    "@@type": "Person",
+    "name": "{{ addslashes($kegiatan->user->name) }}"
+  },
+  @if($kegiatan->gambar)
+  "image": "{{ asset('storage/' . $kegiatan->gambar) }}",
+  @endif
+  "url": "{{ url()->current() }}"
+}
+</script>
+@endsection
 
 
 @section('content')

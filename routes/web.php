@@ -31,7 +31,9 @@ Route::post('/reset-password', [\App\Http\Controllers\Auth\ResetPasswordControll
     ->name('password.update')->middleware('throttle:5,1');
 
 Route::get('/sitemap.xml', function () {
-    return response()->view('sitemap')->header('Content-Type', 'text/xml');
+    $kegiatans = \App\Models\Kegiatan::where('is_active', true)->latest()->get();
+    $pengumumans = \App\Models\Pengumuman::where('is_active', true)->latest()->get();
+    return response()->view('sitemap', compact('kegiatans', 'pengumumans'))->header('Content-Type', 'text/xml');
 });
 
 Route::get('/', [WelcomeController::class, 'index'])->name('home');

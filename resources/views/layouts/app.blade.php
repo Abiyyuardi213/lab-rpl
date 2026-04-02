@@ -9,21 +9,25 @@
         content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika ITATS.')">
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="@yield('meta_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="@yield('title', 'Lab RPL ITATS — Pusat Riset & Praktikum Teknik Informatika')">
     <meta property="og:description"
         content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika ITATS.')">
-    <meta property="og:image" content="{{ asset('image/logo-RPL.jpg') }}">
+    <meta property="og:image" content="@yield('meta_image', asset('image/logo-RPL.jpg'))">
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title"
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url()->current() }}">
+    <meta name="twitter:title"
         content="@yield('title', 'Lab RPL ITATS — Pusat Riset & Praktikum Teknik Informatika')">
-    <meta property="twitter:description"
+    <meta name="twitter:description"
         content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika ITATS.')">
-    <meta property="twitter:image" content="{{ asset('image/logo-RPL.jpg') }}">
+    <meta name="twitter:image" content="@yield('meta_image', asset('image/logo-RPL.jpg'))">
+
+    <!-- Keywords -->
+    <meta name="keywords" content="Lab RPL ITATS, Rekayasa Perangkat Lunak, Praktikum Informatika, ITATS, Teknik Informatika, Pemrograman, RPL">
+    <meta name="author" content="Lab RPL ITATS">
 
     @yield('meta')
 

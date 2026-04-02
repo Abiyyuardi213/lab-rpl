@@ -2,6 +2,30 @@
 
 @section('title', $pengumuman->judul . ' — Lab RPL ITATS')
 @section('meta_description', \Illuminate\Support\Str::limit(strip_tags($pengumuman->konten), 160))
+@section('meta_type', 'article')
+@if($pengumuman->gambar)
+@section('meta_image', asset('storage/' . $pengumuman->gambar))
+@endif
+
+@section('meta')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "Article",
+  "headline": "{{ addslashes($pengumuman->judul) }}",
+  "datePublished": "{{ $pengumuman->created_at->toIso8601String() }}",
+  "dateModified": "{{ $pengumuman->updated_at->toIso8601String() }}",
+  "author": {
+    "@@type": "Person",
+    "name": "{{ addslashes($pengumuman->user->name) }}"
+  },
+  @if($pengumuman->gambar)
+  "image": "{{ asset('storage/' . $pengumuman->gambar) }}",
+  @endif
+  "url": "{{ url()->current() }}"
+}
+</script>
+@endsection
 
 
 @php
