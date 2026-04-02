@@ -14,7 +14,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Cloudflare Turnstile -->
+    @if(!app()->environment('local'))
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback" defer></script>
+    @endif
 
     <!-- PWA & Apple Mobile Web Support -->
     <meta name="theme-color" content="#001f3f">
@@ -104,9 +106,11 @@
                         Password?</a>
                 </div>
 
+                @if(!app()->environment('local'))
                 <div class="flex items-center justify-center py-2">
                     <div id="turnstile-container"></div>
                 </div>
+                @endif
 
                 <button type="submit"
                     class="w-full flex justify-center items-center gap-2 rounded-lg bg-zinc-900 px-4 py-3 text-sm font-bold text-white hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-sm mt-2">
@@ -143,6 +147,7 @@
     <p class="text-center text-[11px] font-bold text-zinc-300 uppercase tracking-[0.2em] mt-12 mb-4">
         &copy; {{ date('Y') }} LabRPL TEKNIK INFORMATIKA ITATS
     </p>
+    @if(!app()->environment('local'))
     <script>
         window.onloadTurnstileCallback = function() {
             const container = document.getElementById('turnstile-container');
@@ -166,6 +171,7 @@
             });
         };
     </script>
+    @endif
 
     @if (session('logout_success') || session('success'))
         <script>

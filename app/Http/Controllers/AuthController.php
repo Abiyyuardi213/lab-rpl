@@ -31,30 +31,38 @@ class AuthController extends Controller
     {
         Log::info('Login attempt started', ['username' => $request->username, 'ip' => $request->ip()]);
 
-        $credentials = $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
-            'cf-turnstile-response' => 'required',
-        ]);
+        if (app()->environment('local')) {
+            $credentials = $request->validate([
+                'username' => 'required|string',
+                'password' => 'required|string',
+            ]);
+            Log::info('Basic validation passed, skipping Turnstile for local environment');
+        } else {
+            $credentials = $request->validate([
+                'username' => 'required|string',
+                'password' => 'required|string',
+                'cf-turnstile-response' => 'required',
+            ]);
 
-        Log::info('Basic validation passed, verifying Turnstile');
+            Log::info('Basic validation passed, verifying Turnstile');
 
-        $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-            'secret'   => config('services.turnstile.secret'),
-            'response' => $request->input('cf-turnstile-response'),
-            'remoteip' => $request->ip(),
-        ]);
+            $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret'   => config('services.turnstile.secret'),
+                'response' => $request->input('cf-turnstile-response'),
+                'remoteip' => $request->ip(),
+            ]);
 
-        $outcome = $response->json();
+            $outcome = $response->json();
 
-        if (!$outcome['success']) {
-            Log::error('Turnstile verification failed', ['error-codes' => $outcome['error-codes'] ?? 'unknown']);
-            return back()->withErrors([
-                'username' => 'Verifikasi keamanan gagal. Silakan coba lagi.',
-            ])->withInput();
+            if (!$outcome['success']) {
+                Log::error('Turnstile verification failed', ['error-codes' => $outcome['error-codes'] ?? 'unknown']);
+                return back()->withErrors([
+                    'username' => 'Verifikasi keamanan gagal. Silakan coba lagi.',
+                ])->withInput();
+            }
+
+            Log::info('Turnstile verified, attempting authentication');
         }
-
-        Log::info('Turnstile verified, attempting authentication');
 
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password], $request->remember)) {
             $user = Auth::user();

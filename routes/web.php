@@ -57,6 +57,11 @@ Route::get('/home', [AuthController::class, 'dashboardRedirect'])->name('dashboa
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    // Notifications
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/fetch', [\App\Http\Controllers\NotificationController::class, 'fetch'])->name('notifications.fetch');
+    Route::get('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+    Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 
     Route::prefix('admin')->name('admin.')->middleware(['role.admin'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
@@ -141,6 +146,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('presensi', \App\Http\Controllers\Admin\PresensiController::class)->only(['index', 'destroy']);
         Route::resource('kegiatan', \App\Http\Controllers\Admin\KegiatanController::class);
         Route::patch('kegiatan/{kegiatan}/toggle-status', [\App\Http\Controllers\Admin\KegiatanController::class, 'toggleStatus'])->name('kegiatan.toggle-status');
+        
+        // Broadcast Notification
+        Route::get('notifications/create', [\App\Http\Controllers\Admin\NotificationController::class, 'create'])->name('notifications.create');
+        Route::post('notifications/send', [\App\Http\Controllers\Admin\NotificationController::class, 'send'])->name('notifications.send');
     });
 
     // Removed global profile routes
@@ -190,9 +199,3 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/check-npm', [\App\Http\Controllers\AuthController::class, 'checkNpm'])->name('check-npm');
 
-// Notifications placeholders
-Route::middleware('auth')->name('notifications.')->group(function () {
-    Route::post('/notifications/read-all', fn() => back())->name('readAll');
-    Route::get('/notifications/{id}/go', fn() => back())->name('go');
-    Route::get('/notifications', fn() => 'Notifications Index')->name('index');
-});
