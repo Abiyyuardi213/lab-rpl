@@ -13,6 +13,8 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
     <!-- PWA & Apple Mobile Web Support -->
     <meta name="theme-color" content="#001f3f">
     <meta name="mobile-web-app-capable" content="yes">
@@ -27,9 +29,9 @@
         // Safer fix for standalone mode links
         document.addEventListener('click', function(e) {
             const link = e.target.closest('a');
-            if (link && 
-                link.href && 
-                link.href.indexOf('http') === 0 && 
+            if (link &&
+                link.href &&
+                link.href.indexOf('http') === 0 &&
                 link.href.indexOf(window.location.host) !== -1 &&
                 link.target !== '_blank') {
                 e.preventDefault();
@@ -99,6 +101,8 @@
                         class="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">Lupa
                         Password?</a>
                 </div>
+
+                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
 
                 <button type="submit"
                     class="w-full flex justify-center items-center gap-2 rounded-lg bg-zinc-900 px-4 py-3 text-sm font-bold text-white hover:bg-zinc-800 transition-all active:scale-[0.98] shadow-sm mt-2">

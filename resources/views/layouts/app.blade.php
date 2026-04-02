@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'RPL ITATS — Teknik Informatika')</title>
-    <meta name="description"
-        content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika.')">
+    <meta name="description" content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika.')">
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
@@ -24,7 +23,7 @@
 
     <script>
         // Safer fix for standalone mode links
-        document.addEventListener('click', function (e) {
+        document.addEventListener('click', function(e) {
             const link = e.target.closest('a');
             if (link &&
                 link.href &&
@@ -72,10 +71,11 @@
             --radius: 0.5rem;
         }
     </style>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
 
 <body class="font-sans antialiased bg-background text-foreground">
-
+    <div id="turnstile-container"></div>
     {{-- Skip content --}}
     <a href="#main-content"
         class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] bg-primary text-primary-foreground px-3 py-2 rounded-md">
@@ -133,8 +133,9 @@
                         class="bg-[#1a4fa0] md:hidden inline-flex items-center justify-center rounded-md px-3 py-2 text-white hover:bg-[#1a4fa0]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         aria-label="Buka menu">
                         {{-- Icon Menu --}}
-                        <svg id="icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                        <svg id="icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="h-5 w-5">
                             <line x1="4" x2="20" y1="12" y2="12" />
                             <line x1="4" x2="20" y1="6" y2="6" />
                             <line x1="4" x2="20" y1="18" y2="18" />
@@ -186,8 +187,8 @@
                 <div>
                     {{-- Logo Lab RPL --}}
                     <div class="mb-4">
-                        <img src="{{ asset('image/logo-RPL.jpg') }}" alt="Logo Lab RPL ITATS" width="80" height="80"
-                            class="rounded-lg">
+                        <img src="{{ asset('image/logo-RPL.jpg') }}" alt="Logo Lab RPL ITATS" width="80"
+                            height="80" class="rounded-lg">
                     </div>
 
                     <h3 class="text-sm font-semibold mb-3">Lab. Rekayasa Perangkat Lunak</h3>
@@ -252,6 +253,12 @@
                     iconMenu.classList.remove('hidden');
                     iconClose.classList.add('hidden');
                 }
+            });
+            const widgetId = turnstile.render("#turnstile-container", {
+                sitekey: "0x4AAAAAACzUtbxmKxxRe58G",
+                callback: function(token) {
+                    console.log("Success:", token);
+                },
             });
         });
     </script>

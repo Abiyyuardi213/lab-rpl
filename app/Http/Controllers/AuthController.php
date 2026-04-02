@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -30,7 +31,20 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
+            'cf-turnstile-response' => 'required',
         ]);
+        $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            'secret'   => config('services.turnstile.secret'),
+            'response' => $request->input('cf-turnstile-response'),
+            'remoteip' => $request->ip(),
+        ]);
+        $outcome = $response->json();
+        // 3. Cek apakah verifikasi berhasil
+        if (!$outcome['success']) {
+            return back()->withErrors([
+                'username' => 'Verifikasi keamanan gagal. Silakan coba lagi.',
+            ])->withInput();
+        }
 
         if (Auth::attempt($credentials, $request->remember)) {
             $request->session()->regenerate();
@@ -113,12 +127,12 @@ class AuthController extends Controller
             if ($user->role && $user->role->name === 'Praktikan') {
                 return redirect()->route('praktikan.dashboard');
             }
-            
+
             // If they have another role, take them to their dashboard
             if ($user->role) {
                 return redirect()->route('admin.dashboard');
             }
-            
+
             // If logged in but no role, force logout
             Auth::logout();
         }
@@ -230,9 +244,9 @@ class AuthController extends Controller
             return response()->json(['exists' => false]);
         }
 
-        $exists = \App\Models\User::where('username', $npm)->exists() || 
-                 \App\Models\Praktikan::where('npm', $npm)->exists() || 
-                 \App\Models\Aslab::where('npm', $npm)->exists();
+        $exists = \App\Models\User::where('username', $npm)->exists() ||
+            \App\Models\Praktikan::where('npm', $npm)->exists() ||
+            \App\Models\Aslab::where('npm', $npm)->exists();
 
         return response()->json(['exists' => $exists]);
     }
@@ -245,11 +259,11 @@ class AuthController extends Controller
                 Auth::logout();
                 return redirect()->route('home');
             }
-            
+
             if ($user->role->name === 'Praktikan') {
                 return redirect()->route('praktikan.dashboard');
             }
-            
+
             return redirect()->route('admin.dashboard');
         }
         return redirect()->route('home');
