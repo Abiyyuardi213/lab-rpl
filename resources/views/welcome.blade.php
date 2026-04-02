@@ -1,5 +1,47 @@
 @extends('layouts.app')
-
+@section('title', 'Beranda | Lab RPL ITATS — Rekayasa Perangkat Lunak')
+@section('meta_description', 'Beranda resmi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Akses pendaftaran praktikum, asisten lab, dan dokumentasi kegiatan Teknik Informatika ITATS.')
+@section('meta')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@graph": [
+    {
+      "@@type": "WebSite",
+      "@@id": "{{ url('/') }}/#website",
+      "url": "{{ url('/') }}",
+      "name": "Lab RPL ITATS",
+      "description": "Laboratorium Rekayasa Perangkat Lunak Teknik Informatika ITATS",
+      "publisher": {
+        "@@id": "{{ url('/') }}/#organization"
+      },
+      "inLanguage": "id"
+    },
+    {
+      "@@type": "EducationalOrganization",
+      "@@id": "{{ url('/') }}/#organization",
+      "name": "Lab Rekayasa Perangkat Lunak ITATS",
+      "url": "{{ url('/') }}",
+      "logo": {
+        "@@type": "ImageObject",
+        "url": "{{ asset('image/logo-RPL.png') }}"
+      },
+      "address": {
+        "@@type": "PostalAddress",
+        "streetAddress": "Jl. Arief Rahman Hakim No.100",
+        "addressLocality": "Surabaya",
+        "addressRegion": "Jawa Timur",
+        "postalCode": "60117",
+        "addressCountry": "ID"
+      },
+      "sameAs": [
+        "https://www.instagram.com/hmif_itats/"
+      ]
+    }
+  ]
+}
+</script>
+@endsection
 @section('content')
     {{-- Hero Bento --}}
     <section class="max-w-screen-2xl mx-auto px-6 md:px-10 pt-10 md:pt-16">
@@ -30,7 +72,6 @@
                     </a>
                 </div>
             </div>
-
             {{-- Right: Bento Grid Stats & Highlights --}}
             <div class="grid grid-cols-2 gap-4">
                 {{-- Stats Card --}}
@@ -55,7 +96,6 @@
                         </div>
                     </div>
                 </div>
-
                 {{-- Activity Card --}}
                 <div
                     class="rounded-2xl border border-slate-200 p-6 bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -67,7 +107,6 @@
                         "Terus pantau jadwal praktikum terbaru di portal."
                     </p>
                 </div>
-
                 {{-- Info Card --}}
                 <div
                     class="rounded-2xl border border-slate-200 p-6 bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
@@ -75,17 +114,16 @@
                         <i class="fas fa-info-circle text-blue-600"></i>
                     </div>
                     <h3 class="font-bold text-slate-900">Info Terbaru</h3>
-                    <p class="text-xs text-slate-600 mt-2 line-clamp-2">
+                    <div class="text-xs text-slate-600 mt-2 line-clamp-2">
                         @if ($latestPraktikum)
                             Pendaftaran <strong>{{ $latestPraktikum->nama_praktikum }}</strong> sedang berjalan.
                         @else
                             Periksa pengumuman untuk info pendaftaran praktikum.
                         @endif
-                    </p>
+                    </div>
                 </div>
             </div>
         </div>
-
         {{-- Hero Visual Image --}}
         <div class="mt-12 rounded-3xl overflow-hidden border-8 border-white shadow-2xl relative group">
             <div
@@ -99,7 +137,6 @@
             </div>
         </div>
     </section>
-
     {{-- Services/Quick Access --}}
     <section id="layanan" class="max-w-screen-2xl mx-auto px-6 md:px-10 mt-20 mb-20">
         <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4 text-center md:text-left">
@@ -111,7 +148,6 @@
                 Masuk ke Dashboard <i class="fas fa-arrow-right text-xs"></i>
             </a>
         </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @php
                 $services = [
@@ -145,7 +181,6 @@
                     ],
                 ];
             @endphp
-
             @foreach ($services as $s)
                 <a href="{{ $s['link'] }}"
                     class="group relative rounded-2xl border border-slate-100 p-8 bg-white shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-300">
@@ -160,7 +195,6 @@
             @endforeach
         </div>
     </section>
-
     {{-- Latest Activities --}}
     @if ($latestKegiatans->count() > 0)
         <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-24 border-t border-slate-100">
@@ -177,7 +211,6 @@
                     <i class="fas fa-arrow-right text-xs text-slate-400 group-hover:text-white transition-colors"></i>
                 </a>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 @foreach ($latestKegiatans as $k)
                     <article
@@ -216,7 +249,6 @@
             </div>
         </section>
     @endif
-
     {{-- About Section --}}
     <section id="tentang" class="bg-slate-50 py-20 px-6">
         <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -225,7 +257,7 @@
                     <div class="space-y-4 pt-10">
                         <div
                             class="aspect-square rounded-2xl bg-white p-4 shadow-sm flex items-center justify-center border border-slate-200">
-                            <img src="{{ asset('image/logo-RPL.jpg') }}"
+                            <img src="{{ asset('image/logo-RPL.jpg') }}" alt="Laboratorium RPL"
                                 class="w-24 h-24 object-contain grayscale opacity-50">
                         </div>
                         <div class="aspect-[3/4] rounded-2xl bg-primary/10 overflow-hidden">
@@ -248,7 +280,7 @@
                 </div>
             </div>
             <div class="order-1 lg:order-2">
-                <h4 class="text-primary font-bold tracking-widest uppercase text-sm mb-4">Tentang Laboratorium</h4>
+                <div class="text-primary font-bold tracking-widest uppercase text-sm mb-4">Tentang Laboratorium</div>
                 <h2 class="text-4xl font-extrabold text-slate-900 mb-6 leading-tight">Membangun Fondasi <br> Perangkat
                     Lunak
                     Berkualitas</h2>

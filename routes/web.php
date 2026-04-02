@@ -30,6 +30,10 @@ Route::get('/reset-password/{token}', [\App\Http\Controllers\Auth\ResetPasswordC
 Route::post('/reset-password', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])
     ->name('password.update')->middleware('throttle:5,1');
 
+Route::get('/sitemap.xml', function () {
+    return response()->view('sitemap')->header('Content-Type', 'text/xml');
+});
+
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
 Route::get('/tentang', [WelcomeController::class, 'about'])->name('about');
 Route::get('/praktikum', [WelcomeController::class, 'praktikum'])->name('praktikum.public');
