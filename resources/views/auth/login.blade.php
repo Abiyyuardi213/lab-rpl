@@ -104,7 +104,7 @@
                 </div>
 
                 <div class="flex items-center justify-center py-2">
-                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACzUtbxmKxxRe58G"></div>
                 </div>
 
                 <button type="submit"
