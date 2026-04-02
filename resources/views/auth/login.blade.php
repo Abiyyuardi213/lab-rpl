@@ -40,6 +40,7 @@
             }
         }, false);
     </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
 
 <body class="bg-zinc-50 font-sans text-zinc-900 antialiased min-h-screen flex flex-col items-center justify-center p-4">
@@ -104,7 +105,8 @@
                 </div>
 
                 <div class="flex items-center justify-center py-2">
-                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}"></div>
+                    <div id="turnstile-container" class="cf-turnstile"
+                        data-sitekey="{{ config('services.turnstile.key') }}"></div>
                 </div>
 
                 <button type="submit"
@@ -142,9 +144,18 @@
     <p class="text-center text-[11px] font-bold text-zinc-300 uppercase tracking-[0.2em] mt-12 mb-4">
         &copy; {{ date('Y') }} LabRPL TEKNIK INFORMATIKA ITATS
     </p>
+    <script>
+        const widgetId = turnstile.render("#turnstile-container", {
+            sitekey: "{{ config('services.turnstile.key') }}",
+            callback: function(token) {
+                console.log("Success:", token);
+            },
+        });
+    </script>
 
     @if (session('logout_success') || session('success'))
         <script>
+            turnstile.reset(widgetId);
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end',
