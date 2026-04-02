@@ -33,7 +33,7 @@
     <link rel="icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
 
     <!-- PWA & Apple Mobile Web Support -->
-    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}" crossorigin="use-credentials">
     <meta name="theme-color" content="#001f3f">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
