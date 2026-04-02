@@ -12,9 +12,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    {{-- <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script> --}}
-    <link rel="preconnect" href="https://challenges.cloudflare.com" />
     <!-- PWA & Apple Mobile Web Support -->
     <meta name="theme-color" content="#001f3f">
     <meta name="mobile-web-app-capable" content="yes">
@@ -39,7 +36,6 @@
             }
         }, false);
     </script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 <body class="bg-zinc-50 font-sans text-zinc-900 antialiased min-h-screen flex flex-col items-center justify-center p-4">
@@ -103,8 +99,8 @@
                         Password?</a>
                 </div>
 
-                <div class="flex items-center justify-center py-2">
-                    <div class="cf-turnstile" data-sitekey="0x4AAAAAACzUtbxmKxxRe58G"></div>
+                <div class="flex items-center justify-center py-4">
+                    <div id="turnstile-widget"></div>
                 </div>
 
                 <button type="submit"
@@ -163,6 +159,25 @@
             })
         </script>
     @endif
+
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+    <script>
+        window.onloadTurnstileCallback = function() {
+            if (document.getElementById('turnstile-widget')) {
+                turnstile.render('#turnstile-widget', {
+                    sitekey: '0x4AAAAAAADn6_9q_A_A_A_A',
+                    theme: 'light',
+                    callback: function(token) {
+                        console.log("Turnstile success!");
+                    },
+                });
+            }
+        };
+    </script>
+    {{-- Tambahkan parameter onload ke script Turnstile --}}
+    <script>
+        document.querySelector('script[src*="turnstile/v0/api.js"]').src += "&onload=onloadTurnstileCallback";
+    </script>
 </body>
 
 </html>
