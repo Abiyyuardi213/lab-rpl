@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Cloudflare Turnstile -->
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback" defer></script>
 
     <!-- PWA & Apple Mobile Web Support -->
     <meta name="theme-color" content="#001f3f">
@@ -40,7 +40,7 @@
             }
         }, false);
     </script>
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback" defer></script>
+
 </head>
 
 <body class="bg-zinc-50 font-sans text-zinc-900 antialiased min-h-screen flex flex-col items-center justify-center p-4">
@@ -105,8 +105,7 @@
                 </div>
 
                 <div class="flex items-center justify-center py-2">
-                    <div id="turnstile-container" class="cf-turnstile"
-                        data-sitekey="{{ config('services.turnstile.key') }}"></div>
+                    <div id="turnstile-container"></div>
                 </div>
 
                 <button type="submit"
@@ -146,6 +145,19 @@
     </p>
     <script>
         window.onloadTurnstileCallback = function() {
+            const container = document.getElementById('turnstile-container');
+            if (!container) return;
+
+            // Pastikan container kosong sebelum render
+            container.innerHTML = '';
+
+            // Cek jika sudah pernah di-render untuk menghindari double
+            if (window.widgetId) {
+                try {
+                    turnstile.remove(window.widgetId);
+                } catch (e) {}
+            }
+
             window.widgetId = turnstile.render("#turnstile-container", {
                 sitekey: "{{ config('services.turnstile.key') }}",
                 callback: function(token) {
@@ -157,9 +169,7 @@
 
     @if (session('logout_success') || session('success'))
         <script>
-            if (typeof turnstile !== 'undefined' && window.widgetId) {
-                turnstile.reset(window.widgetId);
-            }
+
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end',
