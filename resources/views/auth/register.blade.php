@@ -13,6 +13,11 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Cloudflare Turnstile -->
+    @if(!app()->environment('local'))
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onloadTurnstileCallback" defer></script>
+    @endif
+
     <!-- PWA & Apple Mobile Web Support -->
     <meta name="theme-color" content="#001f3f">
     <meta name="mobile-web-app-capable" content="yes">
@@ -437,6 +442,12 @@
                                     benar. Setelah mendaftar, anda dapat langsung masuk ke sistem.</p>
                             </div>
 
+                            @if(!app()->environment('local'))
+                            <div class="flex items-center justify-center pt-2">
+                                <div id="turnstile-container"></div>
+                            </div>
+                            @endif
+
                             <div class="grid grid-cols-2 gap-3 mt-4">
                                 <button type="button" onclick="prevStep()"
                                     class="flex justify-center items-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm font-bold text-zinc-600 hover:bg-zinc-50 transition-all active:scale-[0.98]">
@@ -478,6 +489,32 @@
             </div>
         </div>
     </div>
+
+    @if(!app()->environment('local'))
+    <script>
+        window.onloadTurnstileCallback = function() {
+            const container = document.getElementById('turnstile-container');
+            if (!container) return;
+
+            // Pastikan container kosong sebelum render
+            container.innerHTML = '';
+
+            // Cek jika sudah pernah di-render untuk menghindari double
+            if (window.widgetId) {
+                try {
+                    turnstile.remove(window.widgetId);
+                } catch (e) {}
+            }
+
+            window.widgetId = turnstile.render("#turnstile-container", {
+                sitekey: "{{ config('services.turnstile.key') }}",
+                callback: function(token) {
+                    console.log("Success:", token);
+                },
+            });
+        };
+    </script>
+    @endif
 
     @if ($errors->any())
         <script>
