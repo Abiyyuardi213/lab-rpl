@@ -8,7 +8,6 @@
     <meta name="description"
         content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika ITATS.')">
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
-    <meta name="google-site-verification" content="GjjF--rqNMPbF6I5gdrNpU5AWCZpQEJMkr9dUNWnLqg" />
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
@@ -92,6 +91,8 @@
             --radius: 0.5rem;
         }
     </style>
+    <meta name="google-site-verification" content="GjjF--rqNMPbF6I5gdrNpU5AWCZpQEJMkr9dUNWnLqg" />
+
 </head>
 
 <body class="font-sans antialiased bg-background text-foreground">
