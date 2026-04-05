@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.guest_presensi')
 
 @section('title', 'Sesi Praktikum Terdeteksi')
 
