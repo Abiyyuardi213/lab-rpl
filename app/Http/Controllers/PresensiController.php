@@ -48,18 +48,18 @@ class PresensiController extends Controller
         $modulNumber = $this->parseModulNumber($jadwal->judul_modul);
 
         if ($modulNumber > 1) {
-            // Check if ALL previous modules have at least one reviewed assistance
-            // Simplified: Check if there is a 'reviewed' task for (modulNumber - 1)
-            // Or just check if total 'reviewed' tasks >= ($modulNumber - 1)
+            // Check if there are any unfinished tasks from previous modules
+            // A task is considered "unfinished" if it has no grade AND status is not 'reviewed'
+            $unfinishedTasks = TugasAsistensi::where('pendaftaran_id', $pendaftaran->id)
+                ->where('status', '!=', 'reviewed')
+                ->whereNull('nilai')
+                ->get();
 
-            $reviewedTasksCount = TugasAsistensi::where('pendaftaran_id', $pendaftaran->id)
-                ->where('status', 'reviewed')
-                ->count();
-
-            // This is a heuristic. In a more robust system, we'd check specifically per module.
-            // But usually, tasks are sequential.
-            if ($reviewedTasksCount < ($modulNumber - 1)) {
-                return back()->with('error', 'Anda belum menyelesaikan asistensi untuk modul sebelumnya. Silakan selesaikan asistensi terlebih dahulu.');
+            foreach ($unfinishedTasks as $task) {
+                $taskModulNumber = $this->parseModulNumber($task->judul);
+                if ($taskModulNumber < $modulNumber) {
+                    return back()->with('error', 'Anda belum menyelesaikan asistensi untuk modul sebelumnya (' . $task->judul . '). Silakan selesaikan asistensi terlebih dahulu.');
+                }
             }
         }
 
@@ -218,6 +218,144 @@ class PresensiController extends Controller
             ->exists();
 
         return response()->json(['present' => $present]);
+    }
+
+    public function generateJadwalQR($jadwal_id)
+    {
+        $user = Auth::user();
+        
+        $jadwal = JadwalPraktikum::with('praktikum')->findOrFail($jadwal_id);
+        
+        // Authorization check
+        if ($user->role->name === 'Aslab') {
+            $aslab = $user->aslab;
+            $isAssigned = $aslab->praktikums()->where('praktikum_id', $jadwal->praktikum_id)->exists();
+            if (!$isAssigned) {
+                return back()->with('error', 'Anda tidak ditugaskan di praktikum ini.');
+            }
+        } elseif ($user->role->name !== 'Admin') {
+            return back()->with('error', 'Akses ditolak.');
+        }
+
+        if (!$jadwal->token) {
+            $jadwal->token = (string) Str::random(32);
+            $jadwal->save();
+        }
+
+        $qrUrl = route('praktikan.presensi.scan-jadwal', $jadwal->token);
+
+        $qrCode = QrCode::size(400)
+            ->gradient(0, 31, 63, 0, 102, 204, 'vertical') // navy to blue
+            ->margin(2)
+            ->errorCorrection('H')
+            ->generate($qrUrl);
+
+        return view('aslab.presensi.jadwal-qr', compact('qrCode', 'qrUrl', 'jadwal'));
+    }
+
+    public function downloadJadwalPDF($jadwal_id)
+    {
+        $jadwal = JadwalPraktikum::with('praktikum')->findOrFail($jadwal_id);
+        
+        if (!$jadwal->token) {
+            $jadwal->token = (string) Str::random(32);
+            $jadwal->save();
+        }
+
+        $qrUrl = route('praktikan.presensi.scan-jadwal', $jadwal->token);
+        
+        // Generate SVG QR code for the PDF
+        $qrCode = base64_encode(QrCode::size(300)->margin(2)->generate($qrUrl));
+
+        // Load logos and convert to base64
+        $itatsLogoPath = public_path('image/logo-itats-biru.jpg');
+        $rplLogoPath = public_path('image/rplmini.png');
+        
+        $itatsLogo = "";
+        $rplLogo = "";
+        
+        if (file_exists($itatsLogoPath)) {
+            $itatsLogo = base64_encode(file_get_contents($itatsLogoPath));
+        }
+        
+        if (file_exists($rplLogoPath)) {
+            $rplLogo = base64_encode(file_get_contents($rplLogoPath));
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('aslab.presensi.jadwal-pdf', compact('qrCode', 'jadwal', 'itatsLogo', 'rplLogo'));
+        
+        return $pdf->download("QR-Presensi-{$jadwal->judul_modul}.pdf");
+    }
+
+    public function showScanner()
+    {
+        $user = Auth::user();
+        if (!$user->praktikan) {
+            return redirect()->route('login')->with('error', 'Hanya praktikan yang dapat mengakses pemindai.');
+        }
+
+        return view('praktikan.presensi.scan');
+    }
+
+    public function scanJadwal(Request $request, $token)
+    {
+        $user = Auth::user();
+        if (!$user->praktikan) {
+            return redirect()->route('login')->with('error', 'Silakan login sebagai praktikan.');
+        }
+
+        $jadwal = JadwalPraktikum::with('praktikum')->where('token', $token)->firstOrFail();
+        $praktikan = $user->praktikan;
+
+        // Check if student is enrolled in this praktikum
+        $pendaftaran = PendaftaranPraktikum::where('praktikan_id', $praktikan->id)
+            ->where('praktikum_id', $jadwal->praktikum_id)
+            ->where('status', 'verified')
+            ->first();
+
+        if (!$pendaftaran) {
+             return redirect()->route('praktikan.dashboard')->with('error', 'Anda tidak terdaftar di praktikum ini.');
+        }
+
+        // Check already present
+        $alreadyPresent = Presensi::where('jadwal_id', $jadwal->id)
+            ->where('pendaftaran_id', $pendaftaran->id)
+            ->exists();
+
+        if ($alreadyPresent) {
+            return redirect()->route('praktikan.dashboard')->with('info', 'Anda sudah melakukan presensi.');
+        }
+
+        // --- RULE CHECK: Asistensi Above Modul 1 ---
+        $modulNumber = $this->parseModulNumber($jadwal->judul_modul);
+        if ($modulNumber > 1) {
+            $unfinishedTasks = TugasAsistensi::where('pendaftaran_id', $pendaftaran->id)
+                ->where('status', '!=', 'reviewed')
+                ->whereNull('nilai')
+                ->get();
+
+            foreach ($unfinishedTasks as $task) {
+                if ($this->parseModulNumber($task->judul) < $modulNumber) {
+                     return redirect()->route('praktikan.dashboard')->with('error', 'Anda belum menyelesaikan asistensi untuk modul sebelumnya (' . $task->judul . '). Silakan selesaikan asistensi terlebih dahulu.');
+                }
+            }
+        }
+
+        // Check-in logic
+        $status = 'hadir';
+        $waktuMulai = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $jadwal->waktu_mulai);
+        if (now()->gt($waktuMulai->addMinutes(15))) {
+            $status = 'terlambat';
+        }
+
+        Presensi::create([
+            'jadwal_id' => $jadwal->id,
+            'pendaftaran_id' => $pendaftaran->id,
+            'jam_masuk' => now(),
+            'status' => $status
+        ]);
+
+        return redirect()->route('praktikan.dashboard')->with('success', 'Presensi Berhasil: ' . $jadwal->judul_modul);
     }
 
     public function publicVerify($token)

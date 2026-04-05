@@ -88,10 +88,17 @@ class TugasController extends Controller
         $request->validate([
             'nilai' => 'nullable|integer|between:0,100',
             'catatan_aslab' => 'nullable|string',
-            'status' => 'required|in:pending,submitted,reviewed'
+            'status' => 'required|in:pending,submitted,reviewed',
         ]);
 
-        $tugas->update($request->only(['nilai', 'catatan_aslab', 'status']));
+        $data = $request->only(['nilai', 'catatan_aslab', 'status']);
+
+        // Auto-set status to reviewed if grade is provided and it's not currently reviewed
+        if ($request->filled('nilai') && $data['status'] !== 'reviewed') {
+            $data['status'] = 'reviewed';
+        }
+
+        $tugas->update($data);
 
         return back()->with('success', 'Tugas berhasil diperbarui.');
     }

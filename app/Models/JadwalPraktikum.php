@@ -12,7 +12,8 @@ class JadwalPraktikum extends Model
         'tanggal',
         'waktu_mulai',
         'waktu_selesai',
-        'ruangan'
+        'ruangan',
+        'token'
     ];
 
     public function praktikum()

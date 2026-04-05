@@ -35,21 +35,29 @@
             </div>
         </div>
 
-        <div class="max-w-xs text-center space-y-4">
+        <div class="max-w-sm w-full text-center space-y-4">
+            <div class="grid grid-cols-1 gap-3">
+                <a href="{{ route('praktikan.presensi.scan-view') }}"
+                    class="h-14 bg-[#001f3f] text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-[#002d5a] transition-all flex items-center justify-center gap-3 shadow-lg shadow-[#001f3f]/20 active:scale-95 group">
+                    <i class="fas fa-camera text-lg group-hover:rotate-12 transition-transform"></i>
+                    Switch ke Scan QR
+                </a>
+                
+                <a href="{{ route('praktikan.dashboard') }}"
+                    class="h-12 inline-flex items-center justify-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                    Kembali ke Dashboard
+                </a>
+            </div>
+
             <div class="bg-blue-50 border border-blue-100 p-4 rounded-2xl">
-                <div class="flex items-start gap-3">
-                    <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
-                    <p class="text-[11px] text-blue-700 leading-relaxed text-left font-medium">
-                        Tunjukkan QR Code ini kepada Asisten Laboratorium untuk melakukan absensi kehadiran. QR ini berisi link validasi yang akan dibaca oleh sistem.
+                <div class="flex items-start gap-3 text-left">
+                    <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                    <p class="text-[10px] text-blue-700 leading-relaxed font-bold uppercase tracking-tight">
+                        TIPS: Gunakan tombol di atas jika Anda ingin melakukan scan pada QR yang ditampilkan oleh Aslab. Gunakan QR di tengah layar jika Aslab yang akan melakukan scan pada ponsel Anda.
                     </p>
                 </div>
             </div>
-
-            <a href="{{ route('praktikan.dashboard') }}"
-                class="inline-flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-600 transition-colors">
-                <i class="fas fa-arrow-left"></i>
-                Kembali ke Dashboard
-            </a>
         </div>
     </div>
 

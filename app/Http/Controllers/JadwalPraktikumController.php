@@ -30,7 +30,9 @@ class JadwalPraktikumController extends Controller
             'ruangan' => 'nullable|string|max:255',
         ]);
 
-        JadwalPraktikum::create($request->all());
+        $data = $request->all();
+        $data['token'] = (string) \Illuminate\Support\Str::random(32);
+        JadwalPraktikum::create($data);
 
         return back()->with('success', 'Jadwal praktikum berhasil ditambahkan.');
     }

@@ -144,9 +144,15 @@
                                                         WIB
                                                     </p>
                                                 </div>
-                                                <div
-                                                    class="text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
-                                                    {{ $jadwal->ruangan ?? 'Daring' }}
+                                                <div class="flex items-center gap-2">
+                                                    <div class="text-[9px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+                                                        {{ $jadwal->ruangan ?? 'Daring' }}
+                                                    </div>
+                                                    <a href="{{ route('presensi.generate-jadwal-qr', $jadwal->id) }}" 
+                                                       class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+                                                       title="Tampilkan QR Presensi">
+                                                        <i class="fas fa-qrcode text-[10px]"></i>
+                                                    </a>
                                                 </div>
                                             </div>
                                         @endforeach

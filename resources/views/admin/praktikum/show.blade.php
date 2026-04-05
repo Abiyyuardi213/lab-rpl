@@ -159,15 +159,22 @@
                                             <div class="text-zinc-600">{{ $jadwal->ruangan ?? '-' }}</div>
                                         </td>
                                         <td class="px-6 py-4 text-right">
-                                            <form
-                                                action="{{ route('admin.praktikum.jadwal.destroy', $jadwal->id) }}#jadwal-section"
-                                                method="POST" class="inline">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" onclick="return confirm('Hapus jadwal ini?')"
-                                                    class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
-                                                    <i class="fas fa-trash-alt text-[10px]"></i>
-                                                </button>
-                                            </form>
+                                            <div class="flex items-center justify-end gap-1">
+                                                <a href="{{ route('presensi.generate-jadwal-qr', $jadwal->id) }}" 
+                                                   class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                                                   title="QR Presensi">
+                                                    <i class="fas fa-qrcode text-[10px]"></i>
+                                                </a>
+                                                <form
+                                                    action="{{ route('admin.praktikum.jadwal.destroy', $jadwal->id) }}#jadwal-section"
+                                                    method="POST" class="inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" onclick="return confirm('Hapus jadwal ini?')"
+                                                        class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
+                                                        <i class="fas fa-trash-alt text-[10px]"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty

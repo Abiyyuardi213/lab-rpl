@@ -296,6 +296,7 @@ class PraktikumController extends Controller
             'waktu_mulai' => $request->waktu_mulai,
             'waktu_selesai' => $request->waktu_selesai,
             'ruangan' => $request->ruangan,
+            'token' => (string) \Illuminate\Support\Str::random(32),
         ]);
 
         return back()->with('success', 'Jadwal Modul Praktikum berhasil ditambahkan.');

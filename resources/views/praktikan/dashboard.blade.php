@@ -148,7 +148,8 @@
             $pendingTasks = collect();
             foreach ($activePendaftarans as $ap) {
                 foreach ($ap->tugasAsistensis as $t) {
-                    if ($t->status == 'pending') {
+                    // A task needs attention if it's pending OR submitted but not yet graded/reviewed
+                    if ($t->status == 'pending' || ($t->status == 'submitted' && $t->nilai === null)) {
                         $pendingTasks->push([
                             'praktikum' => $ap->praktikum->nama_praktikum,
                             'modul' => $t->judul,

@@ -118,6 +118,11 @@
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
+                                        <a href="{{ route('presensi.generate-jadwal-qr', $jadwal->id) }}" 
+                                           class="inline-flex items-center justify-center h-8 w-8 rounded-md text-emerald-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+                                           title="QR Presensi">
+                                            <i class="fas fa-qrcode text-xs"></i>
+                                        </a>
                                         <button onclick='openEditModal(@json($jadwal))'
                                             class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-[#001f3f] hover:bg-zinc-100 transition-colors">
                                             <i class="fas fa-edit text-xs"></i>

@@ -152,7 +152,9 @@ Route::middleware('auth')->group(function () {
         Route::post('notifications/send', [\App\Http\Controllers\Admin\NotificationController::class, 'send'])->name('notifications.send');
     });
 
-    // Removed global profile routes
+    // Common Presensi Routes (Admin & Aslab)
+    Route::get('/presensi/generate-jadwal-qr/{jadwal_id}', [PresensiController::class, 'generateJadwalQR'])->name('presensi.generate-jadwal-qr');
+    Route::get('/presensi/download-jadwal-pdf/{jadwal_id}', [PresensiController::class, 'downloadJadwalPDF'])->name('presensi.download-jadwal-pdf');
 
     // Aslab Section
     Route::prefix('aslab')->name('aslab.')->middleware(['role.aslab'])->group(function () {
@@ -184,6 +186,8 @@ Route::middleware('auth')->group(function () {
             // Presensi (Praktikan)
             Route::get('/presensi/generate-qr/{jadwal_id}', [PresensiController::class, 'generateQR'])->name('presensi.generate-qr');
             Route::get('/presensi/check-status/{jadwal_id}', [PresensiController::class, 'checkStatus'])->name('presensi.check-status');
+            Route::get('/presensi/scan-scanner', [PresensiController::class, 'showScanner'])->name('presensi.scan-view');
+            Route::get('/presensi/scan-jadwal/{token}', [PresensiController::class, 'scanJadwal'])->name('presensi.scan-jadwal');
 
             // Profile Management (Praktikan)
             Route::get('/profile/edit', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
