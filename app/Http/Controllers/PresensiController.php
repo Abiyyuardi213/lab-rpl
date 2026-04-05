@@ -242,7 +242,8 @@ class PresensiController extends Controller
             $jadwal->save();
         }
 
-        $qrUrl = route('praktikan.presensi.scan-jadwal', $jadwal->token);
+        // Pointing to a public landing page for better UX with native phone cameras
+        $qrUrl = route('presensi.scan-landing', $jadwal->token);
 
         $qrCode = QrCode::size(400)
             ->gradient(0, 31, 63, 0, 102, 204, 'vertical') // navy to blue
@@ -262,7 +263,7 @@ class PresensiController extends Controller
             $jadwal->save();
         }
 
-        $qrUrl = route('praktikan.presensi.scan-jadwal', $jadwal->token);
+        $qrUrl = route('presensi.scan-landing', $jadwal->token);
         
         // Generate SVG QR code for the PDF
         $qrCode = base64_encode(QrCode::size(300)->margin(2)->generate($qrUrl));
@@ -285,6 +286,18 @@ class PresensiController extends Controller
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('aslab.presensi.jadwal-pdf', compact('qrCode', 'jadwal', 'itatsLogo', 'rplLogo'));
         
         return $pdf->download("QR-Presensi-{$jadwal->judul_modul}.pdf");
+    }
+
+    public function scanLanding($token)
+    {
+        $jadwal = JadwalPraktikum::with('praktikum')->where('token', $token)->firstOrFail();
+        
+        // If already logged in, we can proceed to scanJadwal automatically or show a nice landing
+        if (Auth::check() && Auth::user()->praktikan) {
+            return redirect()->route('praktikan.presensi.scan-jadwal', $token);
+        }
+
+        return view('presensi.scan-landing', compact('jadwal'));
     }
 
     public function showScanner()
