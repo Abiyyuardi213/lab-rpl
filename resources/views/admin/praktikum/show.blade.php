@@ -160,16 +160,17 @@
                                         </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex items-center justify-end gap-1">
-                                                <a href="{{ route('presensi.generate-jadwal-qr', $jadwal->id) }}" 
-                                                   class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
-                                                   title="QR Presensi">
+                                                <a href="{{ route('presensi.generate-jadwal-qr', $jadwal->id) }}"
+                                                    class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                                                    title="QR Presensi">
                                                     <i class="fas fa-qrcode text-[10px]"></i>
                                                 </a>
                                                 <form
                                                     action="{{ route('admin.praktikum.jadwal.destroy', $jadwal->id) }}#jadwal-section"
                                                     method="POST" class="inline">
                                                     @csrf @method('DELETE')
-                                                    <button type="submit" onclick="return confirm('Hapus jadwal ini?')"
+                                                    <button type="submit"
+                                                        onclick="confirmDeleteCustom(event, 'Hapus Jadwal?', 'Jadwal pelaksanaan modul ini akan dihapus permanen.')"
                                                         class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
                                                         <i class="fas fa-trash-alt text-[10px]"></i>
                                                     </button>
@@ -293,7 +294,7 @@
                                                 method="POST" class="inline">
                                                 @csrf @method('DELETE')
                                                 <button type="submit"
-                                                    onclick="return confirm('Hapus penugasan aslab ini?')"
+                                                    onclick="confirmDeleteCustom(event, 'Hapus Penugasan?', 'Aslab ini tidak lagi ditugaskan pada praktikum ini.')"
                                                     class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
                                                     <i class="fas fa-user-minus text-[10px]"></i>
                                                 </button>
@@ -359,10 +360,14 @@
                         <table class="w-full text-[11px]">
                             <thead class="bg-zinc-50/50 border-b border-zinc-100">
                                 <tr>
-                                    <th class="px-4 py-2 text-left font-bold text-zinc-400 uppercase tracking-tighter">Sesi</th>
-                                    <th class="px-4 py-2 text-left font-bold text-zinc-400 uppercase tracking-tighter">Waktu</th>
-                                    <th class="px-4 py-2 text-left font-bold text-zinc-400 uppercase tracking-tighter">Kuota</th>
-                                    <th class="px-4 py-2 text-right font-bold text-zinc-400 uppercase tracking-tighter">Aksi</th>
+                                    <th class="px-4 py-2 text-left font-bold text-zinc-400 uppercase tracking-tighter">Sesi
+                                    </th>
+                                    <th class="px-4 py-2 text-left font-bold text-zinc-400 uppercase tracking-tighter">
+                                        Waktu</th>
+                                    <th class="px-4 py-2 text-left font-bold text-zinc-400 uppercase tracking-tighter">
+                                        Kuota</th>
+                                    <th class="px-4 py-2 text-right font-bold text-zinc-400 uppercase tracking-tighter">
+                                        Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-zinc-100">
@@ -384,9 +389,12 @@
                                                     class="h-6 w-6 inline-flex items-center justify-center rounded bg-zinc-50 text-zinc-400 hover:text-[#001f3f] border border-zinc-100 transition-all">
                                                     <i class="fas fa-edit text-[9px]"></i>
                                                 </button>
-                                                <form action="{{ route('admin.praktikum.sesi.destroy', $sesi->id) }}#sesi-section" method="POST" class="inline">
+                                                <form
+                                                    action="{{ route('admin.praktikum.sesi.destroy', $sesi->id) }}#sesi-section"
+                                                    method="POST" class="inline">
                                                     @csrf @method('DELETE')
-                                                    <button type="submit" onclick="return confirm('Hapus sesi ini?')"
+                                                    <button type="submit"
+                                                        onclick="confirmDeleteCustom(event, 'Hapus Sesi?', 'Seluruh data pendaftar pada sesi ini akan ikut terhapus.')"
                                                         class="h-6 w-6 inline-flex items-center justify-center rounded bg-rose-50 text-rose-400 hover:text-rose-600 border border-rose-100 transition-all">
                                                         <i class="fas fa-trash-alt text-[9px]"></i>
                                                     </button>
@@ -404,13 +412,15 @@
                         </table>
                     </div>
                     <div class="p-4 bg-zinc-50/30 border-t border-zinc-100">
-                        <button type="button" onclick="document.getElementById('add-sesi-form').classList.toggle('hidden')"
+                        <button type="button"
+                            onclick="document.getElementById('add-sesi-form').classList.toggle('hidden')"
                             class="w-full py-2 border-2 border-dashed border-zinc-200 rounded-lg text-[10px] font-bold text-zinc-400 hover:border-[#001f3f] hover:text-[#001f3f] transition-all uppercase tracking-widest">
                             <i class="fas fa-plus mr-2"></i> Tambah Sesi Baru
                         </button>
 
                         <div id="add-sesi-form" class="hidden mt-4 pt-4 border-t border-zinc-100 space-y-4">
-                            <form action="{{ route('admin.praktikum.sesi.store', $praktikum->id) }}#sesi-section" method="POST" class="space-y-3">
+                            <form action="{{ route('admin.praktikum.sesi.store', $praktikum->id) }}#sesi-section"
+                                method="POST" class="space-y-3">
                                 @csrf
                                 <div class="space-y-1">
                                     <label class="text-[9px] font-bold text-zinc-500 uppercase">Nama Sesi</label>
@@ -420,8 +430,9 @@
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="space-y-1">
                                         <label class="text-[9px] font-bold text-zinc-500 uppercase">Hari</label>
-                                        <select name="hari" required class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs">
-                                            @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] as $h)
+                                        <select name="hari" required
+                                            class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs">
+                                            @foreach (['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] as $h)
                                                 <option value="{{ $h }}">{{ $h }}</option>
                                             @endforeach
                                         </select>
@@ -435,14 +446,17 @@
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="space-y-1">
                                         <label class="text-[9px] font-bold text-zinc-500 uppercase">Buka</label>
-                                        <input type="time" name="jam_mulai" required class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs">
+                                        <input type="time" name="jam_mulai" required
+                                            class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs">
                                     </div>
                                     <div class="space-y-1">
                                         <label class="text-[9px] font-bold text-zinc-500 uppercase">Tutup</label>
-                                        <input type="time" name="jam_selesai" required class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs">
+                                        <input type="time" name="jam_selesai" required
+                                            class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs">
                                     </div>
                                 </div>
-                                <button type="submit" class="w-full py-2 bg-[#001f3f] text-white rounded-lg text-[10px] font-bold hover:bg-[#002d5a] transition-all shadow-sm uppercase tracking-widest">
+                                <button type="submit"
+                                    class="w-full py-2 bg-[#001f3f] text-white rounded-lg text-[10px] font-bold hover:bg-[#002d5a] transition-all shadow-sm uppercase tracking-widest">
                                     SIMPAN SESI
                                 </button>
                             </form>
@@ -601,6 +615,7 @@
                 title: 'Update Status?',
                 text: "Anda akan mengubah status praktikum ini.",
                 icon: 'question',
+                width: '24rem',
                 showCancelButton: true,
                 confirmButtonColor: '#001f3f',
                 cancelButtonColor: '#f4f4f5',
@@ -608,7 +623,10 @@
                 cancelButtonText: 'Batal',
                 reverseButtons: true,
                 customClass: {
-                    confirmButton: 'bg-[#001f3f]'
+                    title: 'text-lg font-bold text-zinc-900',
+                    htmlContainer: 'text-xs text-zinc-500',
+                    confirmButton: 'px-6 py-2.5 rounded-xl font-bold text-xs order-2',
+                    cancelButton: 'px-6 py-2.5 rounded-xl font-bold text-xs text-zinc-600 order-1'
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -627,8 +645,13 @@
                                     icon: 'success',
                                     title: 'Berhasil',
                                     text: data.message,
+                                    width: '22rem',
                                     showConfirmButton: false,
-                                    timer: 1500
+                                    timer: 1500,
+                                    customClass: {
+                                        title: 'text-base font-bold text-zinc-900',
+                                        htmlContainer: 'text-xs text-zinc-500'
+                                    }
                                 })
                                 .then(() => window.location.reload());
                         }
@@ -640,17 +663,51 @@
         function confirmDelete() {
             Swal.fire({
                 title: 'Hapus Praktikum?',
-                text: "Tindakan ini tidak dapat dibatalkan!",
+                text: "Seluruh data terkait praktikum ini akan dihapus permanen!",
                 icon: 'warning',
+                width: '24rem',
                 showCancelButton: true,
                 confirmButtonColor: '#e11d48',
                 cancelButtonColor: '#f4f4f5',
                 confirmButtonText: 'Ya, Hapus Permanen',
                 cancelButtonText: 'Batal',
-                reverseButtons: true
+                reverseButtons: true,
+                customClass: {
+                    title: 'text-lg font-bold text-zinc-900',
+                    htmlContainer: 'text-xs text-zinc-500',
+                    confirmButton: 'px-6 py-2.5 rounded-xl font-bold text-xs order-2',
+                    cancelButton: 'px-6 py-2.5 rounded-xl font-bold text-xs text-zinc-600 order-1'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById('delete-form').submit();
+                }
+            })
+        }
+
+        function confirmDeleteCustom(event, title, text = "Tindakan ini tidak dapat dibatalkan!") {
+            event.preventDefault();
+            const form = event.target.closest('form');
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: 'warning',
+                width: '24rem',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#f4f4f5',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    title: 'text-lg font-bold text-zinc-900',
+                    htmlContainer: 'text-xs text-zinc-500',
+                    confirmButton: 'px-6 py-2.5 rounded-xl font-bold text-xs order-2',
+                    cancelButton: 'px-6 py-2.5 rounded-xl font-bold text-xs text-zinc-600 order-1'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
                 }
             })
         }
