@@ -249,134 +249,6 @@
                     </form>
                 </div>
 
-                <!-- Session Management Card -->
-                <div id="sesi-section"
-                    class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
-                    <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
-                        <h3 class="font-bold text-zinc-900 flex items-center gap-2">
-                            <i class="fas fa-calendar-alt text-[#001f3f]"></i>
-                            Manajemen Sesi Praktikum
-                        </h3>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="bg-zinc-50/50 border-b border-zinc-100">
-                                <tr>
-                                    <th
-                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                                        Sesi</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                                        Waktu</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                                        Kuota Terisi</th>
-                                    <th
-                                        class="px-6 py-3 text-right text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                                        Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-zinc-100">
-                                @forelse($praktikum->sesis as $sesi)
-                                    <tr class="hover:bg-zinc-50/50 transition-colors">
-                                        <td class="px-6 py-4">
-                                            <div class="font-bold text-zinc-900">{{ $sesi->nama_sesi }}</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-zinc-600 font-medium capitalize">{{ $sesi->hari }}</div>
-                                            <div class="text-[10px] text-zinc-400 font-mono italic">
-                                                {{ substr($sesi->jam_mulai, 0, 5) }} -
-                                                {{ substr($sesi->jam_selesai, 0, 5) }} WIB
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-zinc-600 font-bold">
-                                                {{ $sesi->pendaftarans_count ?? $sesi->pendaftarans()->count() }}/{{ $sesi->kuota }}
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end gap-1 text-center">
-                                                <button type="button" onclick="editSesi({{ json_encode($sesi) }})"
-                                                    class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-zinc-100 bg-zinc-50 text-zinc-600 hover:bg-zinc-100 transition-colors">
-                                                    <i class="fas fa-edit text-[10px]"></i>
-                                                </button>
-                                                <form
-                                                    action="{{ route('admin.praktikum.sesi.destroy', $sesi->id) }}#sesi-section"
-                                                    method="POST" class="inline">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit" onclick="return confirm('Hapus sesi ini?')"
-                                                        class="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
-                                                        <i class="fas fa-trash-alt text-[10px]"></i>
-                                                    </button>
-                                                </form>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5"
-                                            class="px-6 py-10 text-center text-zinc-400 italic font-medium">
-                                            Belum ada sesi yang dibuat</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Add Session Section -->
-                <div id="add-sesi-section"
-                    class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden p-6">
-                    <h4
-                        class="text-xs font-bold text-zinc-900 uppercase tracking-widest flex items-center gap-2 mb-6 border-b border-zinc-100 pb-2">
-                        <i class="fas fa-plus text-[#001f3f]"></i>
-                        Tambah Sesi Baru
-                    </h4>
-                    <form action="{{ route('admin.praktikum.sesi.store', $praktikum->id) }}#sesi-section" method="POST"
-                        class="space-y-4">
-                        @csrf
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Nama Sesi</label>
-                                <input type="text" name="nama_sesi" placeholder="Sesi 1" required
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Hari</label>
-                                <select name="hari" required
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
-                                    <option value="Senin">Senin</option>
-                                    <option value="Selasa">Selasa</option>
-                                    <option value="Rabu">Rabu</option>
-                                    <option value="Kamis">Kamis</option>
-                                    <option value="Jumat">Jumat</option>
-                                    <option value="Sabtu">Sabtu</option>
-                                    <option value="Minggu">Minggu</option>
-                                </select>
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Jam Mulai</label>
-                                <input type="time" name="jam_mulai" required
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Jam Selesai</label>
-                                <input type="time" name="jam_selesai" required
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-500 uppercase">Kuota Mhs</label>
-                                <input type="number" name="kuota" placeholder="30" required min="1"
-                                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
-                            </div>
-                        </div>
-                        <button type="submit"
-                            class="w-full py-2.5 bg-[#001f3f] text-white rounded-lg text-xs font-bold hover:bg-[#002d5a] transition-all active:scale-[0.98] shadow-sm">
-                            SIMPAN SESI BARU
-                        </button>
-                    </form>
-                </div>
 
                 <!-- Aslab Management Card -->
                 <div id="aslab-section"
@@ -470,12 +342,114 @@
                     </div>
                 </div>
 
-                </div>
-            </div>
             </div>
 
-            <!-- Sidebar (Right - Status & Danger Zone) -->
+            <!-- Sidebar (Right - Status & Session Management) -->
             <div class="space-y-6">
+                <!-- Session Management Card (Compact) -->
+                <div id="sesi-section"
+                    class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
+                        <h3 class="font-bold text-zinc-900 text-sm flex items-center gap-2">
+                            <i class="fas fa-calendar-alt text-[#001f3f]"></i>
+                            Manajemen Sesi
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-[11px]">
+                            <thead class="bg-zinc-50/50 border-b border-zinc-100">
+                                <tr>
+                                    <th class="px-4 py-2 text-left font-bold text-zinc-400 uppercase tracking-tighter">Sesi</th>
+                                    <th class="px-4 py-2 text-left font-bold text-zinc-400 uppercase tracking-tighter">Waktu</th>
+                                    <th class="px-4 py-2 text-left font-bold text-zinc-400 uppercase tracking-tighter">Kuota</th>
+                                    <th class="px-4 py-2 text-right font-bold text-zinc-400 uppercase tracking-tighter">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-100">
+                                @forelse($praktikum->sesis as $sesi)
+                                    <tr class="hover:bg-zinc-50/50 transition-colors border-b border-zinc-50">
+                                        <td class="px-4 py-3 font-bold text-zinc-900">{{ $sesi->nama_sesi }}</td>
+                                        <td class="px-4 py-3">
+                                            <div class="text-zinc-600 font-bold capitalize">{{ $sesi->hari }}</div>
+                                            <div class="text-[9px] text-zinc-400 font-mono uppercase tracking-tighter">
+                                                {{ substr($sesi->jam_mulai, 0, 5) }}-{{ substr($sesi->jam_selesai, 0, 5) }}
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 font-bold text-zinc-600">
+                                            {{ $sesi->pendaftarans_count ?? $sesi->pendaftarans()->count() }}/{{ $sesi->kuota }}
+                                        </td>
+                                        <td class="px-4 py-3 text-right">
+                                            <div class="flex items-center justify-end gap-1">
+                                                <button type="button" onclick="editSesi({{ json_encode($sesi) }})"
+                                                    class="h-6 w-6 inline-flex items-center justify-center rounded bg-zinc-50 text-zinc-400 hover:text-[#001f3f] border border-zinc-100 transition-all">
+                                                    <i class="fas fa-edit text-[9px]"></i>
+                                                </button>
+                                                <form action="{{ route('admin.praktikum.sesi.destroy', $sesi->id) }}#sesi-section" method="POST" class="inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" onclick="return confirm('Hapus sesi ini?')"
+                                                        class="h-6 w-6 inline-flex items-center justify-center rounded bg-rose-50 text-rose-400 hover:text-rose-600 border border-rose-100 transition-all">
+                                                        <i class="fas fa-trash-alt text-[9px]"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-4 py-8 text-center text-zinc-400 italic text-[10px]">
+                                            Belum ada sesi praktikum</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 bg-zinc-50/30 border-t border-zinc-100">
+                        <button type="button" onclick="document.getElementById('add-sesi-form').classList.toggle('hidden')"
+                            class="w-full py-2 border-2 border-dashed border-zinc-200 rounded-lg text-[10px] font-bold text-zinc-400 hover:border-[#001f3f] hover:text-[#001f3f] transition-all uppercase tracking-widest">
+                            <i class="fas fa-plus mr-2"></i> Tambah Sesi Baru
+                        </button>
+
+                        <div id="add-sesi-form" class="hidden mt-4 pt-4 border-t border-zinc-100 space-y-4">
+                            <form action="{{ route('admin.praktikum.sesi.store', $praktikum->id) }}#sesi-section" method="POST" class="space-y-3">
+                                @csrf
+                                <div class="space-y-1">
+                                    <label class="text-[9px] font-bold text-zinc-500 uppercase">Nama Sesi</label>
+                                    <input type="text" name="nama_sesi" placeholder="Contoh: Sesi 1" required
+                                        class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f]">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-zinc-500 uppercase">Hari</label>
+                                        <select name="hari" required class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs">
+                                            @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] as $h)
+                                                <option value="{{ $h }}">{{ $h }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-zinc-500 uppercase">Kuota</label>
+                                        <input type="number" name="kuota" placeholder="30" required min="1"
+                                            class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-zinc-500 uppercase">Buka</label>
+                                        <input type="time" name="jam_mulai" required class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[9px] font-bold text-zinc-500 uppercase">Tutup</label>
+                                        <input type="time" name="jam_selesai" required class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs">
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full py-2 bg-[#001f3f] text-white rounded-lg text-[10px] font-bold hover:bg-[#002d5a] transition-all shadow-sm uppercase tracking-widest">
+                                    SIMPAN SESI
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Status Management Card -->
                 <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
                     <div class="p-6 border-b border-zinc-100 bg-zinc-50/50">

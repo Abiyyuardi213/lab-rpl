@@ -2,7 +2,7 @@
     <div class="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-12">
         <div class="flex justify-between items-center h-16 sm:h-20">
             <!-- Left: Logo -->
-            <div class="flex-shrink-0 flex items-center">
+            <div class="flex-1 flex items-center">
                 @php
                     $logoUrl = url('/admin/dashboard');
                     if (Auth::check() && Auth::user()->role) {
@@ -35,7 +35,7 @@
             </div>
 
             <!-- Middle: Nav Links -->
-            <div class="hidden lg:flex items-center space-x-6">
+            <div class="hidden lg:flex items-center space-x-6 flex-shrink-0">
                 @if (Auth::user()->role && Auth::user()->role->name === 'Praktikan')
                     <a href="{{ route('praktikan.dashboard') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('praktikan/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
@@ -163,7 +163,7 @@
             </div>
 
             <!-- Right: Profile & Action -->
-            <div class="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+            <div class="flex-1 flex items-center justify-end gap-2 sm:gap-4">
                 {{-- Notification Bell --}}
                 <div class="relative group">
                     <button class="relative p-2 text-slate-400 hover:text-[#001f3f] transition-colors focus:outline-none"
