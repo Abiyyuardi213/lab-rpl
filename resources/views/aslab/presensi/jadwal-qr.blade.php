@@ -79,9 +79,9 @@
                 <i class="fas fa-print"></i>
                 Cetak Langsung
             </button>
-            <a href="{{ route('aslab.dashboard') }}" class="w-full h-12 bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-100 transition-all flex items-center justify-center gap-3 translate-y-0 active:translate-y-1">
+            <a href="{{ Auth::user()->role->name === 'Admin' ? route('admin.praktikum.show', $jadwal->praktikum_id) : route('aslab.dashboard') }}" class="w-full h-12 bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-100 transition-all flex items-center justify-center gap-3 translate-y-0 active:translate-y-1">
                 <i class="fas fa-arrow-left"></i>
-                Kembali ke Dashboard
+                Kembali
             </a>
         </div>
     </div>
