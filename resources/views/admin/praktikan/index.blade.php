@@ -197,6 +197,19 @@
             const span = btn.querySelector('span');
             const isActive = btn.classList.contains('bg-emerald-500');
 
+            // Optimistic Update: Langsung ubah tampilan
+            if (isActive) {
+                btn.classList.remove('bg-emerald-500');
+                btn.classList.add('bg-zinc-200');
+                span.classList.remove('translate-x-4');
+                span.classList.add('translate-x-1');
+            } else {
+                btn.classList.remove('bg-zinc-200');
+                btn.classList.add('bg-emerald-500');
+                span.classList.remove('translate-x-1');
+                span.classList.add('translate-x-4');
+            }
+
             fetch(`/admin/praktikan/${id}/toggle-status`, {
                 method: 'PATCH',
                 headers: {
@@ -207,42 +220,36 @@
             })
             .then(async response => {
                 const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.message || 'Terjadi kesalahan saat memperbarui status.');
-                }
+                if (!response.ok) throw new Error(data.message || 'Gagal memperbarui status');
                 return data;
             })
             .then(data => {
-                if (data.success) {
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-
-                    // Update UI without reload
-                    if (isActive) {
-                        btn.classList.remove('bg-emerald-500');
-                        btn.classList.add('bg-zinc-200');
-                        span.classList.remove('translate-x-4');
-                        span.classList.add('translate-x-1');
-                    } else {
-                        btn.classList.remove('bg-zinc-200');
-                        btn.classList.add('bg-emerald-500');
-                        span.classList.remove('translate-x-1');
-                        span.classList.add('translate-x-4');
-                    }
-
-                    Toast.fire({
-                        icon: 'success',
-                        title: data.message
-                    });
-                }
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: data.message
+                });
             })
             .catch(error => {
-                console.error('Error:', error);
+                // Kembalikan ke status semula jika gagal
+                if (isActive) {
+                    btn.classList.remove('bg-zinc-200');
+                    btn.classList.add('bg-emerald-500');
+                    span.classList.remove('translate-x-1');
+                    span.classList.add('translate-x-4');
+                } else {
+                    btn.classList.remove('bg-emerald-500');
+                    btn.classList.add('bg-zinc-200');
+                    span.classList.remove('translate-x-4');
+                    span.classList.add('translate-x-1');
+                }
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',

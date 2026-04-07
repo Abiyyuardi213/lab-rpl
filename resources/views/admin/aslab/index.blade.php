@@ -88,7 +88,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <button onclick="toggleAslabStatus('{{ $aslab->id }}')"
+                                    <button onclick="toggleAslabStatus('{{ $aslab->id }}', this)"
                                         class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 {{ $aslab->status ? 'bg-emerald-500' : 'bg-zinc-200' }}">
                                         <span
                                             class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ $aslab->status ? 'translate-x-4' : 'translate-x-1' }}"></span>
@@ -201,29 +201,68 @@
             }
         });
 
-        function toggleAslabStatus(id) {
+        function toggleAslabStatus(id, btn) {
+            const span = btn.querySelector('span');
+            const isActive = btn.classList.contains('bg-emerald-500');
+
+            // Optimistic Update: Langsung ubah tampilan
+            if (isActive) {
+                btn.classList.remove('bg-emerald-500');
+                btn.classList.add('bg-zinc-200');
+                span.classList.remove('translate-x-4');
+                span.classList.add('translate-x-1');
+            } else {
+                btn.classList.remove('bg-zinc-200');
+                btn.classList.add('bg-emerald-500');
+                span.classList.remove('translate-x-1');
+                span.classList.add('translate-x-4');
+            }
+
             fetch(`/admin/aslab/${id}/toggle-status`, {
                 method: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
-            }).then(response => response.json()).then(data => {
-                if (data.success) {
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
-                    Toast.fire({
-                        icon: 'success',
-                        title: data.message
-                    }).then(() => {
-                        location.reload();
-                    });
+            })
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Gagal memperbarui status');
+                return data;
+            })
+            .then(data => {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: data.message
+                });
+            })
+            .catch(error => {
+                // Kembalikan ke status semula jika gagal
+                if (isActive) {
+                    btn.classList.remove('bg-zinc-200');
+                    btn.classList.add('bg-emerald-500');
+                    span.classList.remove('translate-x-1');
+                    span.classList.add('translate-x-4');
+                } else {
+                    btn.classList.remove('bg-emerald-500');
+                    btn.classList.add('bg-zinc-200');
+                    span.classList.remove('translate-x-4');
+                    span.classList.add('translate-x-1');
                 }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: error.message || 'Terjadi kesalahan saat memperbarui status.'
+                });
             });
         }
 

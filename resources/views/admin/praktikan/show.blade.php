@@ -146,25 +146,54 @@
                 <div class="rounded-2xl border border-zinc-200 bg-white overflow-hidden shadow-sm">
                     <div class="border-b border-zinc-100 bg-zinc-50/50 px-6 py-4 flex items-center justify-between">
                         <h3 class="text-sm font-bold text-zinc-900 uppercase tracking-wider flex items-center gap-2">
-                            <i class="fas fa-book-bookmark text-zinc-400"></i>
-                            Praktikum yang Diikuti
-                        </h3>
-                        <span
-                            class="text-[10px] font-bold text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded-full uppercase">Alpha
-                            Feature</span>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex flex-col items-center justify-center py-10 text-center space-y-3">
-                            <div
-                                class="h-12 w-12 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 border border-zinc-100">
-                                <i class="fas fa-flask"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-semibold text-zinc-900">Belum terdaftar di praktikum manapun</p>
-                                <p class="text-xs text-zinc-500 mt-1">Data pendaftaran praktikum akan muncul di sini.</p>
-                            </div>
-                        </div>
-                    </div>
+                             <i class="fas fa-book-bookmark text-zinc-400"></i>
+                             Praktikum yang Diikuti
+                         </h3>
+                     </div>
+                     <div class="p-6">
+                         @if ($praktikan->praktikan?->pendaftarans?->count() > 0)
+                             <div class="space-y-4">
+                                 @foreach ($praktikan->praktikan->pendaftarans as $pendaftaran)
+                                     <div class="flex items-center justify-between p-4 rounded-xl border border-zinc-100 bg-zinc-50/30">
+                                         <div class="flex items-center gap-4">
+                                             <div class="h-10 w-10 rounded-lg bg-[#001f3f]/5 flex items-center justify-center text-[#001f3f]">
+                                                 <i class="fas fa-flask text-xs"></i>
+                                             </div>
+                                             <div>
+                                                 <h4 class="text-sm font-bold text-zinc-900">{{ $pendaftaran->praktikum->nama_praktikum }}</h4>
+                                                 <p class="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">
+                                                     {{ $pendaftaran->sesi?->nama_sesi ?? 'Sesi belum ditentukan' }} 
+                                                     @if($pendaftaran->sesi)
+                                                         • {{ $pendaftaran->sesi->hari }}, {{ $pendaftaran->sesi->jam_mulai }} - {{ $pendaftaran->sesi->jam_selesai }}
+                                                     @endif
+                                                 </p>
+                                             </div>
+                                         </div>
+                                         <span @class([
+                                             'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border',
+                                             'bg-emerald-50 text-emerald-600 border-emerald-100' => $pendaftaran->status === 'approved',
+                                             'bg-amber-50 text-amber-600 border-amber-100' => $pendaftaran->status === 'pending',
+                                             'bg-rose-50 text-rose-600 border-rose-100' => $pendaftaran->status === 'rejected',
+                                             'bg-zinc-50 text-zinc-500 border-zinc-100' => !in_array($pendaftaran->status, ['approved', 'pending', 'rejected']),
+                                         ])>
+                                             {{ $pendaftaran->status }}
+                                         </span>
+                                     </div>
+                                 @endforeach
+                             </div>
+                         @else
+                             <div class="flex flex-col items-center justify-center py-10 text-center space-y-3">
+                                 <div
+                                     class="h-12 w-12 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 border border-zinc-100">
+                                     <i class="fas fa-flask"></i>
+                                 </div>
+                                 <div>
+                                     <p class="text-sm font-semibold text-zinc-900">Belum terdaftar di praktikum manapun</p>
+                                     <p class="text-xs text-zinc-500 mt-1">Data pendaftaran praktikum akan muncul di sini.</p>
+                                 </div>
+                             </div>
+                         @endif
+                     </div>
                 </div>
             </div>
         </div>

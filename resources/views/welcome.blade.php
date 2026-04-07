@@ -270,8 +270,8 @@
                     <div class="space-y-4 pt-10">
                         <div
                             class="aspect-square rounded-2xl bg-white p-4 shadow-sm flex items-center justify-center border border-slate-200">
-                            <img src="{{ asset('image/logo-RPL.jpg') }}" alt="Laboratorium RPL"
-                                class="w-24 h-24 object-contain grayscale opacity-50">
+                            <img src="{{ asset('image/rplmini.png') }}" alt="Laboratorium RPL"
+                                class="w-20 h-20 object-contain grayscale opacity-50">
                         </div>
                         <div class="aspect-[3/4] rounded-2xl bg-primary/10 overflow-hidden">
                             <div

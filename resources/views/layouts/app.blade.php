@@ -32,8 +32,8 @@
     @yield('meta')
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
-    <link rel="icon" href="{{ asset('image/logo-RPL.jpg') }}" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ asset('image/rplmini.png') }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset('image/rplmini.png') }}" type="image/x-icon">
 
     <!-- PWA & Apple Mobile Web Support -->
     <link rel="manifest" href="{{ asset('manifest.json') }}" crossorigin="use-credentials">
@@ -42,8 +42,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Lab RPL">
-    <link rel="apple-touch-icon" href="{{ asset('image/logo-RPL.jpg') }}">
-    <link rel="apple-touch-startup-image" href="{{ asset('image/logo-RPL.jpg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('image/rplmini.png') }}">
+    <link rel="apple-touch-startup-image" href="{{ asset('image/rplmini.png') }}">
 
     <script>
         // Safer fix for standalone mode links
@@ -115,8 +115,8 @@
                 {{-- Brand --}}
                 <div class="flex items-center gap-3">
                     <a href="/" class="inline-flex items-center gap-2" aria-label="Beranda Lab RPL">
-                        <img src="{{ asset('image/logo-RPL.png') }}" alt="Logo Lab RPL" width="48" height="48"
-                            class="h-12 w-auto object-contain">
+                        <img src="{{ asset('image/rplmini.png') }}" alt="Logo Lab RPL" width="40" height="40"
+                            class="h-10 w-auto object-contain">
                         <div class="leading-tight">
                             <span class="block text-base font-semibold text-slate-900">Lab. Rekayasa Perangkat
                                 Lunak</span>
@@ -227,7 +227,7 @@
                 <div>
                     {{-- Logo Lab RPL --}}
                     <div class="mb-4">
-                        <img src="{{ asset('image/logo-RPL.jpg') }}" alt="Logo Lab RPL ITATS" width="80" height="80"
+                        <img src="{{ asset('image/rplmini.png') }}" alt="Logo Lab RPL ITATS" width="70" height="70"
                             class="rounded-lg">
                     </div>
 

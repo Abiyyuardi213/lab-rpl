@@ -72,7 +72,7 @@ class PraktikanController extends Controller
 
     public function show($id)
     {
-        $praktikan = User::with('praktikan')->findOrFail($id);
+        $praktikan = User::with(['praktikan.pendaftarans.praktikum', 'praktikan.pendaftarans.sesi'])->findOrFail($id);
         return view('admin.praktikan.show', compact('praktikan'));
     }
 

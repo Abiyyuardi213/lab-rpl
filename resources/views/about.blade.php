@@ -130,7 +130,7 @@
                             <div class="flex -space-x-4">
                                 <div
                                     class="w-12 h-12 rounded-full border-4 border-slate-900 bg-white shadow-lg overflow-hidden flex items-center justify-center">
-                                    <img src="{{ asset('image/logo-RPL.jpg') }}" class="w-8">
+                                    <img src="{{ asset('image/rplmini.png') }}" class="w-7">
                                 </div>
                                 <div
                                     class="w-12 h-12 rounded-full border-4 border-slate-900 bg-slate-800 flex items-center justify-center text-xs font-bold text-white">

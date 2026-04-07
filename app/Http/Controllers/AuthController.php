@@ -64,7 +64,7 @@ class AuthController extends Controller
             Log::info('Turnstile verified, attempting authentication');
         }
 
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password], $request->remember)) {
+        if (Auth::attempt(['username' => $request->username, 'password' => $request->password], $request->boolean('remember'))) {
             $user = Auth::user();
             $request->session()->regenerate();
             
@@ -91,7 +91,7 @@ class AuthController extends Controller
 
         return back()->withErrors([
             'username' => 'Username atau password salah.',
-        ])->onlyInput('username');
+        ])->onlyInput('username', 'remember');
     }
 
     public function showAslabLogin()
@@ -116,7 +116,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt(['username' => $request->npm, 'password' => $request->password], $request->remember)) {
+        if (Auth::attempt(['username' => $request->npm, 'password' => $request->password], $request->boolean('remember'))) {
             $request->session()->regenerate();
             $request->session()->forget('url.intended'); // Hapus intended URL untuk cegah open redirect
 
@@ -140,7 +140,7 @@ class AuthController extends Controller
 
         return back()->withErrors([
             'npm' => 'NPM atau password salah.',
-        ])->onlyInput('npm');
+        ])->onlyInput('npm', 'remember');
     }
 
     public function showPraktikanLogin()
@@ -169,7 +169,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt(['username' => $request->npm, 'password' => $request->password], $request->remember)) {
+        if (Auth::attempt(['username' => $request->npm, 'password' => $request->password], $request->boolean('remember'))) {
             $request->session()->regenerate();
             $request->session()->forget('url.intended'); // Hapus intended URL untuk cegah open redirect
 
@@ -193,7 +193,7 @@ class AuthController extends Controller
 
         return back()->withErrors([
             'npm' => 'NPM atau password salah.',
-        ])->onlyInput('npm');
+        ])->onlyInput('npm', 'remember');
     }
 
     public function showRegister()

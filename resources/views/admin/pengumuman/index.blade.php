@@ -103,7 +103,7 @@
                                     {{ $p->created_at->translatedFormat('d M Y') }}
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <button onclick="toggleStatus('{{ $p->id }}')" @class([
+                                    <button onclick="toggleStatus('{{ $p->id }}', this)" @class([
                                         'relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#1a4fa0] focus:ring-offset-2',
                                         'bg-[#1a4fa0]' => $p->is_active,
                                         'bg-zinc-200' => !$p->is_active,
@@ -223,16 +223,66 @@
                 });
             });
 
-            function toggleStatus(id) {
+            function toggleStatus(id, btn) {
+                const span = btn.querySelector('span');
+                const isActive = btn.classList.contains('bg-[#1a4fa0]');
+
+                // Optimistic Update
+                if (isActive) {
+                    btn.classList.remove('bg-[#1a4fa0]');
+                    btn.classList.add('bg-zinc-200');
+                    span.classList.remove('translate-x-4');
+                    span.classList.add('translate-x-0');
+                } else {
+                    btn.classList.remove('bg-zinc-200');
+                    btn.classList.add('bg--[#1a4fa0]');
+                    btn.classList.add('bg-[#1a4fa0]');
+                    span.classList.remove('translate-x-0');
+                    span.classList.add('translate-x-4');
+                }
+
                 fetch(`{{ url('admin/pengumuman') }}/${id}/toggle-status`, {
                         method: 'PATCH',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                         }
                     }).then(response => response.json())
                     .then(data => {
-                        if (data.success) location.reload();
+                        if (data.success) {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true
+                            });
+                            Toast.fire({
+                                icon: 'success',
+                                title: data.message
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        // Revert
+                        if (isActive) {
+                            btn.classList.remove('bg-zinc-200');
+                            btn.classList.add('bg-[#1a4fa0]');
+                            span.classList.remove('translate-x-0');
+                            span.classList.add('translate-x-4');
+                        } else {
+                            btn.classList.remove('bg-[#1a4fa0]');
+                            btn.classList.add('bg-zinc-200');
+                            span.classList.remove('translate-x-4');
+                            span.classList.add('translate-x-0');
+                        }
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Terjadi kesalahan saat memperbarui status.'
+                        });
                     });
             }
 

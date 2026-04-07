@@ -23,8 +23,8 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="{{ asset('image/logo-RPL.jpg') }}">
-    <link rel="apple-touch-startup-image" href="{{ asset('image/logo-RPL.jpg') }}">
+    <link rel="apple-touch-icon" href="{{ asset('image/rplmini.png') }}">
+    <link rel="apple-touch-startup-image" href="{{ asset('image/rplmini.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -50,7 +50,7 @@
     <!-- Header Section -->
     <div class="text-center mb-8">
         <div class="mb-6 flex justify-center">
-            <img src="{{ asset('image/logo-RPL.jpg') }}" class="h-24 w-auto object-contain" alt="Logo">
+            <img src="{{ asset('image/rplmini.png') }}" class="h-20 w-auto object-contain" alt="Logo">
         </div>
         <h1 class="text-2xl font-bold tracking-tight text-zinc-900">LabRPL AdminPanel</h1>
         <p class="text-sm text-zinc-500 mt-2 max-w-sm mx-auto">Sistem Informasi Laboratorium Rekayasa Perangkat Lunak -
@@ -96,7 +96,7 @@
 
                 <div class="flex items-center justify-between py-2">
                     <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="checkbox" name="remember"
+                        <input type="checkbox" name="remember" value="1" @checked(old('remember'))
                             class="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900 transition-all cursor-pointer">
                         <span class="text-sm text-zinc-600 group-hover:text-zinc-900 transition-colors">Ingat
                             saya</span>
