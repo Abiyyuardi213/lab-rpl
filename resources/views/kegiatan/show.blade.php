@@ -178,10 +178,17 @@
                                     Pantau terus halaman ini dan Portal Praktikan untuk update event menarik di Lab RPL
                                     ITATS.
                                 </p>
-                                <a href="{{ route('login.praktikan') }}"
-                                    class="block w-full py-4 px-6 bg-white text-blue-600 rounded-xl text-center text-sm font-bold hover:bg-blue-50 transition-colors shadow-lg shadow-black/10">
-                                    Masuk Portal Praktikan
-                                </a>
+                                @guest
+                                    <a href="{{ route('login.praktikan') }}"
+                                        class="block w-full py-4 px-6 bg-white text-blue-600 rounded-xl text-center text-sm font-bold hover:bg-blue-50 transition-colors shadow-lg shadow-black/10">
+                                        Masuk Portal Praktikan
+                                    </a>
+                                @else
+                                    <a href="{{ route('dashboard.redirect') }}"
+                                        class="block w-full py-4 px-6 bg-white text-blue-600 rounded-xl text-center text-sm font-bold hover:bg-blue-50 transition-colors shadow-lg shadow-black/10">
+                                        Ke Dashboard
+                                    </a>
+                                @endguest
                             </div>
                         </div>
 

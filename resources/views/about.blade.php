@@ -23,10 +23,17 @@
                         class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-12 px-8 py-2 shadow-lg shadow-[#1a4fa0]/25">
                         Visi & Misi
                     </a>
-                    <a href="{{ route('login.praktikan') }}"
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all hover:scale-105 hover:bg-slate-100 h-12 px-8 py-2 border-2 border-slate-200 text-slate-700 bg-white">
-                        Masuk Portal
-                    </a>
+                    @guest
+                        <a href="{{ route('login.praktikan') }}"
+                            class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all hover:scale-105 hover:bg-slate-100 h-12 px-8 py-2 border-2 border-slate-200 text-slate-700 bg-white">
+                            Masuk Portal
+                        </a>
+                    @else
+                        <a href="{{ route('dashboard.redirect') }}"
+                            class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all hover:scale-105 hover:bg-slate-100 h-12 px-8 py-2 border-2 border-slate-200 text-slate-700 bg-white">
+                            Ke Dashboard
+                        </a>
+                    @endguest
                 </div>
                 <div class="w-16 h-1 bg-[#1a4fa0] mt-4 rounded-full"></div>
             </div>

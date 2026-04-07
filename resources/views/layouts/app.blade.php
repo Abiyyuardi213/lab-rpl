@@ -150,10 +150,17 @@
                 </nav>
 
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('login.praktikan') }}"
-                        class="hidden sm:inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-10 px-6 py-2 shadow-sm shadow-blue-900/10">
-                        Portal Login
-                    </a>
+                    @guest
+                        <a href="{{ route('login.praktikan') }}"
+                            class="hidden sm:inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-10 px-6 py-2 shadow-sm shadow-blue-900/10">
+                            Portal Login
+                        </a>
+                    @else
+                        <a href="{{ route('dashboard.redirect') }}"
+                            class="hidden sm:inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-10 px-6 py-2 shadow-sm shadow-blue-900/10">
+                            Ke Dashboard
+                        </a>
+                    @endguest
                     <button type="button" id="mobile-menu-btn"
                         class="bg-[#1a4fa0] md:hidden inline-flex items-center justify-center rounded-md px-3 py-2 text-white hover:bg-[#1a4fa0]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         aria-label="Buka menu">
@@ -188,12 +195,21 @@
                             </a>
                         </li>
                     @endforeach
-                    <li class="mt-2">
-                        <a href="{{ route('login.praktikan') }}"
-                            class="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-10 px-4 py-2">
-                            Masuk Portal
-                        </a>
-                    </li>
+                    @guest
+                        <li class="mt-2">
+                            <a href="{{ route('login.praktikan') }}"
+                                class="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-10 px-4 py-2">
+                                Masuk Portal
+                            </a>
+                        </li>
+                    @else
+                        <li class="mt-2">
+                            <a href="{{ route('dashboard.redirect') }}"
+                                class="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-10 px-4 py-2">
+                                Dashboard
+                            </a>
+                        </li>
+                    @endguest
                 </ul>
             </nav>
         </div>

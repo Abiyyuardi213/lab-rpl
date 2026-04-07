@@ -62,10 +62,17 @@
                     mencetak praktikan yang kompeten dalam pengembangan perangkat lunak di ITATS.
                 </p>
                 <div class="flex flex-wrap items-center gap-4 mt-2">
-                    <a href="{{ route('login.praktikan') }}"
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-12 px-8 py-2 shadow-lg shadow-[#1a4fa0]/25">
-                        <i class="fas fa-sign-in-alt mr-2"></i> Masuk Portal
-                    </a>
+                    @guest
+                        <a href="{{ route('login.praktikan') }}"
+                            class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-12 px-8 py-2 shadow-lg shadow-[#1a4fa0]/25">
+                            <i class="fas fa-sign-in-alt mr-2"></i> Masuk Portal
+                        </a>
+                    @else
+                        <a href="{{ route('dashboard.redirect') }}"
+                            class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-12 px-8 py-2 shadow-lg shadow-[#1a4fa0]/25">
+                            <i class="fas fa-tachometer-alt mr-2"></i> Ke Dashboard
+                        </a>
+                    @endguest
                     <a href="#tentang"
                         class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all hover:scale-105 hover:bg-slate-100 h-12 px-8 py-2 border-2 border-slate-200 text-slate-700 bg-white">
                         Pelajari Lebih Lanjut
@@ -144,9 +151,15 @@
                 <h2 class="text-3xl font-extrabold text-slate-900">Akses Cepat</h2>
                 <p class="text-slate-500 mt-2">Layanan utama Sistem Informasi Laboratorium RPL.</p>
             </div>
-            <a href="{{ route('login.praktikan') }}" class="text-primary font-bold hover:underline flex items-center gap-2">
-                Masuk ke Dashboard <i class="fas fa-arrow-right text-xs"></i>
-            </a>
+            @guest
+                <a href="{{ route('login.praktikan') }}" class="text-primary font-bold hover:underline flex items-center gap-2">
+                    Masuk ke Dashboard <i class="fas fa-arrow-right text-xs"></i>
+                </a>
+            @else
+                <a href="{{ route('dashboard.redirect') }}" class="text-primary font-bold hover:underline flex items-center gap-2">
+                    Ke Dashboard <i class="fas fa-arrow-right text-xs"></i>
+                </a>
+            @endguest
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             @php
