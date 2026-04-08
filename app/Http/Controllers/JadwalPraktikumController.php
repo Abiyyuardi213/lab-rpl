@@ -10,19 +10,21 @@ class JadwalPraktikumController extends Controller
 {
     public function index()
     {
-        $jadwals = JadwalPraktikum::with('praktikum')
+        $jadwals = JadwalPraktikum::with(['praktikum', 'sesi'])
             ->orderBy('tanggal', 'desc')
             ->orderBy('waktu_mulai', 'desc')
             ->get();
         $praktikums = Praktikum::where('status_praktikum', '!=', 'finished')->get();
+        $sesis = \App\Models\SesiPraktikum::orderBy('nama_sesi')->get();
 
-        return view('admin.jadwal_praktikum.index', compact('jadwals', 'praktikums'));
+        return view('admin.jadwal_praktikum.index', compact('jadwals', 'praktikums', 'sesis'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'praktikum_id' => 'required|exists:praktikums,id',
+            'sesi_id' => 'nullable|exists:sesi_praktikums,id',
             'judul_modul' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'waktu_mulai' => 'required',
@@ -43,6 +45,7 @@ class JadwalPraktikumController extends Controller
 
         $request->validate([
             'praktikum_id' => 'required|exists:praktikums,id',
+            'sesi_id' => 'nullable|exists:sesi_praktikums,id',
             'judul_modul' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'waktu_mulai' => 'required',

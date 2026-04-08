@@ -8,6 +8,7 @@ class JadwalPraktikum extends Model
 {
     protected $fillable = [
         'praktikum_id',
+        'sesi_id',
         'judul_modul',
         'tanggal',
         'waktu_mulai',
@@ -19,6 +20,11 @@ class JadwalPraktikum extends Model
     public function praktikum()
     {
         return $this->belongsTo(Praktikum::class);
+    }
+
+    public function sesi()
+    {
+        return $this->belongsTo(SesiPraktikum::class, 'sesi_id');
     }
 
     public function presensis()

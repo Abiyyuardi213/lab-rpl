@@ -166,6 +166,14 @@ class PresensiController extends Controller
             return response()->json(['success' => false, 'message' => 'Praktikan sudah melakukan presensi.'], 400);
         }
 
+        // --- Enforcement: Session Match ---
+        if ($jadwal->sesi_id && $pendaftaran->sesi_id !== $jadwal->sesi_id) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Sesi Anda (' . ($pendaftaran->sesi->nama_sesi ?? 'N/A') . ') tidak sesuai dengan jadwal ini.'
+            ], 400);
+        }
+
         // Check-in logic
         $status = 'hadir';
         $waktuMulai = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $jadwal->waktu_mulai);
@@ -337,6 +345,11 @@ class PresensiController extends Controller
 
         if ($alreadyPresent) {
             return redirect()->route('praktikan.dashboard')->with('info', 'Anda sudah melakukan presensi.');
+        }
+
+        // --- Enforcement: Session Match ---
+        if ($jadwal->sesi_id && $pendaftaran->sesi_id !== $jadwal->sesi_id) {
+            return redirect()->route('praktikan.dashboard')->with('error', 'Sesi Anda tidak sesuai dengan jadwal ini. Silakan presensi di sesi Anda masing-masing.');
         }
 
         // --- RULE CHECK: Asistensi Above Modul 1 ---

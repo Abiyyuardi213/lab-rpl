@@ -98,10 +98,21 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 font-medium">
-                                    <span
-                                        class="px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600 text-[10px] font-black uppercase tracking-wider border border-zinc-200">
-                                        {{ $jadwal->judul_modul }}
-                                    </span>
+                                    <div class="flex flex-col gap-1">
+                                        <span
+                                            class="px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600 text-[10px] font-black uppercase tracking-wider border border-zinc-200 w-fit">
+                                            {{ $jadwal->judul_modul }}
+                                        </span>
+                                        @if($jadwal->sesi)
+                                            <span class="text-[10px] text-indigo-600 font-bold uppercase tracking-tight">
+                                                <i class="fas fa-users mr-1"></i>{{ $jadwal->sesi->nama_sesi }}
+                                            </span>
+                                        @else
+                                            <span class="text-[10px] text-zinc-400 font-medium uppercase tracking-tight">
+                                                <i class="fas fa-globe mr-1"></i>Semua Sesi
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col">
@@ -170,16 +181,27 @@
                         @csrf
                         <input type="hidden" name="_method" id="formMethod" value="POST">
 
-                        <div class="space-y-2">
-                            <label class="text-xs font-bold text-zinc-700 uppercase tracking-tight">Pilih Praktikum</label>
-                            <select name="praktikum_id" id="modal_praktikum_id" required
-                                class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none font-medium">
-                                <option value="">-- Pilih Praktikum --</option>
-                                @foreach ($praktikums as $p)
-                                    <option value="{{ $p->id }}">{{ $p->nama_praktikum }}
-                                        ({{ $p->kode_praktikum }})</option>
-                                @endforeach
-                            </select>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-zinc-700 uppercase tracking-tight">Praktikum</label>
+                                <select name="praktikum_id" id="modal_praktikum_id" required onchange="filterSessions()"
+                                    class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none font-medium">
+                                    <option value="">-- Pilih --</option>
+                                    @foreach ($praktikums as $p)
+                                        <option value="{{ $p->id }}">{{ $p->nama_praktikum }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold text-zinc-700 uppercase tracking-tight">Sesi (Opsional)</label>
+                                <select name="sesi_id" id="modal_sesi_id"
+                                    class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none font-medium">
+                                    <option value="">Semua Sesi</option>
+                                    @foreach ($sesis as $s)
+                                        <option value="{{ $s->id }}" data-praktikum="{{ $s->praktikum_id }}">{{ $s->nama_sesi }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
 
                         <div class="space-y-2">
@@ -302,6 +324,7 @@
             $('#formMethod').val('POST');
             $('#jadwalForm').attr('action', "{{ route('admin.jadwal-praktikum.store') }}");
             $('#jadwalForm')[0].reset();
+            filterSessions();
             $('#jadwalModal').removeClass('hidden');
         }
 
@@ -311,6 +334,9 @@
             $('#jadwalForm').attr('action', `/admin/jadwal-praktikum/${jadwal.id}`);
 
             $('#modal_praktikum_id').val(jadwal.praktikum_id);
+            filterSessions(); // Filter dulu biar option muncul
+            $('#modal_sesi_id').val(jadwal.sesi_id);
+            
             $('#modal_judul_modul').val(jadwal.judul_modul);
             $('#modal_tanggal').val(jadwal.tanggal);
             $('#modal_waktu_mulai').val(jadwal.waktu_mulai);
@@ -318,6 +344,28 @@
             $('#modal_ruangan').val(jadwal.ruangan);
 
             $('#jadwalModal').removeClass('hidden');
+        }
+
+        function filterSessions() {
+            const praktikumId = $('#modal_praktikum_id').val();
+            const sesiSelect = $('#modal_sesi_id');
+            const options = sesiSelect.find('option');
+
+            options.each(function() {
+                const opt = $(this);
+                if (opt.val() === "") {
+                    opt.show();
+                } else if (opt.data('praktikum') == praktikumId) {
+                    opt.show();
+                } else {
+                    opt.hide();
+                }
+            });
+
+            // Reset selection if current selected is hidden
+            if (sesiSelect.find('option:selected').css('display') === 'none') {
+                sesiSelect.val("");
+            }
         }
 
         function closeModal() {
