@@ -55,7 +55,7 @@ class PenugasanController extends Controller
             $penugasan->is_accessible = $isAccessible;
         }
 
-        return view('praktikan.penugasan.index', compact('penugasans'));
+        return view('praktikan.penugasan.index', compact('penugasans', 'pendaftarans'));
     }
 
     public function show($id)

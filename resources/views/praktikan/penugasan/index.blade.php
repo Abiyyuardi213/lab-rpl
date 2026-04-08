@@ -42,6 +42,20 @@
                         <p class="text-xs font-black text-white mt-1.5 uppercase leading-none">{{ $now->locale('id')->dayName }}</p>
                     </div>
                 </div>
+                <div class="h-8 w-px bg-zinc-800"></div>
+                <div class="flex items-center gap-3">
+                    <div class="h-8 w-8 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-400">
+                        <i class="fas fa-users text-xs"></i>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none">Sesi Terdaftar</p>
+                        <p class="text-xs font-black text-white mt-1.5 uppercase leading-none">
+                            {{ $pendaftarans->map(function($p) {
+                                return $p->sesi->nama_sesi . ' (' . substr($p->sesi->jam_mulai, 0, 5) . ' - ' . substr($p->sesi->jam_selesai, 0, 5) . ')';
+                            })->unique()->implode(', ') ?: 'Tidak Ada Sesi' }}
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
 
