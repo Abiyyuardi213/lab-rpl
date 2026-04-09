@@ -36,6 +36,22 @@ class PenugasanController extends Controller
         $filePath = null;
         if ($request->hasFile('file_soal')) {
             $filePath = $request->file('file_soal')->store('penugasan_soal', 'public');
+        } elseif ($request->filled('file_url')) {
+            try {
+                $url = $request->file_url;
+                $contents = file_get_contents($url);
+                if ($contents !== false) {
+                    $name = basename(parse_url($url, PHP_URL_PATH)) ?: 'downloaded_file';
+                    $extension = pathinfo($name, PATHINFO_EXTENSION);
+                    if (!$extension) {
+                        // Try to guess from content type? For now just keep it.
+                    }
+                    $filePath = 'penugasan_soal/' . uniqid() . '_' . $name;
+                    Storage::disk('public')->put($filePath, $contents);
+                }
+            } catch (\Exception $e) {
+                // Ignore or log error
+            }
         }
 
         Penugasan::create([
@@ -68,6 +84,21 @@ class PenugasanController extends Controller
                 Storage::disk('public')->delete($penugasan->file_soal);
             }
             $data['file_soal'] = $request->file('file_soal')->store('penugasan_soal', 'public');
+        } elseif ($request->filled('file_url')) {
+            try {
+                $url = $request->file_url;
+                $contents = file_get_contents($url);
+                if ($contents !== false) {
+                    if ($penugasan->file_soal) {
+                        Storage::disk('public')->delete($penugasan->file_soal);
+                    }
+                    $name = basename(parse_url($url, PHP_URL_PATH)) ?: 'downloaded_file';
+                    $data['file_soal'] = 'penugasan_soal/' . uniqid() . '_' . $name;
+                    Storage::disk('public')->put($data['file_soal'], $contents);
+                }
+            } catch (\Exception $e) {
+                // Ignore or log error
+            }
         }
 
         $penugasan->update($data);

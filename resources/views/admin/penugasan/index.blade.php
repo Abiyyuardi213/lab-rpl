@@ -172,8 +172,26 @@
                 </div>
                 <div class="space-y-1.5">
                     <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">File Soal (Opsional)</label>
-                    <input type="file" name="file_soal"
-                        class="flex w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1.5 text-xs shadow-sm transition-all file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-[#001f3f] file:text-white hover:file:bg-[#002d5a]">
+                    <div id="drop-zone" class="relative group border-2 border-dashed border-zinc-200 rounded-xl p-5 transition-all hover:border-[#001f3f] hover:bg-zinc-50/50 flex flex-col items-center justify-center gap-3 cursor-pointer bg-zinc-50/50 overflow-hidden">
+                        <input type="file" name="file_soal" id="file_soal_tambah"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                        <div class="flex flex-col items-center gap-2 pointer-events-none text-center">
+                            <div class="h-12 w-12 rounded-2xl bg-white border border-zinc-100 shadow-sm flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                <i class="fas fa-file-upload text-xl text-zinc-400 group-hover:text-[#001f3f]"></i>
+                            </div>
+                            <div class="space-y-0.5">
+                                <p class="text-[11px] font-bold text-zinc-500 group-hover:text-zinc-900 transition-colors uppercase tracking-widest" id="file-label-tambah">Seret & Lepas File ke Sini</p>
+                                <p class="text-[10px] text-zinc-400">Atau klik untuk pilih dari folder</p>
+                            </div>
+                            <p class="text-[9px] text-zinc-400 font-medium italic pt-1">PDF, DOCX, ZIP, RAR, atau Gambar (Maks 5MB)</p>
+                        </div>
+                        <!-- Progress indicator (hidden by default) -->
+                        <div id="progress-tambah" class="absolute inset-0 bg-white/90 backdrop-blur-sm z-30 hidden items-center justify-center flex-col gap-3">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#001f3f]"></div>
+                            <p class="text-[10px] font-bold text-[#001f3f] uppercase tracking-widest">Mengambil file...</p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="file_url" id="file_url_tambah">
                 </div>
                 <div class="pt-4 flex items-center justify-end gap-3">
                     <button type="button" onclick="document.getElementById('modal-penugasan').classList.add('hidden')"
@@ -230,8 +248,26 @@
                 </div>
                 <div class="space-y-1.5">
                     <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">File Soal (Opsional)</label>
-                    <input type="file" name="file_soal"
-                        class="flex w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1.5 text-xs shadow-sm transition-all file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-amber-600 file:text-white hover:file:bg-amber-700">
+                    <div id="drop-zone-edit" class="relative group border-2 border-dashed border-zinc-200 rounded-xl p-5 transition-all hover:border-amber-500 hover:bg-amber-50/50 flex flex-col items-center justify-center gap-3 cursor-pointer bg-zinc-50/50 overflow-hidden">
+                        <input type="file" name="file_soal" id="file_soal_edit"
+                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                        <div class="flex flex-col items-center gap-2 pointer-events-none text-center">
+                            <div class="h-12 w-12 rounded-2xl bg-white border border-zinc-100 shadow-sm flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                                <i class="fas fa-file-edit text-xl text-zinc-400 group-hover:text-amber-500"></i>
+                            </div>
+                            <div class="space-y-0.5">
+                                <p class="text-[11px] font-bold text-zinc-500 group-hover:text-zinc-900 transition-colors uppercase tracking-widest" id="file-label-edit">Seret & Lepas File ke Sini</p>
+                                <p class="text-[10px] text-zinc-400">Atau klik untuk pilih dari folder</p>
+                            </div>
+                            <p class="text-[9px] text-zinc-400 font-medium italic pt-1">Kosongkan jika tidak ingin mengubah file</p>
+                        </div>
+                        <!-- Progress indicator (hidden by default) -->
+                        <div id="progress-edit" class="absolute inset-0 bg-white/90 backdrop-blur-sm z-30 hidden items-center justify-center flex-col gap-3">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500"></div>
+                            <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Mengambil file...</p>
+                        </div>
+                    </div>
+                    <input type="hidden" name="file_url" id="file_url_edit">
                 </div>
                 <div class="pt-4 flex items-center justify-end gap-3">
                     <button type="button" onclick="document.getElementById('modal-edit-penugasan').classList.add('hidden')"
@@ -328,7 +364,92 @@
                     table.page.len($(this).val()).draw();
                 });
             }
+
+            // Setup drop zones
+            setupDropZone('drop-zone', 'file_soal_tambah', 'file-label-tambah', 'progress-tambah');
+            setupDropZone('drop-zone-edit', 'file_soal_edit', 'file-label-edit', 'progress-edit');
         });
+
+        function setupDropZone(dropZoneId, inputId, labelId, progressId) {
+            const dropZone = document.getElementById(dropZoneId);
+            const input = document.getElementById(inputId);
+            const label = document.getElementById(labelId);
+            const progress = document.getElementById(progressId);
+            const hiddenUrlInput = document.getElementById(inputId.replace('file_soal', 'file_url'));
+
+            if (!dropZone || !input) return;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('border-zinc-400', 'bg-zinc-100/80');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('border-zinc-400', 'bg-zinc-100/80');
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', async (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files && files.length > 0) {
+                    input.files = files;
+                    label.textContent = files[0].name;
+                    if (hiddenUrlInput) hiddenUrlInput.value = '';
+                } else {
+                    // Try to handle dragging from external websites (URL)
+                    const url = dt.getData('text/uri-list') || dt.getData('text/plain');
+                    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                        // Reset file input
+                        input.value = '';
+                        
+                        if (hiddenUrlInput) {
+                            hiddenUrlInput.value = url;
+                            const fileName = url.split('/').pop().split('?')[0] || 'file-external';
+                            label.textContent = "URL: " + fileName;
+                        }
+
+                        // Try to fetch for validation/better UI if CORS allows
+                        try {
+                            progress.style.display = 'flex';
+                            const response = await fetch(url);
+                            if (response.ok) {
+                                const blob = await response.blob();
+                                const fileName = url.split('/').pop().split('?')[0] || 'file-external';
+                                const file = new File([blob], fileName, { type: blob.type || 'application/octet-stream' });
+                                
+                                const container = new DataTransfer();
+                                container.items.add(file);
+                                input.files = container.files;
+                                label.textContent = file.name;
+                                if (hiddenUrlInput) hiddenUrlInput.value = ''; // Use file instead
+                            }
+                        } catch (err) {
+                            console.log("CORS blocked fetch, will use URL for backend download");
+                        } finally {
+                            progress.style.display = 'none';
+                        }
+                    }
+                }
+            }, false);
+
+            input.addEventListener('change', () => {
+                if (input.files.length > 0) {
+                    label.textContent = input.files[0].name;
+                    if (hiddenUrlInput) hiddenUrlInput.value = '';
+                }
+            });
+        }
 
         function openEditModal(id, kodeNpm, judul, deskripsi) {
             const form = document.getElementById('form-edit-penugasan');
@@ -336,6 +457,12 @@
             document.getElementById('edit-kode-npm').value = kodeNpm;
             document.getElementById('edit-judul').value = judul;
             document.getElementById('edit-deskripsi').value = deskripsi;
+            
+            // Reset file input, label, and hidden URL
+            document.getElementById('file_soal_edit').value = '';
+            document.getElementById('file_url_edit').value = '';
+            document.getElementById('file-label-edit').textContent = "Seret & Lepas File ke Sini";
+            
             document.getElementById('modal-edit-penugasan').classList.remove('hidden');
         }
 
