@@ -20,7 +20,7 @@
         <!-- Penugasan Table Container -->
         <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden min-h-[500px]">
             <div class="p-6 pb-4 flex items-center justify-between gap-4 border-b border-zinc-100">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-1">
                         <div class="relative max-w-sm w-full">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
                             <input type="text" id="customSearch" placeholder="Cari penugasan..."
@@ -44,7 +44,6 @@
                             @endfor
                         </select>
                     </div>
-                </div>
                 <div class="flex items-center gap-2">
                     <select id="customLength"
                         class="h-9 rounded-md border border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
