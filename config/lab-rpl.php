@@ -2,10 +2,10 @@
 
 return [
     'kepala_lab' => [
-        'nama' => 'Dosen Pengampu, S.Kom., M.T.',
+        'nama' => 'Septiyawan Rosetya Wardhana, S.Kom.,M.Kom.',
         'nip' => '123456789',
         'jabatan' => 'Kepala Laboratorium RPL',
-        'foto' => 'image/default-dosen.jpg', // Path ke foto jika ada
+        'foto' => 'image/default-dosen.jpg',
     ],
     'kontak' => [
         'email' => 'lab.basprog@itats.ac.id',

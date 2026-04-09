@@ -20,11 +20,29 @@
         <!-- Penugasan Table Container -->
         <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden min-h-[500px]">
             <div class="p-6 pb-4 flex items-center justify-between gap-4 border-b border-zinc-100">
-                <div class="flex items-center gap-2 flex-1">
-                    <div class="relative max-w-sm w-full">
-                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
-                        <input type="text" id="customSearch" placeholder="Cari penugasan..."
-                            class="flex h-9 w-full rounded-md border border-zinc-200 bg-transparent px-3 py-1 pl-9 text-sm shadow-sm transition-colors placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+                    <div class="flex items-center gap-2">
+                        <div class="relative max-w-sm w-full">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+                            <input type="text" id="customSearch" placeholder="Cari penugasan..."
+                                class="flex h-9 w-full rounded-md border border-zinc-200 bg-transparent px-3 py-1 pl-9 text-sm shadow-sm transition-colors placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+                        </div>
+                        <select id="filterSesi"
+                            class="h-9 rounded-md border border-zinc-200 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+                            <option value="">Semua Sesi</option>
+                            @php
+                                $uniqueSesis = $praktikums->flatMap->sesis->pluck('nama_sesi')->unique()->sort();
+                            @endphp
+                            @foreach ($uniqueSesis as $sesi)
+                                <option value="{{ $sesi }}">{{ $sesi }}</option>
+                            @endforeach
+                        </select>
+                        <select id="filterNpm"
+                            class="h-9 rounded-md border border-zinc-200 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+                            <option value="">Semua NPM</option>
+                            @for ($i = 0; $i <= 9; $i++)
+                                <option value="{{ $i }}">Digit: {{ $i }}</option>
+                            @endfor
+                        </select>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
@@ -362,6 +380,15 @@
 
                 $('#customLength').on('change', function() {
                     table.page.len($(this).val()).draw();
+                });
+
+                $('#filterSesi').on('change', function() {
+                    table.column(1).search(this.value).draw();
+                });
+
+                $('#filterNpm').on('change', function() {
+                    // Use exact match for NPM digit
+                    table.column(2).search(this.value ? '^\\s*' + this.value + '\\s*$' : '', true, false).draw();
                 });
             }
 
