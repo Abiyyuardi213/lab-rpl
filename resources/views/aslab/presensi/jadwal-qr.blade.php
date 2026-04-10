@@ -172,6 +172,7 @@
                                 <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">NPM</th>
                                 <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Waktu Scan</th>
                                 <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Status</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
@@ -208,6 +209,12 @@
                                                 {{ $presensi->status }}
                                             </span>
                                         @endif
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button onclick="deletePresensi('{{ $presensi->id }}', '{{ $presensi->pendaftaran->praktikan->user->name }}')" 
+                                                class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                            <i class="fas fa-trash-alt text-[10px]"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -315,6 +322,48 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Gagal', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Terjadi kesalahan sistem.', 'error');
+                });
+            }
+        });
+    }
+
+    function deletePresensi(presensiId, name) {
+        Swal.fire({
+            title: 'Batalkan Presensi?',
+            text: `Apakah Anda yakin ingin membatalkan kehadiran ${name}? Tindakan ini tidak dapat dibatalkan.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Batalkan!',
+            cancelButtonText: 'Kembali'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`{{ route("presensi.destroy", "") }}/${presensiId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Dibatalkan',
                             text: data.message,
                             timer: 1500,
                             showConfirmButton: false

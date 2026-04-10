@@ -272,6 +272,30 @@ class PresensiController extends Controller
         ]);
     }
 
+    public function destroy($id)
+    {
+        $presensi = Presensi::with('jadwal')->findOrFail($id);
+        $user = Auth::user();
+
+        // Authorization check
+        if ($user->role->name === 'Aslab') {
+            $aslab = $user->aslab;
+            $isAssigned = $aslab->praktikums()->where('praktikum_id', $presensi->jadwal->praktikum_id)->exists();
+            if (!$isAssigned) {
+                return response()->json(['success' => false, 'message' => 'Anda tidak ditugaskan di praktikum ini.'], 403);
+            }
+        } elseif ($user->role->name !== 'Admin') {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
+        $presensi->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Presensi berhasil dibatalkan.'
+        ]);
+    }
+
     public function generateJadwalQR($jadwal_id)
     {
         $user = Auth::user();
