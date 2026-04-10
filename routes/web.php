@@ -155,6 +155,7 @@ Route::middleware('auth')->group(function () {
 
     // Common Presensi Routes (Admin & Aslab)
     Route::get('/presensi/generate-jadwal-qr/{jadwal_id}', [PresensiController::class, 'generateJadwalQR'])->name('presensi.generate-jadwal-qr');
+    Route::post('/presensi/manual', [PresensiController::class, 'storeManual'])->name('presensi.manual');
     Route::get('/presensi/download-jadwal-pdf/{jadwal_id}', [PresensiController::class, 'downloadJadwalPDF'])->name('presensi.download-jadwal-pdf');
 
     // Aslab Section

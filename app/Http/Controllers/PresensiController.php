@@ -228,11 +228,55 @@ class PresensiController extends Controller
         return response()->json(['present' => $present]);
     }
 
+    public function storeManual(Request $request)
+    {
+        $request->validate([
+            'jadwal_id' => 'required|exists:jadwal_praktikums,id',
+            'pendaftaran_id' => 'required|exists:pendaftaran_praktikums,id',
+            'status' => 'required|in:hadir,terlambat'
+        ]);
+
+        $user = Auth::user();
+        $jadwal = JadwalPraktikum::findOrFail($request->jadwal_id);
+
+        // Authorization check
+        if ($user->role->name === 'Aslab') {
+            $aslab = $user->aslab;
+            $isAssigned = $aslab->praktikums()->where('praktikum_id', $jadwal->praktikum_id)->exists();
+            if (!$isAssigned) {
+                return response()->json(['success' => false, 'message' => 'Anda tidak ditugaskan di praktikum ini.'], 403);
+            }
+        } elseif ($user->role->name !== 'Admin') {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
+        // Check already present
+        $alreadyPresent = Presensi::where('jadwal_id', $jadwal->id)
+            ->where('pendaftaran_id', $request->pendaftaran_id)
+            ->exists();
+
+        if ($alreadyPresent) {
+            return response()->json(['success' => false, 'message' => 'Praktikan sudah melakukan presensi.'], 400);
+        }
+
+        $presensi = Presensi::create([
+            'jadwal_id' => $jadwal->id,
+            'pendaftaran_id' => $request->pendaftaran_id,
+            'jam_masuk' => now(),
+            'status' => $request->status
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Presensi manual berhasil dicatat.'
+        ]);
+    }
+
     public function generateJadwalQR($jadwal_id)
     {
         $user = Auth::user();
         
-        $jadwal = JadwalPraktikum::with('praktikum')->findOrFail($jadwal_id);
+        $jadwal = JadwalPraktikum::with(['praktikum', 'presensis.pendaftaran.praktikan.user'])->findOrFail($jadwal_id);
         
         // Authorization check
         if ($user->role->name === 'Aslab') {
@@ -259,7 +303,18 @@ class PresensiController extends Controller
             ->errorCorrection('H')
             ->generate($qrUrl);
 
-        return view('aslab.presensi.jadwal-qr', compact('qrCode', 'qrUrl', 'jadwal'));
+        $presentPendaftaranIds = $jadwal->presensis->pluck('pendaftaran_id');
+        
+        $notPresentStudents = PendaftaranPraktikum::with('praktikan.user')
+            ->where('praktikum_id', $jadwal->praktikum_id)
+            ->where('status', 'verified')
+            ->whereNotIn('id', $presentPendaftaranIds)
+            ->get()
+            ->sortBy(function($p) {
+                return $p->praktikan->user->name;
+            });
+
+        return view('aslab.presensi.jadwal-qr', compact('qrCode', 'qrUrl', 'jadwal', 'notPresentStudents'));
     }
 
     public function downloadJadwalPDF($jadwal_id)
