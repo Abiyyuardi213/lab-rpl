@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Traits\HasActivityLog;
 use Illuminate\Http\Request;
 use App\Models\JadwalPraktikum;
 use App\Models\PendaftaranPraktikum;
@@ -14,6 +15,8 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PresensiController extends Controller
 {
+    use HasActivityLog;
+
     public function generateQR($jadwal_id)
     {
         $user = Auth::user();
@@ -266,6 +269,12 @@ class PresensiController extends Controller
             'status' => $request->status
         ]);
 
+        $this->logActivity(
+            'Manual Attendance', 
+            "Recorded manual attendance for student in " . $jadwal->judul_modul,
+            ['pendaftaran_id' => $request->pendaftaran_id, 'status' => $request->status]
+        );
+
         return response()->json([
             'success' => true,
             'message' => 'Presensi manual berhasil dicatat.'
@@ -289,6 +298,12 @@ class PresensiController extends Controller
         }
 
         $presensi->delete();
+
+        $this->logActivity(
+            'Cancel Attendance', 
+            "Cancelled attendance for a student in " . $presensi->jadwal->judul_modul,
+            ['presensi_id' => $id, 'jadwal_id' => $presensi->jadwal_id]
+        );
 
         return response()->json([
             'success' => true,

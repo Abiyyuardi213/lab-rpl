@@ -188,6 +188,8 @@
                         </button>
                         <div
                             class="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-100 rounded-xl shadow-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
+                            <a href="{{ route('admin.logs.index') }}"
+                                class="block px-4 py-2 text-sm {{ request()->is('admin/logs*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Log Aktivitas</a>
                             <a href="{{ route('admin.pengumuman.index') }}"
                                 class="block px-4 py-2 text-sm {{ request()->is('admin/pengumuman*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Pengumuman</a>
                             <a href="{{ route('admin.notifications.create') }}"
@@ -397,6 +399,8 @@
                 <a href="{{ route('admin.pengumuman.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/pengumuman*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Pengumuman</a>
+                <a href="{{ route('admin.logs.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/logs*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Log Aktivitas</a>
                 <a href="{{ route('admin.penugasan.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/penugasan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Penugasan</a>
