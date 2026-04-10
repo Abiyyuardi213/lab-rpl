@@ -34,10 +34,23 @@ class DashboardController extends Controller
         if ($praktikan) {
             $activePendaftarans = $praktikan->pendaftarans()
                 ->where('status', 'verified')
-                ->with(['praktikum', 'sesi', 'tugasAsistensis' => function ($q) {
-                    $q->orderBy('created_at', 'asc');
-                }])
-                ->get();
+                ->with(['praktikum', 'sesi', 'presensis'])
+                ->withCount('presensis')
+                ->get()
+                ->map(function ($pendaftaran) {
+                    $praktikum = $pendaftaran->praktikum;
+                    $totalModules = $praktikum->jumlah_modul;
+                    $hasFinalProject = $praktikum->ada_tugas_akhir;
+                    
+                    $totalSteps = $totalModules + ($hasFinalProject ? 1 : 0);
+                    $completedSteps = $pendaftaran->presensis_count;
+                    
+                    $pendaftaran->progress_percentage = $totalSteps > 0 
+                        ? min(100, round(($completedSteps / $totalSteps) * 100)) 
+                        : 0;
+                    
+                    return $pendaftaran;
+                });
 
             $pendaftaranIds = $activePendaftarans->pluck('praktikum_id');
 

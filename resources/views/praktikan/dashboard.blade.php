@@ -84,8 +84,8 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     @foreach ($activePendaftarans as $ap)
                         <div
-                            class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col p-6 space-y-4">
-                            <div class="flex items-center justify-between border-b border-slate-50 pb-4">
+                            class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col p-6 space-y-5">
+                            <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-3">
                                     <div class="bg-[#001f3f]/5 p-2 rounded-xl text-[#001f3f]">
                                         <i class="fas fa-book-reader"></i>
@@ -97,45 +97,66 @@
                                             Aslab: {{ $ap->aslab->user->name ?? 'Belum Ditugaskan' }}</p>
                                     </div>
                                 </div>
-                                <a href="{{ route('praktikan.pendaftaran.progress', $ap->id) }}"
-                                    class="text-[10px] font-black text-[#001f3f] uppercase hover:underline">Detail</a>
+                                <div class="text-right">
+                                    <span class="text-2xl font-black text-slate-900 tracking-tighter">{{ $ap->progress_percentage }}%</span>
+                                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Progress</p>
+                                </div>
                             </div>
 
-                            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                                @forelse($ap->tugasAsistensis as $idx => $t)
-                                    <div class="flex items-center flex-none group">
-                                        <div class="relative flex flex-col items-center gap-2 min-w-[70px]">
-                                            @php
-                                                $statusColor = match ($t->status) {
-                                                    'reviewed' => 'bg-emerald-500 text-white border-emerald-500',
-                                                    'submitted' => 'bg-amber-100 text-amber-600 border-amber-200',
-                                                    default => 'bg-slate-50 text-slate-400 border-slate-200',
-                                                };
-                                                $icon = match ($t->status) {
-                                                    'reviewed' => 'fa-check-double',
-                                                    'submitted' => 'fa-arrow-up',
-                                                    default => 'fa-hourglass-start',
-                                                };
-                                            @endphp
-                                            <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 text-xs font-black {{ $statusColor }} transition-all"
-                                                title="{{ $t->status }}">
-                                                <i class="fas {{ $icon }}"></i>
+                            <!-- Progress Bar -->
+                            <div class="space-y-2">
+                                <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 p-0.5">
+                                    <div class="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out shadow-sm shadow-emerald-500/20"
+                                        style="width: {{ $ap->progress_percentage }}%">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                                    <span>Hadir: {{ $ap->presensis_count }} Sesi</span>
+                                    <span>Target: {{ $ap->praktikum->jumlah_modul + ($ap->praktikum->ada_tugas_akhir ? 1 : 0) }} Sesi</span>
+                                </div>
+                            </div>
+
+                            <hr class="border-slate-50">
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide flex-grow mr-4">
+                                    @forelse($ap->tugasAsistensis as $idx => $t)
+                                        <div class="flex items-center flex-none group">
+                                            <div class="relative flex flex-col items-center gap-2 min-w-[70px]">
+                                                @php
+                                                    $statusColor = match ($t->status) {
+                                                        'reviewed' => 'bg-emerald-500 text-white border-emerald-500',
+                                                        'submitted' => 'bg-amber-100 text-amber-600 border-amber-200',
+                                                        default => 'bg-slate-50 text-slate-400 border-slate-200',
+                                                    };
+                                                    $icon = match ($t->status) {
+                                                        'reviewed' => 'fa-check-double',
+                                                        'submitted' => 'fa-arrow-up',
+                                                        default => 'fa-hourglass-start',
+                                                    };
+                                                @endphp
+                                                <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 text-[10px] font-black {{ $statusColor }} transition-all"
+                                                    title="{{ $t->status }}">
+                                                    <i class="fas {{ $icon }}"></i>
+                                                </div>
+                                                <span
+                                                    class="text-[8px] font-black text-slate-400 uppercase tracking-tighter truncate max-w-[60px]">{{ $t->judul }}</span>
                                             </div>
-                                            <span
-                                                class="text-[9px] font-black text-slate-400 uppercase tracking-tighter truncate max-w-[60px]">{{ $t->judul }}</span>
+                                            @if (!$loop->last)
+                                                <div
+                                                    class="w-6 h-0.5 {{ $t->status == 'reviewed' ? 'bg-emerald-500' : 'bg-slate-100' }}">
+                                                </div>
+                                            @endif
                                         </div>
-                                        @if (!$loop->last)
-                                            <div
-                                                class="w-8 h-0.5 {{ $t->status == 'reviewed' ? 'bg-emerald-500' : 'bg-slate-100' }}">
-                                            </div>
-                                        @endif
-                                    </div>
-                                @empty
-                                    <div class="py-4 w-full text-center">
-                                        <p class="text-[10px] text-slate-400 font-bold uppercase italic tracking-widest">
-                                            Belum ada tugas dari aslab</p>
-                                    </div>
-                                @endforelse
+                                    @empty
+                                        <p class="text-[9px] text-slate-400 font-bold uppercase italic tracking-widest">
+                                            Menunggu tugas asistensi...</p>
+                                    @endforelse
+                                </div>
+                                <a href="{{ route('praktikan.pendaftaran.progress', $ap->id) }}"
+                                    class="shrink-0 h-10 px-4 bg-slate-50 text-slate-600 text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-[#001f3f] hover:text-white transition-all flex items-center justify-center border border-slate-100">
+                                    Detail
+                                </a>
                             </div>
                         </div>
                     @endforeach
