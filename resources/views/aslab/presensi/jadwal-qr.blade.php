@@ -351,7 +351,7 @@
             cancelButtonText: 'Kembali'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`{{ route("presensi.destroy", "") }}/${presensiId}`, {
+                fetch(`{{ url('presensi') }}/${presensiId}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
