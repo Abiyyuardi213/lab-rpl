@@ -3,59 +3,64 @@
 @section('title', 'Pilih Jadwal Modul')
 
 @section('content')
-    <div class="space-y-8">
-        <!-- Breadcrumbs -->
-        <div class="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
-            <a href="{{ route('admin.penilaian.index') }}" class="hover:text-slate-900 transition-colors">Pusat Penilaian</a>
-            <i class="fas fa-chevron-right text-[8px]"></i>
-            <span class="text-slate-900">{{ $praktikum->nama_praktikum }}</span>
-        </div>
-
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div class="space-y-6">
+        <!-- Header Section -->
+        <div class="flex items-start justify-between">
             <div>
-                <h1 class="text-3xl font-black text-slate-900 uppercase tracking-tight">{{ $praktikum->nama_praktikum }}</h1>
-                <p class="text-slate-500 font-medium">Pilih modul/jadwal untuk melihat daftar presensi dan memberikan penilaian.</p>
+                <h1 class="text-2xl font-bold tracking-tight text-zinc-900 uppercase">{{ $praktikum->nama_praktikum }}</h1>
+                <p class="text-sm text-zinc-500 mt-1 font-medium italic">"Pilih modul praktikum untuk mengelola penilaian."</p>
+            </div>
+            <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
+                <a href="{{ route('admin.penilaian.index') }}" class="hover:text-zinc-900 transition-colors">Penilaian</a>
+                <span>/</span>
+                <span class="text-zinc-900 font-semibold">{{ $praktikum->kode_praktikum }}</span>
             </div>
         </div>
 
-        <!-- Jadwal List -->
-        <div class="grid grid-cols-1 gap-4">
-            @forelse($praktikum->jadwals as $jadwal)
-                <a href="{{ route('admin.penilaian.jadwal', $jadwal->id) }}" 
-                   class="group bg-white p-6 rounded-3xl border border-slate-200 hover:border-slate-800 hover:shadow-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div class="flex items-center gap-6">
-                        <div class="w-14 h-14 rounded-2xl bg-slate-50 text-slate-400 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-all">
-                            <i class="fas fa-calendar-alt text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                                Modul {{ $loop->remaining + 1 }} • {{ \Carbon\Carbon::parse($jadwal->tanggal)->translatedFormat('d F Y') }}
-                            </p>
-                            <h3 class="text-xl font-black text-slate-900 group-hover:text-slate-900 transition-colors uppercase leading-none">
-                                {{ $jadwal->judul_modul }}
-                            </h3>
-                        </div>
-                    </div>
+        <!-- Jadwal Table / List in Shadcn Style -->
+        <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
+            <div class="p-6 pb-4 border-b border-zinc-100 flex items-center justify-between">
+                 <h3 class="text-sm font-bold text-zinc-500 uppercase tracking-widest leading-none">Daftar Modul / Jadwal Pelaksanaan</h3>
+            </div>
 
-                    <div class="flex items-center gap-6">
-                        <div class="text-right">
-                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Presensi</p>
-                            <div class="flex items-center gap-2 justify-end">
-                                <span class="text-xl font-black text-slate-900">{{ $jadwal->presensis_count }}</span>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Siswa</span>
+            <div class="divide-y divide-zinc-100">
+                @forelse($praktikum->jadwals as $jadwal)
+                    <a href="{{ route('admin.penilaian.jadwal', $jadwal->id) }}" class="flex items-center justify-between p-6 hover:bg-zinc-50/50 transition-colors group">
+                        <div class="flex items-center gap-6">
+                            <div class="w-12 h-12 rounded-xl bg-zinc-100 text-zinc-400 group-hover:bg-zinc-900 group-hover:text-white flex items-center justify-center transition-all shadow-inner border border-zinc-200">
+                                <i class="fas fa-calendar-day text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-base font-bold text-zinc-900 group-hover:text-zinc-900 transition-colors uppercase leading-tight">{{ $jadwal->judul_modul }}</h4>
+                                <p class="text-[11px] font-medium text-zinc-400 mt-1 uppercase tracking-tight">
+                                    {{ \Carbon\Carbon::parse($jadwal->tanggal)->translatedFormat('l, d F Y') }} • {{ substr($jadwal->waktu_mulai, 0, 5) }} WIB
+                                </p>
                             </div>
                         </div>
-                        <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:translate-x-1 transition-transform">
-                            <i class="fas fa-arrow-right"></i>
+
+                        <div class="flex items-center gap-6">
+                            <div class="text-right hidden sm:block">
+                                <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">Presensi Hadir</p>
+                                <div class="flex items-center gap-2 justify-end">
+                                    <span class="text-lg font-black text-zinc-900">{{ $jadwal->presensis_count }}</span>
+                                    <span class="text-[9px] font-bold text-zinc-300 uppercase">Orang</span>
+                                </div>
+                            </div>
+                            <div class="w-8 h-8 rounded-lg bg-zinc-50 flex items-center justify-center text-zinc-300 group-hover:translate-x-1 group-hover:text-zinc-900 transition-all border border-zinc-100">
+                                <i class="fas fa-arrow-right text-[10px]"></i>
+                            </div>
                         </div>
+                    </a>
+                @empty
+                    <div class="flex flex-col items-center justify-center py-24 text-zinc-400">
+                        <div class="h-20 w-20 rounded-full bg-zinc-50 flex items-center justify-center mb-4 border border-zinc-100 shadow-inner">
+                            <i class="fas fa-calendar-alt text-3xl opacity-20"></i>
+                        </div>
+                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-zinc-400">Jadwal Kosong</h3>
+                        <p class="text-[10px] italic mt-1 font-medium tracking-tight">Belum ada jadwal pelaksanaan untuk praktikum ini.</p>
                     </div>
-                </a>
-            @empty
-                <div class="py-20 text-center bg-white rounded-3xl border border-dashed border-slate-300">
-                    <i class="fas fa-calendar-times text-4xl text-slate-200 mb-4"></i>
-                    <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Belum Ada Jadwal Modul</p>
-                </div>
-            @endforelse
+                @endforelse
+            </div>
         </div>
     </div>
 @endsection

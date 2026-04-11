@@ -3,125 +3,105 @@
 @section('title', 'Detail Penilaian')
 
 @section('content')
-    <div class="space-y-8">
-        <!-- Breadcrumbs -->
-        <div class="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
-            <a href="{{ route('admin.penilaian.index') }}" class="hover:text-slate-900 transition-colors">Pusat Penilaian</a>
-            <i class="fas fa-chevron-right text-[8px]"></i>
-            <a href="{{ route('admin.penilaian.praktikum', $jadwal->praktikum_id) }}" class="hover:text-slate-900 transition-colors">{{ $jadwal->praktikum->nama_praktikum }}</a>
-            <i class="fas fa-chevron-right text-[8px]"></i>
-            <span class="text-slate-900">{{ $jadwal->judul_modul }}</span>
-        </div>
-
-        <!-- Info Header -->
-        <div class="bg-white rounded-[2.5rem] p-6 md:p-10 border border-slate-200 shadow-xl shadow-slate-200/50">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div class="space-y-4">
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-3 mb-2">
-                             <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[9px] font-black uppercase">Admin Authority</span>
-                        </div>
-                        <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-none uppercase">
-                            {{ $jadwal->judul_modul }}
-                        </h1>
-                        <p class="text-[11px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.2em]">
-                             {{ \Carbon\Carbon::parse($jadwal->tanggal)->translatedFormat('d F Y') }} • {{ $jadwal->praktikum->nama_praktikum }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bg-slate-50 border border-slate-100 px-8 py-4 rounded-3xl text-right">
-                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Entri Presensi</p>
-                    <div class="flex items-center gap-2 justify-end">
-                        <span class="text-3xl font-black text-slate-900">{{ $presensis->count() }}</span>
-                        <span class="text-[10px] font-bold text-slate-400 uppercase">Siswa</span>
-                    </div>
-                </div>
+    <div class="space-y-6">
+        <!-- Header Section -->
+        <div class="flex items-start justify-between">
+            <div class="space-y-1">
+                <h1 class="text-2xl font-bold tracking-tight text-zinc-900 uppercase">{{ $jadwal->judul_modul }}</h1>
+                <p class="text-sm text-zinc-500 font-medium italic">"{{ $jadwal->praktikum->nama_praktikum }} • {{ \Carbon\Carbon::parse($jadwal->tanggal)->translatedFormat('d F Y') }}"</p>
+            </div>
+            <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
+                <a href="{{ route('admin.penilaian.praktikum', $jadwal->praktikum_id) }}" class="hover:text-zinc-900 transition-colors">{{ $jadwal->praktikum->kode_praktikum }}</a>
+                <span>/</span>
+                <span class="text-zinc-900 font-semibold">Detail Nilai</span>
             </div>
         </div>
 
-        <!-- Student List -->
-        <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
-            <div class="p-8 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/10">
-                <div>
-                    <h3 class="text-lg font-black text-slate-900 uppercase tracking-tight">Daftar Praktikan</h3>
-                    <p class="text-xs text-slate-400 font-medium italic">Klik tombol nilai untuk menginput/mengubah nilai meskipun sesi telah berakhir.</p>
+        @if (session('success'))
+            <div
+                class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl text-sm flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                <i class="fas fa-check-circle"></i>
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <!-- Table Container in Shadcn Style -->
+        <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
+            <div class="p-6 pb-4 flex items-center justify-between gap-4 border-b border-zinc-100 bg-zinc-50/50">
+                <div class="flex items-center gap-2 flex-1">
+                    <div class="relative max-w-sm w-full">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+                        <input type="text" id="adminSearch" placeholder="Cari praktikan..."
+                            class="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 pl-9 text-sm shadow-sm transition-colors placeholder:text-zinc-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+                    </div>
                 </div>
-                <div class="relative group">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors"></i>
-                    <input type="text" id="adminSearch" placeholder="Cari Nama atau NPM..." 
-                           class="pl-11 pr-6 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium w-full md:w-80 focus:ring-4 focus:ring-slate-100 focus:border-slate-800 transition-all outline-none">
+                <div class="text-right">
+                     <span class="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Total Siswa: {{ $presensis->count() }}</span>
                 </div>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full" id="adminTable">
-                    <thead>
-                        <tr class="bg-slate-50/50 border-b border-slate-100">
-                            <th class="px-10 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Praktikan</th>
-                            <th class="px-10 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sesi / Status Presensi</th>
-                            <th class="px-10 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Skor Saat Ini</th>
-                            <th class="px-10 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Aksi</th>
+                <table id="adminTable" class="w-full text-sm text-left">
+                    <thead class="bg-zinc-50 border-b border-zinc-100 text-zinc-500 font-medium h-10">
+                        <tr>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Praktikan</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Status Presensi</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-center">Skor</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-zinc-100">
                         @forelse($presensis as $presensi)
                             @php
                                 $praktikan = $presensi->pendaftaran->praktikan;
                                 $nilai = $presensi->penilaian;
-                                $statusColor = match($presensi->status) {
-                                    'hadir' => 'bg-emerald-50 text-emerald-600 border-emerald-100',
-                                    'izin', 'sakit' => 'bg-amber-50 text-amber-600 border-amber-100',
-                                    default => 'bg-rose-50 text-rose-600 border-rose-100',
+                                $statusClass = match($presensi->status) {
+                                    'hadir' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                                    'izin', 'sakit' => 'bg-amber-50 text-amber-700 border-amber-100',
+                                    default => 'bg-zinc-100 text-zinc-600 border-zinc-200',
                                 };
                             @endphp
-                            <tr class="hover:bg-slate-50/50 transition-colors group">
-                                <td class="px-10 py-6">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-lg">
+                            <tr class="hover:bg-zinc-50/50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded bg-zinc-900 text-white flex items-center justify-center font-bold text-xs">
                                             {{ substr($praktikan->nama, 0, 1) }}
                                         </div>
                                         <div>
-                                            <p class="text-sm font-black text-slate-900">{{ $praktikan->nama }}</p>
-                                            <p class="text-[11px] font-mono text-slate-400">{{ $praktikan->npm }}</p>
+                                            <span class="font-semibold text-zinc-900 block leading-tight">{{ $praktikan->nama }}</span>
+                                            <span class="text-[10px] text-zinc-400 font-mono">{{ $praktikan->npm }}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-10 py-6">
-                                    <div class="flex flex-col gap-2">
-                                        <span class="text-[10px] font-bold text-slate-600 uppercase">{{ $presensi->pendaftaran->sesi->nama_sesi }}</span>
-                                        <span class="inline-flex items-center justify-center px-2 py-0.5 rounded border {{ $statusColor }} text-[8px] font-black uppercase w-fit">
-                                            {{ $presensi->status }}
-                                        </span>
-                                    </div>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border {{ $statusClass }}">
+                                        {{ $presensi->status }}
+                                    </span>
                                 </td>
-                                <td class="px-10 py-6 text-center">
+                                <td class="px-6 py-4 text-center">
                                     @if($nilai)
-                                        <div class="flex flex-col items-center gap-1">
-                                            <span class="text-xl font-black text-slate-900">{{ $nilai->nilai }}</span>
-                                            @if($nilai->aslab_id)
-                                                <span class="text-[8px] font-bold text-slate-400 uppercase">Dinilai oleh Aslab</span>
-                                            @else
-                                                <span class="text-[8px] font-bold text-emerald-500 uppercase italic">Dinilai oleh Admin</span>
-                                            @endif
+                                        <div class="flex flex-col items-center">
+                                            <span class="text-sm font-black text-zinc-900">{{ $nilai->nilai }}</span>
+                                            <span class="text-[8px] font-bold text-zinc-400 uppercase tracking-tighter">
+                                                {{ $nilai->aslab_id ? 'By Aslab' : 'By Admin' }}
+                                            </span>
                                         </div>
                                     @else
-                                        <span class="text-xs font-bold text-slate-300 italic uppercase">N/A</span>
+                                        <span class="text-xs text-zinc-300 italic">-</span>
                                     @endif
                                 </td>
-                                <td class="px-10 py-6 text-center">
-                                    <button type="button" 
-                                            onclick="openAdminModal('{{ $presensi->id }}', '{{ $praktikan->nama }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
-                                            class="inline-flex items-center gap-2 px-6 py-2.5 bg-slate-900 text-white text-[11px] font-black rounded-xl hover:bg-slate-800 transition-all shadow-lg group-hover:scale-105">
-                                        <i class="fas fa-edit"></i>
-                                        BERI NILAI
+                                <td class="px-6 py-4 text-right">
+                                    <button onclick="openAdminModal('{{ $presensi->id }}', '{{ $praktikan->nama }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
+                                            class="inline-flex h-8 items-center justify-center rounded-md border border-zinc-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-zinc-50 transition-colors">
+                                        <i class="fas fa-edit mr-2 text-[10px]"></i>
+                                        Beri Nilai
                                     </button>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-10 py-20 text-center">
-                                     <p class="text-sm font-medium text-slate-300 uppercase tracking-widest">Tidak ada data presensi</p>
+                                <td colspan="4" class="px-6 py-20 text-center text-zinc-400">
+                                    Belum ada data presensi.
                                 </td>
                             </tr>
                         @endforelse
@@ -131,48 +111,41 @@
         </div>
     </div>
 
-    <!-- Admin Grading Modal -->
+    <!-- Admin Grading Modal (Shadcn Style) -->
     <div id="adminModal" class="fixed inset-0 z-[100] hidden overflow-y-auto outline-none">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" onclick="closeAdminModal()"></div>
+            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeAdminModal()"></div>
             
-            <div class="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl transition-all transform py-10 px-8">
-                <div class="text-center space-y-4 mb-10">
-                    <div class="w-20 h-20 bg-slate-900 text-white rounded-3xl flex items-center justify-center text-3xl font-black mx-auto shadow-2xl mb-6">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-900 uppercase">Input Nilai Admin</h2>
-                        <p class="text-slate-400 font-medium" id="adminStudentName"></p>
-                    </div>
+            <div class="relative bg-white w-full max-w-lg rounded-xl shadow-2xl transition-all transform p-6">
+                <div class="flex flex-col space-y-1.5 text-center sm:text-left mb-6">
+                    <h3 class="text-lg font-semibold leading-none tracking-tight">Input Nilai Praktikum</h3>
+                    <p class="text-sm text-zinc-500" id="adminStudentName"></p>
                 </div>
 
-                <form action="{{ route('admin.penilaian.store') }}" method="POST" class="space-y-8">
+                <form action="{{ route('admin.penilaian.store') }}" method="POST" class="space-y-4">
                     @csrf
                     <input type="hidden" name="presensi_id" id="adminPresensiId">
                     
-                    <div class="space-y-6">
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Skor Akhir (0-100)</label>
-                            <input type="number" name="nilai" id="adminScoreInput" required min="0" max="100" placeholder="Skor"
-                                   class="w-full px-8 py-5 bg-slate-50 border border-slate-200 rounded-3xl text-2xl font-black focus:ring-4 focus:ring-slate-50 focus:border-slate-800 outline-none transition-all">
-                        </div>
-
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Catatan Perubahan</label>
-                            <textarea name="catatan" id="adminNotesInput" rows="3" placeholder="Alasan pemberian/perubahan nilai..."
-                                      class="w-full p-6 bg-slate-50 border border-slate-200 rounded-3xl text-sm font-medium focus:ring-4 focus:ring-slate-50 focus:border-slate-800 outline-none transition-all"></textarea>
-                        </div>
+                    <div class="space-y-2 text-left">
+                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Skor (0-100)</label>
+                        <input type="number" name="nilai" id="adminScoreInput" required min="0" max="100"
+                               class="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2 text-left">
+                        <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Catatan Perubahan (Opsional)</label>
+                        <textarea name="catatan" id="adminNotesInput" rows="3"
+                                  class="flex min-h-[80px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"></textarea>
+                    </div>
+
+                    <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2">
                         <button type="button" onclick="closeAdminModal()"
-                                class="py-5 bg-slate-100 text-slate-500 rounded-3xl text-[11px] font-black uppercase hover:bg-slate-200 transition-all">
+                                class="inline-flex h-10 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium ring-offset-white transition-colors hover:bg-zinc-100 hover:text-zinc-900">
                             Batal
                         </button>
                         <button type="submit"
-                                class="py-5 bg-slate-900 text-white rounded-3xl text-[11px] font-black uppercase hover:bg-slate-800 transition-all shadow-xl">
-                            Simpan Perubahan
+                                class="inline-flex h-10 items-center justify-center rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-50 shadow hover:bg-zinc-900/90 transition-colors">
+                            Simpan Nilai
                         </button>
                     </div>
                 </form>
