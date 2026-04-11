@@ -43,7 +43,7 @@ class PenilaianController extends Controller
         // Admin can see students who had presence record.
         // User asked for "penilaian berdasarkan presensi" 
         // We show all presence records for this schedule (Hadir, Izin, Sakit, Alpa) because Admin might want to grade them after the fact.
-        $presensis = Presensi::with(['pendaftaran.praktikan.user', 'penilaian'])
+        $presensis = Presensi::with(['pendaftaran.praktikan.user', 'pendaftaran.sesi', 'penilaian'])
             ->where('jadwal_id', $jadwal_id)
             ->get();
 

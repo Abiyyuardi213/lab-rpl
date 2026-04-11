@@ -47,6 +47,7 @@
                             <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-center w-16">Foto</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">NPM</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Nama Praktikan</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Sesi Terdaftar</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Status</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-center">Skor</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-right">Aksi</th>
@@ -57,6 +58,7 @@
                             @php
                                 $praktikan = $presensi->pendaftaran->praktikan;
                                 $user = $praktikan->user;
+                                $sesi = $presensi->pendaftaran->sesi;
                                 $nilai = $presensi->penilaian;
                                 $statusClass = match($presensi->status) {
                                     'hadir' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
@@ -76,6 +78,12 @@
                                      <span class="font-semibold text-zinc-900 block leading-tight">{{ $user->name }}</span>
                                 </td>
                                 <td class="px-6 py-4">
+                                     <div class="flex flex-col">
+                                         <span class="text-[10px] font-black text-zinc-700 uppercase leading-none">{{ $sesi->nama_sesi }}</span>
+                                         <span class="text-[9px] text-zinc-400 font-medium mt-1">{{ substr($sesi->jam_mulai, 0, 5) }} - {{ substr($sesi->jam_selesai, 0, 5) }}</span>
+                                     </div>
+                                </td>
+                                <td class="px-6 py-4">
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border {{ $statusClass }}">
                                         {{ $presensi->status }}
                                     </span>
@@ -93,11 +101,23 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <button onclick="openAdminModal('{{ $presensi->id }}', '{{ $user->name }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
-                                            class="inline-flex h-8 items-center justify-center rounded-md border border-zinc-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-zinc-50 transition-colors">
-                                        <i class="fas fa-edit mr-2 text-[10px]"></i>
-                                        Beri Nilai
-                                    </button>
+                                    @if($user)
+                                        <button type="button" 
+                                                data-id="{{ $presensi->id }}"
+                                                data-name="{{ $user->name }}"
+                                                data-nilai="{{ $nilai ? $nilai->nilai : '' }}"
+                                                data-catatan="{{ $nilai ? $nilai->catatan : '' }}"
+                                                onclick="initGrading(this)"
+                                                class="inline-flex h-8 items-center justify-center rounded-md border border-zinc-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-zinc-50 transition-colors">
+                                            <i class="fas fa-edit mr-2 text-[10px]"></i>
+                                            Beri Nilai
+                                        </button>
+                                    @else
+                                        <div class="text-[10px] text-rose-500 font-bold uppercase py-2 bg-rose-50 rounded px-2 border border-rose-100 flex items-center gap-2">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            Data User Hilang
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
@@ -156,6 +176,14 @@
     </div>
 
     <script>
+        function initGrading(btn) {
+            const id = btn.getAttribute('data-id');
+            const name = btn.getAttribute('data-name');
+            const nilai = btn.getAttribute('data-nilai');
+            const catatan = btn.getAttribute('data-catatan');
+            openAdminModal(id, name, nilai, catatan);
+        }
+
         function openAdminModal(presensiId, studentName, currentNilai, currentCatatan) {
             document.getElementById('adminPresensiId').value = presensiId;
             document.getElementById('adminStudentName').textContent = studentName;
