@@ -152,6 +152,12 @@ Route::middleware('auth')->group(function () {
         Route::get('logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('logs.index');
         Route::get('logs/{id}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'show'])->name('logs.show');
 
+        // Penilaian Praktikum (Admin)
+        Route::get('/penilaian', [\App\Http\Controllers\Admin\PenilaianController::class, 'index'])->name('penilaian.index');
+        Route::get('/penilaian/praktikum/{id}', [\App\Http\Controllers\Admin\PenilaianController::class, 'showPraktikum'])->name('penilaian.praktikum');
+        Route::get('/penilaian/jadwal/{id}', [\App\Http\Controllers\Admin\PenilaianController::class, 'showJadwal'])->name('penilaian.jadwal');
+        Route::post('/penilaian', [\App\Http\Controllers\Admin\PenilaianController::class, 'store'])->name('penilaian.store');
+
         // Broadcast Notification
         Route::get('notifications/create', [\App\Http\Controllers\Admin\NotificationController::class, 'create'])->name('notifications.create');
         Route::post('notifications/send', [\App\Http\Controllers\Admin\NotificationController::class, 'send'])->name('notifications.send');

@@ -160,6 +160,8 @@
                                 class="block px-4 py-2 text-sm {{ request()->is('admin/pendaftaran*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Pendaftaran</a>
                             <a href="{{ route('admin.presensi.index') }}"
                                 class="block px-4 py-2 text-sm {{ request()->is('admin/presensi*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Presensi</a>
+                            <a href="{{ route('admin.penilaian.index') }}"
+                                class="block px-4 py-2 text-sm {{ request()->is('admin/penilaian*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Penilaian</a>
                         </div>
                     </div>
 
@@ -400,6 +402,9 @@
                 <a href="{{ route('admin.presensi.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/presensi*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Riwayat
                     Presensi</a>
+                <a href="{{ route('admin.penilaian.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/penilaian*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    Penilaian</a>
                 <a href="{{ route('admin.pendaftaran.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/pendaftaran*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Pendaftaran</a>
