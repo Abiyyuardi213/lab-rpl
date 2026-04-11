@@ -86,6 +86,13 @@
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('aslab/penugasan*') ? 'w-full' : '' }}"></span>
                     </a>
 
+                    <a href="{{ route('aslab.penilaian.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('aslab/penilaian*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Penilaian Live
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('aslab/penilaian*') ? 'w-full' : '' }}"></span>
+                    </a>
+
                     <a href="{{ route('aslab.presensi.scan') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('aslab/presensi*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                         Scanner Presensi
@@ -362,6 +369,9 @@
                 <a href="{{ route('aslab.penugasan.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/penugasan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Penugasan
                     Sesi</a>
+                <a href="{{ route('aslab.penilaian.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/penilaian*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Penilaian
+                    Live</a>
                 <a href="{{ route('aslab.presensi.scan') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/presensi*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Scanner
                     Presensi</a>

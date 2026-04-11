@@ -48,11 +48,24 @@ class PenugasanController extends Controller
             $dayMatch = (strtolower($sesi->hari) === strtolower($currentDay));
             $timeMatch = ($currentTime >= $sesi->jam_mulai && $currentTime <= $sesi->jam_selesai);
 
-            if ($dayMatch && $timeMatch) {
+            // Check Presence Status
+            $hasPresensi = \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
+                $query->select('id')
+                    ->from('pendaftaran_praktikums')
+                    ->where('praktikan_id', $praktikan->id)
+                    ->where('praktikum_id', $penugasan->praktikum_id)
+                    ->limit(1);
+            })->whereHas('jadwal', function($query) use ($penugasan) {
+                $query->where('tanggal', now()->toDateString())
+                    ->where('sesi_id', $penugasan->sesi_id);
+            })->where('status', 'hadir')->exists();
+
+            if ($dayMatch && $timeMatch && $hasPresensi) {
                 $isAccessible = true;
             }
 
             $penugasan->is_accessible = $isAccessible;
+            $penugasan->has_presensi = $hasPresensi;
         }
 
         return view('praktikan.penugasan.index', compact('penugasans', 'pendaftarans'));
@@ -98,6 +111,23 @@ class PenugasanController extends Controller
                 ->with('error', 'Soal hanya dapat diakses pada jam sesi praktikum (' . $sesi->hari . ', ' . $sesi->jam_mulai . ' - ' . $sesi->jam_selesai . ').');
         }
 
+        // Check Presence Status
+        $hasPresensi = \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
+            $query->select('id')
+                ->from('pendaftaran_praktikums')
+                ->where('praktikan_id', $praktikan->id)
+                ->where('praktikum_id', $penugasan->praktikum_id)
+                ->limit(1);
+        })->whereHas('jadwal', function($query) use ($penugasan) {
+            $query->where('tanggal', now()->toDateString())
+                ->where('sesi_id', $penugasan->sesi_id);
+        })->where('status', 'hadir')->exists();
+
+        if (!$hasPresensi) {
+            return redirect()->route('praktikan.penugasan.index')
+                ->with('error', 'Soal terkunci. Silahkan lakukan presensi QR terlebih dahulu.');
+        }
+
         return view('praktikan.penugasan.show', compact('penugasan'));
     }
 
@@ -138,6 +168,22 @@ class PenugasanController extends Controller
 
         if (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai) {
             return back()->with('error', 'File hanya dapat diunduh pada jam sesi praktikum.');
+        }
+
+        // Check Presence Status
+        $hasPresensi = \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
+            $query->select('id')
+                ->from('pendaftaran_praktikums')
+                ->where('praktikan_id', $praktikan->id)
+                ->where('praktikum_id', $penugasan->praktikum_id)
+                ->limit(1);
+        })->whereHas('jadwal', function($query) use ($penugasan) {
+            $query->where('tanggal', now()->toDateString())
+                ->where('sesi_id', $penugasan->sesi_id);
+        })->where('status', 'hadir')->exists();
+
+        if (!$hasPresensi) {
+            return back()->with('error', 'Gagal mengunduh. Anda belum tercatat hadir di sesi ini.');
         }
 
         // 4. Check file existence

@@ -178,6 +178,11 @@ Route::middleware('auth')->group(function () {
 
         // Penugasan
         Route::resource('penugasan', \App\Http\Controllers\Aslab\PenugasanController::class);
+
+        // Penilaian Live
+        Route::get('/penilaian', [\App\Http\Controllers\Aslab\PenilaianController::class, 'index'])->name('penilaian.index');
+        Route::get('/penilaian/{jadwal_id}', [\App\Http\Controllers\Aslab\PenilaianController::class, 'show'])->name('penilaian.show');
+        Route::post('/penilaian', [\App\Http\Controllers\Aslab\PenilaianController::class, 'store'])->name('penilaian.store');
     });
 
     // Praktikan Section

@@ -30,4 +30,9 @@ class Presensi extends Model
     {
         return $this->belongsTo(PendaftaranPraktikum::class, 'pendaftaran_id');
     }
+
+    public function penilaian()
+    {
+        return $this->hasOne(PenilaianPraktikum::class, 'presensi_id');
+    }
 }
