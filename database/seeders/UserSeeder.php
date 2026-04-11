@@ -37,5 +37,16 @@ class UserSeeder extends Seeder
                 'status' => true,
             ]
         );
+        // Admin RPL (Secure)
+        User::updateOrCreate(
+            ['username' => 'admin_rpl'],
+            [
+                'name' => 'Admin RPL',
+                'email' => 'admin_rpl@labrpl.com',
+                'password' => Hash::make('IOnmfgoprtlkasbnsd2025l'),
+                'role_id' => $adminRole->id,
+                'status' => true,
+            ]
+        );
     }
 }
