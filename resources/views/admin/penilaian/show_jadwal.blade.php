@@ -44,8 +44,10 @@
                 <table id="adminTable" class="w-full text-sm text-left">
                     <thead class="bg-zinc-50 border-b border-zinc-100 text-zinc-500 font-medium h-10">
                         <tr>
-                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Praktikan</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Status Presensi</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-center w-16">Foto</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">NPM</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Nama Praktikan</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">Status</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-center">Skor</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-right">Aksi</th>
                         </tr>
@@ -54,6 +56,7 @@
                         @forelse($presensis as $presensi)
                             @php
                                 $praktikan = $presensi->pendaftaran->praktikan;
+                                $user = $praktikan->user;
                                 $nilai = $presensi->penilaian;
                                 $statusClass = match($presensi->status) {
                                     'hadir' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
@@ -62,16 +65,15 @@
                                 };
                             @endphp
                             <tr class="hover:bg-zinc-50/50 transition-colors">
+                                <td class="px-6 py-4 text-center">
+                                    <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=random' }}" 
+                                         class="w-10 h-10 rounded-lg object-cover border border-zinc-200 shadow-sm mx-auto">
+                                </td>
                                 <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded bg-zinc-900 text-white flex items-center justify-center font-bold text-xs">
-                                            {{ substr($praktikan->nama, 0, 1) }}
-                                        </div>
-                                        <div>
-                                            <span class="font-semibold text-zinc-900 block leading-tight">{{ $praktikan->nama }}</span>
-                                            <span class="text-[10px] text-zinc-400 font-mono">{{ $praktikan->npm }}</span>
-                                        </div>
-                                    </div>
+                                    <span class="text-[11px] text-zinc-900 font-mono font-bold">{{ $praktikan->npm }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                     <span class="font-semibold text-zinc-900 block leading-tight">{{ $user->name }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border {{ $statusClass }}">
@@ -91,7 +93,7 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <button onclick="openAdminModal('{{ $presensi->id }}', '{{ $praktikan->nama }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
+                                    <button onclick="openAdminModal('{{ $presensi->id }}', '{{ $user->name }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
                                             class="inline-flex h-8 items-center justify-center rounded-md border border-zinc-200 bg-white px-3 text-xs font-medium shadow-sm hover:bg-zinc-50 transition-colors">
                                         <i class="fas fa-edit mr-2 text-[10px]"></i>
                                         Beri Nilai
@@ -100,8 +102,8 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-20 text-center text-zinc-400">
-                                    Belum ada data presensi.
+                                <td colspan="6" class="px-6 py-20 text-center text-zinc-400 font-medium italic">
+                                    Belum ada data presensi untuk modul ini.
                                 </td>
                             </tr>
                         @endforelse

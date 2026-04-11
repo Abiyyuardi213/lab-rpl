@@ -43,7 +43,7 @@ class PenilaianController extends Controller
         // Admin can see students who had presence record.
         // User asked for "penilaian berdasarkan presensi" 
         // We show all presence records for this schedule (Hadir, Izin, Sakit, Alpa) because Admin might want to grade them after the fact.
-        $presensis = Presensi::with(['pendaftaran.praktikan', 'penilaian'])
+        $presensis = Presensi::with(['pendaftaran.praktikan.user', 'penilaian'])
             ->where('jadwal_id', $jadwal_id)
             ->get();
 
@@ -73,10 +73,10 @@ class PenilaianController extends Controller
 
         $this->logActivity(
             'Penilaian Admin Praktikum',
-            'Admin memberikan nilai ' . $request->nilai . ' kepada ' . $presensi->pendaftaran->praktikan->nama . ' (Modul: ' . $presensi->jadwal->judul_modul . ')',
+            'Admin memberikan nilai ' . $request->nilai . ' kepada ' . $presensi->pendaftaran->praktikan->user->name . ' (Modul: ' . $presensi->jadwal->judul_modul . ')',
             ['presensi_id' => $request->presensi_id, 'nilai' => $request->nilai]
         );
 
-        return back()->with('success', 'Nilai berhasil disimpan untuk ' . $presensi->pendaftaran->praktikan->nama);
+        return back()->with('success', 'Nilai berhasil disimpan untuk ' . $presensi->pendaftaran->praktikan->user->name);
     }
 }
