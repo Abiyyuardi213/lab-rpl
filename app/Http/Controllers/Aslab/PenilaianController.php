@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\JadwalPraktikum;
 use App\Models\Presensi;
 use App\Models\PenilaianPraktikum;
+use App\Models\TugasAsistensi;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Traits\HasActivityLog;
@@ -35,7 +36,8 @@ class PenilaianController extends Controller
         $jadwal = JadwalPraktikum::with(['praktikum', 'sesi'])->findOrFail($jadwal_id);
         
         // Only show students who have checked in (status = hadir)
-        $presensis = Presensi::with(['pendaftaran.praktikan', 'penilaian'])
+        // Load pendaftaran.tugasAsistensis to show existing assistance grades
+        $presensis = Presensi::with(['pendaftaran.praktikan', 'pendaftaran.tugasAsistensis', 'penilaian'])
             ->where('jadwal_id', $jadwal_id)
             ->where('status', 'hadir')
             ->get();
@@ -48,6 +50,7 @@ class PenilaianController extends Controller
         $request->validate([
             'presensi_id' => 'required|exists:presensis,id',
             'nilai' => 'required|integer|min:0|max:100',
+            'nilai_asistensi' => 'nullable|integer|min:0|max:100',
             'catatan' => 'nullable|string',
         ]);
 
@@ -58,7 +61,9 @@ class PenilaianController extends Controller
             return back()->with('error', 'Anda bukan aslab yang terdaftar.');
         }
 
-        $presensi = Presensi::with('jadwal', 'pendaftaran.praktikan')->findOrFail($request->presensi_id);
+        $presensi = Presensi::with(['jadwal', 'pendaftaran.praktikan'])->findOrFail($request->presensi_id);
+        $pendaftaran = $presensi->pendaftaran;
+        $judulModul = $presensi->jadwal->judul_modul;
 
         // Security Check 1: Status must be 'hadir'
         if ($presensi->status !== 'hadir') {
@@ -71,9 +76,7 @@ class PenilaianController extends Controller
              return back()->with('error', 'Penilaian hanya dapat dilakukan pada hari jadwal praktikum berlangsung.');
         }
 
-        // Security Check 3: Check-in time (ensure they actually checked in during the session)
-        // (Optional: can be added if needed)
-
+        // 1. Save Nilai Praktikum (Live)
         PenilaianPraktikum::updateOrCreate(
             ['presensi_id' => $request->presensi_id],
             [
@@ -83,10 +86,26 @@ class PenilaianController extends Controller
             ]
         );
 
+        // 2. Save Nilai Asistensi to TugasAsistensi table (Live Assessment)
+        if ($request->filled('nilai_asistensi')) {
+            TugasAsistensi::updateOrCreate(
+                [
+                    'pendaftaran_id' => $pendaftaran->id,
+                    'judul' => $judulModul
+                ],
+                [
+                    'aslab_id' => $aslab->id,
+                    'nilai' => $request->nilai_asistensi,
+                    'status' => 'reviewed',
+                    'deskripsi' => 'Penilaian asistensi langsung (Live Assessment)'
+                ]
+            );
+        }
+
         $this->logActivity(
             'Penilaian Live Praktikum',
-            'Aslab memberikan nilai ' . $request->nilai . ' kepada ' . $presensi->pendaftaran->praktikan->nama,
-            ['presensi_id' => $request->presensi_id, 'nilai' => $request->nilai]
+            'Aslab memberikan nilai praktikum: ' . $request->nilai . ' & asistensi: ' . ($request->nilai_asistensi ?? '0') . ' kepada ' . $presensi->pendaftaran->praktikan->nama,
+            ['presensi_id' => $request->presensi_id, 'nilai' => $request->nilai, 'nilai_asistensi' => $request->nilai_asistensi]
         );
 
         return back()->with('success', 'Nilai berhasil disimpan untuk ' . $presensi->pendaftaran->praktikan->nama);

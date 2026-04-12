@@ -54,7 +54,8 @@
                         <tr class="bg-slate-50/50 border-b border-slate-100">
                             <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Praktikan</th>
                             <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sesi / NPM Digits</th>
-                            <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Status Penilaian</th>
+                            <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Nilai Live</th>
+                            <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Nilai Asistensi</th>
                             <th class="px-8 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Aksi</th>
                         </tr>
                     </thead>
@@ -63,6 +64,11 @@
                             @php
                                 $praktikan = $presensi->pendaftaran->praktikan;
                                 $nilai = $presensi->penilaian;
+                                // Find assistance grade from TugasAsistensi that matches this module's title
+                                $tugasAsistensi = $presensi->pendaftaran->tugasAsistensis
+                                    ->where('judul', $jadwal->judul_modul)
+                                    ->first();
+                                $nilaiAsistensi = $tugasAsistensi ? $tugasAsistensi->nilai : null;
                             @endphp
                             <tr class="hover:bg-slate-50/80 transition-colors group">
                                 <td class="px-8 py-6">
@@ -89,21 +95,28 @@
                                     @if($nilai)
                                         <div class="flex items-center gap-3">
                                             <span class="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl text-[11px] font-black">
-                                                NILAI: {{ $nilai->nilai }}
+                                                LIVE: {{ $nilai->nilai }}
                                             </span>
                                             @if($nilai->catatan)
                                                 <i class="fas fa-comment-dots text-slate-300 hover:text-[#001f3f] transition-colors cursor-help" title="{{ $nilai->catatan }}"></i>
                                             @endif
                                         </div>
                                     @else
-                                        <span class="px-3 py-1.5 bg-amber-50 text-amber-600 rounded-xl text-[10px] font-black uppercase tracking-wider">
-                                            Belum Dinilai
+                                        <span class="text-[10px] text-slate-300 font-bold uppercase">Kosong</span>
+                                    @endif
+                                </td>
+                                <td class="px-8 py-6">
+                                    @if($nilaiAsistensi !== null)
+                                        <span class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-[11px] font-black">
+                                            ASISTENSI: {{ $nilaiAsistensi }}
                                         </span>
+                                    @else
+                                        <span class="text-[10px] text-slate-300 font-bold uppercase">Kosong</span>
                                     @endif
                                 </td>
                                 <td class="px-8 py-6 text-center">
                                     <button type="button" 
-                                            onclick="openGradingModal('{{ $presensi->id }}', '{{ $praktikan->nama }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
+                                            onclick="openGradingModal('{{ $presensi->id }}', '{{ $praktikan->nama }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilaiAsistensi ?? '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
                                             class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#001f3f] text-white text-[11px] font-black rounded-xl hover:bg-[#002d5a] transition-all shadow-lg shadow-[#001f3f]/10 group-hover:scale-105 active:scale-95">
                                         <i class="fas fa-edit"></i>
                                         {{ $nilai ? 'UPDATE NILAI' : 'INPUT NILAI' }}
@@ -149,12 +162,22 @@
                     <input type="hidden" name="presensi_id" id="modalPresensiId">
                     
                     <div class="space-y-6">
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Skor Praktikum (0-100)</label>
-                            <div class="relative group">
-                                <i class="fas fa-star absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#001f3f] transition-colors"></i>
-                                <input type="number" name="nilai" id="modalScoreInput" required min="0" max="100" placeholder="Contoh: 85"
-                                       class="w-full pl-14 pr-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl text-xl font-black focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] outline-none transition-all placeholder:font-normal placeholder:text-slate-300">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Skor Praktikum (0-100)</label>
+                                <div class="relative group">
+                                    <i class="fas fa-star absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#001f3f] transition-colors"></i>
+                                    <input type="number" name="nilai" id="modalScoreInput" required min="0" max="100" placeholder="Skor"
+                                           class="w-full pl-14 pr-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl text-xl font-black focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] outline-none transition-all placeholder:font-normal placeholder:text-slate-300">
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Asistensi Live (0-100)</label>
+                                <div class="relative group">
+                                    <i class="fas fa-handshake absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors"></i>
+                                    <input type="number" name="nilai_asistensi" id="modalAsistensiInput" min="0" max="100" placeholder="Skor"
+                                           class="w-full pl-14 pr-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl text-xl font-black focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all placeholder:font-normal placeholder:text-slate-300">
+                                </div>
                             </div>
                         </div>
 
@@ -183,10 +206,11 @@
     </div>
 
     <script>
-        function openGradingModal(presensiId, studentName, currentNilai, currentCatatan) {
+        function openGradingModal(presensiId, studentName, currentNilai, currentAsistensi, currentCatatan) {
             document.getElementById('modalPresensiId').value = presensiId;
             document.getElementById('modalStudentName').textContent = studentName;
             document.getElementById('modalScoreInput').value = currentNilai;
+            document.getElementById('modalAsistensiInput').value = currentAsistensi;
             document.getElementById('modalNotesInput').value = currentCatatan;
             
             const modal = document.getElementById('gradingModal');
