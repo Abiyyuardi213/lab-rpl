@@ -3,134 +3,118 @@
 @section('title', 'Penilaian Praktikan')
 
 @section('content')
-    <div class="space-y-8">
-        <!-- Sticky Header & Info -->
-        <div class="bg-white rounded-[2.5rem] p-6 md:p-10 border border-slate-200 shadow-xl shadow-slate-200/50">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div class="space-y-4">
-                    <a href="{{ route('aslab.penilaian.index') }}" class="inline-flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-[#001f3f] transition-colors group">
-                        <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
-                        Kembali ke Jadwal
-                    </a>
-                    <div class="space-y-1">
-                        <h1 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-none uppercase">
-                            {{ $jadwal->judul_modul }}
-                        </h1>
-                        <p class="text-[11px] md:text-xs text-slate-400 font-bold uppercase tracking-[0.2em]">
-                            {{ $jadwal->praktikum->nama_praktikum }} • Room: {{ $jadwal->ruangan ?? 'LAB RPL' }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <div class="bg-slate-50 border border-slate-100 px-6 py-4 rounded-3xl text-right">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status Kehadiran</p>
-                        <div class="flex items-center gap-2 justify-end">
-                            <span class="text-2xl font-black text-[#001f3f]">{{ $presensis->count() }}</span>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase">Hadir</span>
-                        </div>
-                    </div>
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex items-start justify-between">
+            <div>
+                <a href="{{ route('aslab.penilaian.index') }}" class="inline-flex items-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest hover:text-zinc-900 transition-colors group mb-2">
+                    <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+                    Kembali ke Jadwal
+                </a>
+                <h1 class="text-2xl font-bold tracking-tight text-zinc-900 uppercase">{{ $jadwal->judul_modul }}</h1>
+                <p class="text-sm text-zinc-500 mt-1 italic">
+                    {{ $jadwal->praktikum->nama_praktikum }} • Ruangan: {{ $jadwal->ruangan ?? 'LAB RPL' }}
+                </p>
+            </div>
+            <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
+                <div class="bg-zinc-50 border border-zinc-200 px-4 py-2 rounded-lg text-right">
+                    <p class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Hadir</p>
+                    <p class="text-lg font-black text-zinc-900 leading-none">{{ $presensis->count() }}</p>
                 </div>
             </div>
         </div>
 
-        <!-- Student List -->
-        <div class="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden">
-            <div class="p-8 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/30">
+        <!-- Student List Container -->
+        <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden min-h-[400px]">
+            <div class="p-6 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-100 bg-zinc-50/30">
                 <div>
-                    <h3 class="text-lg font-black text-slate-900 uppercase tracking-tight">Daftar Praktikan Hadir</h3>
-                    <p class="text-xs text-slate-400 font-medium">Hanya praktikan yang sudah presensi yang muncul di daftar ini.</p>
+                    <h3 class="text-sm font-bold text-zinc-900 uppercase tracking-tight">Daftar Praktikan Hadir</h3>
+                    <p class="text-xs text-zinc-500 mt-0.5">Berikan penilaian praktikum dan asistensi secara langsung.</p>
                 </div>
                 <div class="relative group">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#001f3f] transition-colors"></i>
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
                     <input type="text" id="studentSearch" placeholder="Cari Nama atau NPM..." 
-                           class="pl-11 pr-6 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium w-full md:w-80 focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] transition-all outline-none">
+                           class="h-9 w-full md:w-64 rounded-md border border-zinc-200 bg-white px-9 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
                 </div>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full" id="studentTable">
-                    <thead>
-                        <tr class="bg-slate-50/50 border-b border-slate-100">
-                            <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Praktikan</th>
-                            <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Sesi / NPM Digits</th>
-                            <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Nilai Live</th>
-                            <th class="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Nilai Asistensi</th>
-                            <th class="px-8 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Aksi</th>
+                <table class="w-full text-sm text-left" id="studentTable">
+                    <thead class="bg-zinc-50 border-b border-zinc-100 text-zinc-500 font-medium h-10">
+                        <tr>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Praktikan</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Sesi</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-center text-[10px] uppercase tracking-wider">Nilai Live</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-center text-[10px] uppercase tracking-wider">Nilai Asistensi</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-right text-[10px] uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-zinc-100 text-zinc-900">
                         @forelse($presensis as $presensi)
                             @php
                                 $praktikan = $presensi->pendaftaran->praktikan;
                                 $nilai = $presensi->penilaian;
-                                // Find assistance grade from TugasAsistensi that matches this module's title
                                 $tugasAsistensi = $presensi->pendaftaran->tugasAsistensis
                                     ->where('judul', $jadwal->judul_modul)
                                     ->first();
                                 $nilaiAsistensi = $tugasAsistensi ? $tugasAsistensi->nilai : null;
                             @endphp
-                            <tr class="hover:bg-slate-50/80 transition-colors group">
-                                <td class="px-8 py-6">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#001f3f] to-[#003366] text-white flex items-center justify-center font-black text-lg shadow-lg shadow-[#001f3f]/20">
+                            <tr class="hover:bg-zinc-50/50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-lg bg-zinc-900 text-white flex items-center justify-center font-bold text-xs">
                                             {{ substr($praktikan->nama, 0, 1) }}
                                         </div>
-                                        <div>
-                                            <p class="text-sm font-black text-slate-900 group-hover:text-[#001f3f] transition-colors">{{ $praktikan->nama }}</p>
-                                            <p class="text-[11px] font-mono text-slate-400">{{ $praktikan->npm }}</p>
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-zinc-900 uppercase tracking-tight">{{ $praktikan->nama }}</span>
+                                            <span class="text-[10px] text-zinc-500 font-mono tracking-wider">{{ $praktikan->npm }}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="px-8 py-6">
-                                    <div class="flex flex-col gap-1">
-                                        <span class="text-[10px] font-bold text-slate-600 uppercase">{{ $presensi->pendaftaran->sesi->nama_sesi }}</span>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-[9px] font-black text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded">NPM Akhir: {{ substr($praktikan->npm, -1) }}</span>
-                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" title="Terverifikasi Hadir"></span>
-                                        </div>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] font-bold text-zinc-600 uppercase">{{ $presensi->pendaftaran->sesi->nama_sesi }}</span>
+                                        <span class="text-[9px] font-medium text-zinc-400">Digit Akhir: {{ substr($praktikan->npm, -1) }}</span>
                                     </div>
                                 </td>
-                                <td class="px-8 py-6">
+                                <td class="px-6 py-4 text-center">
                                     @if($nilai)
-                                        <div class="flex items-center gap-3">
-                                            <span class="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl text-[11px] font-black">
-                                                LIVE: {{ $nilai->nilai }}
+                                        <div class="flex items-center justify-center gap-2">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                                {{ $nilai->nilai }}
                                             </span>
                                             @if($nilai->catatan)
-                                                <i class="fas fa-comment-dots text-slate-300 hover:text-[#001f3f] transition-colors cursor-help" title="{{ $nilai->catatan }}"></i>
+                                                <i class="fas fa-info-circle text-zinc-300 cursor-help" title="{{ $nilai->catatan }}"></i>
                                             @endif
                                         </div>
                                     @else
-                                        <span class="text-[10px] text-slate-300 font-bold uppercase">Kosong</span>
+                                        <span class="text-[10px] text-zinc-300 font-bold uppercase tracking-widest">---</span>
                                     @endif
                                 </td>
-                                <td class="px-8 py-6">
+                                <td class="px-6 py-4 text-center">
                                     @if($nilaiAsistensi !== null)
-                                        <span class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-[11px] font-black">
-                                            ASISTENSI: {{ $nilaiAsistensi }}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-black bg-blue-50 text-blue-600 border border-blue-100">
+                                            {{ $nilaiAsistensi }}
                                         </span>
                                     @else
-                                        <span class="text-[10px] text-slate-300 font-bold uppercase">Kosong</span>
+                                        <span class="text-[10px] text-zinc-300 font-bold uppercase tracking-widest">---</span>
                                     @endif
                                 </td>
-                                <td class="px-8 py-6 text-center">
+                                <td class="px-6 py-4 text-right">
                                     <button type="button" 
                                             onclick="openGradingModal('{{ $presensi->id }}', '{{ $praktikan->nama }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilaiAsistensi ?? '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
-                                            class="inline-flex items-center gap-2 px-6 py-2.5 bg-[#001f3f] text-white text-[11px] font-black rounded-xl hover:bg-[#002d5a] transition-all shadow-lg shadow-[#001f3f]/10 group-hover:scale-105 active:scale-95">
-                                        <i class="fas fa-edit"></i>
-                                        {{ $nilai ? 'UPDATE NILAI' : 'INPUT NILAI' }}
+                                            class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900 text-white text-[10px] font-bold rounded-md hover:bg-zinc-800 transition-all shadow-sm active:scale-95">
+                                        <i class="fas fa-marker mr-1"></i>
+                                        PENILAIAN
                                     </button>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-8 py-20 text-center">
-                                    <div class="flex flex-col items-center justify-center grayscale opacity-50">
-                                        <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                                            <i class="fas fa-user-slash text-2xl text-slate-300"></i>
-                                        </div>
-                                        <p class="text-sm font-medium text-slate-400 uppercase tracking-[0.2em]">Belum Ada Praktikan Hadir</p>
+                                <td colspan="5" class="px-6 py-20 text-center">
+                                    <div class="flex flex-col items-center justify-center opacity-40">
+                                        <i class="fas fa-user-slash text-3xl text-zinc-300 mb-4"></i>
+                                        <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Belum Ada Praktikan Hadir</p>
                                     </div>
                                 </td>
                             </tr>
@@ -142,61 +126,56 @@
     </div>
 
     <!-- Grading Modal -->
-    <div id="gradingModal" class="fixed inset-0 z-[100] hidden overflow-y-auto outline-none">
+    <div id="gradingModal" class="fixed inset-0 z-[100] hidden overflow-y-auto outline-none transition-all duration-300">
         <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeGradingModal()"></div>
+            <div class="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm transition-opacity" onclick="closeGradingModal()"></div>
             
-            <div class="relative bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl transition-all transform py-10 px-8">
-                <div class="text-center space-y-4 mb-10">
-                    <div class="w-20 h-20 bg-[#001f3f] text-white rounded-3xl flex items-center justify-center text-3xl font-black mx-auto shadow-2xl shadow-[#001f3f]/20 mb-6">
-                        <i class="fas fa-check-circle"></i>
+            <div class="relative bg-white w-full max-w-md rounded-xl shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
+                    <div class="flex items-center gap-3">
+                        <div class="h-8 w-8 rounded-lg bg-zinc-900 flex items-center justify-center text-white shadow-lg">
+                            <i class="fas fa-marker text-xs"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-zinc-900 uppercase tracking-tight text-sm">Input Nilai Live</h3>
+                            <p class="text-[10px] text-zinc-500 font-medium truncate max-w-[200px]" id="modalStudentName"></p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 class="text-2xl font-black text-slate-900 uppercase">Input Nilai Live</h2>
-                        <p class="text-slate-400 font-medium" id="modalStudentName"></p>
-                    </div>
+                    <button onclick="closeGradingModal()" class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-zinc-100 text-zinc-400 transition-colors">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
                 </div>
 
-                <form action="{{ route('aslab.penilaian.store') }}" method="POST" class="space-y-8">
+                <form action="{{ route('aslab.penilaian.store') }}" method="POST" class="p-6 space-y-5">
                     @csrf
                     <input type="hidden" name="presensi_id" id="modalPresensiId">
                     
-                    <div class="space-y-6">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-3">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Skor Praktikum (0-100)</label>
-                                <div class="relative group">
-                                    <i class="fas fa-star absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#001f3f] transition-colors"></i>
-                                    <input type="number" name="nilai" id="modalScoreInput" required min="0" max="100" placeholder="Skor"
-                                           class="w-full pl-14 pr-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl text-xl font-black focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] outline-none transition-all placeholder:font-normal placeholder:text-slate-300">
-                                </div>
-                            </div>
-                            <div class="space-y-3">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Asistensi Live (0-100)</label>
-                                <div class="relative group">
-                                    <i class="fas fa-handshake absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-600 transition-colors"></i>
-                                    <input type="number" name="nilai_asistensi" id="modalAsistensiInput" min="0" max="100" placeholder="Skor"
-                                           class="w-full pl-14 pr-6 py-5 bg-slate-50 border border-slate-200 rounded-3xl text-xl font-black focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 outline-none transition-all placeholder:font-normal placeholder:text-slate-300">
-                                </div>
-                            </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Skor Praktikum</label>
+                            <input type="number" name="nilai" id="modalScoreInput" required min="0" max="100" placeholder="0-100"
+                                   class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-1 focus:ring-zinc-950 focus:border-zinc-950 outline-none font-black text-center text-lg">
                         </div>
-
-                        <div class="space-y-3">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-2">Catatan Aslab (Opsional)</label>
-                            <div class="relative group">
-                                <textarea name="catatan" id="modalNotesInput" rows="3" placeholder="Tuliskan catatan kemajuan praktikan..."
-                                          class="w-full p-6 bg-slate-50 border border-slate-200 rounded-3xl text-sm font-medium focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] outline-none transition-all placeholder:text-slate-300"></textarea>
-                            </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Skor Asistensi</label>
+                            <input type="number" name="nilai_asistensi" id="modalAsistensiInput" min="0" max="100" placeholder="0-100"
+                                   class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-1 focus:ring-zinc-950 focus:border-zinc-950 outline-none font-black text-center text-lg">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Catatan Aslab (Opsional)</label>
+                        <textarea name="catatan" id="modalNotesInput" rows="3" placeholder="Tuliskan feedback..."
+                                  class="flex w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-1 focus:ring-zinc-950 focus:border-zinc-950 outline-none"></textarea>
+                    </div>
+
+                    <div class="pt-2 flex items-center gap-3">
                         <button type="button" onclick="closeGradingModal()"
-                                class="py-5 bg-slate-100 text-slate-500 rounded-3xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
+                                class="flex-1 h-10 bg-zinc-100 text-zinc-600 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-zinc-200 transition-all">
                             Batal
                         </button>
                         <button type="submit"
-                                class="py-5 bg-[#001f3f] text-white rounded-3xl text-[11px] font-black uppercase tracking-widest hover:bg-[#002d5a] transition-all shadow-xl shadow-[#001f3f]/10">
+                                class="flex-1 h-10 bg-zinc-900 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-lg active:scale-[0.98]">
                             Simpan Nilai
                         </button>
                     </div>
@@ -231,6 +210,7 @@
             
             rows.forEach(row => {
                 const text = row.innerText.toLowerCase();
+                if (row.querySelector('td[colspan]')) return;
                 row.style.display = text.includes(searchTerm) ? '' : 'none';
             });
         });
