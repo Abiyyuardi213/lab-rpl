@@ -43,8 +43,8 @@ class PenilaianController extends Controller
         $jadwal = JadwalPraktikum::with(['praktikum', 'sesi'])->findOrFail($jadwal_id);
         
         // Only show students who have checked in (status = hadir)
-        // Load pendaftaran.tugasAsistensis to show existing assistance grades
-        $presensis = Presensi::with(['pendaftaran.praktikan', 'pendaftaran.tugasAsistensis', 'penilaian'])
+        // Load pendaftaran.praktikan.user to show names
+        $presensis = Presensi::with(['pendaftaran.praktikan.user', 'pendaftaran.tugasAsistensis', 'penilaian'])
             ->where('jadwal_id', $jadwal_id)
             ->where('status', 'hadir')
             ->get();

@@ -83,7 +83,7 @@
                                     <span class="text-[11px] font-mono font-bold tracking-tight text-zinc-600">{{ $praktikan->npm }}</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="font-bold text-zinc-900 uppercase tracking-tight">{{ $praktikan->nama }}</span>
+                                    <span class="font-bold text-zinc-900 uppercase tracking-tight">{{ $praktikan->user->name }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col">
@@ -116,7 +116,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <button type="button" 
-                                            onclick="openGradingModal('{{ $presensi->id }}', '{{ $praktikan->nama }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilaiAsistensi ?? '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
+                                            onclick="openGradingModal('{{ $presensi->id }}', '{{ $praktikan->user->name }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilaiAsistensi ?? '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
                                             class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900 text-white text-[10px] font-bold rounded-md hover:bg-zinc-800 transition-all shadow-sm active:scale-95">
                                         <i class="fas fa-marker mr-1"></i>
                                         NILAI
