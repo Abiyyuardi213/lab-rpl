@@ -42,7 +42,9 @@
                 <table class="w-full text-sm text-left" id="studentTable">
                     <thead class="bg-zinc-50 border-b border-zinc-100 text-zinc-500 font-medium h-10">
                         <tr>
-                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Praktikan</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider w-12 text-center">NO</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">NPM</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Nama Praktikan</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Sesi</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-center text-[10px] uppercase tracking-wider">Nilai Live</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-center text-[10px] uppercase tracking-wider">Nilai Asistensi</th>
@@ -50,26 +52,38 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100 text-zinc-900">
-                        @forelse($presensis as $presensi)
+                        @forelse($presensis as $index => $presensi)
                             @php
                                 $praktikan = $presensi->pendaftaran->praktikan;
                                 $nilai = $presensi->penilaian;
-                                $tugasAsistensi = $presensi->pendaftaran->tugasAsistensis
-                                    ->where('judul', $jadwal->judul_modul)
-                                    ->first();
+                                
+                                // Improved matching logic: Find by module number if exact title doesn't match
+                                $currentModulNumber = null;
+                                if (preg_match('/Modul\s+(\d+)/i', $jadwal->judul_modul, $matches)) {
+                                    $currentModulNumber = (int)$matches[1];
+                                }
+
+                                $tugasAsistensi = $presensi->pendaftaran->tugasAsistensis->first(function($t) use ($jadwal, $currentModulNumber) {
+                                    // 1. Try exact match
+                                    if (strtolower($t->judul) === strtolower($jadwal->judul_modul)) return true;
+                                    
+                                    // 2. Try matching by module number
+                                    if ($currentModulNumber && preg_match('/Modul\s+(\d+)/i', $t->judul, $m)) {
+                                        return (int)$m[1] === $currentModulNumber;
+                                    }
+                                    
+                                    return false;
+                                });
+
                                 $nilaiAsistensi = $tugasAsistensi ? $tugasAsistensi->nilai : null;
                             @endphp
                             <tr class="hover:bg-zinc-50/50 transition-colors">
+                                <td class="px-6 py-4 text-center text-zinc-400 font-medium">{{ $index + 1 }}</td>
                                 <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-zinc-900 text-white flex items-center justify-center font-bold text-xs">
-                                            {{ substr($praktikan->nama, 0, 1) }}
-                                        </div>
-                                        <div class="flex flex-col">
-                                            <span class="font-bold text-zinc-900 uppercase tracking-tight">{{ $praktikan->nama }}</span>
-                                            <span class="text-[10px] text-zinc-500 font-mono tracking-wider">{{ $praktikan->npm }}</span>
-                                        </div>
-                                    </div>
+                                    <span class="text-[11px] font-mono font-bold tracking-tight text-zinc-600">{{ $praktikan->npm }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="font-bold text-zinc-900 uppercase tracking-tight">{{ $praktikan->nama }}</span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col">
@@ -105,13 +119,13 @@
                                             onclick="openGradingModal('{{ $presensi->id }}', '{{ $praktikan->nama }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilaiAsistensi ?? '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
                                             class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900 text-white text-[10px] font-bold rounded-md hover:bg-zinc-800 transition-all shadow-sm active:scale-95">
                                         <i class="fas fa-marker mr-1"></i>
-                                        PENILAIAN
+                                        NILAI
                                     </button>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-20 text-center">
+                                <td colspan="7" class="px-6 py-20 text-center">
                                     <div class="flex flex-col items-center justify-center opacity-40">
                                         <i class="fas fa-user-slash text-3xl text-zinc-300 mb-4"></i>
                                         <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Belum Ada Praktikan Hadir</p>
