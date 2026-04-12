@@ -42,14 +42,32 @@ class PenilaianController extends Controller
     {
         $jadwal = JadwalPraktikum::with(['praktikum', 'sesi'])->findOrFail($jadwal_id);
         
-        // Only show students who have checked in (status = hadir)
-        // Load pendaftaran.praktikan.user to show names
-        $presensis = Presensi::with(['pendaftaran.praktikan.user', 'pendaftaran.tugasAsistensis', 'penilaian'])
-            ->where('jadwal_id', $jadwal_id)
-            ->where('status', 'hadir')
-            ->get();
+        // Use PendaftaranPraktikum as the primary source to show all students in this practicum
+        // Filter by verified status and the practicum id
+        $query = PendaftaranPraktikum::with([
+                'praktikan.user', 
+                'tugasAsistensis', 
+                'sesi',
+                'presensis' => function($q) use ($jadwal_id) {
+                    $q->where('jadwal_id', $jadwal_id);
+                },
+                'presensis.penilaian'
+            ])
+            ->where('praktikum_id', $jadwal->praktikum_id)
+            ->where('status', 'verified');
 
-        return view('aslab.penilaian.show', compact('jadwal', 'presensis'));
+        // If the schedule is session-specific, filter students by that session
+        if ($jadwal->sesi_id) {
+            $query->where('sesi_id', $jadwal->sesi_id);
+        }
+
+        $pendaftarans = $query->orderBy(User::select('name')
+            ->whereColumn('users.id', 'praktikans.user_id')
+            ->join('praktikans', 'praktikans.user_id', '=', 'users.id')
+            ->limit(1))
+            ->paginate(10);
+
+        return view('aslab.penilaian.show', compact('jadwal', 'pendaftarans'));
     }
 
     public function store(Request $request)

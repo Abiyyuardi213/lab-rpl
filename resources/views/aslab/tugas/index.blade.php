@@ -35,9 +35,14 @@
                         <option value="50">50 data</option>
                     </select>
                     <button onclick="document.getElementById('modal-tugas').classList.remove('hidden')"
-                        class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-4 py-2 text-sm font-medium text-white shadow hover:bg-[#002d5a] transition-colors whitespace-nowrap">
+                        class="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-900 shadow-sm hover:bg-zinc-50 transition-colors whitespace-nowrap">
                         <i class="fas fa-plus mr-2 text-xs"></i>
                         Tambah Tugas
+                    </button>
+                    <button onclick="document.getElementById('modal-langsung').classList.remove('hidden')"
+                        class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-4 py-2 text-sm font-medium text-white shadow hover:bg-[#002d5a] transition-colors whitespace-nowrap">
+                        <i class="fas fa-marker mr-2 text-xs"></i>
+                        Penilaian Langsung
                     </button>
                 </div>
             </div>
@@ -198,6 +203,74 @@
                 </div>
             </form>
         </div>
+    </div>
+
+    <!-- Modal: Penilaian Langsung (Tanpa Tugas) -->
+    <div id="modal-langsung"
+        class="fixed inset-0 z-[60] hidden bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300">
+        <div
+            class="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-200">
+            <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="h-8 w-8 rounded-lg bg-[#001f3f] flex items-center justify-center text-white shadow-lg shadow-[#001f3f]/20">
+                        <i class="fas fa-bolt text-xs"></i>
+                    </div>
+                    <h3 class="font-bold text-zinc-900 uppercase tracking-tight">Penilaian Langsung</h3>
+                </div>
+                <button onclick="document.getElementById('modal-langsung').classList.add('hidden')"
+                    class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-zinc-100 text-zinc-400 transition-colors">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <form action="{{ route('aslab.tugas.store-direct') }}" method="POST" class="p-6 space-y-4">
+                @csrf
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Pilih Mahasiswa</label>
+                    <select name="pendaftaran_id" required
+                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                        <option value="">-- Pilih Mahasiswa --</option>
+                        @foreach($students->groupBy('praktikum_id') as $praktikumId => $pendaftarans)
+                            <optgroup label="{{ $pendaftarans->first()->praktikum->nama_praktikum }}">
+                                @foreach($pendaftarans as $p)
+                                    <option value="{{ $p->id }}">{{ $p->praktikan->user->name }} ({{ $p->praktikan->npm }})</option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5 col-span-2 sm:col-span-1">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Modul / Materi</label>
+                        <input type="text" name="judul" required placeholder="Contoh: Modul 1"
+                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                    </div>
+                    <div class="space-y-1.5 col-span-2 sm:col-span-1">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Skor (0-100)</label>
+                        <input type="number" name="nilai" required min="0" max="100" placeholder="0-100"
+                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none font-black text-center text-lg tabular-nums text-[#001f3f]">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Catatan Aslab (Opsional)</label>
+                    <textarea name="catatan_aslab" rows="3" placeholder="Feedback untuk mahasiswa..."
+                        class="flex w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"></textarea>
+                </div>
+                <p class="text-[10px] text-zinc-400 italic">
+                    * Penilaian ini akan langsung tersimpan dengan status <span class="font-bold text-emerald-600">Reviewed</span> tanpa perlu pengumpulan file dari mahasiswa.
+                </p>
+                <div class="pt-4 flex items-center justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('modal-langsung').classList.add('hidden')"
+                        class="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-600 transition-all hover:bg-zinc-50">
+                        BATAL
+                    </button>
+                    <button type="submit"
+                        class="inline-flex h-9 items-center justify-center rounded-md bg-[#002d5a] px-6 text-xs font-bold text-white shadow-lg shadow-zinc-200 transition-all hover:bg-[#001f3f]">
+                        SIMPAN NILAI
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
     </div>
         </div>
     </div>
@@ -375,8 +448,10 @@
         window.onclick = function(event) {
             const mTugas = document.getElementById('modal-tugas');
             const mReview = document.getElementById('modal-review');
+            const mLangsung = document.getElementById('modal-langsung');
             if (event.target == mTugas) mTugas.classList.add('hidden');
             if (event.target == mReview) mReview.classList.add('hidden');
+            if (event.target == mLangsung) mLangsung.classList.add('hidden');
         }
     </script>
 @endsection

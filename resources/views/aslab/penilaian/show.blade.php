@@ -18,8 +18,8 @@
             </div>
             <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
                 <div class="bg-zinc-50 border border-zinc-200 px-4 py-2 rounded-lg text-right">
-                    <p class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Hadir</p>
-                    <p class="text-lg font-black text-zinc-900 leading-none">{{ $presensis->count() }}</p>
+                    <p class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Hadir Di Sesi Ini</p>
+                    <p class="text-lg font-black text-zinc-900 leading-none">{{ $jadwal->presensis()->where('jadwal_id', $jadwal->id)->where('status', 'hadir')->count() }}</p>
                 </div>
             </div>
         </div>
@@ -28,8 +28,8 @@
         <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden min-h-[400px]">
             <div class="p-6 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-100 bg-zinc-50/30">
                 <div>
-                    <h3 class="text-sm font-bold text-zinc-900 uppercase tracking-tight">Daftar Praktikan Hadir</h3>
-                    <p class="text-xs text-zinc-500 mt-0.5">Berikan penilaian praktikum dan asistensi secara langsung.</p>
+                    <h3 class="text-sm font-bold text-zinc-900 uppercase tracking-tight">Daftar Praktikan Terdaftar</h3>
+                    <p class="text-xs text-zinc-500 mt-0.5">Seluruh mahasiswa yang terdaftar di praktikum/sesi ini.</p>
                 </div>
                 <div class="relative group">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
@@ -52,10 +52,12 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100 text-zinc-900">
-                        @forelse($presensis as $index => $presensi)
+                        @forelse($pendaftarans as $index => $pendaftaran)
                             @php
-                                $praktikan = $presensi->pendaftaran->praktikan;
-                                $nilai = $presensi->penilaian;
+                                $praktikan = $pendaftaran->praktikan;
+                                // Get presensi for this student in this specific schedule
+                                $presensi = $pendaftaran->presensis->first();
+                                $nilai = $presensi ? $presensi->penilaian : null;
                                 
                                 // Improved matching logic: Find by module number if exact title doesn't match
                                 $currentModulNumber = null;
@@ -63,7 +65,7 @@
                                     $currentModulNumber = (int)$matches[1];
                                 }
 
-                                $tugasAsistensi = $presensi->pendaftaran->tugasAsistensis->first(function($t) use ($jadwal, $currentModulNumber) {
+                                $tugasAsistensi = $pendaftaran->tugasAsistensis->first(function($t) use ($jadwal, $currentModulNumber) {
                                     // 1. Try exact match
                                     if (strtolower($t->judul) === strtolower($jadwal->judul_modul)) return true;
                                     
@@ -78,7 +80,7 @@
                                 $nilaiAsistensi = $tugasAsistensi ? $tugasAsistensi->nilai : null;
                             @endphp
                             <tr class="hover:bg-zinc-50/50 transition-colors">
-                                <td class="px-6 py-4 text-center text-zinc-400 font-medium">{{ $index + 1 }}</td>
+                                <td class="px-6 py-4 text-center text-zinc-400 font-medium">{{ $pendaftarans->firstItem() + $index }}</td>
                                 <td class="px-6 py-4">
                                     <span class="text-[11px] font-mono font-bold tracking-tight text-zinc-600">{{ $praktikan->npm }}</span>
                                 </td>
@@ -87,8 +89,16 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col">
-                                        <span class="text-[10px] font-bold text-zinc-600 uppercase">{{ $presensi->pendaftaran->sesi->nama_sesi }}</span>
-                                        <span class="text-[9px] font-medium text-zinc-400">Digit Akhir: {{ substr($praktikan->npm, -1) }}</span>
+                                        <span class="text-[10px] font-bold text-zinc-600 uppercase">{{ $pendaftaran->sesi->nama_sesi }}</span>
+                                        <div class="flex items-center gap-1.5 mt-0.5">
+                                            @if($presensi)
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Mahasiswa Hadir"></span>
+                                                <span class="text-[8px] font-black text-emerald-600 uppercase">Hadir</span>
+                                            @else
+                                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500" title="Mahasiswa Tidak Hadir"></span>
+                                                <span class="text-[8px] font-black text-rose-600 uppercase">Alpha</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
@@ -115,12 +125,20 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <button type="button" 
-                                            onclick="openGradingModal('{{ $presensi->id }}', '{{ $praktikan->user->name }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilaiAsistensi ?? '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
-                                            class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900 text-white text-[10px] font-bold rounded-md hover:bg-zinc-800 transition-all shadow-sm active:scale-95">
-                                        <i class="fas fa-marker mr-1"></i>
-                                        NILAI
-                                    </button>
+                                    @if($presensi)
+                                        <button type="button" 
+                                                onclick="openGradingModal('{{ $presensi->id }}', '{{ $praktikan->user->name }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilaiAsistensi ?? '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
+                                                class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900 text-white text-[10px] font-bold rounded-md hover:bg-zinc-800 transition-all shadow-sm active:scale-95">
+                                            <i class="fas fa-marker mr-1"></i>
+                                            NILAI
+                                        </button>
+                                    @else
+                                        <button type="button" disabled
+                                                class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-100 text-zinc-400 text-[10px] font-bold rounded-md cursor-not-allowed">
+                                            <i class="fas fa-lock mr-1"></i>
+                                            ABSEN
+                                        </button>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
@@ -128,13 +146,16 @@
                                 <td colspan="7" class="px-6 py-20 text-center">
                                     <div class="flex flex-col items-center justify-center opacity-40">
                                         <i class="fas fa-user-slash text-3xl text-zinc-300 mb-4"></i>
-                                        <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Belum Ada Praktikan Hadir</p>
+                                        <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Belum Ada Praktikan Terdaftar</p>
                                     </div>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            <div class="px-6 py-4 border-t border-zinc-100 bg-zinc-50/10">
+                {{ $pendaftarans->links() }}
             </div>
         </div>
     </div>

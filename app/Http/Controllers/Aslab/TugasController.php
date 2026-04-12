@@ -27,7 +27,44 @@ class TugasController extends Controller
         // Get unique praktikums that this aslab is assisting
         $praktikums = $aslab->praktikums;
 
-        return view('aslab.tugas.index', compact('tugas', 'praktikums'));
+        // Get all students under this aslab for direct grading
+        $students = PendaftaranPraktikum::with('praktikan.user', 'praktikum')
+            ->where('aslab_id', $aslabId)
+            ->where('status', 'verified')
+            ->get();
+
+        return view('aslab.tugas.index', compact('tugas', 'praktikums', 'students'));
+    }
+
+    public function storeDirect(Request $request)
+    {
+        $aslab = Auth::user()->aslab;
+        if (!$aslab) {
+            return back()->with('error', 'Data aslab tidak ditemukan.');
+        }
+
+        $request->validate([
+            'pendaftaran_id' => 'required|exists:pendaftaran_praktikums,id',
+            'judul' => 'required|string|max:255',
+            'nilai' => 'required|integer|between:0,100',
+            'catatan_aslab' => 'nullable|string',
+        ]);
+
+        $student = PendaftaranPraktikum::where('id', $request->pendaftaran_id)
+            ->where('aslab_id', $aslab->id)
+            ->firstOrFail();
+
+        TugasAsistensi::create([
+            'pendaftaran_id' => $student->id,
+            'aslab_id' => $aslab->id,
+            'judul' => $request->judul,
+            'nilai' => $request->nilai,
+            'catatan_aslab' => $request->catatan_aslab,
+            'status' => 'reviewed',
+            'deskripsi' => 'Penilaian asistensi langsung (Tanpa Tugas)'
+        ]);
+
+        return back()->with('success', 'Nilai asistensi berhasil diberikan kepada ' . $student->praktikan->user->name);
     }
 
     public function store(Request $request)

@@ -173,6 +173,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('aslab')->name('aslab.')->middleware(['role.aslab'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Aslab\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/pendaftaran', [\App\Http\Controllers\Aslab\PendaftaranController::class, 'index'])->name('pendaftaran.index');
+        Route::post('tugas/direct', [\App\Http\Controllers\Aslab\TugasController::class, 'storeDirect'])->name('tugas.store-direct');
         Route::resource('tugas', \App\Http\Controllers\Aslab\TugasController::class);
 
         // Presensi (Aslab)
