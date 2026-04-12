@@ -18,7 +18,7 @@
                     Penilaian Praktikum
                 </h1>
                 <p class="text-white/60 max-w-2xl text-sm md:text-lg leading-relaxed font-medium">
-                    Pilih jadwal praktikum yang sedang berlangsung hari ini untuk mulai memberikan penilaian kepada praktikan secara langsung.
+                    Pilih jadwal praktikum untuk mulai memberikan penilaian live atau penilaian asistensi kepada praktikan kapan saja.
                 </p>
             </div>
             
@@ -31,8 +31,8 @@
         <div class="space-y-6">
             <div class="flex items-center justify-between">
                 <h3 class="text-xl font-bold text-slate-900 flex items-center gap-3">
-                    <i class="fas fa-calendar-day text-[#001f3f]"></i>
-                    Jadwal Hari Ini ({{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y') }})
+                    <i class="fas fa-calendar-list text-[#001f3f]"></i>
+                    Daftar Jadwal Praktikum
                 </h3>
             </div>
 
@@ -82,7 +82,7 @@
                             <i class="fas fa-calendar-xmark text-slate-300 text-2xl"></i>
                         </div>
                         <h5 class="text-slate-900 font-black uppercase text-sm tracking-widest mb-2">Tidak Ada Jadwal</h5>
-                        <p class="text-slate-400 text-sm font-medium italic">Tidak ada jadwal praktikum yang ditemukan untuk hari ini.</p>
+                        <p class="text-slate-400 text-sm font-medium italic">Anda belum memiliki jadwal praktikum yang ditugaskan.</p>
                     </div>
                 @endforelse
             </div>

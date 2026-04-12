@@ -18,14 +18,21 @@ class PenilaianController extends Controller
 
     public function index()
     {
-        $now = Carbon::now('Asia/Jakarta');
-        $today = $now->toDateString();
+        $aslab = Auth::user()->aslab;
+        if (!$aslab) {
+            return redirect()->back()->with('error', 'Data aslab tidak ditemukan.');
+        }
 
-        // Get schedules for today
+        // Get all practicums assigned to this aslab
+        $praktikumIds = $aslab->praktikums->pluck('id');
+
+        // Get all schedules for these practicums
         $jadwals = JadwalPraktikum::with(['praktikum', 'sesi', 'presensis' => function($q) {
             $q->where('status', 'hadir');
         }])
-            ->where('tanggal', $today)
+            ->whereIn('praktikum_id', $praktikumIds)
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('waktu_mulai', 'desc')
             ->get();
 
         return view('aslab.penilaian.index', compact('jadwals'));
@@ -70,11 +77,8 @@ class PenilaianController extends Controller
             return back()->with('error', 'Kecurangan terdeteksi: Praktikan belum tercatat hadir.');
         }
 
-        // Security Check 2: Schedule must be today (prevent grading past/future sessions unless authorized)
-        $today = Carbon::now('Asia/Jakarta')->toDateString();
-        if ($presensi->jadwal->tanggal !== $today) {
-             return back()->with('error', 'Penilaian hanya dapat dilakukan pada hari jadwal praktikum berlangsung.');
-        }
+        // --- REMOVED: Restriction that grading must be today ---
+        // Penilaian asistensi & praktikum sekarang dapat diakses kapan saja setelah praktikum selesai/berlangsung.
 
         // 1. Save Nilai Praktikum (Live)
         PenilaianPraktikum::updateOrCreate(
