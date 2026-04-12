@@ -8,6 +8,8 @@ use App\Models\JadwalPraktikum;
 use App\Models\Presensi;
 use App\Models\PenilaianPraktikum;
 use App\Models\TugasAsistensi;
+use App\Models\PendaftaranPraktikum;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Traits\HasActivityLog;
