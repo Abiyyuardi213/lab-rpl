@@ -166,12 +166,12 @@
                     </select>
                 </div>
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode Akhir NPM</label>
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode NPM</label>
                     <select name="kode_akhir_npm" required
                         class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
-                        @for ($i = 0; $i <= 9; $i++)
-                            <option value="{{ $i }}">Digit Akhir: {{ $i }}</option>
-                        @endfor
+                        @foreach ($digitNpms as $digitNpm)
+                            <option value="{{ $digitNpm->digit }}">{{ $digitNpm->label }} (Kode: {{ $digitNpm->digit }})</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="space-y-1.5">
@@ -223,12 +223,12 @@
                 @csrf
                 @method('PUT')
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode Akhir NPM</label>
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode NPM</label>
                     <select name="kode_akhir_npm" id="edit-kode-npm" required
                         class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 outline-none">
-                        @for ($i = 0; $i <= 9; $i++)
-                            <option value="{{ $i }}">Digit Akhir: {{ $i }}</option>
-                        @endfor
+                        @foreach ($digitNpms as $digitNpm)
+                            <option value="{{ $digitNpm->digit }}">{{ $digitNpm->label }} (Kode: {{ $digitNpm->digit }})</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="space-y-1.5">

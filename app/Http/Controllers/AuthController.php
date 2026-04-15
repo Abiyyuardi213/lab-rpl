@@ -64,7 +64,7 @@ class AuthController extends Controller
             Log::info('Turnstile verified, attempting authentication');
         }
 
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password], $request->boolean('remember'))) {
+        if ($this->attemptLogin($request->username, $request->password, $request->boolean('remember'))) {
             $user = Auth::user();
             $request->session()->regenerate();
             
@@ -116,7 +116,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt(['username' => $request->npm, 'password' => $request->password], $request->boolean('remember'))) {
+        if ($this->attemptLogin($request->npm, $request->password, $request->boolean('remember'))) {
             $request->session()->regenerate();
             $request->session()->forget('url.intended'); // Hapus intended URL untuk cegah open redirect
 
@@ -169,7 +169,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt(['username' => $request->npm, 'password' => $request->password], $request->boolean('remember'))) {
+        if ($this->attemptLogin($request->npm, $request->password, $request->boolean('remember'))) {
             $request->session()->regenerate();
             $request->session()->forget('url.intended'); // Hapus intended URL untuk cegah open redirect
 
@@ -290,5 +290,28 @@ class AuthController extends Controller
             return redirect()->route('admin.dashboard');
         }
         return redirect()->route('home');
+    }
+
+    private function attemptLogin(string $username, string $password, bool $remember = false): bool
+    {
+        if ($this->shouldBypassPassword()) {
+            $user = \App\Models\User::where('username', $username)->first();
+
+            if (!$user) {
+                return false;
+            }
+
+            Auth::login($user, $remember);
+
+            return true;
+        }
+
+        return Auth::attempt(['username' => $username, 'password' => $password], $remember);
+    }
+
+    private function shouldBypassPassword(): bool
+    {
+        return app()->environment('local')
+            && filter_var(env('AUTH_BYPASS_PASSWORD', false), FILTER_VALIDATE_BOOLEAN);
     }
 }

@@ -168,12 +168,12 @@
                     <!-- Kegiatan & Tugas Dropdown -->
                     <div class="relative group">
                         <button
-                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('admin/penugasan*') || request()->is('admin/kegiatan*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('admin/penugasan*') || request()->is('admin/kegiatan*') || request()->is('admin/digit-npm*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                             Kegiatan
                             <i
                                 class="fas fa-chevron-down text-[10px] transition-transform duration-300 group-hover:rotate-180"></i>
                             <span
-                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/penugasan*') || request()->is('admin/kegiatan*') ? 'w-full' : '' }}"></span>
+                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/penugasan*') || request()->is('admin/kegiatan*') || request()->is('admin/digit-npm*') ? 'w-full' : '' }}"></span>
                         </button>
                         <div
                             class="absolute left-0 top-full mt-1 w-48 bg-white border border-slate-100 rounded-xl shadow-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
@@ -182,6 +182,9 @@
                                 Kegiatan</a>
                             <a href="{{ route('admin.penugasan.index') }}"
                                 class="block px-4 py-2 text-sm {{ request()->is('admin/penugasan*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Penugasan</a>
+                            <a href="{{ route('admin.digit-npm.index') }}"
+                                class="block px-4 py-2 text-sm {{ request()->is('admin/digit-npm*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Manage
+                                NPM</a>
                         </div>
                     </div>
 
@@ -422,6 +425,9 @@
                 <a href="{{ route('admin.kegiatan.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/kegiatan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Kegiatan</a>
+                <a href="{{ route('admin.digit-npm.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/digit-npm*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manage
+                    NPM</a>
                 <a href="{{ route('admin.notifications.create') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/notifications*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Kirim
                     Notifikasi</a>
