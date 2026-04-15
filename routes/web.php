@@ -133,6 +133,9 @@ Route::middleware('auth')->group(function () {
         });
         Route::get('/gedung', fn() => 'Gedung Index')->name('gedung.index');
         Route::get('/kelas', fn() => 'Kelas Index')->name('kelas.index');
+        Route::patch('digit-npm/{digitNpm}/toggle-status', [\App\Http\Controllers\Admin\DigitNpmController::class, 'toggleStatus'])->name('digit-npm.toggle-status');
+        Route::resource('digit-npm', \App\Http\Controllers\Admin\DigitNpmController::class)->except(['create', 'show', 'edit']);
+        Route::patch('penugasan/praktikan/{pendaftaran}/soal', [\App\Http\Controllers\Admin\PenugasanController::class, 'updateStudentAssignment'])->name('penugasan.praktikan-soal.update');
         Route::resource('penugasan', \App\Http\Controllers\Admin\PenugasanController::class);
         Route::get('/support', fn() => 'Support Index')->name('support.index');
         Route::get('/laboratorium', fn() => 'Laboratorium Index')->name('laboratorium.index');
@@ -221,4 +224,3 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/check-npm', [\App\Http\Controllers\AuthController::class, 'checkNpm'])->name('check-npm');
-

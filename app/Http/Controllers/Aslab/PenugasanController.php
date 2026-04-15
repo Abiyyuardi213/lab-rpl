@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Aslab;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\DigitNpm;
 use App\Models\Penugasan;
 use App\Models\Praktikum;
 use App\Models\SesiPraktikum;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class PenugasanController extends Controller
 {
@@ -31,8 +33,9 @@ class PenugasanController extends Controller
             ->get();
 
         $praktikums = $aslab->praktikums()->with('sesis')->get();
+        $digitNpms = DigitNpm::active()->ordered()->get();
 
-        return view('aslab.penugasan.index', compact('penugasans', 'praktikums'));
+        return view('aslab.penugasan.index', compact('penugasans', 'praktikums', 'digitNpms'));
     }
 
     public function store(Request $request)
@@ -45,7 +48,7 @@ class PenugasanController extends Controller
         $request->validate([
             'praktikum_id' => 'required|exists:praktikums,id',
             'sesi_id' => 'required|exists:sesi_praktikums,id',
-            'kode_akhir_npm' => 'required|integer|min:0|max:9',
+            'kode_akhir_npm' => ['required', 'string', 'max:20', Rule::exists('digit_npms', 'digit')->where('is_active', true)],
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required',
             'file_soal' => 'nullable|file|mimes:pdf,doc,docx,zip,rar|max:5120',
@@ -82,7 +85,7 @@ class PenugasanController extends Controller
         }
 
         $request->validate([
-            'kode_akhir_npm' => 'required|integer|min:0|max:9',
+            'kode_akhir_npm' => ['required', 'string', 'max:20', Rule::exists('digit_npms', 'digit')->where('is_active', true)],
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required',
             'file_soal' => 'nullable|file|mimes:pdf,doc,docx,zip,rar|max:5120',

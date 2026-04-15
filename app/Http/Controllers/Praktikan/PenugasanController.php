@@ -22,20 +22,38 @@ class PenugasanController extends Controller
                 ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
         }
 
-        $pendaftarans = PendaftaranPraktikum::with(['praktikum', 'sesi'])
+        $pendaftarans = PendaftaranPraktikum::with([
+            'praktikum',
+            'sesi',
+            'penugasanOverride.penugasan.praktikum',
+            'penugasanOverride.penugasan.sesi',
+            'penugasanOverride.penugasan.aslab.user',
+        ])
             ->where('praktikan_id', $praktikan->id)
             ->where('status', 'verified')
             ->get();
 
-        $sesiIds = $pendaftarans->pluck('sesi_id')->toArray();
         $npm = $praktikan->npm;
         $lastDigit = intval(substr($npm, -1));
+        $overridePenugasanIds = $pendaftarans->pluck('penugasanOverride.penugasan_id')->filter()->values();
+        $overrideSesiIds = $pendaftarans->filter(fn($pendaftaran) => $pendaftaran->penugasanOverride)->pluck('sesi_id');
+        $defaultSesiIds = $pendaftarans->whereNotIn('sesi_id', $overrideSesiIds)->pluck('sesi_id')->values();
 
-        $penugasans = Penugasan::with(['praktikum', 'sesi', 'aslab.user'])
-            ->whereIn('sesi_id', $sesiIds)
+        $defaultPenugasans = Penugasan::with(['praktikum', 'sesi', 'aslab.user'])
+            ->whereIn('sesi_id', $defaultSesiIds)
             ->where('kode_akhir_npm', $lastDigit)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        $overridePenugasans = Penugasan::with(['praktikum', 'sesi', 'aslab.user'])
+            ->whereIn('id', $overridePenugasanIds)
+            ->get();
+
+        $penugasans = $defaultPenugasans
+            ->merge($overridePenugasans)
+            ->unique('id')
+            ->sortByDesc('created_at')
+            ->values();
 
         $now = Carbon::now('Asia/Jakarta');
         $currentDay = $now->locale('id')->dayName;
@@ -45,11 +63,12 @@ class PenugasanController extends Controller
             $sesi = $penugasan->sesi;
             $isAccessible = false;
 
-            $dayMatch = (strtolower($sesi->hari) === strtolower($currentDay));
-            $timeMatch = ($currentTime >= $sesi->jam_mulai && $currentTime <= $sesi->jam_selesai);
+            $bypassWaktu = $this->shouldBypassWaktuForTesting();
+            $dayMatch = $bypassWaktu || (strtolower($sesi->hari) === strtolower($currentDay));
+            $timeMatch = $bypassWaktu || ($currentTime >= $sesi->jam_mulai && $currentTime <= $sesi->jam_selesai);
 
             // Check Presence Status
-            $hasPresensi = \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
+            $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
                 $query->select('id')
                     ->from('pendaftaran_praktikums')
                     ->where('praktikan_id', $praktikan->id)
@@ -84,19 +103,25 @@ class PenugasanController extends Controller
         $penugasan = Penugasan::with(['praktikum', 'sesi', 'aslab.user'])->findOrFail($id);
 
         // Check if student is registered in this session
-        $isRegistered = PendaftaranPraktikum::where('praktikan_id', $praktikan->id)
+        $pendaftaran = PendaftaranPraktikum::with('penugasanOverride')
+            ->where('praktikan_id', $praktikan->id)
             ->where('sesi_id', $penugasan->sesi_id)
             ->where('status', 'verified')
-            ->exists();
+            ->first();
 
-        if (!$isRegistered) {
+        if (!$pendaftaran) {
             abort(403, 'Anda tidak terdaftar dalam sesi praktikum ini.');
         }
 
         $npm = $praktikan->npm;
         $lastDigit = intval(substr($npm, -1));
+        $hasCustomAssignment = $pendaftaran->penugasanOverride?->penugasan_id === $penugasan->id;
 
-        if ($penugasan->kode_akhir_npm !== null && (int)$penugasan->kode_akhir_npm !== $lastDigit) {
+        if ($pendaftaran->penugasanOverride && !$hasCustomAssignment) {
+            abort(403, 'Soal ini sudah diganti khusus oleh admin.');
+        }
+
+        if (!$hasCustomAssignment && $penugasan->kode_akhir_npm !== null && (int)$penugasan->kode_akhir_npm !== $lastDigit) {
             abort(403, 'Soal ini tidak ditujukan untuk NPM Anda.');
         }
 
@@ -106,13 +131,13 @@ class PenugasanController extends Controller
         $currentTime = $now->format('H:i:s');
 
         $sesi = $penugasan->sesi;
-        if (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai) {
+        if (!$this->shouldBypassWaktuForTesting() && (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai)) {
             return redirect()->route('praktikan.penugasan.index')
                 ->with('error', 'Soal hanya dapat diakses pada jam sesi praktikum (' . $sesi->hari . ', ' . $sesi->jam_mulai . ' - ' . $sesi->jam_selesai . ').');
         }
 
         // Check Presence Status
-        $hasPresensi = \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
+        $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
             $query->select('id')
                 ->from('pendaftaran_praktikums')
                 ->where('praktikan_id', $praktikan->id)
@@ -144,19 +169,26 @@ class PenugasanController extends Controller
         $penugasan = Penugasan::with('sesi')->findOrFail($id);
 
         // 1. Check registration
-        $isRegistered = PendaftaranPraktikum::where('praktikan_id', $praktikan->id)
+        $pendaftaran = PendaftaranPraktikum::with('penugasanOverride')
+            ->where('praktikan_id', $praktikan->id)
             ->where('sesi_id', $penugasan->sesi_id)
             ->where('status', 'verified')
-            ->exists();
+            ->first();
 
-        if (!$isRegistered) {
+        if (!$pendaftaran) {
             abort(403, 'Anda tidak terdaftar dalam sesi praktikum ini.');
         }
 
         // 2. Check NPM Digit
         $npm = $praktikan->npm;
         $lastDigit = intval(substr($npm, -1));
-        if ($penugasan->kode_akhir_npm !== null && (int)$penugasan->kode_akhir_npm !== $lastDigit) {
+        $hasCustomAssignment = $pendaftaran->penugasanOverride?->penugasan_id === $penugasan->id;
+
+        if ($pendaftaran->penugasanOverride && !$hasCustomAssignment) {
+            abort(403, 'Soal ini sudah diganti khusus oleh admin.');
+        }
+
+        if (!$hasCustomAssignment && $penugasan->kode_akhir_npm !== null && (int)$penugasan->kode_akhir_npm !== $lastDigit) {
             abort(403, 'Soal ini tidak ditujukan untuk NPM Anda.');
         }
 
@@ -166,12 +198,12 @@ class PenugasanController extends Controller
         $currentTime = $now->format('H:i:s');
         $sesi = $penugasan->sesi;
 
-        if (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai) {
+        if (!$this->shouldBypassWaktuForTesting() && (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai)) {
             return back()->with('error', 'File hanya dapat diunduh pada jam sesi praktikum.');
         }
 
         // Check Presence Status
-        $hasPresensi = \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
+        $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
             $query->select('id')
                 ->from('pendaftaran_praktikums')
                 ->where('praktikan_id', $praktikan->id)
@@ -197,5 +229,16 @@ class PenugasanController extends Controller
         return response()->download($path, $fileName);
     }
 
+    private function shouldBypassPresensiForTesting(): bool
+    {
+        return app()->environment('local')
+            && filter_var(env('PENUGASAN_BYPASS_PRESENSI', false), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    private function shouldBypassWaktuForTesting(): bool
+    {
+        return app()->environment('local')
+            && filter_var(env('PENUGASAN_BYPASS_WAKTU', false), FILTER_VALIDATE_BOOLEAN);
+    }
 
 }

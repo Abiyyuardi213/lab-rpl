@@ -39,9 +39,9 @@
                         <select id="filterNpm"
                             class="h-9 rounded-md border border-zinc-200 bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-wider shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
                             <option value="">Semua NPM</option>
-                            @for ($i = 0; $i <= 9; $i++)
-                                <option value="{{ $i }}">Digit: {{ $i }}</option>
-                            @endfor
+                            @foreach ($digitNpms as $digitNpm)
+                                <option value="{{ $digitNpm->digit }}">{{ $digitNpm->label }} (Kode: {{ $digitNpm->digit }})</option>
+                            @endforeach
                         </select>
                     </div>
                 <div class="flex items-center gap-2">
@@ -66,14 +66,19 @@
                         <tr>
                             <th class="px-6 align-middle font-medium text-zinc-500 w-12 text-center text-[10px] uppercase tracking-wider">NO</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Praktikum & Sesi</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Kode Akhir NPM</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Kode NPM</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Judul Soal</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Jadwal Sesi</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Praktikan Terdaftar</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-right text-[10px] uppercase tracking-wider">AKSI</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100 text-zinc-900">
                         @foreach ($penugasans as $index => $p)
+                            @php
+                                $registeredStudents = $p->sesi?->pendaftarans ?? collect();
+                                $verifiedStudents = $registeredStudents->where('status', 'verified');
+                            @endphp
                             <tr class="hover:bg-zinc-50/50 transition-colors">
                                 <td class="px-6 py-4 text-center text-zinc-500 font-medium">{{ $index + 1 }}</td>
                                 <td class="px-6 py-4">
@@ -105,6 +110,18 @@
                                         <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">{{ $p->sesi->jam_mulai }} - {{ $p->sesi->jam_selesai }}</span>
                                     </div>
                                 </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex flex-col">
+                                            <span class="font-black text-zinc-900">{{ $registeredStudents->count() }} Praktikan</span>
+                                            <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">{{ $verifiedStudents->count() }} Terverifikasi</span>
+                                        </div>
+                                        <button type="button" onclick="openPraktikanModal('{{ $p->id }}')"
+                                            class="inline-flex h-8 items-center justify-center rounded-md border border-zinc-200 bg-white px-3 text-[10px] font-bold uppercase tracking-wider text-[#001f3f] hover:bg-[#001f3f] hover:text-white transition-colors">
+                                            Lihat
+                                        </button>
+                                    </div>
+                                </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         <button onclick="openEditModal('{{ $p->id }}', '{{ $p->kode_akhir_npm }}', '{{ addslashes($p->judul) }}', '{{ addslashes($p->deskripsi) }}')"
@@ -129,6 +146,124 @@
             </div>
         </div>
     </div>
+
+    @foreach ($penugasans as $p)
+        @php
+            $registeredStudents = $p->sesi?->pendaftarans ?? collect();
+        @endphp
+        <div id="modal-praktikan-{{ $p->id }}"
+            class="fixed inset-0 z-[60] hidden bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300">
+            <div
+                class="bg-white rounded-xl w-full max-w-6xl max-h-[90vh] overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-200 flex flex-col">
+                <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50 shrink-0">
+                    <div>
+                        <h3 class="font-bold text-zinc-900 uppercase tracking-tight">Praktikan Terdaftar</h3>
+                        <p class="text-xs text-zinc-500 mt-1">
+                            {{ $p->praktikum->nama_praktikum }} - {{ $p->sesi->nama_sesi }}
+                        </p>
+                    </div>
+                    <button type="button" onclick="closePraktikanModal('{{ $p->id }}')"
+                        class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-zinc-100 text-zinc-400 transition-colors">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+                <div class="p-6 overflow-y-auto">
+                    @if ($registeredStudents->isEmpty())
+                        <div class="py-14 text-center">
+                            <div class="mx-auto h-14 w-14 rounded-xl bg-zinc-50 flex items-center justify-center mb-3">
+                                <i class="fas fa-users text-xl text-zinc-300"></i>
+                            </div>
+                            <p class="font-semibold text-zinc-900">Belum ada praktikan di sesi ini</p>
+                            <p class="text-xs text-zinc-500 mt-1">Praktikan yang mendaftar ke sesi ini akan muncul di sini.</p>
+                        </div>
+                    @else
+                        <div class="overflow-x-auto border border-zinc-100 rounded-xl">
+                            <table class="w-full min-w-[1100px] text-sm text-left">
+                                <thead class="bg-zinc-50 text-zinc-500 border-b border-zinc-100">
+                                    <tr>
+                                        <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider w-12 text-center">No</th>
+                                        <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider">Nama</th>
+                                        <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider">NPM</th>
+                                        <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider">Dosen & Kelas</th>
+                                        <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider">Aslab</th>
+                                        <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider">Soal Diterima</th>
+                                        <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider">Status</th>
+                                        <th class="px-4 py-3 text-[10px] font-bold uppercase tracking-wider">Edit Soal</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-zinc-100">
+                                    @foreach ($registeredStudents->sortBy(fn($item) => $item->praktikan?->user?->name)->values() as $studentIndex => $student)
+                                        @php
+                                            $studentNpm = $student->praktikan?->npm ?? '';
+                                            $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
+                                            $defaultPenugasan = $studentLastDigit !== null
+                                                ? $p->sesi->penugasans->firstWhere('kode_akhir_npm', $studentLastDigit)
+                                                : null;
+                                            $customPenugasan = $student->penugasanOverride?->penugasan;
+                                            $currentPenugasan = $customPenugasan ?? $defaultPenugasan;
+                                        @endphp
+                                        <tr class="hover:bg-zinc-50/50">
+                                            <td class="px-4 py-3 text-center text-zinc-500 font-medium">{{ $studentIndex + 1 }}</td>
+                                            <td class="px-4 py-3">
+                                                <div class="font-semibold text-zinc-900">{{ $student->praktikan?->user?->name ?? '-' }}</div>
+                                                <div class="text-[10px] text-zinc-500">{{ $student->praktikan?->user?->email ?? '-' }}</div>
+                                            </td>
+                                            <td class="px-4 py-3 font-mono text-xs text-zinc-700">{{ $student->praktikan?->npm ?? '-' }}</td>
+                                            <td class="px-4 py-3">
+                                                <div class="font-medium text-zinc-700">{{ $student->dosen_pengampu ?? '-' }}</div>
+                                                <div class="text-[10px] text-zinc-500 uppercase">{{ $student->kelas ?? '-' }} - {{ $student->asal_kelas_mata_kuliah ?? '-' }}</div>
+                                            </td>
+                                            <td class="px-4 py-3 text-zinc-700">{{ $student->aslab?->user?->name ?? 'Belum dibagi' }}</td>
+                                            <td class="px-4 py-3">
+                                                <div class="font-semibold text-zinc-900">{{ $currentPenugasan?->judul ?? 'Belum ada soal' }}</div>
+                                                <div class="text-[10px] font-bold uppercase tracking-wider {{ $customPenugasan ? 'text-amber-600' : 'text-zinc-400' }}">
+                                                    {{ $customPenugasan ? 'Soal khusus' : 'Default digit ' . ($studentLastDigit ?? '-') }}
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                @php
+                                                    $statusClass = match ($student->status) {
+                                                        'verified' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                                                        'rejected' => 'bg-rose-50 text-rose-700 border-rose-100',
+                                                        default => 'bg-amber-50 text-amber-700 border-amber-100',
+                                                    };
+                                                @endphp
+                                                <span class="inline-flex items-center rounded-md border px-2 py-1 text-[10px] font-bold uppercase tracking-wider {{ $statusClass }}">
+                                                    {{ $student->status }}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <form action="{{ route('admin.penugasan.praktikan-soal.update', $student->id) }}" method="POST" class="flex items-center gap-2">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <select name="penugasan_id"
+                                                        class="h-9 w-52 rounded-md border border-zinc-200 bg-white px-3 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+                                                        <option value="">
+                                                            Default digit {{ $studentLastDigit ?? '-' }}{{ $defaultPenugasan ? ' - ' . $defaultPenugasan->judul : '' }}
+                                                        </option>
+                                                        @foreach ($p->sesi->penugasans->sortBy('kode_akhir_npm') as $availablePenugasan)
+                                                            <option value="{{ $availablePenugasan->id }}"
+                                                                @selected($customPenugasan?->id === $availablePenugasan->id)>
+                                                                Kode {{ $availablePenugasan->kode_akhir_npm }} - {{ $availablePenugasan->judul }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                    <button type="submit"
+                                                        class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-3 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-[#002d5a] transition-colors">
+                                                        Simpan
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     <!-- Modal: Tambah Penugasan -->
     <div id="modal-penugasan"
@@ -161,12 +296,12 @@
                         </select>
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode Akhir NPM</label>
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode NPM</label>
                         <select name="kode_akhir_npm" required
                             class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
-                            @for ($i = 0; $i <= 9; $i++)
-                                <option value="{{ $i }}">Digit Akhir: {{ $i }}</option>
-                            @endfor
+                            @foreach ($digitNpms as $digitNpm)
+                                <option value="{{ $digitNpm->digit }}">{{ $digitNpm->label }} (Kode: {{ $digitNpm->digit }})</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -245,12 +380,12 @@
                 @csrf
                 @method('PUT')
                 <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode Akhir NPM</label>
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode NPM</label>
                     <select name="kode_akhir_npm" id="edit-kode-npm" required
                         class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 outline-none">
-                        @for ($i = 0; $i <= 9; $i++)
-                            <option value="{{ $i }}">Digit Akhir: {{ $i }}</option>
-                        @endfor
+                        @foreach ($digitNpms as $digitNpm)
+                            <option value="{{ $digitNpm->digit }}">{{ $digitNpm->label }} (Kode: {{ $digitNpm->digit }})</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="space-y-1.5">
@@ -369,7 +504,7 @@
                     },
                     columnDefs: [{
                         orderable: false,
-                        targets: [5]
+                        targets: [6]
                     }]
                 });
 
@@ -492,6 +627,14 @@
             document.getElementById('modal-edit-penugasan').classList.remove('hidden');
         }
 
+        function openPraktikanModal(id) {
+            document.getElementById('modal-praktikan-' + id).classList.remove('hidden');
+        }
+
+        function closePraktikanModal(id) {
+            document.getElementById('modal-praktikan-' + id).classList.add('hidden');
+        }
+
         function confirmDelete(id) {
             Swal.fire({
                 title: 'Apakah Anda yakin?',
@@ -542,6 +685,7 @@
         window.onclick = function(event) {
             if (event.target.id === 'modal-penugasan') document.getElementById('modal-penugasan').classList.add('hidden');
             if (event.target.id === 'modal-edit-penugasan') document.getElementById('modal-edit-penugasan').classList.add('hidden');
+            if (event.target.id && event.target.id.startsWith('modal-praktikan-')) event.target.classList.add('hidden');
         }
     </script>
 @endsection
