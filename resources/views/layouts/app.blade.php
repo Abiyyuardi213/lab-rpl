@@ -5,28 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Lab RPL ITATS — Pusat Riset & Praktikum Teknik Informatika')</title>
-    <meta name="description"
-        content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika ITATS.')">
+    <meta name="description" content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika ITATS.')">
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="@yield('meta_type', 'website')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:title" content="@yield('title', 'Lab RPL ITATS — Pusat Riset & Praktikum Teknik Informatika')">
-    <meta property="og:description"
-        content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika ITATS.')">
+    <meta property="og:description" content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika ITATS.')">
     <meta property="og:image" content="@yield('meta_image', asset('image/logo-RPL.jpg'))">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="{{ url()->current() }}">
-    <meta name="twitter:title"
-        content="@yield('title', 'Lab RPL ITATS — Pusat Riset & Praktikum Teknik Informatika')">
-    <meta name="twitter:description"
-        content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika ITATS.')">
+    <meta name="twitter:title" content="@yield('title', 'Lab RPL ITATS — Pusat Riset & Praktikum Teknik Informatika')">
+    <meta name="twitter:description" content="@yield('meta_description', 'Sistem Informasi Laboratorium Rekayasa Perangkat Lunak (Lab RPL) ITATS. Pusat riset, pengembangan, dan praktikum mahasiswa Teknik Informatika ITATS.')">
     <meta name="twitter:image" content="@yield('meta_image', asset('image/logo-RPL.jpg'))">
 
     <!-- Keywords -->
-    <meta name="keywords" content="Lab RPL ITATS, Rekayasa Perangkat Lunak, Praktikum Informatika, ITATS, Teknik Informatika, Pemrograman, RPL">
+    <meta name="keywords"
+        content="Lab RPL ITATS, Rekayasa Perangkat Lunak, Praktikum Informatika, ITATS, Teknik Informatika, Pemrograman, RPL">
     <meta name="author" content="Lab RPL ITATS">
 
     @yield('meta')
@@ -47,7 +44,7 @@
 
     <script>
         // Safer fix for standalone mode links
-        document.addEventListener('click', function (e) {
+        document.addEventListener('click', function(e) {
             const link = e.target.closest('a');
             if (link &&
                 link.href &&
@@ -132,6 +129,7 @@
                             ['label' => 'Beranda', 'href' => '/'],
                             ['label' => 'Tentang', 'href' => '/tentang'],
                             ['label' => 'Struktur Organisasi', 'href' => '/struktur-organisasi'],
+                            ['label' => 'Asisten Lab', 'href' => '/aslab'],
                             ['label' => 'Praktikum', 'href' => '/praktikum'],
                             ['label' => 'Kegiatan', 'href' => '/kegiatan'],
                             ['label' => 'Pengumuman & Berita', 'href' => '/pengumuman'],
@@ -165,8 +163,9 @@
                         class="bg-[#1a4fa0] md:hidden inline-flex items-center justify-center rounded-md px-3 py-2 text-white hover:bg-[#1a4fa0]/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         aria-label="Buka menu">
                         {{-- Icon Menu --}}
-                        <svg id="icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                        <svg id="icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="h-5 w-5">
                             <line x1="4" x2="20" y1="12" y2="12" />
                             <line x1="4" x2="20" y1="6" y2="6" />
                             <line x1="4" x2="20" y1="18" y2="18" />
@@ -227,8 +226,8 @@
                 <div>
                     {{-- Logo Lab RPL --}}
                     <div class="mb-4">
-                        <img src="{{ asset('image/rplmini.png') }}" alt="Logo Lab RPL ITATS" width="70" height="70"
-                            class="rounded-lg">
+                        <img src="{{ asset('image/rplmini.png') }}" alt="Logo Lab RPL ITATS" width="70"
+                            height="70" class="rounded-lg">
                     </div>
 
                     <h3 class="text-sm font-semibold mb-3">Lab. Rekayasa Perangkat Lunak</h3>

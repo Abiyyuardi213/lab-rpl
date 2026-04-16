@@ -17,11 +17,39 @@ class Aslab extends Model
         'no_hp',
         'jurusan',
         'angkatan',
+        'profile_image',
+        'slug',
+        'bio',
+        'skills',
+        'instagram_link',
+        'github_link',
+        'achievements',
+        'experience',
+        'activities',
+    ];
+
+    protected $casts = [
+        'skills' => 'array',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function achievements()
+    {
+        return $this->hasMany(AslabAchievement::class);
+    }
+
+    public function experiences()
+    {
+        return $this->hasMany(AslabExperience::class);
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(AslabActivity::class);
     }
 
     public function aslabPraktikums()

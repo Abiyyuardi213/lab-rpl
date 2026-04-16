@@ -204,14 +204,48 @@
                                     <i class="fas fa-image text-xs"></i>
                                     Pilih Gambar
                                 </button>
-                                <div class="p-3 rounded-lg bg-zinc-50 border border-zinc-100 italic">
-                                    <p class="text-[10px] text-zinc-500 leading-relaxed text-center">
-                                        Format yang didukung: JPG, JPEG, atau PNG.<br>Maksimal ukuran file adalah 2MB.
-                                    </p>
-                                </div>
                             </div>
                         </div>
                         @error('profile_picture')
+                            <p class="text-[10px] font-medium text-rose-500 mt-2 text-center">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Premium Card Image --}}
+                    <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+                        <h3 class="text-lg font-semibold text-zinc-900 mb-2 flex items-center gap-2">
+                            <i class="fas fa-star text-amber-500 text-sm"></i>
+                            Premium Card Image
+                        </h3>
+                        <p class="text-[10px] text-zinc-500 mb-6 italic leading-tight">Gambar ini akan tampil sebagai card utama di halaman publik (Rasio 4:5 portrait direkomendasikan).</p>
+
+                        <div class="flex flex-col items-center gap-6">
+                            <div id="preview-container-premium"
+                                class="relative h-60 w-48 rounded-none border-2 border-dashed border-zinc-200 bg-zinc-50/50 flex items-center justify-center overflow-hidden group transition-all hover:border-[#001f3f]/20 hover:bg-white">
+                                <div id="placeholder-text-premium" class="text-center p-4">
+                                    <i
+                                        class="fas fa-upload text-3xl text-zinc-300 mb-2 group-hover:scale-110 transition-transform"></i>
+                                    <p class="text-[10px] font-semibold text-zinc-400 uppercase tracking-tighter">Premium Banner</p>
+                                </div>
+                                <img id="image-preview-premium" class="hidden h-full w-full object-cover">
+
+                                <button type="button" onclick="removeImagePremium()" id="remove-btn-premium"
+                                    class="hidden absolute top-2 right-2 h-7 w-7 rounded-lg bg-rose-500 text-white items-center justify-center shadow-lg hover:bg-rose-600 transition-all active:scale-90 scale-0 origin-center">
+                                    <i class="fas fa-trash-alt text-[10px]"></i>
+                                </button>
+                            </div>
+
+                            <div class="w-full space-y-3">
+                                <input type="file" name="profile_image" id="profile_image" class="hidden"
+                                    accept="image/*" onchange="previewImagePremium(this)">
+                                <button type="button" onclick="document.getElementById('profile_image').click()"
+                                    class="w-full inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-amber-200 bg-amber-50/30 px-4 text-sm font-bold text-amber-900 shadow-sm transition-all hover:bg-amber-50 active:scale-95">
+                                    <i class="fas fa-plus-circle text-xs"></i>
+                                    Unggah Card Image
+                                </button>
+                            </div>
+                        </div>
+                        @error('profile_image')
                             <p class="text-[10px] font-medium text-rose-500 mt-2 text-center">{{ $message }}</p>
                         @enderror
                     </div>
@@ -259,6 +293,49 @@
             const container = document.getElementById('preview-container');
             const input = document.getElementById('profile_picture');
             const removeBtn = document.getElementById('remove-btn');
+
+            input.value = '';
+            preview.src = '';
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            container.classList.add('border-dashed');
+            container.classList.remove('border-solid');
+
+            removeBtn.classList.add('scale-0');
+            setTimeout(() => {
+                removeBtn.classList.add('hidden');
+                removeBtn.classList.remove('flex');
+            }, 200);
+        }
+
+        function previewImagePremium(input) {
+            const preview = document.getElementById('image-preview-premium');
+            const placeholder = document.getElementById('placeholder-text-premium');
+            const container = document.getElementById('preview-container-premium');
+            const removeBtn = document.getElementById('remove-btn-premium');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    container.classList.remove('border-dashed');
+                    container.classList.add('border-solid');
+
+                    removeBtn.classList.remove('hidden', 'scale-0');
+                    removeBtn.classList.add('flex', 'scale-100');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function removeImagePremium() {
+            const preview = document.getElementById('image-preview-premium');
+            const placeholder = document.getElementById('placeholder-text-premium');
+            const container = document.getElementById('preview-container-premium');
+            const input = document.getElementById('profile_image');
+            const removeBtn = document.getElementById('remove-btn-premium');
 
             input.value = '';
             preview.src = '';

@@ -179,6 +179,10 @@ Route::middleware('auth')->group(function () {
         Route::post('tugas/direct', [\App\Http\Controllers\Aslab\TugasController::class, 'storeDirect'])->name('tugas.store-direct');
         Route::resource('tugas', \App\Http\Controllers\Aslab\TugasController::class);
 
+        // Portfolio Management
+        Route::get('/portfolio/edit', [\App\Http\Controllers\Aslab\PortfolioController::class, 'edit'])->name('portfolio.edit');
+        Route::patch('/portfolio/update', [\App\Http\Controllers\Aslab\PortfolioController::class, 'update'])->name('portfolio.update');
+
         // Presensi (Aslab)
         Route::get('/presensi/scan', [PresensiController::class, 'scan'])->name('presensi.scan');
         Route::post('/presensi/check-in', [PresensiController::class, 'checkIn'])->name('presensi.check-in');
@@ -224,3 +228,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/check-npm', [\App\Http\Controllers\AuthController::class, 'checkNpm'])->name('check-npm');
+
+// Portfolio Route (Placed at the end to avoid shadowing preserved keywords like dashboard/portfolio)
+Route::get('/aslab/{slug}', [WelcomeController::class, 'aslabPortfolio'])->name('aslab.portfolio');
+

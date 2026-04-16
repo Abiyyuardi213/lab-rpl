@@ -152,4 +152,12 @@ class WelcomeController extends Controller
 
         return view('kegiatan.show', compact('kegiatan', 'recentKegiatans'));
     }
+    public function aslabPortfolio($slug)
+    {
+        $aslab = \App\Models\Aslab::with('user')
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return view('aslab-portfolio', compact('aslab'));
+    }
 }

@@ -1,38 +1,34 @@
-<div data-aslab="{{ json_encode([
-    'name' => $aslab->user->name,
-    'npm' => $aslab->npm,
-    'jurusan' => $aslab->jurusan,
-    'angkatan' => $aslab->angkatan,
-    'email' => $aslab->user->email,
-    'no_hp' => $aslab->no_hp ?? '-',
-    'jabatan' => $aslab->jabatan,
-    'foto' => $aslab->user->profile_picture
-        ? asset('storage/' . $aslab->user->profile_picture)
-        : 'https://ui-avatars.com/api/?name=' . urlencode($aslab->user->name) . '&background=1a4fa0&color=fff&size=200',
-]) }}" onclick="showAslabDetail(this)"
-    class="group cursor-pointer relative bg-white rounded-3xl p-6 border border-slate-200 hover:border-[#1a4fa0]/30 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 {{ $width ?? '' }}">
-    <div class="relative w-24 h-24 mx-auto mb-6">
-        <div
-            class="absolute inset-0 bg-[#1a4fa0]/10 rounded-2xl group-hover:rotate-12 group-hover:scale-110 transition-transform duration-500">
+<a href="{{ route('aslab.portfolio', $aslab->slug ?? 'not-set') }}" 
+   class="group block relative perspective-1000">
+    <div class="relative aspect-[4/5] overflow-hidden bg-slate-200 shadow-lg transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-2">
+        {{-- Background Pattern/Gradient if no image --}}
+        <div class="absolute inset-0 bg-gradient-to-br from-[#1a4fa0] to-blue-500 opacity-10"></div>
+        
+        @if($aslab->profile_image)
+            <img src="{{ asset('storage/' . $aslab->profile_image) }}" 
+                 alt="{{ $aslab->user->name }}"
+                 class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110">
+        @else
+            <div class="flex h-full w-full flex-col items-center justify-center p-6 text-center">
+                <img src="{{ $aslab->user->profile_picture ? asset('storage/' . $aslab->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($aslab->user->name) . '&background=1a4fa0&color=fff&size=200' }}"
+                     alt="{{ $aslab->user->name }}"
+                     class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md mb-3">
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Lab Assistant</span>
+            </div>
+        @endif
+
+        {{-- Hover Overlay --}}
+        <div class="absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-center justify-center">
+            <span class="px-4 py-2 bg-white/20 backdrop-blur-md rounded-full text-white text-[10px] font-bold uppercase tracking-widest border border-white/30">Lihat Portfolio</span>
         </div>
-        <img src="{{ $aslab->user->profile_picture ? asset('storage/' . $aslab->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($aslab->user->name) . '&background=f1f5f9&color=64748b' }}"
-            alt="{{ $aslab->user->name }}"
-            class="relative w-full h-full rounded-2xl object-cover border-2 border-white shadow-sm transition-transform duration-500 group-hover:scale-105">
     </div>
-    <div class="text-center">
-        <h5 class="text-sm font-bold text-slate-900 leading-tight mb-1 group-hover:text-[#1a4fa0] transition-colors">
+
+    <div class="mt-4 text-center">
+        <h5 class="text-xs sm:text-sm font-black text-slate-900 group-hover:text-[#1a4fa0] transition-colors leading-tight uppercase tracking-tight">
             {{ $aslab->user->name }}
         </h5>
-        <p class="text-[10px] text-[#1a4fa0] font-bold uppercase tracking-wider mb-2">
+        <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-[0.1em]">
             {{ $aslab->jabatan }}
         </p>
-        <p class="text-xs text-slate-500 mb-4">{{ $aslab->jurusan }} • {{ $aslab->angkatan }}
-        </p>
-        <div class="flex items-center justify-center gap-2">
-            <span
-                class="text-[9px] font-bold text-slate-400 border border-slate-100 px-2 py-0.5 rounded shadow-sm group-hover:bg-slate-50 transition-colors">
-                NPM: {{ $aslab->npm }}
-            </span>
-        </div>
     </div>
-</div>
+</a>

@@ -39,6 +39,7 @@ class AslabController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
             'angkatan' => 'nullable|string',
             'jabatan' => 'required|string',
             'no_hp' => 'nullable|string',
@@ -58,16 +59,23 @@ class AslabController extends Controller
 
         $user->save();
 
+        $profileImagePath = null;
+        if ($request->hasFile('profile_image')) {
+            $profileImagePath = $request->file('profile_image')->store('aslab-premium', 'public');
+        }
+
         Aslab::create([
             'user_id' => $user->id,
             'npm' => $request->npm,
+            'slug' => \Illuminate\Support\Str::slug($request->name),
             'jabatan' => $request->jabatan,
             'jurusan' => 'Teknik Informatika',
             'angkatan' => $request->angkatan,
             'no_hp' => $request->no_hp,
+            'profile_image' => $profileImagePath,
         ]);
 
-        return redirect()->route('admin.aslab.index', ['last_page' => '1'])->with('success', 'Aslab berhasil ditambahkan.');
+        return redirect()->route('admin.aslab.index')->with('success', 'Aslab berhasil ditambahkan.');
     }
 
     public function show($id)
@@ -92,6 +100,7 @@ class AslabController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:4096',
             'angkatan' => 'nullable|string',
             'jabatan' => 'required|string',
             'no_hp' => 'nullable|string',
@@ -116,15 +125,28 @@ class AslabController extends Controller
 
         $user->update($userData);
 
+        $aslabData = [
+            'npm' => $request->npm,
+            'jabatan' => $request->jabatan,
+            'jurusan' => 'Teknik Informatika',
+            'angkatan' => $request->angkatan,
+            'no_hp' => $request->no_hp,
+        ];
+
+        if (!$user->aslab || !$user->aslab->slug) {
+            $aslabData['slug'] = \Illuminate\Support\Str::slug($request->name);
+        }
+
+        if ($request->hasFile('profile_image')) {
+            if ($user->aslab && $user->aslab->profile_image) {
+                Storage::delete('public/' . $user->aslab->profile_image);
+            }
+            $aslabData['profile_image'] = $request->file('profile_image')->store('aslab-premium', 'public');
+        }
+
         $user->aslab()->updateOrCreate(
             ['user_id' => $user->id],
-            [
-                'npm' => $request->npm,
-                'jabatan' => $request->jabatan,
-                'jurusan' => 'Teknik Informatika',
-                'angkatan' => $request->angkatan,
-                'no_hp' => $request->no_hp,
-            ]
+            $aslabData
         );
 
         return redirect()->route('admin.aslab.index')->with('success', 'Aslab berhasil diperbarui.');

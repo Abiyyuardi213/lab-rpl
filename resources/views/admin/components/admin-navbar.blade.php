@@ -99,6 +99,13 @@
                         <span
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('aslab/presensi*') ? 'w-full' : '' }}"></span>
                     </a>
+
+                    <a href="{{ route('aslab.portfolio.edit') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->routeIs('aslab.portfolio.*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Portfolio Saya
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->routeIs('aslab.portfolio.*') ? 'w-full' : '' }}"></span>
+                    </a>
                 @else
                     <a href="{{ url('/admin/dashboard') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
@@ -380,6 +387,8 @@
                 <a href="{{ route('aslab.presensi.scan') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/presensi*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Scanner
                     Presensi</a>
+                <a href="{{ route('aslab.portfolio.edit') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->routeIs('aslab.portfolio.*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Portfolio Saya</a>
             @else
                 <a href="{{ url('/admin/dashboard') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
