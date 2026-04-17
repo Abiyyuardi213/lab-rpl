@@ -86,7 +86,7 @@
                     @if ($korlab->count() > 0)
                         <div class="flex justify-center mb-16">
                             @foreach ($korlab as $aslab)
-                                @include('partials.aslab-card', ['aslab' => $aslab, 'width' => 'w-72'])
+                                @include('partials.aslab-card', ['aslab' => $aslab, 'width' => 'w-64'])
                             @endforeach
                         </div>
                     @endif

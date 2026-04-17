@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AslabActivity extends Model
 {
-    protected $fillable = ['aslab_id', 'name', 'year'];
+    protected $fillable = ['aslab_id', 'name', 'month', 'year'];
 
     public function aslab()
     {

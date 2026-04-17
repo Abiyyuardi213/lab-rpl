@@ -23,9 +23,7 @@ class Aslab extends Model
         'skills',
         'instagram_link',
         'github_link',
-        'achievements',
-        'experience',
-        'activities',
+        'linkedin_link',
     ];
 
     protected $casts = [

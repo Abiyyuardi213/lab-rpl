@@ -69,44 +69,53 @@
                     </div>
                 </div>
 
-                <div>
-                    <h3 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-                        <span class="w-8 h-1 bg-[#1a4fa0] rounded-full"></span>
-                        Technical Skills
+                {{-- Skills Section --}}
+                <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm mb-12">
+                    <h3 class="text-sm font-black text-zinc-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                        <i class="fas fa-brain text-amber-500/80"></i>
+                        Bidang Keahlian
                     </h3>
-                    <div class="flex flex-wrap gap-3">
+                    <div class="flex flex-wrap gap-2">
                         @forelse($aslab->skills ?? [] as $skill)
-                            <span class="px-5 py-2.5 rounded-2xl bg-zinc-50 border border-zinc-100 text-sm font-bold text-slate-700 shadow-sm">
+                            <span class="px-3 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-700 text-xs font-bold hover:border-zinc-300 transition-colors">
                                 {{ $skill }}
                             </span>
                         @empty
-                            <p class="text-slate-400 italic text-sm">Belum ada data keahlian.</p>
+                            <p class="text-zinc-400 italic text-sm">Belum ada data keahlian.</p>
                         @endforelse
                     </div>
                 </div>
 
                 @if($aslab->achievements && count($aslab->achievements) > 0)
-                <div>
-                    <h3 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-                        <span class="w-8 h-1 bg-[#1a4fa0] rounded-full"></span>
+                <div class="space-y-6">
+                    <h3 class="text-xl font-bold text-zinc-900 flex items-center gap-3">
+                        <span class="w-1.5 h-6 bg-zinc-900 rounded-full"></span>
                         Prestasi & Penghargaan
                     </h3>
-                    <div class="overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
                         <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50">
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 w-16">No</th>
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Nama Prestasi</th>
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 w-32">Tahun</th>
+                            <thead class="bg-zinc-50 border-b border-zinc-100">
+                                <tr>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest w-16">No</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Nama Prestasi</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest w-40 text-right">Tahun</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100">
+                            <tbody class="divide-y divide-zinc-100">
                                 @foreach($aslab->achievements as $index => $item)
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $index + 1 }}</td>
-                                    <td class="px-6 py-4 text-sm font-bold text-slate-700">{{ $item->name ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-sm text-slate-500 font-medium">
-                                        <span class="px-3 py-1 rounded-full bg-blue-50 text-[#1a4fa0] text-[10px] font-black uppercase">{{ $item->year ?? '-' }}</span>
+                                <tr class="hover:bg-zinc-50/50 transition-colors">
+                                    <td class="px-6 py-4 text-sm font-medium text-zinc-400">{{ sprintf('%02d', $index + 1) }}</td>
+                                    <td class="px-6 py-4 text-sm font-semibold text-zinc-900">{{ $item->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-sm text-zinc-500 font-medium text-right">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-zinc-50 text-zinc-600 border-zinc-200">
+                                            @if($item->start_year && $item->end_year)
+                                                {{ $item->start_year }} — {{ $item->end_year }}
+                                            @elseif($item->start_year)
+                                                {{ $item->start_year }}
+                                            @else
+                                                -
+                                            @endif
+                                        </span>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -117,27 +126,35 @@
                 @endif
 
                 @if($aslab->experiences && count($aslab->experiences) > 0)
-                <div>
-                    <h3 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-                        <span class="w-8 h-1 bg-[#1a4fa0] rounded-full"></span>
+                <div class="space-y-6 mt-12">
+                    <h3 class="text-xl font-bold text-zinc-900 flex items-center gap-3">
+                        <span class="w-1.5 h-6 bg-zinc-900 rounded-full"></span>
                         Pengalaman Organisasi
                     </h3>
-                    <div class="overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
                         <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50">
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 w-16">No</th>
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Organisasi / Jabatan</th>
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 w-32">Tahun</th>
+                            <thead class="bg-zinc-50 border-b border-zinc-100">
+                                <tr>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest w-16">No</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Organisasi / Jabatan</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest w-40 text-right">Tahun</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100">
+                            <tbody class="divide-y divide-zinc-100">
                                 @foreach($aslab->experiences as $index => $item)
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $index + 1 }}</td>
-                                    <td class="px-6 py-4 text-sm font-bold text-slate-700">{{ $item->name ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-sm text-slate-500 font-medium">
-                                        <span class="px-3 py-1 rounded-full bg-zinc-100 text-slate-600 text-[10px] font-black uppercase">{{ $item->year ?? '-' }}</span>
+                                <tr class="hover:bg-zinc-50/50 transition-colors">
+                                    <td class="px-6 py-4 text-sm font-medium text-zinc-400">{{ sprintf('%02d', $index + 1) }}</td>
+                                    <td class="px-6 py-4 text-sm font-semibold text-zinc-900">{{ $item->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-sm text-zinc-500 font-medium text-right">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-zinc-50 text-zinc-600 border-zinc-200">
+                                            @if($item->start_year && $item->end_year)
+                                                {{ $item->start_year }} — {{ $item->end_year }}
+                                            @elseif($item->start_year)
+                                                {{ $item->start_year }}
+                                            @else
+                                                -
+                                            @endif
+                                        </span>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -148,27 +165,29 @@
                 @endif
 
                 @if($aslab->activities && count($aslab->activities) > 0)
-                <div>
-                    <h3 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-                        <span class="w-8 h-1 bg-[#1a4fa0] rounded-full"></span>
+                <div class="space-y-6 mt-12">
+                    <h3 class="text-xl font-bold text-zinc-900 flex items-center gap-3">
+                        <span class="w-1.5 h-6 bg-zinc-900 rounded-full"></span>
                         Kegiatan Prodi & Kampus
                     </h3>
-                    <div class="overflow-hidden rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
                         <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50">
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 w-16">No</th>
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Nama Kegiatan</th>
-                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 w-32">Tahun</th>
+                            <thead class="bg-zinc-50 border-b border-zinc-100">
+                                <tr>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest w-16">No</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Nama Kegiatan</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest w-40 text-right">Tahun</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-100">
+                            <tbody class="divide-y divide-zinc-100">
                                 @foreach($aslab->activities as $index => $item)
-                                <tr class="hover:bg-slate-50/50 transition-colors">
-                                    <td class="px-6 py-4 text-sm font-bold text-slate-400">{{ $index + 1 }}</td>
-                                    <td class="px-6 py-4 text-sm font-bold text-slate-700">{{ $item->name ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-sm text-slate-500 font-medium">
-                                        <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase">{{ $item->year ?? '-' }}</span>
+                                <tr class="hover:bg-zinc-50/50 transition-colors">
+                                    <td class="px-6 py-4 text-sm font-medium text-zinc-400">{{ sprintf('%02d', $index + 1) }}</td>
+                                    <td class="px-6 py-4 text-sm font-semibold text-zinc-900">{{ $item->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-sm text-zinc-500 font-medium text-right">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border bg-zinc-50 text-zinc-600 border-zinc-200">
+                                            {{ $item->month }} {{ $item->year }}
+                                        </span>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -180,34 +199,83 @@
             </div>
 
             {{-- Sidebar Info --}}
-            <div class="space-y-8">
-                <div class="p-8 rounded-[2rem] bg-slate-50 border border-slate-100 shadow-sm">
-                    <h4 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-6">Informasi Akademik</h4>
+            <div class="lg:sticky lg:top-8 h-fit space-y-8">
+                <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+                    <h4 class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-6">Informasi Akademik</h4>
                     <ul class="space-y-6">
                         <li class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#1a4fa0]">
-                                <i class="fas fa-id-card"></i>
+                            <div class="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-900">
+                                <i class="fas fa-id-card text-xs"></i>
                             </div>
                             <div>
-                                <p class="text-[10px] uppercase font-bold text-slate-400 leading-none mb-1">NPM</p>
-                                <p class="text-sm font-bold text-slate-700">{{ $aslab->npm }}</p>
+                                <p class="text-[10px] uppercase font-bold text-zinc-400 leading-none mb-1">NPM</p>
+                                <p class="text-sm font-bold text-zinc-900">{{ $aslab->npm }}</p>
                             </div>
                         </li>
                         <li class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#1a4fa0]">
-                                <i class="fas fa-graduation-cap"></i>
+                            <div class="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-900">
+                                <i class="fas fa-graduation-cap text-xs"></i>
                             </div>
                             <div>
-                                <p class="text-[10px] uppercase font-bold text-slate-400 leading-none mb-1">Jurusan</p>
-                                <p class="text-sm font-bold text-slate-700">{{ $aslab->jurusan }}</p>
+                                <p class="text-[10px] uppercase font-bold text-zinc-400 leading-none mb-1">Jurusan</p>
+                                <p class="text-sm font-bold text-zinc-900">{{ $aslab->jurusan }}</p>
                             </div>
                         </li>
                     </ul>
 
-                    <div class="mt-10 pt-8 border-t border-slate-200">
-                        <a href="https://wa.me/{{ preg_replace('/\D/', '', $aslab->no_hp ?? '') }}" target="_blank" class="w-full inline-flex items-center justify-center gap-3 h-12 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-[#1a4fa0] transition-colors shadow-lg">
-                            <i class="fab fa-whatsapp text-lg"></i> Hubungi via WhatsApp
+                    <div class="mt-8 pt-6 border-t border-zinc-100">
+                        <a href="https://wa.me/{{ preg_replace('/\D/', '', $aslab->no_hp ?? '') }}" target="_blank" class="w-full inline-flex h-11 items-center justify-center gap-3 rounded-lg bg-zinc-900 text-white text-xs font-bold hover:bg-zinc-800 transition-all active:scale-95 shadow-lg shadow-zinc-200">
+                            <i class="fab fa-whatsapp text-lg"></i> Hubungi WhatsApp
                         </a>
+                    </div>
+                </div>
+
+                {{-- Social Media Card --}}
+                <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+                    <h4 class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-6">Media Sosial</h4>
+                    <div class="space-y-4">
+                        @if($aslab->instagram_link)
+                        <a href="{{ $aslab->instagram_link }}" target="_blank" class="flex items-center gap-4 group">
+                            <div class="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-400 group-hover:text-pink-600 group-hover:bg-pink-50 group-hover:border-pink-100 transition-all">
+                                <i class="fab fa-instagram"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase font-bold text-zinc-400 leading-none mb-1">Instagram</p>
+                                <p class="text-sm font-bold text-zinc-900 truncate max-w-[150px]">@ {{ Str::afterLast(rtrim($aslab->instagram_link, '/'), '/') }}</p>
+                            </div>
+                        </a>
+                        @endif
+                        
+                        @if($aslab->github_link)
+                        <a href="{{ $aslab->github_link }}" target="_blank" class="flex items-center gap-4 group">
+                            <div class="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-400 group-hover:text-zinc-900 group-hover:bg-zinc-100 group-hover:border-zinc-200 transition-all">
+                                <i class="fab fa-github"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase font-bold text-zinc-400 leading-none mb-1">GitHub</p>
+                                <p class="text-sm font-bold text-zinc-900 truncate max-w-[150px]">{{ Str::afterLast(rtrim($aslab->github_link, '/'), '/') }}</p>
+                            </div>
+                        </a>
+                        @endif
+
+                        @if($aslab->linkedin_link)
+                        <a href="{{ $aslab->linkedin_link }}" target="_blank" class="flex items-center gap-4 group">
+                            <div class="w-10 h-10 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center text-zinc-400 group-hover:text-blue-600 group-hover:bg-blue-50 group-hover:border-blue-100 transition-all">
+                                <i class="fab fa-linkedin"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] uppercase font-bold text-zinc-400 leading-none mb-1">LinkedIn</p>
+                                <p class="text-sm font-bold text-zinc-900 truncate max-w-[150px]">{{ Str::afterLast(rtrim($aslab->linkedin_link, '/'), '/') }}</p>
+                            </div>
+                        </a>
+                        @endif
+
+                        @if(!$aslab->instagram_link && !$aslab->github_link && !$aslab->linkedin_link)
+                        <div class="flex flex-col items-center justify-center py-4 text-center">
+                            <i class="fas fa-share-alt text-zinc-200 text-xl mb-2"></i>
+                            <p class="text-[10px] text-zinc-400 italic">Media sosial belum ditambahkan</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

@@ -1,5 +1,5 @@
 <a href="{{ route('aslab.portfolio', $aslab->slug ?? 'not-set') }}" 
-   class="group block relative perspective-1000">
+   class="group block relative perspective-1000 {{ $width ?? '' }}">
     <div class="relative aspect-[4/5] overflow-hidden bg-slate-200 shadow-lg transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-2">
         {{-- Background Pattern/Gradient if no image --}}
         <div class="absolute inset-0 bg-gradient-to-br from-[#1a4fa0] to-blue-500 opacity-10"></div>

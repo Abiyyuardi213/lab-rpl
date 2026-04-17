@@ -79,16 +79,18 @@
                                     <button type="button" onclick="addRow('achievements-container', 'achievements')" class="text-[10px] font-bold text-[#1a4fa0] hover:underline uppercase">+ Tambah Baris</button>
                                 </div>
                                 <div id="achievements-container" class="space-y-3">
-                                    @forelse($aslab->achievements as $item)
+                                    @forelse($aslab->achievements as $index => $item)
                                         <div class="flex gap-2 items-start group">
-                                            <input type="text" name="achievements[][name]" value="{{ $item->name }}" placeholder="Nama Prestasi" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
-                                            <input type="text" name="achievements[][year]" value="{{ $item->year }}" placeholder="Tahun" class="w-24 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="achievements[{{ $index }}][name]" value="{{ $item->name }}" placeholder="Nama Prestasi" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="achievements[{{ $index }}][start_year]" value="{{ $item->start_year }}" placeholder="Mulai" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="achievements[{{ $index }}][end_year]" value="{{ $item->end_year }}" placeholder="Selesai" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
                                             <button type="button" onclick="removeRow(this)" class="h-10 w-10 flex items-center justify-center text-zinc-300 hover:text-red-500 transition-colors"><i class="fas fa-times-circle"></i></button>
                                         </div>
                                     @empty
                                         <div class="flex gap-2 items-start group">
-                                            <input type="text" name="achievements[][name]" placeholder="Nama Prestasi" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
-                                            <input type="text" name="achievements[][year]" placeholder="Tahun" class="w-24 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="achievements[0][name]" placeholder="Nama Prestasi" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="achievements[0][start_year]" placeholder="Mulai" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="achievements[0][end_year]" placeholder="Selesai" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
                                         </div>
                                     @endforelse
                                 </div>
@@ -101,16 +103,18 @@
                                     <button type="button" onclick="addRow('experience-container', 'experience')" class="text-[10px] font-bold text-[#1a4fa0] hover:underline uppercase">+ Tambah Baris</button>
                                 </div>
                                 <div id="experience-container" class="space-y-3">
-                                    @forelse($aslab->experiences as $item)
+                                    @forelse($aslab->experiences as $index => $item)
                                         <div class="flex gap-2 items-start group">
-                                            <input type="text" name="experience[][name]" value="{{ $item->name }}" placeholder="Pengalaman/Organisasi" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
-                                            <input type="text" name="experience[][year]" value="{{ $item->year }}" placeholder="Tahun" class="w-24 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="experience[{{ $index }}][name]" value="{{ $item->name }}" placeholder="Pengalaman/Organisasi" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="experience[{{ $index }}][start_year]" value="{{ $item->start_year }}" placeholder="Mulai" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="experience[{{ $index }}][end_year]" value="{{ $item->end_year }}" placeholder="Selesai" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
                                             <button type="button" onclick="removeRow(this)" class="h-10 w-10 flex items-center justify-center text-zinc-300 hover:text-red-500 transition-colors"><i class="fas fa-times-circle"></i></button>
                                         </div>
                                     @empty
                                         <div class="flex gap-2 items-start group">
-                                            <input type="text" name="experience[][name]" placeholder="Pengalaman/Organisasi" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
-                                            <input type="text" name="experience[][year]" placeholder="Tahun" class="w-24 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="experience[0][name]" placeholder="Pengalaman/Organisasi" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="experience[0][start_year]" placeholder="Mulai" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="experience[0][end_year]" placeholder="Selesai" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
                                         </div>
                                     @endforelse
                                 </div>
@@ -120,19 +124,21 @@
                             <div class="space-y-4">
                                 <div class="flex items-center justify-between">
                                     <label class="text-sm font-bold text-zinc-700 uppercase tracking-tight">Kegiatan Prodi/Kampus</label>
-                                    <button type="button" onclick="addRow('activities-container', 'activities')" class="text-[10px] font-bold text-[#1a4fa0] hover:underline uppercase">+ Tambah Baris</button>
+                                    <button type="button" onclick="addActivityRow()" class="text-[10px] font-bold text-[#1a4fa0] hover:underline uppercase">+ Tambah Baris</button>
                                 </div>
                                 <div id="activities-container" class="space-y-3">
-                                    @forelse($aslab->activities as $item)
+                                    @forelse($aslab->activities as $index => $item)
                                         <div class="flex gap-2 items-start group">
-                                            <input type="text" name="activities[][name]" value="{{ $item->name }}" placeholder="Nama Kegiatan" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
-                                            <input type="text" name="activities[][year]" value="{{ $item->year }}" placeholder="Tahun" class="w-24 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="activities[{{ $index }}][name]" value="{{ $item->name }}" placeholder="Nama Kegiatan" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="activities[{{ $index }}][month]" value="{{ $item->month }}" placeholder="Bulan" class="w-24 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="activities[{{ $index }}][year]" value="{{ $item->year }}" placeholder="Tahun" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
                                             <button type="button" onclick="removeRow(this)" class="h-10 w-10 flex items-center justify-center text-zinc-300 hover:text-red-500 transition-colors"><i class="fas fa-times-circle"></i></button>
                                         </div>
                                     @empty
                                         <div class="flex gap-2 items-start group">
-                                            <input type="text" name="activities[][name]" placeholder="Nama Kegiatan" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
-                                            <input type="text" name="activities[][year]" placeholder="Tahun" class="w-24 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="activities[0][name]" placeholder="Nama Kegiatan" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="activities[0][month]" placeholder="Bulan" class="w-24 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+                                            <input type="text" name="activities[0][year]" placeholder="Tahun" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
                                         </div>
                                     @endforelse
                                 </div>
@@ -303,10 +309,28 @@
     function addRow(containerId, inputName) {
         const container = document.getElementById(containerId);
         const div = document.createElement('div');
+        const index = Date.now();
         div.className = 'flex gap-2 items-start group animate-in slide-in-from-left-2';
         div.innerHTML = `
-            <input type="text" name="${inputName}[][name]" placeholder="Nama/Keterangan" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
-            <input type="text" name="${inputName}[][year]" placeholder="Tahun" class="w-24 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+            <input type="text" name="${inputName}[${index}][name]" placeholder="Nama/Keterangan" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+            <input type="text" name="${inputName}[${index}][start_year]" placeholder="Mulai" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+            <input type="text" name="${inputName}[${index}][end_year]" placeholder="Selesai" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+            <button type="button" onclick="removeRow(this)" class="h-10 w-10 flex items-center justify-center text-zinc-300 hover:text-red-500 transition-colors">
+                <i class="fas fa-times-circle"></i>
+            </button>
+        `;
+        container.appendChild(div);
+    }
+
+    function addActivityRow() {
+        const container = document.getElementById('activities-container');
+        const div = document.createElement('div');
+        const index = Date.now();
+        div.className = 'flex gap-2 items-start group animate-in slide-in-from-left-2';
+        div.innerHTML = `
+            <input type="text" name="activities[${index}][name]" placeholder="Nama Kegiatan" class="flex-1 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+            <input type="text" name="activities[${index}][month]" placeholder="Bulan" class="w-24 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
+            <input type="text" name="activities[${index}][year]" placeholder="Tahun" class="w-20 h-10 rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-[#1a4fa0]/10 outline-none">
             <button type="button" onclick="removeRow(this)" class="h-10 w-10 flex items-center justify-center text-zinc-300 hover:text-red-500 transition-colors">
                 <i class="fas fa-times-circle"></i>
             </button>
@@ -330,6 +354,23 @@
             title: 'Baris berhasil dihapus'
         });
     }
+
+    @if(session('success'))
+        document.addEventListener('DOMContentLoaded', function() {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: "{{ session('success') }}"
+            });
+        });
+    @endif
 </script>
 @endpush
 @endsection

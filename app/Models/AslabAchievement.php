@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AslabAchievement extends Model
 {
-    protected $fillable = ['aslab_id', 'name', 'year'];
+    protected $fillable = ['aslab_id', 'name', 'year', 'start_year', 'end_year'];
 
     public function aslab()
     {

@@ -59,7 +59,8 @@ class PortfolioController extends Controller
                     if (!empty($item['name'])) {
                         $aslab->achievements()->create([
                             'name' => $item['name'],
-                            'year' => $item['year'] ?? null,
+                            'start_year' => $item['start_year'] ?? null,
+                            'end_year' => $item['end_year'] ?? null,
                         ]);
                     }
                 }
@@ -72,7 +73,8 @@ class PortfolioController extends Controller
                     if (!empty($item['name'])) {
                         $aslab->experiences()->create([
                             'name' => $item['name'],
-                            'year' => $item['year'] ?? null,
+                            'start_year' => $item['start_year'] ?? null,
+                            'end_year' => $item['end_year'] ?? null,
                         ]);
                     }
                 }
@@ -85,6 +87,7 @@ class PortfolioController extends Controller
                     if (!empty($item['name'])) {
                         $aslab->activities()->create([
                             'name' => $item['name'],
+                            'month' => $item['month'] ?? null,
                             'year' => $item['year'] ?? null,
                         ]);
                     }

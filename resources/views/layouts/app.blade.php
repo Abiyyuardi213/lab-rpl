@@ -129,7 +129,6 @@
                             ['label' => 'Beranda', 'href' => '/'],
                             ['label' => 'Tentang', 'href' => '/tentang'],
                             ['label' => 'Struktur Organisasi', 'href' => '/struktur-organisasi'],
-                            ['label' => 'Asisten Lab', 'href' => '/aslab'],
                             ['label' => 'Praktikum', 'href' => '/praktikum'],
                             ['label' => 'Kegiatan', 'href' => '/kegiatan'],
                             ['label' => 'Pengumuman & Berita', 'href' => '/pengumuman'],
