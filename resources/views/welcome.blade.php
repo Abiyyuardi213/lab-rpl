@@ -268,26 +268,22 @@
             <div class="order-2 lg:order-1">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-4 pt-10">
-                        <div
-                            class="aspect-square rounded-2xl bg-white p-4 shadow-sm flex items-center justify-center border border-slate-200">
-                            <img src="{{ asset('image/rplmini.png') }}" alt="Laboratorium RPL"
-                                class="w-20 h-20 object-contain grayscale opacity-50">
+                        <div class="aspect-square rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/10 group">
+                            <img src="{{ asset('image/LAB1.jpg') }}" alt="Lab RPL 1"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                         </div>
-                        <div class="aspect-[3/4] rounded-2xl bg-primary/10 overflow-hidden">
-                            <div
-                                class="w-full h-full bg-primary flex items-center justify-center text-white text-5xl font-black">
-                                RPL</div>
+                        <div class="aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/10 group">
+                            <img src="{{ asset('image/LAB2.jpg') }}" alt="Lab RPL 2"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                         </div>
                     </div>
                     <div class="space-y-4">
-                        <div class="aspect-[3/4] rounded-2xl bg-slate-200 overflow-hidden">
-                            <div
-                                class="w-full h-full bg-slate-300 flex items-center justify-center text-slate-400 text-3xl font-bold italic">
-                                ITATS</div>
+                        <div class="aspect-[3/4] rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/10 group">
+                            <img src="{{ asset('image/LAB4.jpg') }}" alt="Lab RPL 3"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                         </div>
-                        <div
-                            class="aspect-square rounded-2xl bg-white p-4 shadow-sm flex items-center justify-center border border-slate-200">
-                            <i class="fas fa-terminal text-6xl text-slate-100"></i>
+                        <div class="aspect-square rounded-3xl bg-white border border-slate-200 p-10 shadow-2xl shadow-blue-900/5 flex items-center justify-center group">
+                            <img src="{{ asset('image/logo-RPL.png') }}" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" alt="Logo RPL">
                         </div>
                     </div>
                 </div>
@@ -302,14 +298,27 @@
                         Pemrograman Terstruktur, Struktur Data, dan Basis Data demi membangun pondasi teknis yang kuat bagi mahasiswa.</p>
                     <p>Kami memfokuskan pada penguasaan logika pemrograman, efisiensi algoritma, dan manajemen basis data yang terintegrasi untuk menjamin kualitas pemahaman mahasiswa dalam rekayasa perangkat lunak.</p>
                 </div>
-                <div class="mt-10 grid grid-cols-2 gap-8 border-t border-slate-200 pt-10">
+                <div class="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-8 border-t border-slate-200 pt-10">
                     <div>
                         <div class="text-primary font-bold text-xl">Visi</div>
-                        <p class="text-sm text-slate-500 mt-2">Menjadi laboratorium unggulan dalam pembentukan kemampuan fundamental rekayasa perangkat lunak melalui penguasaan algoritma dan basis data.</p>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">Menjadi laboratorium unggulan dalam pembentukan kemampuan fundamental rekayasa perangkat lunak melalui penguasaan algoritma dan basis data yang kompetitif bagi mahasiswa ITATS.</p>
                     </div>
                     <div>
                         <div class="text-primary font-bold text-xl">Misi</div>
-                        <p class="text-sm text-slate-500 mt-2">Mencetak praktikan yang mahir dalam logika pemrograman, optimasi struktur data, dan manajemen basis data.</p>
+                        <ul class="text-sm text-slate-500 mt-2 space-y-2">
+                            <li class="flex gap-2">
+                                <span class="text-primary font-bold">•</span>
+                                <span>Menyelenggarakan praktikum Pemrograman Terstruktur, Struktur Data, dan Basis Data yang berkualitas.</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <span class="text-primary font-bold">•</span>
+                                <span>Membekali mahasiswa dengan kemampuan logika pemrograman yang kuat dan optimasi struktur data.</span>
+                            </li>
+                            <li class="flex gap-2">
+                                <span class="text-primary font-bold">•</span>
+                                <span>Mencetak praktikan yang kompeten dan siap menghadapi tantangan industri.</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

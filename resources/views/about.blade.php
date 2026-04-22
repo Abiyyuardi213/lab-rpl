@@ -16,7 +16,8 @@
                 </h1>
                 <p class="text-lg text-slate-600 max-w-prose leading-relaxed">
                     Pusat pembelajaran yang berfokus pada pengampuan praktikum Pemrograman Terstruktur, Struktur Data, dan
-                    Basis Data. Kami berdedikasi untuk membekali mahasiswa dengan keahlian fundamental dalam rekayasa perangkat lunak demi mencetak tenaga ahli informatika yang kompeten.
+                    Basis Data. Kami berdedikasi untuk membekali mahasiswa dengan keahlian fundamental dalam rekayasa
+                    perangkat lunak demi mencetak tenaga ahli informatika yang kompeten.
                 </p>
                 <div class="flex flex-wrap items-center justify-center gap-4 mt-2">
                     <a href="#visi-misi"
@@ -62,6 +63,80 @@
             </div>
         </section>
 
+        {{-- Visi & Misi Prodi --}}
+        <section id="visi-misi-prodi" class="pt-24 max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h4 class="text-[#1a4fa0] font-bold tracking-widest uppercase text-sm mb-4">Program Studi Teknik Informatika
+                </h4>
+                <h2 class="text-4xl font-extrabold text-slate-900">Visi & Misi Program Studi</h2>
+                <div class="w-16 h-1 bg-[#1a4fa0] mx-auto mt-6"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                {{-- Visi Prodi --}}
+                <div
+                    class="relative group p-10 rounded-3xl border border-slate-200 bg-white hover:border-[#1a4fa0]/20 hover:shadow-2xl transition-all duration-500">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-blue-50 text-[#1a4fa0] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-university text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Visi Prodi</h3>
+                    <p class="text-slate-600 leading-relaxed text-lg">
+                        Menjadi program studi yang menghasilkan lulusan inovatif, berwawasan lingkungan, dan berkelanjutan
+                        di bidang rekayasa perangkat lunak terintegrasi, pembelajaran mesin, serta manajemen jaringan
+                        komputer di tingkat regional untuk mencapai reputasi internasional pada 2045.
+                    </p>
+                </div>
+
+                {{-- Misi Prodi --}}
+                <div
+                    class="relative group p-10 rounded-3xl border border-slate-200 bg-white hover:border-[#1a4fa0]/20 hover:shadow-2xl transition-all duration-500">
+                    <div
+                        class="w-14 h-14 rounded-2xl bg-indigo-50 text-[#1a4fa0] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                        <i class="fas fa-graduation-cap text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Misi Prodi</h3>
+                    <ul class="space-y-4 text-slate-600 text-sm">
+                        <li class="flex gap-4">
+                            <span
+                                class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">1</span>
+                            <p>Menyelenggarakan pendidikan tinggi yang unggul dan adaptif dalam bidang rekayasa perangkat
+                                lunak terintegrasi, pembelajaran mesin, dan manajemen jaringan komputer, guna menghasilkan
+                                lulusan yang inovatif, beretika, dan berwawasan lingkungan.</p>
+                        </li>
+                        <li class="flex gap-4">
+                            <span
+                                class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">2</span>
+                            <p>Mengembangkan penelitian terapan dan inovatif di bidang informatika yang mendukung kemajuan
+                                sains dan teknologi informasi serta berkontribusi terhadap penyelesaian masalah di tingkat
+                                lokal, nasional, dan regional.</p>
+                        </li>
+                        <li class="flex gap-4">
+                            <span
+                                class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">3</span>
+                            <p>Melaksanakan pengabdian kepada masyarakat berbasis teknologi informasi yang mampu
+                                meningkatkan literasi digital, produktivitas masyarakat, serta menunjang pembangunan
+                                berkelanjutan.</p>
+                        </li>
+                        <li class="flex gap-4">
+                            <span
+                                class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">4</span>
+                            <p>Membangun kerja sama strategis dengan industri, pemerintah, dan lembaga pendidikan di dalam
+                                dan luar negeri guna meningkatkan daya saing lulusan dan reputasi internasional program
+                                studi.</p>
+                        </li>
+                        <li class="flex gap-4">
+                            <span
+                                class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">5</span>
+                            <p>Mendorong budaya inovasi, kewirausahaan, dan pembelajaran dalam lingkungan akademik yang
+                                inklusif, kolaboratif, dan mendukung keberlanjutan teknologi informasi di era transformasi
+                                digital.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
         {{-- Visi & Misi --}}
         <section id="visi-misi" class="py-24 max-w-7xl mx-auto px-6">
             <div class="text-center mb-16">
@@ -80,7 +155,8 @@
                     </div>
                     <h3 class="text-2xl font-bold text-slate-900 mb-4">Visi</h3>
                     <p class="text-slate-600 leading-relaxed text-lg italic">
-                        "Menjadi laboratorium unggulan dalam pembentukan kemampuan fundamental rekayasa perangkat lunak melalui penguasaan algoritma dan basis data yang kompetitif bagi mahasiswa ITATS."
+                        "Menjadi laboratorium unggulan dalam pembentukan kemampuan fundamental rekayasa perangkat lunak
+                        melalui penguasaan algoritma dan basis data yang kompetitif bagi mahasiswa ITATS."
                     </p>
                 </div>
 
@@ -96,17 +172,20 @@
                         <li class="flex gap-4">
                             <span
                                 class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">1</span>
-                            <p>Menyelenggarakan praktikum Pemrograman Terstruktur, Struktur Data, dan Basis Data yang berkualitas.</p>
+                            <p>Menyelenggarakan praktikum Pemrograman Terstruktur, Struktur Data, dan Basis Data yang
+                                berkualitas.</p>
                         </li>
                         <li class="flex gap-4">
                             <span
                                 class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">2</span>
-                            <p>Membekali mahasiswa dengan kemampuan logika pemrograman yang kuat, optimasi struktur data, dan manajemen data yang efektif.</p>
+                            <p>Membekali mahasiswa dengan kemampuan logika pemrograman yang kuat, optimasi struktur data,
+                                dan manajemen data yang efektif.</p>
                         </li>
                         <li class="flex gap-4">
                             <span
                                 class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">3</span>
-                            <p>Mencetak praktikan yang kompeten dan siap menghadapi tantangan pengembangan sistem di tingkat lanjut maupun industri.</p>
+                            <p>Mencetak praktikan yang kompeten dan siap menghadapi tantangan pengembangan sistem di tingkat
+                                lanjut maupun industri.</p>
                         </li>
                     </ul>
                 </div>
@@ -178,12 +257,12 @@
                     kanal resmi Laboratorium.
                 </p>
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4">
-                    <a href="https://instagram.com/hmif_itats" target="_blank"
+                    <a href="https://instagram.com/lbp.itats" target="_blank"
                         class="group px-8 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-black transition-all shadow-xl hover:-translate-y-1 flex items-center gap-2">
                         <i class="fab fa-instagram text-xl text-pink-500"></i>
-                        Instagram HMIF
+                        Instagram Lab RPL ITATS
                     </a>
-                    <a href="mailto:labrpl.itats@gmail.com"
+                    <a href="mailto:lab.basprog@itats.ac.id"
                         class="px-8 py-3 rounded-xl bg-white text-slate-900 border-2 border-slate-200 font-bold hover:bg-slate-50 transition-all shadow-sm hover:-translate-y-1 flex items-center gap-2">
                         <i class="fas fa-envelope text-xl text-blue-500"></i>
                         Email Lab RPL
