@@ -308,6 +308,14 @@
             });
         });
 
+        function openReviewModal(id, nilai, catatan, status) {
+            const form = document.getElementById('form-review');
+            form.action = `/aslab/tugas/${id}`;
+
+            document.getElementById('review-nilai').value = nilai !== 'null' && nilai !== '' ? nilai : '';
+            document.getElementById('review-catatan').value = catatan !== 'null' && catatan !== '' ? catatan : '';
+            document.getElementById('review-status').value = status;
+
             document.getElementById('modal-review').classList.remove('hidden');
         }
 
