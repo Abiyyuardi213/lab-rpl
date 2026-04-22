@@ -67,19 +67,15 @@ class PenugasanController extends Controller
             $dayMatch = $bypassWaktu || (strtolower($sesi->hari) === strtolower($currentDay));
             $timeMatch = $bypassWaktu || ($currentTime >= $sesi->jam_mulai && $currentTime <= $sesi->jam_selesai);
 
-            // Check Presence Status
-            $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
-                $query->select('id')
-                    ->from('pendaftaran_praktikums')
-                    ->where('praktikan_id', $praktikan->id)
-                    ->where('praktikum_id', $penugasan->praktikum_id)
-                    ->limit(1);
+            // Check Presence Status (Has the student ever attended this session/module?)
+            $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::whereHas('pendaftaran', function($query) use ($praktikan, $penugasan) {
+                $query->where('praktikan_id', $praktikan->id)
+                      ->where('praktikum_id', $penugasan->praktikum_id);
             })->whereHas('jadwal', function($query) use ($penugasan) {
-                $query->where('tanggal', now()->toDateString())
-                    ->where('sesi_id', $penugasan->sesi_id);
+                $query->where('sesi_id', $penugasan->sesi_id);
             })->where('status', 'hadir')->exists();
 
-            if ($dayMatch && $timeMatch && $hasPresensi) {
+            if ($hasPresensi) {
                 $isAccessible = true;
             }
 
@@ -125,32 +121,30 @@ class PenugasanController extends Controller
             abort(403, 'Soal ini tidak ditujukan untuk NPM Anda.');
         }
 
-        // Check time access
-        $now = Carbon::now('Asia/Jakarta');
-        $currentDay = $now->locale('id')->dayName;
-        $currentTime = $now->format('H:i:s');
-
-        $sesi = $penugasan->sesi;
-        if (!$this->shouldBypassWaktuForTesting() && (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai)) {
-            return redirect()->route('praktikan.penugasan.index')
-                ->with('error', 'Soal hanya dapat diakses pada jam sesi praktikum (' . $sesi->hari . ', ' . $sesi->jam_mulai . ' - ' . $sesi->jam_selesai . ').');
-        }
-
-        // Check Presence Status
-        $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
-            $query->select('id')
-                ->from('pendaftaran_praktikums')
-                ->where('praktikan_id', $praktikan->id)
-                ->where('praktikum_id', $penugasan->praktikum_id)
-                ->limit(1);
+        // Check Presence Status (Has the student ever attended this session/module?)
+        $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::whereHas('pendaftaran', function($query) use ($praktikan, $penugasan) {
+            $query->where('praktikan_id', $praktikan->id)
+                  ->where('praktikum_id', $penugasan->praktikum_id);
         })->whereHas('jadwal', function($query) use ($penugasan) {
-            $query->where('tanggal', now()->toDateString())
-                ->where('sesi_id', $penugasan->sesi_id);
+            $query->where('sesi_id', $penugasan->sesi_id);
         })->where('status', 'hadir')->exists();
 
+        // Check time access only if student hasn't attended yet
         if (!$hasPresensi) {
+            $now = Carbon::now('Asia/Jakarta');
+            $currentDay = $now->locale('id')->dayName;
+            $currentTime = $now->format('H:i:s');
+            $sesi = $penugasan->sesi;
+
+            if (!$this->shouldBypassWaktuForTesting()) {
+                if (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai) {
+                    return redirect()->route('praktikan.penugasan.index')
+                        ->with('error', 'Soal hanya dapat diakses pada jam sesi praktikum (' . $sesi->hari . ', ' . $sesi->jam_mulai . ' - ' . $sesi->jam_selesai . '). Lakukan presensi untuk membuka akses permanen.');
+                }
+            }
+
             return redirect()->route('praktikan.penugasan.index')
-                ->with('error', 'Soal terkunci. Silahkan lakukan presensi QR terlebih dahulu.');
+                ->with('error', 'Soal terkunci. Silahkan lakukan presensi QR terlebih dahulu untuk membuka akses.');
         }
 
         return view('praktikan.penugasan.show', compact('penugasan'));
@@ -192,29 +186,27 @@ class PenugasanController extends Controller
             abort(403, 'Soal ini tidak ditujukan untuk NPM Anda.');
         }
 
-        // 3. Check time access
-        $now = Carbon::now('Asia/Jakarta');
-        $currentDay = $now->locale('id')->dayName;
-        $currentTime = $now->format('H:i:s');
-        $sesi = $penugasan->sesi;
-
-        if (!$this->shouldBypassWaktuForTesting() && (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai)) {
-            return back()->with('error', 'File hanya dapat diunduh pada jam sesi praktikum.');
-        }
-
-        // Check Presence Status
-        $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', function($query) use ($praktikan, $penugasan) {
-            $query->select('id')
-                ->from('pendaftaran_praktikums')
-                ->where('praktikan_id', $praktikan->id)
-                ->where('praktikum_id', $penugasan->praktikum_id)
-                ->limit(1);
+        // Check Presence Status (Has the student ever attended this session/module?)
+        $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::whereHas('pendaftaran', function($query) use ($praktikan, $penugasan) {
+            $query->where('praktikan_id', $praktikan->id)
+                  ->where('praktikum_id', $penugasan->praktikum_id);
         })->whereHas('jadwal', function($query) use ($penugasan) {
-            $query->where('tanggal', now()->toDateString())
-                ->where('sesi_id', $penugasan->sesi_id);
+            $query->where('sesi_id', $penugasan->sesi_id);
         })->where('status', 'hadir')->exists();
 
+        // Control access based on presence OR current session time
         if (!$hasPresensi) {
+            $now = Carbon::now('Asia/Jakarta');
+            $currentDay = $now->locale('id')->dayName;
+            $currentTime = $now->format('H:i:s');
+            $sesi = $penugasan->sesi;
+
+            if (!$this->shouldBypassWaktuForTesting()) {
+                if (strtolower($sesi->hari) !== strtolower($currentDay) || $currentTime < $sesi->jam_mulai || $currentTime > $sesi->jam_selesai) {
+                    return back()->with('error', 'File hanya dapat diunduh pada jam sesi praktikum. Lakukan presensi untuk akses permanen.');
+                }
+            }
+
             return back()->with('error', 'Gagal mengunduh. Anda belum tercatat hadir di sesi ini.');
         }
 

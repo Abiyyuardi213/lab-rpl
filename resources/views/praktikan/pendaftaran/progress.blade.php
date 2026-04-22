@@ -105,113 +105,134 @@
             <div class="divide-y divide-slate-100">
                 @forelse($pendaftaran->tugasAsistensis as $t)
                     <div class="p-6 hover:bg-slate-50/50 transition-colors">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div class="space-y-1 max-w-2xl">
-                                <div class="flex items-center gap-2">
-                                    <h4 class="font-bold text-slate-900">{{ $t->judul }}</h4>
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+                            <!-- Left: Content & Assignment Info -->
+                            <div class="lg:col-span-7 space-y-3">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h4 class="text-base font-bold text-slate-900">{{ $t->judul }}</h4>
                                     @php
                                         $isOverdue = $t->due_date && now()->greaterThan($t->due_date->endOfDay());
                                     @endphp
                                     @if ($t->status === 'reviewed')
-                                        <span
-                                            class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold border border-emerald-100 flex items-center gap-1">
-                                            <i class="fas fa-check-double"></i>
+                                        <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold border border-emerald-100 flex items-center gap-1 shadow-sm">
+                                            <i class="fas fa-check-double text-[8px]"></i>
                                             DINILAI
                                         </span>
                                     @elseif($isOverdue && $t->status !== 'submitted')
-                                        <span
-                                            class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 text-[10px] font-bold border border-rose-100 uppercase tracking-tighter shadow-sm">
-                                            <i class="fas fa-exclamation-circle mr-1"></i>
-                                            Deadline Berakhir
+                                        <span class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 text-[10px] font-bold border border-rose-100 flex items-center gap-1 shadow-sm">
+                                            <i class="fas fa-exclamation-circle text-[8px]"></i>
+                                            AKSES DITUTUP
                                         </span>
                                     @elseif($t->status === 'submitted')
-                                        <span
-                                            class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-[10px] font-bold border border-amber-100">TUNGGU
-                                            REVIEW</span>
+                                        <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-[10px] font-bold border border-amber-100 shadow-sm">DIPROSES</span>
                                     @else
-                                        <span
-                                            class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold">BELUM
-                                            SELESAI</span>
+                                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200">PENDING</span>
                                     @endif
                                 </div>
-                                <p class="text-sm text-slate-600 leading-relaxed">{{ $t->deskripsi }}</p>
-                                @if ($t->file_tugas)
-                                    <div class="mt-3">
+
+                                <p class="text-sm text-slate-600 leading-relaxed font-medium">{{ $t->deskripsi }}</p>
+
+                                <div class="flex flex-wrap items-center gap-4 pt-2">
+                                    @if ($t->file_tugas)
                                         <a href="{{ asset('storage/' . $t->file_tugas) }}" target="_blank"
-                                            class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold border border-blue-100 hover:bg-blue-100 transition-all">
+                                            class="inline-flex items-center gap-2 px-3 py-1.5 bg-[#001f3f] text-white rounded-lg text-[10px] font-bold hover:bg-[#002f5f] transition-all shadow-md shadow-[#001f3f]/10">
                                             <i class="fas fa-file-download"></i>
-                                            UNDUH SOAL/MODUL
+                                            UNDUH SOAL
                                         </a>
-                                    </div>
-                                @endif
-                                <div
-                                    class="flex items-center gap-4 text-[10px] font-bold uppercase tracking-tight text-slate-400">
-                                    <span class="flex items-center gap-1.5 {{ $isOverdue ? 'text-rose-500' : '' }}">
-                                        <i class="far fa-calendar-alt"></i>
-                                        Deadline: {{ $t->due_date ? $t->due_date->format('d M Y') : 'Tanpa batas' }}
-                                    </span>
-                                    @if ($t->nilai)
-                                        <span
-                                            class="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
-                                            <i class="fas fa-star text-[8px]"></i>
-                                            Skor: {{ $t->nilai }}/100
-                                        </span>
                                     @endif
+
+                                    <div class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest {{ $isOverdue ? 'text-rose-500' : 'text-slate-400' }}">
+                                        <i class="far fa-calendar-alt"></i>
+                                        DL: {{ $t->due_date ? $t->due_date->format('d/m/Y') : '-' }}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="flex flex-col items-end gap-3 min-w-[200px]">
+                            <!-- Right: Interaction & Score -->
+                            <div class="lg:col-span-5 flex flex-col gap-4">
                                 @if ($t->status === 'reviewed')
-                                    <div class="text-right">
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                                            Feedback Aslab</p>
-                                        <p
-                                            class="text-[11px] text-slate-600 italic bg-amber-50 p-3 rounded-xl border border-amber-100">
-                                            "{{ $t->catatan_aslab ?? 'Bagus sekali, pertahankan!' }}"</p>
-                                    </div>
-                                @elseif($isOverdue && $t->status !== 'submitted')
-                                    <div class="text-right flex flex-col items-end">
-                                        <div class="h-10 w-10 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 mb-2 border border-rose-100 shadow-sm">
-                                            <i class="fas fa-lock text-sm"></i>
-                                        </div>
-                                        <span class="text-[10px] font-black text-rose-500 uppercase tracking-widest">Akses Ditutup</span>
-                                        <p class="text-[9px] text-slate-400 italic">Lewat batas pengumpulan</p>
-                                    </div>
-                                @else
-                                    @if($isOverdue && $t->status === 'submitted')
-                                        <div class="mb-1 text-right">
-                                            <span class="text-[8px] font-black text-rose-500 uppercase px-2 py-0.5 bg-rose-50 rounded border border-rose-100">TERKUNCI (OVERDUE)</span>
-                                        </div>
-                                    @endif
-
-                                    @if(!$isOverdue)
-                                        <form action="{{ route('praktikan.pendaftaran.submit-tugas', $t->id) }}" method="POST"
-                                            enctype="multipart/form-data" class="w-full flex flex-col gap-2">
-                                            @csrf
-                                            <div class="relative group">
-                                                <input type="file" name="file_mahasiswa" required
-                                                    onchange="this.form.submit()"
-                                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                                                <div
-                                                    class="w-full px-4 py-2.5 border-2 border-dashed border-slate-200 rounded-xl text-xs font-bold text-slate-500 flex items-center justify-center gap-2 group-hover:border-[#001f3f] group-hover:text-[#001f3f] transition-all">
-                                                    <i class="fas fa-cloud-upload-alt"></i>
-                                                    {{ $t->file_mahasiswa ? 'Update Tugas' : 'Unggah Tugas' }}
+                                    <!-- Dynamic Score Card -->
+                                    <div class="w-full space-y-3">
+                                        <div class="bg-white border-2 border-emerald-500/20 p-4 rounded-2xl shadow-sm relative overflow-hidden group">
+                                            <div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:scale-110 transition-transform duration-700">
+                                                <i class="fas fa-star text-8xl text-emerald-600"></i>
+                                            </div>
+                                            <div class="flex items-center justify-between relative">
+                                                <div class="flex items-center gap-4">
+                                                    <div class="w-12 h-12 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-xl shadow-emerald-500/20">
+                                                        <i class="fas fa-star text-lg"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] leading-none mb-1.5">Skor Akhir</p>
+                                                        <h4 class="text-3xl font-black text-slate-900 leading-none">
+                                                            {{ $t->nilai }}<span class="text-xs text-slate-400 font-bold ml-1.5 tracking-normal">/ 100</span>
+                                                        </h4>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </form>
-                                    @endif
-
-                                    @if ($t->file_mahasiswa)
-                                        <div class="flex items-center justify-between gap-4 w-full px-2">
-                                            <span class="text-[10px] text-emerald-500 font-bold whitespace-nowrap"><i
-                                                    class="fas fa-check"></i> Tersimpan</span>
-                                            <a href="{{ asset('storage/' . $t->file_mahasiswa) }}" target="_blank"
-                                                class="text-[10px] font-black text-[#001f3f] hover:underline uppercase tracking-tight flex items-center gap-1">
-                                                <i class="fas fa-external-link-alt text-[8px]"></i>
-                                                Lihat File
-                                            </a>
                                         </div>
-                                    @endif
+
+                                        <div class="space-y-2">
+                                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 flex items-center gap-2">
+                                                <span class="w-4 h-[2px] bg-amber-200"></span>
+                                                Feedback Aslab
+                                            </p>
+                                            <div class="text-xs text-slate-600 bg-amber-50/50 p-4 rounded-2xl border border-amber-100/50 relative">
+                                                <i class="fas fa-quote-left text-amber-200 text-sm absolute -top-1 -left-1"></i>
+                                                <span class="italic leading-relaxed relative z-10 block pl-2">{{ $t->catatan_aslab ?? 'Bagus sekali, pertahankan performa Anda!' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @elseif($isOverdue && $t->status !== 'submitted')
+                                    <div class="h-full flex flex-col items-center lg:items-end justify-center py-4">
+                                        <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 mb-3 border border-rose-100/50 shadow-inner">
+                                            <i class="fas fa-lock text-lg"></i>
+                                        </div>
+                                        <span class="text-[10px] font-black text-rose-500 uppercase tracking-[0.2em]">Akses Ditutup</span>
+                                        <p class="text-[11px] text-slate-400 italic mt-1">Melewati batas pengumpulan</p>
+                                    </div>
+                                @else
+                                    <div class="w-full space-y-4">
+                                        @if($isOverdue && $t->status === 'submitted')
+                                            <div class="flex items-center justify-center lg:justify-end">
+                                                <span class="text-[9px] font-black text-rose-500 uppercase px-3 py-1 bg-rose-50 border border-rose-100 rounded-lg tracking-widest">TERKUNCI (TELAT)</span>
+                                            </div>
+                                        @endif
+
+                                        @if(!$isOverdue)
+                                            <form action="{{ route('praktikan.pendaftaran.submit-tugas', $t->id) }}" method="POST"
+                                                enctype="multipart/form-data" class="w-full">
+                                                @csrf
+                                                <div class="relative group">
+                                                    <input type="file" name="file_mahasiswa" required onchange="this.form.submit()"
+                                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                                    <div class="w-full px-6 py-4 border-2 border-dashed border-slate-200 rounded-2xl text-xs font-bold text-slate-500 flex flex-col items-center justify-center gap-2 group-hover:border-[#001f3f] group-hover:text-[#001f3f] group-hover:bg-slate-50 transition-all duration-300">
+                                                        <i class="fas fa-cloud-upload-alt text-2xl mb-1"></i>
+                                                        <span>{{ $t->file_mahasiswa ? 'Update Jawaban' : 'Unggah Tugas Anda' }}</span>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        @endif
+
+                                        @if ($t->file_mahasiswa)
+                                            <div class="flex items-center justify-between gap-4 w-full bg-slate-50/80 p-3 rounded-xl border border-slate-200/50">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center">
+                                                        <i class="fas fa-file-check"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">Status</p>
+                                                        <p class="text-[10px] text-slate-500 font-bold">Jawaban Tersimpan</p>
+                                                    </div>
+                                                </div>
+                                                <a href="{{ asset('storage/' . $t->file_mahasiswa) }}" target="_blank"
+                                                    class="h-8 px-4 rounded-lg bg-white border border-slate-200 text-[10px] font-bold text-slate-600 hover:text-[#001f3f] hover:border-[#001f3f] transition-all flex items-center gap-2 shadow-sm">
+                                                    <i class="fas fa-external-link-alt text-[8px]"></i>
+                                                    LIHAT
+                                                </a>
+                                            </div>
+                                        @endif
+                                    </div>
                                 @endif
                             </div>
                         </div>
