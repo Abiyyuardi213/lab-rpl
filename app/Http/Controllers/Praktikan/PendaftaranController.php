@@ -183,6 +183,11 @@ class PendaftaranController extends Controller
             return back()->with('error', 'Tugas yang sudah dinilai tidak dapat diubah.');
         }
 
+        // Cek deadline
+        if ($tugas->due_date && now()->greaterThan($tugas->due_date->endOfDay())) {
+            return back()->with('error', 'Gagal mengunggah. Batas waktu pengumpulan tugas (' . $tugas->due_date->format('d M Y') . ') telah berakhir.');
+        }
+
         $request->validate([
             'file_mahasiswa' => 'required|file|mimes:pdf,zip,rar,doc,docx,jpg,jpeg,png|max:5120',
         ]);

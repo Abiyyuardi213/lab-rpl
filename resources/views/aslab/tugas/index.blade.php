@@ -18,7 +18,7 @@
         </div>
 
         <!-- Tugas Table Container -->
-        <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden min-h-[500px]">
+        <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden min-h-[500px] flex flex-col">
             <div class="p-6 pb-4 flex items-center justify-between gap-4 border-b border-zinc-100">
                 <div class="flex items-center gap-2 flex-1">
                     <div class="relative max-w-sm w-full">
@@ -48,16 +48,15 @@
             </div>
 
             <!-- Table -->
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto flex-grow h-full">
                 <table id="tugasTable" class="w-full text-sm text-left">
                     <thead class="bg-zinc-50 border-b border-zinc-100 text-zinc-500 font-medium h-10">
                         <tr>
                             <th class="px-6 align-middle font-medium text-zinc-500 w-12 text-center text-[10px] uppercase tracking-wider">NO</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Mahasiswa & Praktikum</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Tugas & Berkas</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Mata Praktikum</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Penugasan & Berkas</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Batas Waktu</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500 text-center text-[10px] uppercase tracking-wider">Status</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500 text-center text-[10px] uppercase tracking-wider">Skor</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-center text-[10px] uppercase tracking-wider">Progress Penilaian</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-right text-[10px] uppercase tracking-wider">AKSI</th>
                         </tr>
                     </thead>
@@ -67,13 +66,18 @@
                                 <td class="px-6 py-4 text-center text-zinc-500 font-medium">{{ $index + 1 }}</td>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col">
-                                        <span class="font-bold text-zinc-900 uppercase tracking-tight">{{ $t->pendaftaran->praktikan->user->name ?? 'Mahasiswa' }}</span>
-                                        <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">{{ $t->pendaftaran->praktikum->nama_praktikum }}</span>
+                                        <span class="font-bold text-zinc-900 uppercase tracking-tight">{{ $t->pendaftaran->praktikum->nama_praktikum }}</span>
+                                        <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">{{ $t->pendaftaran->praktikum->kode_praktikum }}</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <span class="font-medium text-zinc-700 tracking-tight">{{ $t->judul }}</span>
+                                        <div class="flex flex-col">
+                                            <span class="font-medium text-zinc-700 tracking-tight">{{ $t->judul }}</span>
+                                            @if($t->deskripsi)
+                                                <span class="text-[10px] text-zinc-400 truncate max-w-[200px]">{{ $t->deskripsi }}</span>
+                                            @endif
+                                        </div>
                                         @if ($t->file_tugas)
                                             <a href="{{ asset('storage/' . $t->file_tugas) }}" target="_blank"
                                                 class="w-7 h-7 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-[#001f3f] hover:text-white transition-all shadow-sm"
@@ -89,38 +93,35 @@
                                         {{ $t->due_date ? $t->due_date->format('d M Y') : '-' }}
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    @php
-                                        $statusBase = 'inline-flex items-center px-3 py-1 rounded-full text-[9px] font-bold border uppercase tracking-wider leading-none ';
-                                        $statusMap = [
-                                            'pending' => $statusBase . 'bg-zinc-50 text-zinc-400 border-zinc-200',
-                                            'submitted' => $statusBase . 'bg-amber-50 text-amber-600 border-amber-100',
-                                            'reviewed' => $statusBase . 'bg-emerald-50 text-emerald-600 border-emerald-100',
-                                        ];
-                                    @endphp
-                                    <span class="{{ $statusMap[$t->status] ?? $statusMap['pending'] }}">
-                                        {{ $t->status }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="text-base font-black tabular-nums tracking-tighter {{ $t->nilai >= 80 ? 'text-emerald-600' : ($t->nilai ? 'text-amber-600' : 'text-zinc-200') }}">
-                                        {{ $t->nilai ?? '??' }}
-                                    </span>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col gap-1.5 container">
+                                        <div class="flex items-center justify-between text-[9px] font-black uppercase tracking-tighter">
+                                            <span class="text-emerald-600">{{ $t->total_reviewed }} Dinilai</span>
+                                            <span class="text-zinc-400">{{ $t->total_mahasiswa }} Total</span>
+                                        </div>
+                                        <div class="w-full h-1.5 bg-zinc-100 rounded-full overflow-hidden flex">
+                                            <div class="h-full bg-emerald-500 transition-all duration-500" style="width: {{ ($t->total_reviewed / $t->total_mahasiswa) * 100 }}%"></div>
+                                            <div class="h-full bg-amber-400 transition-all duration-500" style="width: {{ ($t->total_submitted / $t->total_mahasiswa) * 100 }}%"></div>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-[8px] font-bold text-zinc-400 uppercase tracking-widest">
+                                            <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                            {{ $t->total_submitted }} Menunggu
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
-                                        @if ($t->file_mahasiswa)
-                                            <a href="{{ asset('storage/' . $t->file_mahasiswa) }}" target="_blank"
-                                                class="w-8 h-8 rounded-md text-zinc-500 hover:text-indigo-600 hover:bg-indigo-50 flex items-center justify-center transition-colors"
-                                                title="Download Jawaban">
-                                                <i class="fas fa-download text-xs"></i>
-                                            </a>
-                                        @endif
-                                        <button onclick="openReviewModal('{{ $t->id }}', '{{ $t->nilai }}', '{{ $t->catatan_aslab }}', '{{ $t->status }}')"
-                                            class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
-                                            title="Beri Nilai">
-                                            <i class="fas fa-marker text-xs"></i>
+                                        <button onclick="openEditModal('{{ $t->id }}', '{{ $t->judul }}', '{{ $t->due_date ? $t->due_date->format('Y-m-d') : '' }}', '{{ addslashes($t->deskripsi) }}')"
+                                            class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                            title="Edit Penugasan">
+                                            <i class="fas fa-edit text-xs"></i>
                                         </button>
+                                        <a href="{{ route('aslab.tugas.show', $t->id) }}"
+                                            class="inline-flex items-center justify-center h-8 px-3 rounded-md text-[10px] font-bold uppercase tracking-wider text-zinc-600 hover:text-[#001f3f] hover:bg-zinc-100 transition-colors gap-2"
+                                            title="Lihat Detail & Nilai Mahasiswa">
+                                            <i class="fas fa-users text-xs"></i>
+                                            Detail
+                                        </a>
                                         <form id="delete-form-{{ $t->id }}"
                                             action="{{ route('aslab.tugas.destroy', $t->id) }}" method="POST"
                                             class="inline">
@@ -205,6 +206,65 @@
         </div>
     </div>
 
+    <!-- Modal: Edit Tugas (Bulk) -->
+    <div id="modal-edit-tugas"
+        class="fixed inset-0 z-[60] hidden bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300">
+        <div
+            class="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-200">
+            <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
+                <div class="flex items-center gap-3">
+                    <div class="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
+                        <i class="fas fa-edit text-xs"></i>
+                    </div>
+                    <h3 class="font-bold text-zinc-900 uppercase tracking-tight">Edit Penugasan</h3>
+                </div>
+                <button onclick="document.getElementById('modal-edit-tugas').classList.add('hidden')"
+                    class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-zinc-100 text-zinc-400 transition-colors">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <form id="form-edit-tugas" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+                @csrf @method('PUT')
+                <input type="hidden" name="is_bulk" value="1">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5 col-span-2 sm:col-span-1">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Judul Tugas</label>
+                        <input type="text" id="edit-judul" name="judul" required
+                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 outline-none">
+                    </div>
+                    <div class="space-y-1.5 col-span-2 sm:col-span-1">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Deadline</label>
+                        <input type="date" id="edit-due-date" name="due_date"
+                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 outline-none">
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Instruksi</label>
+                    <textarea id="edit-deskripsi" name="deskripsi" rows="3"
+                        class="flex w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-blue-600/10 focus:border-blue-600 outline-none"></textarea>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Update File Soal (Opsional)</label>
+                    <input type="file" name="file_tugas"
+                        class="flex w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1.5 text-xs shadow-sm transition-all file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-blue-600 file:text-white hover:file:bg-blue-700">
+                    <p class="text-[9px] text-zinc-400 italic">Kosongkan jika tidak ingin mengubah file soal.</p>
+                </div>
+                
+                <div class="pt-4 flex items-center justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('modal-edit-tugas').classList.add('hidden')"
+                        class="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-600 transition-all hover:bg-zinc-50">
+                        BATAL
+                    </button>
+                    <button type="submit"
+                        class="inline-flex h-9 items-center justify-center rounded-md bg-blue-600 px-6 text-xs font-bold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-700">
+                        SIMPAN PERUBAHAN
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal: Penilaian Langsung (Tanpa Tugas) -->
     <div id="modal-langsung"
         class="fixed inset-0 z-[60] hidden bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300">
@@ -275,56 +335,6 @@
         </div>
     </div>
 
-    <!-- Modal: Review Tugas -->
-    <div id="modal-review"
-        class="fixed inset-0 z-[60] hidden bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300">
-        <div
-            class="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-200">
-            <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
-                <div class="flex items-center gap-3">
-                    <div class="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
-                        <i class="fas fa-marker text-xs"></i>
-                    </div>
-                    <h3 class="font-bold text-zinc-900 uppercase tracking-tight">Review & Nilai</h3>
-                </div>
-                <button onclick="document.getElementById('modal-review').classList.add('hidden')"
-                    class="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-zinc-100 text-zinc-400 transition-colors">
-                    <i class="fas fa-times text-xs"></i>
-                </button>
-            </div>
-            <form id="form-review" method="POST" class="p-6 space-y-4">
-                @csrf @method('PUT')
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1.5 col-span-1">
-                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Skor (0-100)</label>
-                        <input type="number" id="review-nilai" name="nilai" min="0" max="100"
-                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none tabular-nums">
-                    </div>
-                    <div class="space-y-1.5 col-span-1">
-                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Status</label>
-                        <select id="review-status" name="status" required
-                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none uppercase tracking-widest font-bold">
-                            <option value="pending">Pending</option>
-                            <option value="submitted">Submitted</option>
-                            <option value="reviewed">Reviewed</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Catatan Aslab</label>
-                    <textarea id="review-catatan" name="catatan_aslab" rows="3"
-                        placeholder="Berikan feedback atau instruksi revisi..."
-                        class="flex w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none"></textarea>
-                </div>
-                <div class="pt-4">
-                    <button type="submit"
-                        class="w-full h-10 bg-emerald-600 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98]">
-                        Simpan Review
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <style>
         .dataTables_wrapper .dataTables_info {
@@ -367,7 +377,7 @@
         $(document).ready(function() {
             if ($('#tugasTable').length > 0) {
                 var table = $('#tugasTable').DataTable({
-                    dom: 't<"flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
+                    dom: 't<"mt-auto flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100 bg-white"ip>',
                     language: {
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
                         emptyTable: "<div class='py-20 flex flex-col items-center justify-center space-y-3'><div class='h-16 w-16 rounded-2xl bg-zinc-50 flex items-center justify-center'><i class='fas fa-folder-open text-2xl text-zinc-300'></i></div><div class='text-center'><p class='text-zinc-900 font-semibold'>Tidak ada data tugas tersedia</p><p class='text-zinc-500 text-xs mt-1'>Silakan klik tombol 'Tambah Tugas' untuk memberikan penugasan baru.</p></div></div>",
@@ -378,7 +388,7 @@
                     },
                     columnDefs: [{
                         orderable: false,
-                        targets: [6]
+                        targets: [5]
                     }]
                 });
 
@@ -392,16 +402,6 @@
             }
         });
 
-        function openReviewModal(id, nilai, catatan, status) {
-            const form = document.getElementById('form-review');
-            form.action = `/aslab/tugas/${id}`;
-
-            document.getElementById('review-nilai').value = nilai !== 'null' ? nilai : '';
-            document.getElementById('review-catatan').value = catatan !== 'null' ? catatan : '';
-            document.getElementById('review-status').value = status;
-
-            document.getElementById('modal-review').classList.remove('hidden');
-        }
 
         function confirmDelete(id) {
             Swal.fire({
@@ -423,6 +423,15 @@
                     document.getElementById('delete-form-' + id).submit();
                 }
             });
+        }
+
+        function openEditModal(id, judul, dueDate, deskripsi) {
+            const form = document.getElementById('form-edit-tugas');
+            form.action = `/aslab/tugas/${id}`;
+            document.getElementById('edit-judul').value = judul;
+            document.getElementById('edit-due-date').value = dueDate;
+            document.getElementById('edit-deskripsi').value = deskripsi;
+            document.getElementById('modal-edit-tugas').classList.remove('hidden');
         }
 
         @if (session('success'))
@@ -447,11 +456,11 @@
         // Close modal on click outside
         window.onclick = function(event) {
             const mTugas = document.getElementById('modal-tugas');
-            const mReview = document.getElementById('modal-review');
             const mLangsung = document.getElementById('modal-langsung');
+            const mEdit = document.getElementById('modal-edit-tugas');
             if (event.target == mTugas) mTugas.classList.add('hidden');
-            if (event.target == mReview) mReview.classList.add('hidden');
             if (event.target == mLangsung) mLangsung.classList.add('hidden');
+            if (event.target == mEdit) mEdit.classList.add('hidden');
         }
     </script>
 @endsection

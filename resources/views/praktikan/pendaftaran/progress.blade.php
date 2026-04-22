@@ -109,11 +109,20 @@
                             <div class="space-y-1 max-w-2xl">
                                 <div class="flex items-center gap-2">
                                     <h4 class="font-bold text-slate-900">{{ $t->judul }}</h4>
+                                    @php
+                                        $isOverdue = $t->due_date && now()->greaterThan($t->due_date->endOfDay());
+                                    @endphp
                                     @if ($t->status === 'reviewed')
                                         <span
                                             class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-bold border border-emerald-100 flex items-center gap-1">
                                             <i class="fas fa-check-double"></i>
                                             DINILAI
+                                        </span>
+                                    @elseif($isOverdue && $t->status !== 'submitted')
+                                        <span
+                                            class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 text-[10px] font-bold border border-rose-100 uppercase tracking-tighter shadow-sm">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>
+                                            Deadline Berakhir
                                         </span>
                                     @elseif($t->status === 'submitted')
                                         <span
@@ -137,7 +146,7 @@
                                 @endif
                                 <div
                                     class="flex items-center gap-4 text-[10px] font-bold uppercase tracking-tight text-slate-400">
-                                    <span class="flex items-center gap-1.5">
+                                    <span class="flex items-center gap-1.5 {{ $isOverdue ? 'text-rose-500' : '' }}">
                                         <i class="far fa-calendar-alt"></i>
                                         Deadline: {{ $t->due_date ? $t->due_date->format('d M Y') : 'Tanpa batas' }}
                                     </span>
@@ -160,30 +169,49 @@
                                             class="text-[11px] text-slate-600 italic bg-amber-50 p-3 rounded-xl border border-amber-100">
                                             "{{ $t->catatan_aslab ?? 'Bagus sekali, pertahankan!' }}"</p>
                                     </div>
-                                @else
-                                    <form action="{{ route('praktikan.pendaftaran.submit-tugas', $t->id) }}" method="POST"
-                                        enctype="multipart/form-data" class="w-full flex flex-col gap-2">
-                                        @csrf
-                                        <div class="relative group">
-                                            <input type="file" name="file_mahasiswa" required
-                                                onchange="this.form.submit()"
-                                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                                            <div
-                                                class="w-full px-4 py-2.5 border-2 border-dashed border-slate-200 rounded-xl text-xs font-bold text-slate-500 flex items-center justify-center gap-2 group-hover:border-[#001f3f] group-hover:text-[#001f3f] transition-all">
-                                                <i class="fas fa-cloud-upload-alt"></i>
-                                                {{ $t->file_mahasiswa ? 'Update Tugas' : 'Unggah Tugas' }}
-                                            </div>
+                                @elseif($isOverdue && $t->status !== 'submitted')
+                                    <div class="text-right flex flex-col items-end">
+                                        <div class="h-10 w-10 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 mb-2 border border-rose-100 shadow-sm">
+                                            <i class="fas fa-lock text-sm"></i>
                                         </div>
-                                        @if ($t->file_mahasiswa)
-                                            <div class="flex items-center justify-between px-2">
-                                                <span class="text-[10px] text-emerald-500 font-bold"><i
-                                                        class="fas fa-check"></i> File Terunggah</span>
-                                                <a href="{{ asset('storage/' . $t->file_mahasiswa) }}" target="_blank"
-                                                    class="text-[10px] font-bold text-[#001f3f] hover:underline">Lihat
-                                                    File</a>
+                                        <span class="text-[10px] font-black text-rose-500 uppercase tracking-widest">Akses Ditutup</span>
+                                        <p class="text-[9px] text-slate-400 italic">Lewat batas pengumpulan</p>
+                                    </div>
+                                @else
+                                    @if($isOverdue && $t->status === 'submitted')
+                                        <div class="mb-1 text-right">
+                                            <span class="text-[8px] font-black text-rose-500 uppercase px-2 py-0.5 bg-rose-50 rounded border border-rose-100">TERKUNCI (OVERDUE)</span>
+                                        </div>
+                                    @endif
+
+                                    @if(!$isOverdue)
+                                        <form action="{{ route('praktikan.pendaftaran.submit-tugas', $t->id) }}" method="POST"
+                                            enctype="multipart/form-data" class="w-full flex flex-col gap-2">
+                                            @csrf
+                                            <div class="relative group">
+                                                <input type="file" name="file_mahasiswa" required
+                                                    onchange="this.form.submit()"
+                                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                                <div
+                                                    class="w-full px-4 py-2.5 border-2 border-dashed border-slate-200 rounded-xl text-xs font-bold text-slate-500 flex items-center justify-center gap-2 group-hover:border-[#001f3f] group-hover:text-[#001f3f] transition-all">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                    {{ $t->file_mahasiswa ? 'Update Tugas' : 'Unggah Tugas' }}
+                                                </div>
                                             </div>
-                                        @endif
-                                    </form>
+                                        </form>
+                                    @endif
+
+                                    @if ($t->file_mahasiswa)
+                                        <div class="flex items-center justify-between gap-4 w-full px-2">
+                                            <span class="text-[10px] text-emerald-500 font-bold whitespace-nowrap"><i
+                                                    class="fas fa-check"></i> Tersimpan</span>
+                                            <a href="{{ asset('storage/' . $t->file_mahasiswa) }}" target="_blank"
+                                                class="text-[10px] font-black text-[#001f3f] hover:underline uppercase tracking-tight flex items-center gap-1">
+                                                <i class="fas fa-external-link-alt text-[8px]"></i>
+                                                Lihat File
+                                            </a>
+                                        </div>
+                                    @endif
                                 @endif
                             </div>
                         </div>

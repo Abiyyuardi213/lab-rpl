@@ -19,10 +19,25 @@ class TugasController extends Controller
         }
 
         $aslabId = $aslab->id;
-        $tugas = TugasAsistensi::with(['pendaftaran.praktikan.user', 'pendaftaran.praktikum'])
+        
+        // Group by assignment details
+        $allTugas = TugasAsistensi::with(['pendaftaran.praktikum'])
             ->where('aslab_id', $aslabId)
             ->orderBy('created_at', 'desc')
             ->get();
+
+        $tugas = $allTugas->groupBy(function($item) {
+            // Using a unique key for grouping: judul, due_date, and deskripsi
+            $date = $item->due_date ? $item->due_date->format('Y-m-d') : 'no-date';
+            return $item->judul . '|' . $date . '|' . $item->deskripsi;
+        })->map(function($group) {
+            $representative = $group->first();
+            $representative->total_mahasiswa = $group->count();
+            $representative->total_reviewed = $group->where('status', 'reviewed')->count();
+            $representative->total_submitted = $group->where('status', 'submitted')->count();
+            $representative->total_pending = $group->where('status', 'pending')->count();
+            return $representative;
+        })->values();
 
         // Get unique praktikums that this aslab is assisting
         $praktikums = $aslab->praktikums;
@@ -34,6 +49,34 @@ class TugasController extends Controller
             ->get();
 
         return view('aslab.tugas.index', compact('tugas', 'praktikums', 'students'));
+    }
+
+    public function show($id)
+    {
+        $aslab = Auth::user()->aslab;
+        if (!$aslab) {
+            return redirect()->back()->with('error', 'Data aslab tidak ditemukan.');
+        }
+        
+        $representative = TugasAsistensi::findOrFail($id);
+        if ($representative->aslab_id !== $aslab->id) {
+            abort(403);
+        }
+
+        $tugas = TugasAsistensi::with(['pendaftaran.praktikan.user', 'pendaftaran.praktikum'])
+            ->where('aslab_id', $aslab->id)
+            ->where('judul', $representative->judul)
+            ->where('deskripsi', $representative->deskripsi)
+            ->where(function($query) use ($representative) {
+                if ($representative->due_date) {
+                    $query->whereDate('due_date', $representative->due_date);
+                } else {
+                    $query->whereNull('due_date');
+                }
+            })
+            ->get();
+
+        return view('aslab.tugas.show', compact('representative', 'tugas'));
     }
 
     public function storeDirect(Request $request)
@@ -117,11 +160,43 @@ class TugasController extends Controller
             return back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
-        $tugas = TugasAsistensi::findOrFail($id);
-        if ($tugas->aslab_id !== $aslab->id) {
+        $representative = TugasAsistensi::findOrFail($id);
+        if ($representative->aslab_id !== $aslab->id) {
             abort(403);
         }
 
+        // Handle Bulk Update (Group Penugasan)
+        if ($request->has('is_bulk')) {
+            $request->validate([
+                'judul' => 'required|string|max:255',
+                'deskripsi' => 'nullable|string',
+                'due_date' => 'nullable|date',
+                'file_tugas' => 'nullable|file|mimes:pdf,doc,docx,zip,rar|max:5120',
+            ]);
+
+            $updateData = $request->only(['judul', 'deskripsi', 'due_date']);
+            
+            if ($request->hasFile('file_tugas')) {
+                $updateData['file_tugas'] = $request->file('file_tugas')->store('tugas_soal', 'public');
+            }
+
+            // Update all tasks in the same group based on the ORIGINAL representative's state
+            TugasAsistensi::where('aslab_id', $aslab->id)
+                ->where('judul', $representative->judul)
+                ->where('deskripsi', $representative->deskripsi)
+                ->where(function($query) use ($representative) {
+                    if ($representative->due_date) {
+                        $query->whereDate('due_date', $representative->due_date);
+                    } else {
+                        $query->whereNull('due_date');
+                    }
+                })
+                ->update($updateData);
+
+            return back()->with('success', 'Data penugasan berhasil diperbarui untuk seluruh mahasiswa.');
+        }
+
+        // Handle Individual Student Update (Grading)
         $request->validate([
             'nilai' => 'nullable|integer|between:0,100',
             'catatan_aslab' => 'nullable|string',
@@ -135,7 +210,7 @@ class TugasController extends Controller
             $data['status'] = 'reviewed';
         }
 
-        $tugas->update($data);
+        $representative->update($data);
 
         return back()->with('success', 'Tugas berhasil diperbarui.');
     }
@@ -147,12 +222,24 @@ class TugasController extends Controller
             return back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
-        $tugas = TugasAsistensi::findOrFail($id);
-        if ($tugas->aslab_id !== $aslab->id) {
+        $representative = TugasAsistensi::findOrFail($id);
+        if ($representative->aslab_id !== $aslab->id) {
             abort(403);
         }
 
-        $tugas->delete();
-        return back()->with('success', 'Tugas berhasil dihapus.');
+        // Delete all tasks in the same group
+        TugasAsistensi::where('aslab_id', $aslab->id)
+            ->where('judul', $representative->judul)
+            ->where('deskripsi', $representative->deskripsi)
+            ->where(function($query) use ($representative) {
+                if ($representative->due_date) {
+                    $query->whereDate('due_date', $representative->due_date);
+                } else {
+                    $query->whereNull('due_date');
+                }
+            })
+            ->delete();
+
+        return back()->with('success', 'Penugasan berhasil dihapus.');
     }
 }
