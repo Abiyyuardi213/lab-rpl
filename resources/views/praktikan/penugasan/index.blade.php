@@ -137,17 +137,23 @@
                                     <i class="fas fa-arrow-right text-[10px]"></i>
                                 </a>
                             @else
-                                @if(isset($p->has_presensi) && !$p->has_presensi && \Carbon\Carbon::now('Asia/Jakarta')->format('H:i:s') >= $p->sesi->jam_mulai && \Carbon\Carbon::now('Asia/Jakarta')->format('H:i:s') <= $p->sesi->jam_selesai && strtolower(\Carbon\Carbon::now('Asia/Jakarta')->locale('id')->dayName) == strtolower($p->sesi->hari))
+                                @if($p->is_within_time && !$p->has_presensi)
                                     <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-lg mb-4 text-center">
                                         <p class="text-[9px] font-black text-amber-600 uppercase tracking-widest leading-none">⚠️ Belum Absen</p>
-                                        <p class="text-[8px] text-amber-500 font-medium mt-1">Sesi terbuka, silahkan scan QR untuk buka soal.</p>
+                                        <p class="text-[8px] text-amber-500 font-medium mt-1 uppercase tracking-tight">Sesi terbuka, silahkan scan QR untuk buka soal.</p>
                                     </div>
+                                    <button disabled 
+                                        class="w-full h-10 bg-amber-500/10 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-amber-500/20 cursor-not-allowed flex items-center justify-center gap-2">
+                                        <i class="fas fa-qrcode text-[10px]"></i>
+                                        Scan QR Dulu
+                                    </button>
+                                @else
+                                    <button disabled 
+                                        class="w-full h-10 bg-zinc-50 text-zinc-400 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-zinc-200 cursor-not-allowed flex items-center justify-center gap-2">
+                                        <i class="fas fa-lock text-[10px]"></i>
+                                        {{ !$p->is_within_time ? 'Di Luar Sesi' : 'Terkunci' }}
+                                    </button>
                                 @endif
-                                <button disabled 
-                                    class="w-full h-10 bg-zinc-50 text-zinc-400 text-[10px] font-bold uppercase tracking-widest rounded-lg border border-zinc-200 cursor-not-allowed flex items-center justify-center gap-2">
-                                    <i class="fas fa-lock text-[10px]"></i>
-                                    {{ isset($p->has_presensi) && !$p->has_presensi ? 'Presensi Dulu' : 'Terkunci' }}
-                                </button>
                             @endif
                         </div>
                     </div>

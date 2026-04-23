@@ -136,6 +136,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('digit-npm/{digitNpm}/toggle-status', [\App\Http\Controllers\Admin\DigitNpmController::class, 'toggleStatus'])->name('digit-npm.toggle-status');
         Route::resource('digit-npm', \App\Http\Controllers\Admin\DigitNpmController::class)->except(['create', 'show', 'edit']);
         Route::patch('penugasan/praktikan/{pendaftaran}/soal', [\App\Http\Controllers\Admin\PenugasanController::class, 'updateStudentAssignment'])->name('penugasan.praktikan-soal.update');
+        Route::post('penugasan/bulk', [\App\Http\Controllers\Admin\PenugasanController::class, 'bulkStore'])->name('penugasan.bulk-store');
         Route::resource('penugasan', \App\Http\Controllers\Admin\PenugasanController::class);
         Route::get('/support', fn() => 'Support Index')->name('support.index');
         Route::get('/laboratorium', fn() => 'Laboratorium Index')->name('laboratorium.index');

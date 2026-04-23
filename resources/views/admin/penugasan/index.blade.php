@@ -262,7 +262,22 @@
                     <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
-            <form action="{{ route('admin.penugasan.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar overscroll-contain">
+
+            <!-- Tabs Modal -->
+            <div class="flex border-b border-zinc-100 bg-zinc-50/30 shrink-0">
+                <button type="button" onclick="switchPenugasanTab('single')" id="penugasan-tab-single" 
+                    class="flex-1 px-4 py-3 text-[10px] font-bold uppercase tracking-widest border-b-2 border-[#001f3f] text-[#001f3f] transition-all">
+                    Input Tunggal
+                </button>
+                <button type="button" onclick="switchPenugasanTab('batch')" id="penugasan-tab-batch" 
+                    class="flex-1 px-4 py-3 text-[10px] font-bold uppercase tracking-widest border-b-2 border-transparent text-zinc-400 hover:text-zinc-600 transition-all">
+                    Batch Upload (0-9 NPM)
+                </button>
+            </div>
+
+            <!-- Form Single -->
+            <div id="penugasan-form-single">
+                <form action="{{ route('admin.penugasan.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar overscroll-contain" style="max-height: calc(90vh - 120px);">
                 @csrf
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1.5">
@@ -334,7 +349,90 @@
                         SIMPAN SOAL
                     </button>
                 </div>
-            </form>
+                </form>
+            </div>
+
+            <!-- Form Batch -->
+            <div id="penugasan-form-batch" class="hidden flex-1 overflow-hidden flex flex-col">
+                <form action="{{ route('admin.penugasan.bulk-store') }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar overscroll-contain">
+                    @csrf
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Praktikum</label>
+                            <select name="praktikum_id" id="batch_praktikum_id" required onchange="filterSessions(this.value, 'batch_sesi_id', 'batch_jadwal_praktikum_id')"
+                                class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                                <option value="">Pilih Praktikum</option>
+                                @foreach ($praktikums as $p)
+                                    <option value="{{ $p->id }}">{{ $p->nama_praktikum }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Sesi</label>
+                            <select name="sesi_id" id="batch_sesi_id" required onchange="filterJadwals(this.value, 'batch_jadwal_praktikum_id')"
+                                class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                                <option value="">Pilih Sesi</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Jadwal Praktikum (Opsional)</label>
+                        <select name="jadwal_praktikum_id" id="batch_jadwal_praktikum_id"
+                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                            <option value="">Umum (Tanpa Jadwal)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Judul Soal (Berlaku untuk semua)</label>
+                                <input type="text" name="judul_umum" required placeholder="Contoh: Soal Praktikum 1"
+                                    class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Instruksi (Berlaku untuk semua)</label>
+                                <textarea name="deskripsi_umum" rows="2" required placeholder="Tuliskan instruksi di sini..."
+                                    class="flex w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-zinc-100 pt-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Upload File per Digit NPM</h4>
+                                <span class="text-[10px] text-amber-600 font-medium">Hanya baris dengan file yang akan diproses</span>
+                            </div>
+                            <div class="grid grid-cols-1 gap-3">
+                                @foreach($digitNpms as $digit)
+                                    <div class="flex items-center gap-4 p-3 rounded-xl border border-zinc-100 bg-zinc-50/30 hover:bg-zinc-50 transition-colors">
+                                        <div class="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center shrink-0 shadow-sm">
+                                            <span class="font-black text-zinc-900 text-sm">{{ $digit->digit }}</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-[10px] font-bold text-zinc-500 uppercase mb-1">{{ $digit->label }}</p>
+                                            <input type="hidden" name="assignments[{{ $loop->index }}][kode_akhir_npm]" value="{{ $digit->digit }}">
+                                            <input type="file" name="assignments[{{ $loop->index }}][file_soal]" 
+                                                class="block w-full text-[10px] text-zinc-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 transition-all cursor-pointer">
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex items-center justify-end gap-3 sticky bottom-0 bg-white pb-2">
+                        <button type="button" onclick="document.getElementById('modal-penugasan').classList.add('hidden')"
+                            class="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-600 transition-all hover:bg-zinc-50">
+                            BATAL
+                        </button>
+                        <button type="submit"
+                            class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-6 text-xs font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a]">
+                            UPLOAD BATCH (0-9)
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -458,6 +556,29 @@
             }
         }
 
+        function switchPenugasanTab(tab) {
+            const singleTab = document.getElementById('penugasan-tab-single');
+            const batchTab = document.getElementById('penugasan-tab-batch');
+            const singleForm = document.getElementById('penugasan-form-single');
+            const batchForm = document.getElementById('penugasan-form-batch');
+
+            if (tab === 'single') {
+                singleTab.classList.add('border-[#001f3f]', 'text-[#001f3f]');
+                singleTab.classList.remove('border-transparent', 'text-zinc-400');
+                batchTab.classList.remove('border-[#001f3f]', 'text-[#001f3f]');
+                batchTab.classList.add('border-transparent', 'text-zinc-400');
+                singleForm.classList.remove('hidden');
+                batchForm.classList.add('hidden');
+            } else {
+                batchTab.classList.add('border-[#001f3f]', 'text-[#001f3f]');
+                batchTab.classList.remove('border-transparent', 'text-zinc-400');
+                singleTab.classList.remove('border-[#001f3f]', 'text-[#001f3f]');
+                singleTab.classList.add('border-transparent', 'text-zinc-400');
+                batchForm.classList.remove('hidden');
+                singleForm.classList.add('hidden');
+            }
+        }
+
         function filterSessions(praktikumId, sesiSelectId, jadwalSelectId) {
             const sesiSelect = document.getElementById(sesiSelectId);
             const jadwalSelect = document.getElementById(jadwalSelectId);
@@ -476,10 +597,10 @@
         }
 
         function filterJadwals(sesiId, jadwalSelectId) {
-            const modal = document.querySelector(jadwalSelectId.includes('edit') ? '#modal-edit-penugasan' : '#modal-penugasan');
-            const praktikumId = modal.querySelector('[name="praktikum_id"]').value;
-            
             const jadwalSelect = document.getElementById(jadwalSelectId);
+            const parentForm = jadwalSelect.closest('form');
+            const praktikumId = parentForm.querySelector('[name="praktikum_id"]').value;
+            
             jadwalSelect.innerHTML = '<option value="">Umum (Tanpa Jadwal)</option>';
 
             if (sesiId && praktikumId) {

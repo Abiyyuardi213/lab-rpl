@@ -108,6 +108,66 @@ class PenugasanController extends Controller
         return $route->with('success', 'Penugasan berhasil dibuat.');
     }
 
+    public function bulkStore(Request $request)
+    {
+        $request->validate([
+            'praktikum_id' => 'required|exists:praktikums,id',
+            'sesi_id' => 'nullable|exists:sesi_praktikums,id',
+            'jadwal_praktikum_id' => 'nullable|exists:jadwal_praktikums,id',
+            'judul_umum' => 'required|string|max:255',
+            'deskripsi_umum' => 'required',
+            'assignments' => 'required|array',
+            'assignments.*.kode_akhir_npm' => ['required', 'string', 'max:20'],
+            'assignments.*.file_soal' => 'nullable|file|mimes:pdf,doc,docx,zip,rar,jpg,png,jpeg|max:10240',
+        ]);
+
+        // Fallback for sesi_id if not provided in request (e.g. from hidden input in show page)
+        $sesiId = $request->sesi_id;
+        if (!$sesiId && $request->jadwal_praktikum_id) {
+            $jadwal = JadwalPraktikum::find($request->jadwal_praktikum_id);
+            $sesiId = $jadwal ? $jadwal->sesi_id : null;
+        }
+
+        // If sesi_id is still missing and it's required by the system logic
+        if (!$sesiId) {
+            return back()->withErrors(['sesi_id' => 'ID Sesi wajib diisi atau jadwal tidak memiliki sesi yang valid.'])->withInput();
+        }
+
+        $commonData = [
+            'praktikum_id' => $request->praktikum_id,
+            'sesi_id' => $sesiId,
+            'jadwal_praktikum_id' => $request->jadwal_praktikum_id ?: null,
+            'judul' => $request->judul_umum,
+            'deskripsi' => $request->deskripsi_umum,
+        ];
+
+        $createdCount = 0;
+        foreach ($request->assignments as $index => $assignmentData) {
+            $filePath = null;
+            if (isset($assignmentData['file_soal']) && $assignmentData['file_soal']->isValid()) {
+                $filePath = $assignmentData['file_soal']->store('penugasan_soal', 'public');
+            }
+
+            if ($filePath) {
+                Penugasan::create(array_merge($commonData, [
+                    'kode_akhir_npm' => $assignmentData['kode_akhir_npm'],
+                    'file_soal' => $filePath,
+                ]));
+                $createdCount++;
+            }
+        }
+
+        if ($createdCount === 0) {
+            return back()->with('error', 'Tidak ada file yang diunggah. Silakan pilih setidaknya satu file untuk digit NPM.')->withInput();
+        }
+
+        $route = $request->jadwal_praktikum_id 
+            ? redirect()->route('admin.penugasan.show', $request->jadwal_praktikum_id)
+            : redirect()->route('admin.penugasan.index');
+
+        return $route->with('success', "$createdCount penugasan berhasil dibuat secara batch.");
+    }
+
     public function update(Request $request, $id)
     {
         $penugasan = Penugasan::findOrFail($id);
