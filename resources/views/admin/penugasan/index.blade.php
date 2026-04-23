@@ -2,6 +2,83 @@
 
 @section('title', 'Manajemen Penugasan')
 
+@push('styles')
+    <style>
+        /* DataTables Custom Pagination Styling */
+        .dataTables_paginate {
+            display: flex !important;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .dataTables_paginate .paginate_button {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            height: 2rem;
+            min-width: 2rem;
+            padding: 0 0.5rem;
+            border-radius: 0.375rem !important;
+            border: 1px solid #e5e7eb !important;
+            background: white !important;
+            color: #4b5563 !important;
+            font-size: 0.75rem !important;
+            font-weight: 600 !important;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0 !important;
+        }
+
+        .dataTables_paginate .paginate_button:hover {
+            background-color: #f9fafb !important;
+            border-color: #d1d5db !important;
+            color: #111827 !important;
+        }
+
+        .dataTables_paginate .paginate_button.current {
+            background-color: #001f3f !important;
+            border-color: #001f3f !important;
+            color: white !important;
+        }
+
+        .dataTables_paginate .paginate_button.current:hover {
+            color: white !important;
+        }
+
+        .dataTables_paginate .paginate_button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #f3f4f6 !important;
+        }
+
+        .dataTables_paginate .paginate_button.previous,
+        .dataTables_paginate .paginate_button.next {
+            font-size: 0.875rem !important;
+        }
+
+        .dataTables_info {
+            font-size: 0.75rem !important;
+            color: #6b7280 !important;
+            font-weight: 500 !important;
+         }
+
+        /* Custom Thin Scrollbar for Modals */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e5e7eb;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #d1d5db;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="space-y-6">
         <!-- Header -->
@@ -170,9 +247,9 @@
 
     <!-- Modal: Tambah Penugasan -->
     <div id="modal-penugasan"
-        class="fixed inset-0 z-[60] hidden bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300">
+        class="fixed inset-0 z-[60] hidden bg-zinc-900/60 flex items-center justify-center p-4 transition-all duration-300">
         <div
-            class="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-200">
+            class="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-200 flex flex-col">
             <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
                 <div class="flex items-center gap-3">
                     <div class="h-8 w-8 rounded-lg bg-[#001f3f] flex items-center justify-center text-white shadow-lg shadow-[#001f3f]/20">
@@ -185,7 +262,7 @@
                     <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
-            <form action="{{ route('admin.penugasan.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+            <form action="{{ route('admin.penugasan.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar overscroll-contain">
                 @csrf
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1.5">
@@ -263,9 +340,9 @@
 
     <!-- Modal: Edit Penugasan -->
     <div id="modal-edit-penugasan"
-        class="fixed inset-0 z-[60] hidden bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300">
+        class="fixed inset-0 z-[60] hidden bg-zinc-900/60 flex items-center justify-center p-4 transition-all duration-300">
         <div
-            class="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-200">
+            class="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-200 flex flex-col">
             <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
                 <div class="flex items-center gap-3">
                     <div class="h-8 w-8 rounded-lg bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
@@ -278,7 +355,7 @@
                     <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
-            <form id="form-edit-penugasan" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+            <form id="form-edit-penugasan" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar overscroll-contain">
                 @csrf
                 @method('PUT')
                 
@@ -341,7 +418,7 @@
         function initTable(tableId, searchId) {
             if ($(tableId).length > 0) {
                 var table = $(tableId).DataTable({
-                    dom: 't<"flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
+                    dom: 't<"flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100 gap-4"ip>',
                     language: {
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
                         emptyTable: "<div class='py-20 flex flex-col items-center justify-center space-y-3'><div class='h-16 w-16 rounded-2xl bg-zinc-50 flex items-center justify-center'><i class='fas fa-folder-open text-2xl text-zinc-300'></i></div><div class='text-center'><p class='text-zinc-900 font-semibold'>Tidak ada data penugasan</p></div></div>",
