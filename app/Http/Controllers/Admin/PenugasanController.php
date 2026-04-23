@@ -10,6 +10,7 @@ use App\Models\PendaftaranPraktikum;
 use App\Models\PenugasanPraktikanOverride;
 use App\Models\Praktikum;
 use App\Models\SesiPraktikum;
+use App\Models\JadwalPraktikum;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
@@ -17,21 +18,44 @@ class PenugasanController extends Controller
 {
     public function index()
     {
-        $penugasans = Penugasan::with([
-            'praktikum',
-            'sesi.pendaftarans.praktikan.user',
-            'sesi.pendaftarans.aslab.user',
-            'sesi.pendaftarans.penugasanOverride.penugasan',
-            'sesi.penugasans',
-            'aslab.user',
-        ])
+        $jadwalPraktikums = JadwalPraktikum::with(['praktikum', 'sesi', 'penugasans'])
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        $penugasansTanpaJadwal = Penugasan::whereNull('jadwal_praktikum_id')
+            ->with(['praktikum', 'sesi', 'aslab.user'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         $praktikums = Praktikum::with('sesis')->get();
         $digitNpms = DigitNpm::active()->ordered()->get();
+        $allJadwalPraktikums = JadwalPraktikum::with(['praktikum', 'sesi'])->get(); // For the modal
 
-        return view('admin.penugasan.index', compact('penugasans', 'praktikums', 'digitNpms'));
+        return view('admin.penugasan.index', compact('jadwalPraktikums', 'penugasansTanpaJadwal', 'praktikums', 'digitNpms', 'allJadwalPraktikums'));
+    }
+
+    public function show($id)
+    {
+        $jadwal = JadwalPraktikum::with(['praktikum', 'sesi.jadwalPraktikums', 'penugasans.aslab.user'])->findOrFail($id);
+        
+        $penugasans = Penugasan::where('jadwal_praktikum_id', $id)
+            ->with([
+                'praktikum',
+                'sesi.pendaftarans.praktikan.user',
+                'sesi.pendaftarans.aslab.user',
+                'sesi.pendaftarans.penugasanOverride.penugasan',
+                'sesi.penugasans',
+                'aslab.user',
+                'jadwalPraktikum',
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $digitNpms = DigitNpm::active()->ordered()->get();
+        $praktikums = Praktikum::with('sesis')->get();
+        $allJadwalPraktikums = JadwalPraktikum::with(['praktikum', 'sesi'])->get();
+
+        return view('admin.penugasan.show', compact('jadwal', 'penugasans', 'digitNpms', 'praktikums', 'allJadwalPraktikums'));
     }
 
     public function store(Request $request)
@@ -39,6 +63,7 @@ class PenugasanController extends Controller
         $request->validate([
             'praktikum_id' => 'required|exists:praktikums,id',
             'sesi_id' => 'required|exists:sesi_praktikums,id',
+            'jadwal_praktikum_id' => 'nullable|exists:jadwal_praktikums,id',
             'kode_akhir_npm' => ['required', 'string', 'max:20', Rule::exists('digit_npms', 'digit')->where('is_active', true)],
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required',
@@ -66,16 +91,21 @@ class PenugasanController extends Controller
             }
         }
 
-        Penugasan::create([
-            'praktikum_id' => $request->praktikum_id,
-            'sesi_id' => $request->sesi_id,
-            'kode_akhir_npm' => $request->kode_akhir_npm,
-            'judul' => $request->judul,
-            'deskripsi' => $request->deskripsi,
-            'file_soal' => $filePath,
-        ]);
+        $data = $request->only(['praktikum_id', 'sesi_id', 'jadwal_praktikum_id', 'kode_akhir_npm', 'judul', 'deskripsi']);
+        $data['file_soal'] = $filePath;
+        
+        // Ensure empty string is converted to null for foreign key
+        if (empty($data['jadwal_praktikum_id'])) {
+            unset($data['jadwal_praktikum_id']);
+        }
 
-        return redirect()->route('admin.penugasan.index')->with('success', 'Penugasan berhasil dibuat.');
+        Penugasan::create($data);
+
+        $route = $request->jadwal_praktikum_id 
+            ? redirect()->route('admin.penugasan.show', $request->jadwal_praktikum_id)
+            : redirect()->route('admin.penugasan.index');
+
+        return $route->with('success', 'Penugasan berhasil dibuat.');
     }
 
     public function update(Request $request, $id)
@@ -83,13 +113,19 @@ class PenugasanController extends Controller
         $penugasan = Penugasan::findOrFail($id);
 
         $request->validate([
+            'jadwal_praktikum_id' => 'nullable|exists:jadwal_praktikums,id',
             'kode_akhir_npm' => ['required', 'string', 'max:20', Rule::exists('digit_npms', 'digit')->where('is_active', true)],
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required',
             'file_soal' => 'nullable|file|mimes:pdf,doc,docx,zip,rar|max:5120',
         ]);
 
-        $data = $request->only(['kode_akhir_npm', 'judul', 'deskripsi']);
+        $data = $request->only(['jadwal_praktikum_id', 'kode_akhir_npm', 'judul', 'deskripsi']);
+        
+        // Ensure empty string is converted to null for foreign key
+        if (empty($data['jadwal_praktikum_id'])) {
+            $data['jadwal_praktikum_id'] = null;
+        }
 
         if ($request->hasFile('file_soal')) {
             if ($penugasan->file_soal) {
@@ -115,7 +151,11 @@ class PenugasanController extends Controller
 
         $penugasan->update($data);
 
-        return redirect()->route('admin.penugasan.index')->with('success', 'Penugasan berhasil diperbarui.');
+        $route = $penugasan->jadwal_praktikum_id 
+            ? redirect()->route('admin.penugasan.show', $penugasan->jadwal_praktikum_id)
+            : redirect()->route('admin.penugasan.index');
+
+        return $route->with('success', 'Penugasan berhasil diperbarui.');
     }
 
     public function updateStudentAssignment(Request $request, PendaftaranPraktikum $pendaftaran)
@@ -127,7 +167,7 @@ class PenugasanController extends Controller
         if (!$request->filled('penugasan_id')) {
             PenugasanPraktikanOverride::where('pendaftaran_id', $pendaftaran->id)->delete();
 
-            return redirect()->route('admin.penugasan.index')
+            return redirect()->route('admin.penugasan.show', $request->jadwal_id ?? $pendaftaran->sesi_id) // Still potentially wrong if sesi_id is not a jadwal_id
                 ->with('success', 'Soal praktikan dikembalikan ke aturan digit akhir NPM.');
         }
 
@@ -143,13 +183,14 @@ class PenugasanController extends Controller
             ['penugasan_id' => $penugasan->id]
         );
 
-        return redirect()->route('admin.penugasan.index')
+        return redirect()->route('admin.penugasan.show', $request->jadwal_id ?? $penugasan->jadwal_praktikum_id)
             ->with('success', 'Soal khusus praktikan berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
         $penugasan = Penugasan::findOrFail($id);
+        $jadwalId = $penugasan->jadwal_praktikum_id;
 
         if ($penugasan->file_soal) {
             Storage::disk('public')->delete($penugasan->file_soal);
@@ -157,6 +198,10 @@ class PenugasanController extends Controller
 
         $penugasan->delete();
 
-        return redirect()->route('admin.penugasan.index')->with('success', 'Penugasan berhasil dihapus.');
+        $route = $jadwalId 
+            ? redirect()->route('admin.penugasan.show', $jadwalId)
+            : redirect()->route('admin.penugasan.index');
+
+        return $route->with('success', 'Penugasan berhasil dihapus.');
     }
 }

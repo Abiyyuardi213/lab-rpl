@@ -14,6 +14,7 @@ class Penugasan extends Model
     protected $fillable = [
         'praktikum_id',
         'sesi_id',
+        'jadwal_praktikum_id',
         'aslab_id',
         'kode_akhir_npm',
         'judul',
@@ -32,6 +33,11 @@ class Penugasan extends Model
     public function sesi()
     {
         return $this->belongsTo(SesiPraktikum::class, 'sesi_id');
+    }
+
+    public function jadwalPraktikum()
+    {
+        return $this->belongsTo(JadwalPraktikum::class);
     }
 
     public function aslab()

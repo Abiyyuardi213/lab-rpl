@@ -37,4 +37,9 @@ class SesiPraktikum extends Model
     {
         return $this->hasMany(Penugasan::class, 'sesi_id');
     }
+
+    public function jadwalPraktikums()
+    {
+        return $this->hasMany(JadwalPraktikum::class, 'sesi_id');
+    }
 }
