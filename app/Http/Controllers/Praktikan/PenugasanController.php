@@ -232,7 +232,7 @@ class PenugasanController extends Controller
         if ($penugasan->jadwal_praktikum_id) {
             $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', $pendaftaran->id)
                 ->where('jadwal_id', $penugasan->jadwal_praktikum_id)
-                ->where('status', 'hadir')
+                ->whereIn('status', ['hadir', 'terlambat'])
                 ->exists();
 
             if (!$hasPresensi) {
@@ -273,7 +273,7 @@ class PenugasanController extends Controller
             // Check Presence
             $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', $pendaftaran->id)
                 ->where('jadwal_id', $penugasan->jadwal_praktikum_id)
-                ->where('status', 'hadir')
+                ->whereIn('status', ['hadir', 'terlambat'])
                 ->exists();
 
             if (!$hasPresensi) {
@@ -291,7 +291,7 @@ class PenugasanController extends Controller
             }
 
             $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', $pendaftaran->id)
-                ->where('status', 'hadir')
+                ->whereIn('status', ['hadir', 'terlambat'])
                 ->exists();
 
             if (!$hasPresensi) {
