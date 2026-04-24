@@ -291,8 +291,8 @@
                                         @php
                                             $studentNpm = $student->praktikan?->npm ?? '';
                                             $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
-                                            $defaultPenugasan = ($studentLastDigit !== null && $jadwal->sesi)
-                                                ? $jadwal->sesi->penugasans->where('jadwal_praktikum_id', $jadwal->id)->firstWhere('kode_akhir_npm', $studentLastDigit)
+                                            $defaultPenugasan = $studentLastDigit !== null
+                                                ? $penugasans->firstWhere('kode_akhir_npm', $studentLastDigit)
                                                 : null;
                                             $customPenugasan = $student->penugasanOverride?->penugasan;
                                             $currentPenugasan = $customPenugasan ?? $defaultPenugasan;
@@ -337,14 +337,12 @@
                                                         <option value="">
                                                             Default digit {{ $studentLastDigit ?? '-' }}{{ $defaultPenugasan ? ' - ' . $defaultPenugasan->judul : '' }}
                                                         </option>
-                                                        @if($jadwal->sesi)
-                                                            @foreach ($jadwal->sesi->penugasans->where('jadwal_praktikum_id', $jadwal->id)->sortBy('kode_akhir_npm') as $availablePenugasan)
-                                                                <option value="{{ $availablePenugasan->id }}"
-                                                                    @selected($customPenugasan?->id === $availablePenugasan->id)>
-                                                                    Kode {{ $availablePenugasan->kode_akhir_npm }} - {{ $availablePenugasan->judul }}
-                                                                </option>
-                                                            @endforeach
-                                                        @endif
+                                                        @foreach ($penugasans->sortBy('kode_akhir_npm') as $availablePenugasan)
+                                                            <option value="{{ $availablePenugasan->id }}"
+                                                                @selected($customPenugasan?->id === $availablePenugasan->id)>
+                                                                Kode {{ $availablePenugasan->kode_akhir_npm }} - {{ $availablePenugasan->judul }}
+                                                            </option>
+                                                        @endforeach
                                                     </select>
                                                     <button type="submit"
                                                         class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-3 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-[#002d5a] transition-colors">
