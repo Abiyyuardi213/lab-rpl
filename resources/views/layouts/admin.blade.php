@@ -58,6 +58,22 @@
         @include('admin.components.admin-footer')
     </div>
 
+    <!-- Floating Return to Admin Button (Impersonate Mode) -->
+    @if(session()->has('impersonated_by'))
+        <div class="fixed bottom-6 right-6 z-[100] animate-bounce hover:animate-none">
+            <form action="{{ route('impersonation.leave') }}" method="POST">
+                @csrf
+                <button type="submit" 
+                    class="group flex items-center gap-3 bg-[#001f3f] hover:bg-rose-600 text-white px-5 py-3.5 rounded-full shadow-2xl shadow-blue-900/30 transition-all duration-300 hover:scale-105 hover:pr-6 border-2 border-white">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 group-hover:bg-white text-white group-hover:text-rose-600 transition-colors">
+                        <i class="fas fa-sign-out-alt text-sm"></i>
+                    </div>
+                    <span class="font-bold tracking-wide text-sm whitespace-nowrap">Kembali ke Admin</span>
+                </button>
+            </form>
+        </div>
+    @endif
+
     @if (session('login_success') || session('success'))
         <script>
             const Toast = Swal.mixin({

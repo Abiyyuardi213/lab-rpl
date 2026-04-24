@@ -83,9 +83,17 @@
                             <i class="fas fa-file-invoice text-7xl text-white"></i>
                         </div>
                         <div class="flex items-start justify-between relative z-10">
-                            <span class="bg-white/10 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded border border-white/20 uppercase tracking-widest leading-none">
-                                {{ $p->praktikum->kode_praktikum }}
-                            </span>
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="bg-white/10 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded border border-white/20 uppercase tracking-widest leading-none" title="Kode Praktikum">
+                                    {{ $p->praktikum->kode_praktikum }}
+                                </span>
+                                <span class="bg-[#1a4fa0]/80 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded border border-blue-400/30 uppercase tracking-widest leading-none" title="Modul">
+                                    {{ $p->praktikum->nama_praktikum }}
+                                </span>
+                                <span class="bg-amber-500/80 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded border border-amber-400/30 uppercase tracking-widest leading-none" title="Sesi">
+                                    {{ $p->sesi->nama_sesi ?? 'Umum' }}
+                                </span>
+                            </div>
                             @if ($p->is_accessible)
                                 <span class="bg-emerald-500/20 backdrop-blur-md text-emerald-400 text-[9px] font-black px-2 py-1 rounded border border-emerald-500/30 uppercase tracking-widest leading-none flex items-center gap-1.5">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
