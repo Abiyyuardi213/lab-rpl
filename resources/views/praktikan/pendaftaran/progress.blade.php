@@ -244,5 +244,130 @@
                 @endforelse
             </div>
         </div>
+        </div>
+
+        <!-- Rating & Review Section -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="font-bold text-slate-900">Ulasan & Rating</h3>
+                @if($pendaftaran->rating)
+                    <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded-full border border-emerald-100 flex items-center gap-1">
+                        <i class="fas fa-check-circle"></i> Sudah Memberikan Ulasan
+                    </span>
+                @else
+                    <span class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-bold rounded-full border border-amber-100 flex items-center gap-1">
+                        <i class="fas fa-star"></i> Belum Memberikan Ulasan
+                    </span>
+                @endif
+            </div>
+            <div class="p-6 lg:p-8">
+                @if(!$pendaftaran->rating)
+                    <form action="{{ route('praktikan.pendaftaran.submit-rating', $pendaftaran->id) }}" method="POST" class="space-y-6">
+                        @csrf
+                        @if ($errors->any())
+                            <div class="bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-xl text-xs font-medium">
+                                <ul class="list-disc pl-4 space-y-1">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Praktikum Rating -->
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900">Penilaian Praktikum</h4>
+                                    <p class="text-[11px] text-slate-500">Bagaimana pengalaman Anda mengikuti praktikum ini?</p>
+                                </div>
+                                <div class="flex items-center gap-2 flex-row-reverse justify-end peer">
+                                    <input type="radio" name="rating_praktikum" id="rp5" value="5" class="peer/5 hidden">
+                                    <label for="rp5" class="text-slate-300 hover:text-amber-400 peer-checked/5:text-amber-400 cursor-pointer text-2xl transition-colors"><i class="fas fa-star"></i></label>
+                                    
+                                    <input type="radio" name="rating_praktikum" id="rp4" value="4" class="peer/4 hidden">
+                                    <label for="rp4" class="text-slate-300 hover:text-amber-400 peer-checked/4:text-amber-400 cursor-pointer text-2xl transition-colors peer-has-[:checked]:text-amber-400"><i class="fas fa-star"></i></label>
+
+                                    <input type="radio" name="rating_praktikum" id="rp3" value="3" class="peer/3 hidden">
+                                    <label for="rp3" class="text-slate-300 hover:text-amber-400 peer-checked/3:text-amber-400 cursor-pointer text-2xl transition-colors peer-has-[:checked]:text-amber-400"><i class="fas fa-star"></i></label>
+
+                                    <input type="radio" name="rating_praktikum" id="rp2" value="2" class="peer/2 hidden">
+                                    <label for="rp2" class="text-slate-300 hover:text-amber-400 peer-checked/2:text-amber-400 cursor-pointer text-2xl transition-colors peer-has-[:checked]:text-amber-400"><i class="fas fa-star"></i></label>
+
+                                    <input type="radio" name="rating_praktikum" id="rp1" value="1" class="peer/1 hidden">
+                                    <label for="rp1" class="text-slate-300 hover:text-amber-400 peer-checked/1:text-amber-400 cursor-pointer text-2xl transition-colors peer-has-[:checked]:text-amber-400"><i class="fas fa-star"></i></label>
+                                </div>
+                                <div>
+                                    <textarea name="ulasan_praktikum" rows="3" class="w-full text-sm border-slate-200 rounded-xl focus:ring-[#001f3f] focus:border-[#001f3f] p-3" placeholder="Tulis ulasan untuk materi, modul, dan pelaksanaan praktikum..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Aslab Rating -->
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-900">Penilaian Asisten Lab</h4>
+                                    <p class="text-[11px] text-slate-500">Bagaimana kinerja dan bimbingan dari asisten lab Anda?</p>
+                                </div>
+                                <div class="flex items-center gap-2 flex-row-reverse justify-end peer">
+                                    <input type="radio" name="rating_asisten" id="ra5" value="5" class="peer/5 hidden">
+                                    <label for="ra5" class="text-slate-300 hover:text-amber-400 peer-checked/5:text-amber-400 cursor-pointer text-2xl transition-colors"><i class="fas fa-star"></i></label>
+                                    
+                                    <input type="radio" name="rating_asisten" id="ra4" value="4" class="peer/4 hidden">
+                                    <label for="ra4" class="text-slate-300 hover:text-amber-400 peer-checked/4:text-amber-400 cursor-pointer text-2xl transition-colors peer-has-[:checked]:text-amber-400"><i class="fas fa-star"></i></label>
+
+                                    <input type="radio" name="rating_asisten" id="ra3" value="3" class="peer/3 hidden">
+                                    <label for="ra3" class="text-slate-300 hover:text-amber-400 peer-checked/3:text-amber-400 cursor-pointer text-2xl transition-colors peer-has-[:checked]:text-amber-400"><i class="fas fa-star"></i></label>
+
+                                    <input type="radio" name="rating_asisten" id="ra2" value="2" class="peer/2 hidden">
+                                    <label for="ra2" class="text-slate-300 hover:text-amber-400 peer-checked/2:text-amber-400 cursor-pointer text-2xl transition-colors peer-has-[:checked]:text-amber-400"><i class="fas fa-star"></i></label>
+
+                                    <input type="radio" name="rating_asisten" id="ra1" value="1" class="peer/1 hidden">
+                                    <label for="ra1" class="text-slate-300 hover:text-amber-400 peer-checked/1:text-amber-400 cursor-pointer text-2xl transition-colors peer-has-[:checked]:text-amber-400"><i class="fas fa-star"></i></label>
+                                </div>
+                                <div>
+                                    <textarea name="ulasan_asisten" rows="3" class="w-full text-sm border-slate-200 rounded-xl focus:ring-[#001f3f] focus:border-[#001f3f] p-3" placeholder="Tulis ulasan untuk asisten lab Anda..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end pt-4">
+                            <button type="submit" class="px-6 py-2.5 bg-[#001f3f] text-white text-xs font-bold rounded-xl hover:bg-[#002f5f] transition-all flex items-center gap-2 shadow-lg shadow-[#001f3f]/20">
+                                <i class="fas fa-paper-plane"></i> Kirim Ulasan
+                            </button>
+                        </div>
+                    </form>
+
+                    <style>
+                        /* For star rating hover effect (fill all previous stars) */
+                        .flex-row-reverse > label:hover,
+                        .flex-row-reverse > label:hover ~ label {
+                            color: #fbbf24;
+                        }
+                        .flex-row-reverse > input:checked ~ label {
+                            color: #fbbf24;
+                        }
+                    </style>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Rating Praktikum</h4>
+                            <div class="flex gap-1 mb-3 text-lg text-amber-400">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= $pendaftaran->rating->rating_praktikum ? 'text-amber-400' : 'text-slate-200' }}"></i>
+                                @endfor
+                            </div>
+                            <p class="text-sm text-slate-600 italic">"{{ $pendaftaran->rating->ulasan_praktikum ?: 'Tidak ada ulasan tertulis.' }}"</p>
+                        </div>
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Rating Asisten</h4>
+                            <div class="flex gap-1 mb-3 text-lg text-amber-400">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= $pendaftaran->rating->rating_asisten ? 'text-amber-400' : 'text-slate-200' }}"></i>
+                                @endfor
+                            </div>
+                            <p class="text-sm text-slate-600 italic">"{{ $pendaftaran->rating->ulasan_asisten ?: 'Tidak ada ulasan tertulis.' }}"</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 @endsection

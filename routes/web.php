@@ -211,6 +211,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/riwayat-pendaftaran', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'index'])->name('pendaftaran.index');
             Route::get('/pendaftaran/{id}/progress', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'progress'])->name('pendaftaran.progress');
             Route::post('/tugas/{tugas_id}/submit', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'submitTugas'])->name('pendaftaran.submit-tugas');
+            Route::post('/pendaftaran/{id}/rating', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'submitRating'])->name('pendaftaran.submit-rating');
 
             // Presensi (Praktikan)
             Route::get('/presensi/generate-qr/{jadwal_id}', [PresensiController::class, 'generateQR'])->name('presensi.generate-qr');
