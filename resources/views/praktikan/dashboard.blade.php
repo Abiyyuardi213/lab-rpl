@@ -212,6 +212,88 @@
             </div>
         @endif
 
+        <!-- Penugasan / Soal Praktikum Aktif -->
+        @if(isset($penugasans) && $penugasans->isNotEmpty())
+            <div class="mt-10">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="h-8 w-8 rounded-lg bg-[#001f3f] flex items-center justify-center text-white shadow-lg shadow-[#001f3f]/10">
+                            <i class="fas fa-file-invoice text-[10px]"></i>
+                        </div>
+                        <h2 class="text-lg font-bold text-slate-900 uppercase tracking-tight">Soal Praktikum Aktif</h2>
+                    </div>
+                    <a href="{{ route('praktikan.penugasan.index') }}" class="text-[10px] font-bold text-[#001f3f] uppercase tracking-widest hover:underline flex items-center gap-1">
+                        Lihat Semua Soal <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @foreach($penugasans->filter(fn($p) => $p->is_accessible)->take(3) as $p)
+                        <div class="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col group transition-all hover:shadow-lg">
+                            <!-- Card Header -->
+                            <div class="h-28 bg-linear-to-br from-[#001f3f] to-[#002d5a] p-5 flex flex-col justify-between relative overflow-hidden">
+                                <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
+                                    <i class="fas fa-file-invoice text-7xl text-white"></i>
+                                </div>
+                                <div class="flex items-start justify-between relative z-10">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span class="bg-white/10 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded border border-white/20 uppercase tracking-widest leading-none" title="Kode Praktikum">
+                                            {{ $p->praktikum->kode_praktikum }}
+                                        </span>
+                                        <span class="bg-[#1a4fa0]/80 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded border border-blue-400/30 uppercase tracking-widest leading-none" title="Modul">
+                                            {{ $p->praktikum->nama_praktikum }}
+                                        </span>
+                                    </div>
+                                    <span class="bg-emerald-500/20 backdrop-blur-md text-emerald-400 text-[9px] font-black px-2 py-1 rounded border border-emerald-500/30 uppercase tracking-widest leading-none flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        TERBUKA
+                                    </span>
+                                </div>
+                                <div class="relative z-10">
+                                    <h3 class="text-sm font-black text-white line-clamp-1 uppercase tracking-tight leading-none">{{ $p->judul }}</h3>
+                                </div>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="p-5 grow flex flex-col">
+                                <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest leading-none mb-4 italic">{{ $p->praktikum->nama_praktikum }}</p>
+                                
+                                <div class="space-y-3 pt-4 border-t border-zinc-100 mb-6">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-7 w-7 rounded-md bg-zinc-50 flex items-center justify-center text-zinc-400 border border-zinc-100">
+                                            <i class="fas fa-calendar-day text-[10px]"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[8px] font-bold text-zinc-400 uppercase tracking-widest leading-none">Hari Sesi</p>
+                                            <p class="text-[10px] font-bold text-zinc-700 uppercase mt-1 leading-none">{{ $p->sesi->hari }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-7 w-7 rounded-md bg-zinc-50 flex items-center justify-center text-zinc-400 border border-zinc-100">
+                                            <i class="fas fa-clock text-[10px]"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[8px] font-bold text-zinc-400 uppercase tracking-widest leading-none">Jam Akses</p>
+                                            <p class="text-[10px] font-bold text-zinc-700 uppercase mt-1 leading-none tabular-nums">{{ substr($p->sesi->jam_mulai, 0, 5) }} - {{ substr($p->sesi->jam_selesai, 0, 5) }}</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="mt-auto">
+                                    <a href="{{ route('praktikan.penugasan.show', $p->id) }}" 
+                                        class="w-full h-10 bg-[#001f3f] text-white text-[10px] font-bold uppercase tracking-widest rounded-lg shadow-lg shadow-[#001f3f]/10 hover:bg-[#002d5a] transition-all flex items-center justify-center gap-2 group-active:scale-95">
+                                        Lihat Soal
+                                        <i class="fas fa-arrow-right text-[10px]"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         <!-- Upcoming Schedules -->
         <div class="mt-10">
             <div class="flex items-center gap-3 mb-6">

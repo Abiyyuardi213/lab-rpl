@@ -41,7 +41,7 @@ class PenugasanController extends Controller
 
         $defaultPenugasans = Penugasan::with(['praktikum', 'sesi', 'aslab.user'])
             ->whereIn('sesi_id', $defaultSesiIds)
-            ->where('kode_akhir_npm', $lastDigit)
+            ->where('kode_akhir_npm', (string)$lastDigit)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -146,7 +146,7 @@ class PenugasanController extends Controller
             abort(403, 'Soal ini sudah diganti khusus oleh admin.');
         }
 
-        if (!$hasCustomAssignment && $penugasan->kode_akhir_npm !== null && (int)$penugasan->kode_akhir_npm !== $lastDigit) {
+        if (!$hasCustomAssignment && $penugasan->kode_akhir_npm !== null && (string)$penugasan->kode_akhir_npm !== (string)$lastDigit) {
             abort(403, 'Soal ini tidak ditujukan untuk NPM Anda.');
         }
 
@@ -249,7 +249,7 @@ class PenugasanController extends Controller
             abort(403, 'Soal ini sudah diganti khusus oleh admin.');
         }
 
-        if (!$hasCustomAssignment && $penugasan->kode_akhir_npm !== null && (int)$penugasan->kode_akhir_npm !== $lastDigit) {
+        if (!$hasCustomAssignment && $penugasan->kode_akhir_npm !== null && (string)$penugasan->kode_akhir_npm !== (string)$lastDigit) {
             abort(403, 'Soal ini tidak ditujukan untuk NPM Anda.');
         }
 

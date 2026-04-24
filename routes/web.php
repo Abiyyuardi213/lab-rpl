@@ -57,6 +57,7 @@ Route::get('/home', [AuthController::class, 'dashboardRedirect'])->name('dashboa
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/leave-impersonation', [\App\Http\Controllers\PraktikanController::class, 'leaveImpersonation'])->name('impersonation.leave');
 
     // Notifications
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
@@ -117,6 +118,7 @@ Route::middleware('auth')->group(function () {
         // Praktikan Management
         Route::resource('praktikan', \App\Http\Controllers\PraktikanController::class);
         Route::patch('praktikan/{id}/toggle-status', [\App\Http\Controllers\PraktikanController::class, 'toggleStatus'])->name('praktikan.toggle-status');
+        Route::post('praktikan/{id}/impersonate', [\App\Http\Controllers\PraktikanController::class, 'impersonate'])->name('praktikan.impersonate');
 
         // User Actions
         Route::get('/kaprodi', fn() => 'Kaprodi Index')->name('kaprodi.index');

@@ -169,4 +169,33 @@ class PraktikanController extends Controller
             'message' => 'Status praktikan berhasil diperbarui.'
         ]);
     }
+
+    public function impersonate($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Log out admin currently and login as the praktikan user
+        // We will store the original admin ID in session to allow "return to admin" if needed later.
+        $adminId = \Illuminate\Support\Facades\Auth::id();
+        session()->put('impersonated_by', $adminId);
+        
+        \Illuminate\Support\Facades\Auth::login($user);
+        
+        return redirect()->route('dashboard.redirect')->with('success', 'Berhasil login sebagai ' . $user->name);
+    }
+
+    public function leaveImpersonation()
+    {
+        if (session()->has('impersonated_by')) {
+            $adminId = session()->pull('impersonated_by');
+            $adminUser = \App\Models\User::find($adminId);
+            
+            if ($adminUser) {
+                \Illuminate\Support\Facades\Auth::login($adminUser);
+                return redirect()->route('admin.praktikan.index')->with('success', 'Berhasil kembali ke sesi Admin.');
+            }
+        }
+        
+        return redirect()->route('dashboard.redirect');
+    }
 }

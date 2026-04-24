@@ -160,6 +160,16 @@
                         <option value="25">25 data</option>
                         <option value="50">50 data</option>
                     </select>
+                    <select id="filterSesi"
+                        class="h-9 rounded-md border border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+                        <option value="">Semua Sesi</option>
+                        @foreach($penugasans->pluck('sesi.nama_sesi')->filter()->unique() as $namaSesi)
+                            <option value="{{ $namaSesi }}">{{ $namaSesi }}</option>
+                        @endforeach
+                        @if($penugasans->contains(fn($p) => is_null($p->sesi)))
+                            <option value="Semua Sesi">Semua Sesi</option>
+                        @endif
+                    </select>
                     <button onclick="document.getElementById('modal-penugasan').classList.remove('hidden')"
                         class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-4 py-2 text-sm font-medium text-white shadow hover:bg-[#002d5a] transition-colors whitespace-nowrap">
                         <i class="fas fa-plus mr-2 text-xs"></i>
@@ -176,6 +186,7 @@
                             <th class="px-6 align-middle font-medium text-zinc-500 w-12 text-center text-[10px] uppercase tracking-wider">NO</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Kode NPM</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Judul Soal</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Sesi</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-[10px] uppercase tracking-wider">Praktikan Terdaftar</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-right text-[10px] uppercase tracking-wider">AKSI</th>
                         </tr>
@@ -184,7 +195,19 @@
                         @foreach ($penugasans as $index => $p)
                             @php
                                 $registeredStudents = $p->sesi?->pendaftarans ?? collect();
-                                $verifiedStudents = $registeredStudents->where('status', 'verified');
+                                $filteredStudents = $registeredStudents->filter(function($student) use ($p, $penugasans) {
+                                    $studentNpm = $student->praktikan?->npm ?? '';
+                                    $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
+                                    
+                                    $defaultPenugasan = $studentLastDigit !== null
+                                        ? $penugasans->firstWhere('kode_akhir_npm', $studentLastDigit)
+                                        : null;
+                                    $customPenugasan = $student->penugasanOverride?->penugasan;
+                                    $currentPenugasan = $customPenugasan ?? $defaultPenugasan;
+                                    
+                                    return $currentPenugasan && $currentPenugasan->id === $p->id;
+                                });
+                                $verifiedStudents = $filteredStudents->where('status', 'verified');
                             @endphp
                             <tr class="hover:bg-zinc-50/50 transition-colors">
                                 <td class="px-6 py-4 text-center text-zinc-500 font-medium">{{ $index + 1 }}</td>
@@ -206,9 +229,12 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
+                                    <span class="font-medium text-zinc-700 tracking-tight">{{ $p->sesi->nama_sesi ?? 'Semua Sesi' }}</span>
+                                </td>
+                                <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <div class="flex flex-col">
-                                            <span class="font-black text-zinc-900">{{ $registeredStudents->count() }} Praktikan</span>
+                                            <span class="font-black text-zinc-900">{{ $filteredStudents->count() }} Praktikan</span>
                                             <span class="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">{{ $verifiedStudents->count() }} Terverifikasi</span>
                                         </div>
                                         <button type="button" onclick="openPraktikanModal('{{ $p->id }}')"
@@ -245,6 +271,18 @@
     @foreach ($penugasans as $p)
         @php
             $registeredStudents = $p->sesi?->pendaftarans ?? collect();
+            $filteredStudents = $registeredStudents->filter(function($student) use ($p, $penugasans) {
+                $studentNpm = $student->praktikan?->npm ?? '';
+                $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
+                
+                $defaultPenugasan = $studentLastDigit !== null
+                    ? $penugasans->firstWhere('kode_akhir_npm', $studentLastDigit)
+                    : null;
+                $customPenugasan = $student->penugasanOverride?->penugasan;
+                $currentPenugasan = $customPenugasan ?? $defaultPenugasan;
+                
+                return $currentPenugasan && $currentPenugasan->id === $p->id;
+            });
         @endphp
         <div id="modal-praktikan-{{ $p->id }}"
             class="fixed inset-0 z-[60] hidden bg-zinc-900/60 flex items-center justify-center p-4 transition-all duration-300">
@@ -263,7 +301,7 @@
                     </button>
                 </div>
                 <div class="p-6 overflow-y-auto">
-                    @if ($registeredStudents->isEmpty())
+                    @if ($filteredStudents->isEmpty())
                         <div class="py-14 text-center">
                             <div class="mx-auto h-14 w-14 rounded-xl bg-zinc-50 flex items-center justify-center mb-3">
                                 <i class="fas fa-users text-xl text-zinc-300"></i>
@@ -287,7 +325,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-zinc-100">
-                                    @foreach ($registeredStudents->sortBy(fn($item) => $item->praktikan?->user?->name)->values() as $studentIndex => $student)
+                                    @foreach ($filteredStudents->sortBy(fn($item) => $item->praktikan?->user?->name)->values() as $studentIndex => $student)
                                         @php
                                             $studentNpm = $student->praktikan?->npm ?? '';
                                             $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
@@ -693,12 +731,16 @@
                     },
                     columnDefs: [{
                         orderable: false,
-                        targets: [4]
+                        targets: [5]
                     }]
                 });
 
                 $('#customSearch').on('keyup', function() {
                     table.search(this.value).draw();
+                });
+
+                $('#filterSesi').on('change', function() {
+                    table.column(3).search(this.value).draw();
                 });
 
                 $('#customLength').on('change', function() {
