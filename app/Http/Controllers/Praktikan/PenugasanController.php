@@ -80,7 +80,7 @@ class PenugasanController extends Controller
                 // 2. Check Presence
                 $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', $pendaftarans->where('sesi_id', $penugasan->sesi_id)->first()?->id)
                     ->where('jadwal_id', $penugasan->jadwal_praktikum_id)
-                    ->where('status', 'hadir')
+                    ->whereIn('status', ['hadir', 'terlambat'])
                     ->exists();
 
                 // Accessible ONLY if within time AND has presence
@@ -102,7 +102,7 @@ class PenugasanController extends Controller
                 $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::whereHas('pendaftaran', function($query) use ($praktikan, $penugasan) {
                     $query->where('praktikan_id', $praktikan->id)
                           ->where('praktikum_id', $penugasan->praktikum_id);
-                })->where('status', 'hadir')->exists();
+                })->whereIn('status', ['hadir', 'terlambat'])->exists();
 
                 $isAccessible = $isRegistered && $isWithinTime && $hasPresensi;
             }
@@ -172,7 +172,7 @@ class PenugasanController extends Controller
             // Check Presence
             $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::where('pendaftaran_id', $pendaftaran->id)
                 ->where('jadwal_id', $penugasan->jadwal_praktikum_id)
-                ->where('status', 'hadir')
+                ->whereIn('status', ['hadir', 'terlambat'])
                 ->exists();
 
             if (!$hasPresensi) {
@@ -194,7 +194,7 @@ class PenugasanController extends Controller
             $hasPresensi = $this->shouldBypassPresensiForTesting() || \App\Models\Presensi::whereHas('pendaftaran', function($query) use ($praktikan, $penugasan) {
                 $query->where('praktikan_id', $praktikan->id)
                       ->where('praktikum_id', $penugasan->praktikum_id);
-            })->where('status', 'hadir')->exists();
+            })->whereIn('status', ['hadir', 'terlambat'])->exists();
 
             if (!$hasPresensi) {
                 return redirect()->route('praktikan.penugasan.index')
