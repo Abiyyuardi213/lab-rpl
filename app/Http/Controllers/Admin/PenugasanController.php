@@ -227,7 +227,13 @@ class PenugasanController extends Controller
         if (!$request->filled('penugasan_id')) {
             PenugasanPraktikanOverride::where('pendaftaran_id', $pendaftaran->id)->delete();
 
-            return redirect()->route('admin.penugasan.show', $request->jadwal_id ?? $pendaftaran->sesi_id) // Still potentially wrong if sesi_id is not a jadwal_id
+            // Fix: Ensure we redirect back correctly. If no jadwal_id, go to index or parent show.
+            if ($request->filled('jadwal_id')) {
+                return redirect()->route('admin.penugasan.show', $request->jadwal_id)
+                    ->with('success', 'Soal praktikan dikembalikan ke aturan digit akhir NPM.');
+            }
+
+            return redirect()->route('admin.penugasan.index')
                 ->with('success', 'Soal praktikan dikembalikan ke aturan digit akhir NPM.');
         }
 
@@ -238,9 +244,10 @@ class PenugasanController extends Controller
                 ->with('error', 'Soal yang dipilih harus berasal dari praktikum yang sama.');
         }
 
-        // Cek digit akhir NPM mahasiswa
+        // Cek digit akhir NPM mahasiswa secara aman
         $studentNpm = $pendaftaran->praktikan->npm ?? '';
-        $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
+        $lastChar = substr($studentNpm, -1);
+        $studentLastDigit = is_numeric($lastChar) ? $lastChar : null;
 
         // Jika kode soal SAMA dengan digit NPM mahasiswa → hapus override (kembalikan ke default)
         if ($studentLastDigit !== null && (string)$penugasan->kode_akhir_npm === (string)$studentLastDigit) {
