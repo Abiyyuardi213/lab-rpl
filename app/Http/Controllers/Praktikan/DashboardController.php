@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Praktikan;
 
 use App\Http\Controllers\Controller;
 use App\Models\Praktikum;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
-        $praktikan = $user->praktikan;
+        $user = Auth::user();
+        $praktikan = $user?->praktikan;
 
         // Praktikums availble for registration (not finished)
         $praktikums = Praktikum::withCount('pendaftarans')

@@ -178,13 +178,17 @@ class PendaftaranController extends Controller
             abort(403);
         }
 
-        // Cegah overwrite tugas yang sudah dinilai
-        if ($tugas->status === 'reviewed') {
-            return back()->with('error', 'Tugas yang sudah dinilai tidak dapat diubah.');
+        // Cegah overwrite tugas yang sudah dinilai HANYA jika deadline sudah lewat
+        // Jika masih dalam deadline, izinkan re-upload (nilai & catatan akan direset)
+        $isReviewed = $tugas->status === 'reviewed';
+        $isOverdue = $tugas->due_date && now()->greaterThan($tugas->due_date->endOfDay());
+
+        if ($isReviewed && $isOverdue) {
+            return back()->with('error', 'Tugas yang sudah dinilai tidak dapat diubah karena batas waktu pengumpulan telah berakhir.');
         }
 
-        // Cek deadline
-        if ($tugas->due_date && now()->greaterThan($tugas->due_date->endOfDay())) {
+        // Cek deadline (untuk yang belum reviewed pun)
+        if (!$isReviewed && $tugas->due_date && now()->greaterThan($tugas->due_date->endOfDay())) {
             return back()->with('error', 'Gagal mengunggah. Batas waktu pengumpulan tugas (' . $tugas->due_date->format('d M Y') . ') telah berakhir.');
         }
 
@@ -198,6 +202,13 @@ class PendaftaranController extends Controller
             }
             $tugas->file_mahasiswa = $request->file('file_mahasiswa')->store('tugas/mahasiswa', 'public');
             $tugas->status = 'submitted';
+
+            // Jika sebelumnya sudah dinilai, reset nilai & catatan agar aslab menilai ulang
+            if ($isReviewed) {
+                $tugas->nilai = null;
+                $tugas->catatan_aslab = null;
+            }
+
             $tugas->save();
         }
 
