@@ -205,6 +205,9 @@
                                                         <i class="fas fa-cloud-upload-alt"></i>
                                                         <span>Pilih File Baru untuk Mengganti</span>
                                                     </span>
+                                                    <span class="mt-2 block text-center text-[9px] font-semibold text-rose-500">
+                                                        Ukuran max file yang dapat di upload adalah 7 MB
+                                                    </span>
                                                 </label>
                                             </form>
                                         </div>
@@ -237,6 +240,7 @@
                                                         @if($t->file_mahasiswa)
                                                             <span class="text-[9px] text-amber-600 font-medium">File lama akan diganti</span>
                                                         @endif
+                                                        <span class="text-[9px] text-slate-400 font-medium">Ukuran max file yang dapat di upload adalah 7 MB</span>
                                                     </div>
                                                 </div>
                                             </form>
