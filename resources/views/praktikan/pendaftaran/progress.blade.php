@@ -118,6 +118,12 @@
                                             <i class="fas fa-check-double text-[8px]"></i>
                                             DINILAI
                                         </span>
+                                        @if(!$isOverdue)
+                                            <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-[10px] font-bold border border-amber-100 flex items-center gap-1 shadow-sm">
+                                                <i class="fas fa-pencil-alt text-[8px]"></i>
+                                                BISA REVISI
+                                            </span>
+                                        @endif
                                     @elseif($isOverdue && $t->status !== 'submitted')
                                         <span class="px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 text-[10px] font-bold border border-rose-100 flex items-center gap-1 shadow-sm">
                                             <i class="fas fa-exclamation-circle text-[8px]"></i>
@@ -183,7 +189,30 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                        {{-- Re-upload: tampilkan jika reviewed tapi deadline belum lewat --}}
+                                        @if(!$isOverdue)
+                                            <div class="w-full border border-rose-200 rounded-2xl p-3 bg-rose-50/60 space-y-2">
+                                                <p class="text-[9px] font-black text-rose-600 uppercase tracking-widest flex items-center gap-1.5">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                    Ganti Jawaban (Nilai Akan Direset)
+                                                </p>
+                                                <p class="text-[9px] text-rose-500 leading-relaxed">Jika Anda mengunggah ulang, nilai dan catatan aslab akan dihapus. Aslab perlu menilai kembali.</p>
+                                                <form action="{{ route('praktikan.pendaftaran.submit-tugas', $t->id) }}" method="POST" enctype="multipart/form-data" class="w-full">
+                                                    @csrf
+                                                    <div class="relative group">
+                                                        <input type="file" name="file_mahasiswa" required onchange="this.form.submit()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                                        <div class="w-full px-4 py-3 border-2 border-dashed border-rose-300 bg-white rounded-xl text-[10px] font-bold text-rose-500 flex items-center justify-center gap-2 group-hover:border-rose-500 group-hover:bg-rose-50 transition-all duration-300">
+                                                            <i class="fas fa-cloud-upload-alt"></i>
+                                                            <span>Pilih File Baru untuk Mengganti</span>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        @endif
+                                    </div>{{-- end reviewed --}}
                                 @elseif($isOverdue && $t->status !== 'submitted')
+                                    {{-- Deadline lewat dan belum pernah submit sama sekali --}}
                                     <div class="h-full flex flex-col items-center lg:items-end justify-center py-4">
                                         <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 mb-3 border border-rose-100/50 shadow-inner">
                                             <i class="fas fa-lock text-lg"></i>
@@ -192,13 +221,10 @@
                                         <p class="text-[11px] text-slate-400 italic mt-1">Melewati batas pengumpulan</p>
                                     </div>
                                 @else
+                                    {{-- Status pending/submitted, deadline masih berlaku --}}
                                     <div class="w-full space-y-4">
-                                        @if($isOverdue && $t->status === 'submitted')
-                                            <div class="flex items-center justify-center lg:justify-end">
-                                                <span class="text-[9px] font-black text-rose-500 uppercase px-3 py-1 bg-rose-50 border border-rose-100 rounded-lg tracking-widest">TERKUNCI (TELAT)</span>
-                                            </div>
-                                        @endif
 
+                                        {{-- Tombol upload: muncul selama deadline belum lewat, apapun statusnya (pending/submitted) --}}
                                         @if(!$isOverdue)
                                             <form action="{{ route('praktikan.pendaftaran.submit-tugas', $t->id) }}" method="POST"
                                                 enctype="multipart/form-data" class="w-full">
@@ -206,12 +232,22 @@
                                                 <div class="relative group">
                                                     <input type="file" name="file_mahasiswa" required onchange="this.form.submit()"
                                                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                                                    <div class="w-full px-6 py-4 border-2 border-dashed border-slate-200 rounded-2xl text-xs font-bold text-slate-500 flex flex-col items-center justify-center gap-2 group-hover:border-[#001f3f] group-hover:text-[#001f3f] group-hover:bg-slate-50 transition-all duration-300">
+                                                    <div class="w-full px-6 py-4 border-2 border-dashed {{ $t->file_mahasiswa ? 'border-amber-300 bg-amber-50/50' : 'border-slate-200' }} rounded-2xl text-xs font-bold text-slate-500 flex flex-col items-center justify-center gap-2 group-hover:border-[#001f3f] group-hover:text-[#001f3f] group-hover:bg-slate-50 transition-all duration-300">
                                                         <i class="fas fa-cloud-upload-alt text-2xl mb-1"></i>
-                                                        <span>{{ $t->file_mahasiswa ? 'Update Jawaban' : 'Unggah Tugas Anda' }}</span>
+                                                        <span>{{ $t->file_mahasiswa ? 'Ganti / Update Jawaban' : 'Unggah Tugas Anda' }}</span>
+                                                        @if($t->file_mahasiswa)
+                                                            <span class="text-[9px] text-amber-600 font-medium">File lama akan diganti</span>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </form>
+                                        @else
+                                            {{-- Status submitted tapi deadline sudah lewat — menunggu penilaian --}}
+                                            <div class="flex items-center justify-center lg:justify-end">
+                                                <span class="text-[9px] font-black text-amber-600 uppercase px-3 py-1 bg-amber-50 border border-amber-200 rounded-lg tracking-widest">
+                                                    <i class="fas fa-clock-rotate-left mr-1"></i>MENUNGGU PENILAIAN
+                                                </span>
+                                            </div>
                                         @endif
 
                                         @if ($t->file_mahasiswa)
