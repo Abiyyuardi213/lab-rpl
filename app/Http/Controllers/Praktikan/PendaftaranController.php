@@ -193,7 +193,7 @@ class PendaftaranController extends Controller
         }
 
         $request->validate([
-            'file_mahasiswa' => 'required|file|mimes:pdf,zip,rar,doc,docx,jpg,jpeg,png|max:5120',
+            'file_mahasiswa' => 'required|file|mimes:pdf,zip,rar,doc,docx,jpg,jpeg,png|max:7168',
         ]);
 
         if ($request->hasFile('file_mahasiswa')) {
