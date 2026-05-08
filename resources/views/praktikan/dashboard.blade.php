@@ -310,10 +310,12 @@
                         $now = \Carbon\Carbon::now();
                         $studentPendaftaran = $activePendaftarans->firstWhere('praktikum_id', $jadwal->praktikum_id);
                         $studentSesi = $studentPendaftaran ? $studentPendaftaran->sesi : null;
+                        $bypassWaktu = app()->environment('local') && filter_var(env('PENUGASAN_BYPASS_WAKTU', false), FILTER_VALIDATE_BOOLEAN);
 
-                        // Use session times if available, otherwise fallback to schedule times
-                        $waktuMulai = $studentSesi ? $studentSesi->jam_mulai : $jadwal->waktu_mulai;
-                        $waktuSelesai = $studentSesi ? $studentSesi->jam_selesai : $jadwal->waktu_selesai;
+                        // Local testing bypass uses the admin schedule time/date as-is.
+                        // Normal mode still follows the student's assigned session time/day.
+                        $waktuMulai = (!$bypassWaktu && $studentSesi) ? $studentSesi->jam_mulai : $jadwal->waktu_mulai;
+                        $waktuSelesai = (!$bypassWaktu && $studentSesi) ? $studentSesi->jam_selesai : $jadwal->waktu_selesai;
 
                         $start = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $waktuMulai);
                         $end = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $waktuSelesai);
@@ -323,7 +325,7 @@
                         $isCorrectDay = true;
 
                         // Additional check: Does the session day match the schedule date?
-                        if ($studentSesi && $studentSesi->hari) {
+                        if (!$bypassWaktu && $studentSesi && $studentSesi->hari) {
                             $daysMap = [
                                 'Minggu' => 0,
                                 'Senin' => 1,
@@ -343,11 +345,29 @@
 
                         $statusLabel = 'Aktif';
                         $statusClass = 'bg-emerald-50 text-emerald-600 border-emerald-100';
-                        $hasPresensi = $jadwal->presensis->isNotEmpty();
+                        $presensi = $jadwal->presensis->first();
+                        $hasPresensi = (bool) $presensi;
+                        $presensiActionClass = 'bg-emerald-50 border-emerald-200 text-emerald-600';
+                        $presensiActionIcon = 'fa-check-circle';
+                        $presensiActionLabel = 'Sudah Presensi';
 
                         if ($hasPresensi) {
-                            $statusLabel = 'Hadir';
-                            $statusClass = 'bg-emerald-500 text-white border-emerald-400';
+                            if ($presensi->status === 'terlambat') {
+                                $statusLabel = 'Terlambat';
+                                $statusClass = 'bg-amber-50 text-amber-700 border-amber-200';
+                                $presensiActionClass = 'bg-amber-50 border-amber-200 text-amber-700';
+                                $presensiActionIcon = 'fa-clock';
+                                $presensiActionLabel = 'Presensi Terlambat';
+                            } elseif ($presensi->status === 'alfa') {
+                                $statusLabel = 'Tidak Hadir';
+                                $statusClass = 'bg-rose-50 text-rose-700 border-rose-200';
+                                $presensiActionClass = 'bg-rose-50 border-rose-200 text-rose-700';
+                                $presensiActionIcon = 'fa-circle-xmark';
+                                $presensiActionLabel = 'Tidak Hadir';
+                            } else {
+                                $statusLabel = 'Hadir';
+                                $statusClass = 'bg-emerald-500 text-white border-emerald-400';
+                            }
                         } elseif ($isFinished) {
                             $statusLabel = 'Selesai';
                             $statusClass = 'bg-slate-100 text-slate-500 border-slate-200';
@@ -384,7 +404,7 @@
                             <div class="flex items-center gap-2">
                                 <i class="far fa-clock text-[10px] text-slate-400"></i>
                                 <span class="text-[10px] font-bold text-slate-700">
-                                    @if ($studentSesi)
+                                    @if (!$bypassWaktu && $studentSesi)
                                         {{ substr($studentSesi->jam_mulai, 0, 5) }} - {{ substr($studentSesi->jam_selesai, 0, 5) }} WIB
                                         <span class="text-[8px] opacity-50 ml-1">({{ $studentSesi->nama_sesi }})</span>
                                     @else
@@ -414,9 +434,9 @@
                         @if ($hasPresensi)
                             <div class="mt-4">
                                 <div
-                                    class="w-full py-2 bg-emerald-50 border border-emerald-200 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2">
-                                    <i class="fas fa-check-circle"></i>
-                                    Sudah Presensi
+                                    class="w-full py-2 border {{ $presensiActionClass }} text-[10px] font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2">
+                                    <i class="fas {{ $presensiActionIcon }}"></i>
+                                    {{ $presensiActionLabel }}
                                 </div>
                             </div>
                         @elseif ($isOngoing && $isCorrectDay)

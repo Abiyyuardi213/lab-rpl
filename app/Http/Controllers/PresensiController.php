@@ -8,6 +8,7 @@ use App\Models\JadwalPraktikum;
 use App\Models\PendaftaranPraktikum;
 use App\Models\TugasAsistensi;
 use App\Models\Presensi;
+use App\Services\PresensiAlfaService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -64,6 +65,24 @@ class PresensiController extends Controller
                     return back()->with('error', 'Anda belum menyelesaikan asistensi untuk modul sebelumnya (' . $task->judul . '). Silakan selesaikan asistensi terlebih dahulu.');
                 }
             }
+        }
+
+        if ($this->shouldBypassBarcodeForTesting()) {
+            if ($jadwal->sesi_id && $pendaftaran->sesi_id !== $jadwal->sesi_id) {
+                return back()->with('error', 'Sesi Anda tidak sesuai dengan jadwal ini. Silakan presensi di sesi Anda masing-masing.');
+            }
+
+            $status = $this->resolvePresensiStatus($jadwal);
+
+            Presensi::create([
+                'jadwal_id' => $jadwal->id,
+                'pendaftaran_id' => $pendaftaran->id,
+                'jam_masuk' => now(),
+                'status' => $status,
+            ]);
+
+            return redirect()->route('praktikan.dashboard')
+                ->with('success', 'Presensi testing berhasil: ' . $jadwal->judul_modul . ' (' . ucfirst($status) . ')');
         }
 
         // Generate a short, unique token for the QR code
@@ -178,11 +197,7 @@ class PresensiController extends Controller
         }
 
         // Check-in logic
-        $status = 'hadir';
-        $waktuMulai = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $jadwal->waktu_mulai);
-        if (now()->gt($waktuMulai->addMinutes(15))) {
-            $status = 'terlambat';
-        }
+        $status = $this->resolvePresensiStatus($jadwal);
 
         Presensi::create([
             'jadwal_id' => $jadwal->id,
@@ -316,6 +331,8 @@ class PresensiController extends Controller
         $user = Auth::user();
         
         $jadwal = JadwalPraktikum::with(['praktikum', 'presensis.pendaftaran.praktikan.user'])->findOrFail($jadwal_id);
+        app(PresensiAlfaService::class)->markSchedule($jadwal);
+        $jadwal->load(['praktikum', 'presensis.pendaftaran.praktikan.user']);
         
         // Authorization check
         if ($user->role->name === 'Aslab') {
@@ -462,11 +479,7 @@ class PresensiController extends Controller
         }
 
         // Check-in logic
-        $status = 'hadir';
-        $waktuMulai = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $jadwal->waktu_mulai);
-        if (now()->gt($waktuMulai->addMinutes(15))) {
-            $status = 'terlambat';
-        }
+        $status = $this->resolvePresensiStatus($jadwal);
 
         Presensi::create([
             'jadwal_id' => $jadwal->id,
@@ -513,5 +526,18 @@ class PresensiController extends Controller
             return (int)$matches[1];
         }
         return 1; // Default
+    }
+
+    private function shouldBypassBarcodeForTesting(): bool
+    {
+        return app()->environment('local')
+            && filter_var(env('PRESENSI_BYPASS_BARCODE', false), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    private function resolvePresensiStatus(JadwalPraktikum $jadwal): string
+    {
+        $waktuMulai = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $jadwal->waktu_mulai);
+
+        return now()->gt($waktuMulai->addMinutes(15)) ? 'terlambat' : 'hadir';
     }
 }

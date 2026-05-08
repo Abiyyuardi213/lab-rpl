@@ -135,7 +135,7 @@
                                                        ($presensi->status === 'terlambat' ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-rose-50 text-rose-700 border-rose-100');
                                     @endphp
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black border uppercase tracking-wider {{ $statusClass }}">
-                                        {{ $presensi->status }}
+                                        {{ $presensi->status === 'alfa' ? 'Tidak Hadir' : $presensi->status }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">

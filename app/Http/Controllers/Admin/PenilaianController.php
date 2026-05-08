@@ -29,7 +29,7 @@ class PenilaianController extends Controller
     {
         $praktikum = Praktikum::with(['jadwals' => function($q) {
             $q->orderBy('tanggal', 'desc')->orderBy('waktu_mulai', 'desc')->with(['sesi', 'presensis' => function($pq) {
-                $pq->where('status', 'hadir');
+                $pq->whereIn('status', ['hadir', 'terlambat']);
             }]);
         }])->findOrFail($praktikum_id);
 
