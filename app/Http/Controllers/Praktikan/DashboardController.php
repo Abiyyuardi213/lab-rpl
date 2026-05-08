@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Praktikan;
 
 use App\Http\Controllers\Controller;
 use App\Models\Praktikum;
+use App\Services\PresensiAlfaService;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -32,6 +33,8 @@ class DashboardController extends Controller
         $activePendaftarans = collect();
 
         if ($praktikan) {
+            app(PresensiAlfaService::class)->markFinishedSchedules();
+
             $activePendaftarans = $praktikan->pendaftarans()
                 ->where('status', 'verified')
                 ->with(['praktikum', 'sesi', 'presensis'])

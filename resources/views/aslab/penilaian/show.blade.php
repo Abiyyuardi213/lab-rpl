@@ -18,8 +18,8 @@
             </div>
             <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
                 <div class="bg-zinc-50 border border-zinc-200 px-4 py-2 rounded-lg text-right">
-                    <p class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Hadir Di Sesi Ini</p>
-                    <p class="text-lg font-black text-zinc-900 leading-none">{{ $jadwal->presensis()->where('jadwal_id', $jadwal->id)->where('status', 'hadir')->count() }}</p>
+                    <p class="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Presensi Di Sesi Ini</p>
+                    <p class="text-lg font-black text-zinc-900 leading-none">{{ $jadwal->presensis()->whereIn('status', ['hadir', 'terlambat'])->count() }}</p>
                 </div>
             </div>
         </div>
@@ -31,11 +31,23 @@
                     <h3 class="text-sm font-bold text-zinc-900 uppercase tracking-tight">Daftar Praktikan Terdaftar</h3>
                     <p class="text-xs text-zinc-500 mt-0.5">Seluruh mahasiswa yang terdaftar di praktikum/sesi ini.</p>
                 </div>
-                <div class="relative group">
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
-                    <input type="text" id="studentSearch" placeholder="Cari Nama atau NPM..." 
-                           class="h-9 w-full md:w-64 rounded-md border border-zinc-200 bg-white px-9 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
-                </div>
+                <form method="GET" action="{{ route('aslab.penilaian.show', $jadwal->id) }}" class="flex w-full md:w-auto items-center gap-2">
+                    <div class="relative group flex-1 md:flex-none">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+                        <input type="text" name="search" value="{{ $search }}" placeholder="Cari Nama atau NPM..."
+                               class="h-9 w-full md:w-64 rounded-md border border-zinc-200 bg-white px-9 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
+                        @if($search)
+                            <a href="{{ route('aslab.penilaian.show', $jadwal->id) }}"
+                               class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-900 transition-colors">
+                                <i class="fas fa-times text-xs"></i>
+                            </a>
+                        @endif
+                    </div>
+                    <button type="submit"
+                            class="h-9 px-4 rounded-md bg-zinc-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-zinc-800 transition-all">
+                        Cari
+                    </button>
+                </form>
             </div>
 
             <div class="overflow-x-auto">
@@ -92,8 +104,13 @@
                                         <span class="text-[10px] font-bold text-zinc-600 uppercase">{{ $pendaftaran->sesi->nama_sesi }}</span>
                                         <div class="flex items-center gap-1.5 mt-0.5">
                                             @if($presensi)
-                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Mahasiswa Hadir"></span>
-                                                <span class="text-[8px] font-black text-emerald-600 uppercase">Hadir</span>
+                                                @if($presensi->status === 'terlambat')
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500" title="Mahasiswa Terlambat"></span>
+                                                    <span class="text-[8px] font-black text-amber-600 uppercase">Terlambat</span>
+                                                @else
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Mahasiswa Hadir"></span>
+                                                    <span class="text-[8px] font-black text-emerald-600 uppercase">Hadir</span>
+                                                @endif
                                             @else
                                                 <span class="w-1.5 h-1.5 rounded-full bg-rose-500" title="Mahasiswa Tidak Hadir"></span>
                                                 <span class="text-[8px] font-black text-rose-600 uppercase">Alpha</span>
@@ -238,16 +255,5 @@
             document.body.style.overflow = 'auto';
         }
 
-        // Search Filter
-        document.getElementById('studentSearch').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('#studentTable tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                if (row.querySelector('td[colspan]')) return;
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        });
     </script>
 @endsection

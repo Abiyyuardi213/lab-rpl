@@ -62,9 +62,11 @@
                                 $nilai = $presensi->penilaian;
                                 $statusClass = match($presensi->status) {
                                     'hadir' => 'bg-emerald-50 text-emerald-700 border-emerald-100',
-                                    'izin', 'sakit' => 'bg-amber-50 text-amber-700 border-amber-100',
+                                    'terlambat' => 'bg-amber-50 text-amber-700 border-amber-100',
+                                    'alfa' => 'bg-rose-50 text-rose-700 border-rose-100',
                                     default => 'bg-zinc-100 text-zinc-600 border-zinc-200',
                                 };
+                                $statusLabel = $presensi->status === 'alfa' ? 'Tidak Hadir' : $presensi->status;
                             @endphp
                             <tr class="hover:bg-zinc-50/50 transition-colors">
                                 <td class="px-6 py-4 text-center">
@@ -85,7 +87,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border {{ $statusClass }}">
-                                        {{ $presensi->status }}
+                                        {{ $statusLabel }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">

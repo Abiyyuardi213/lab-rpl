@@ -40,9 +40,9 @@
 
                         <div class="flex items-center gap-6">
                             <div class="text-right hidden sm:block">
-                                <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">Presensi Hadir</p>
+                                <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1">Presensi Valid</p>
                                 <div class="flex items-center gap-2 justify-end">
-                                    <span class="text-lg font-black text-zinc-900">{{ $jadwal->presensis_count }}</span>
+                                    <span class="text-lg font-black text-zinc-900">{{ $jadwal->presensis->count() }}</span>
                                     <span class="text-[9px] font-bold text-zinc-300 uppercase">Orang</span>
                                 </div>
                             </div>

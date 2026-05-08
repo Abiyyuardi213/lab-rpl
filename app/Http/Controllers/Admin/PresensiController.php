@@ -4,12 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Presensi;
+use App\Services\PresensiAlfaService;
 use Illuminate\Http\Request;
 
 class PresensiController extends Controller
 {
     public function index(Request $request)
     {
+        app(PresensiAlfaService::class)->markFinishedSchedules(
+            $request->filled('praktikum_id') ? (int) $request->praktikum_id : null
+        );
+
         $query = Presensi::with(['pendaftaran.praktikan.user', 'pendaftaran.praktikum', 'pendaftaran.sesi', 'jadwal']);
 
         // Filtering logic

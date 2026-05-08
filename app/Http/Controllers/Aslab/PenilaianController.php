@@ -30,7 +30,7 @@ class PenilaianController extends Controller
 
         // Get all schedules for these practicums
         $jadwals = JadwalPraktikum::with(['praktikum', 'sesi', 'presensis' => function($q) {
-            $q->where('status', 'hadir');
+            $q->whereIn('status', ['hadir', 'terlambat']);
         }])
             ->whereIn('praktikum_id', $praktikumIds)
             ->orderBy('tanggal', 'desc')
@@ -40,7 +40,7 @@ class PenilaianController extends Controller
         return view('aslab.penilaian.index', compact('jadwals'));
     }
 
-    public function show($jadwal_id)
+    public function show(Request $request, $jadwal_id)
     {
         $jadwal = JadwalPraktikum::with(['praktikum', 'sesi'])->findOrFail($jadwal_id);
         
@@ -63,13 +63,25 @@ class PenilaianController extends Controller
             $query->where('sesi_id', $jadwal->sesi_id);
         }
 
+        $search = trim((string) $request->query('search', ''));
+        if ($search !== '') {
+            $query->whereHas('praktikan', function ($praktikanQuery) use ($search) {
+                $praktikanQuery
+                    ->where('npm', 'like', '%' . $search . '%')
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
         $pendaftarans = $query->orderBy(User::select('name')
             ->whereColumn('users.id', 'praktikans.user_id')
             ->join('praktikans', 'praktikans.user_id', '=', 'users.id')
             ->limit(1))
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('aslab.penilaian.show', compact('jadwal', 'pendaftarans'));
+        return view('aslab.penilaian.show', compact('jadwal', 'pendaftarans', 'search'));
     }
 
     public function store(Request $request)
@@ -92,8 +104,8 @@ class PenilaianController extends Controller
         $pendaftaran = $presensi->pendaftaran;
         $judulModul = $presensi->jadwal->judul_modul;
 
-        // Security Check 1: Status must be 'hadir'
-        if ($presensi->status !== 'hadir') {
+        // Security Check 1: Status must be valid attendance
+        if (!in_array($presensi->status, ['hadir', 'terlambat'], true)) {
             return back()->with('error', 'Kecurangan terdeteksi: Praktikan belum tercatat hadir.');
         }
 

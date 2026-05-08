@@ -50,7 +50,7 @@
                             <div class="flex items-center gap-4 py-3 border-y border-zinc-100 mb-6 group-hover:border-zinc-200 transition-colors">
                                 <div class="flex flex-col">
                                     <span class="text-[8px] font-bold text-zinc-400 uppercase tracking-widest">Presensi</span>
-                                    <span class="text-base font-black text-zinc-900">{{ $jadwal->presensis_count }} <span class="text-[10px] font-bold text-zinc-400 uppercase ml-0.5">MHS</span></span>
+                                    <span class="text-base font-black text-zinc-900">{{ $jadwal->presensis->count() }} <span class="text-[10px] font-bold text-zinc-400 uppercase ml-0.5">MHS</span></span>
                                 </div>
                                 <div class="w-px h-6 bg-zinc-100 group-hover:bg-zinc-200 transition-colors"></div>
                                 <div class="flex flex-col">
