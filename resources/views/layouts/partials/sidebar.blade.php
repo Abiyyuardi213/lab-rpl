@@ -87,6 +87,12 @@
                 <span>Data Praktikan</span>
             </a>
 
+            <a href="{{ route('admin.ratings.index') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 {{ request()->routeIs('admin.ratings.*') ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900' }}">
+                <i class="fas fa-star w-4 text-center text-[10px]"></i>
+                <span>Rating & Ulasan</span>
+            </a>
+
             <a href="{{ route('admin.notifications.create') }}"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200 {{ request()->routeIs('admin.notifications.*') ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900' }}">
                 <i class="fas fa-paper-plane w-4 text-center text-[10px]"></i>

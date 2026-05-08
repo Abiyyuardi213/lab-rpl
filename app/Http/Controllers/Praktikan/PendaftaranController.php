@@ -153,7 +153,7 @@ class PendaftaranController extends Controller
 
         $pendaftaran = PendaftaranPraktikum::with(['praktikum', 'aslab.user', 'tugasAsistensis' => function ($q) {
             $q->orderBy('created_at', 'desc');
-        }])
+        }, 'rating'])
             ->where('id', $id)
             ->where('praktikan_id', $praktikan->id)
             ->firstOrFail();
@@ -213,5 +213,35 @@ class PendaftaranController extends Controller
         }
 
         return back()->with('success', 'Tugas berhasil diunggah.');
+    }
+
+    public function submitRating(Request $request, $id)
+    {
+        $praktikan = Auth::user()->praktikan;
+
+        if (!$praktikan) {
+            return redirect()->route('praktikan.dashboard')->with('error', 'Profil praktikan tidak ditemukan.');
+        }
+
+        $pendaftaran = PendaftaranPraktikum::where('id', $id)->where('praktikan_id', $praktikan->id)->firstOrFail();
+
+        $request->validate([
+            'rating_praktikum' => 'required|integer|min:1|max:5',
+            'ulasan_praktikum' => 'nullable|string',
+            'rating_asisten' => 'required|integer|min:1|max:5',
+            'ulasan_asisten' => 'nullable|string',
+        ]);
+
+        \App\Models\Rating::updateOrCreate(
+            ['pendaftaran_id' => $pendaftaran->id],
+            [
+                'rating_praktikum' => $request->rating_praktikum,
+                'ulasan_praktikum' => $request->ulasan_praktikum,
+                'rating_asisten' => $request->rating_asisten,
+                'ulasan_asisten' => $request->ulasan_asisten,
+            ]
+        );
+
+        return back()->with('success', 'Rating dan ulasan berhasil disimpan.');
     }
 }

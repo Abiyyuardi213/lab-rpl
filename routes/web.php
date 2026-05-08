@@ -158,6 +158,9 @@ Route::middleware('auth')->group(function () {
         Route::get('logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('logs.index');
         Route::get('logs/{id}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'show'])->name('logs.show');
 
+        // Ratings (Admin)
+        Route::get('ratings', [\App\Http\Controllers\Admin\RatingController::class, 'index'])->name('ratings.index');
+
         // Penilaian Praktikum (Admin)
         Route::get('/penilaian', [\App\Http\Controllers\Admin\PenilaianController::class, 'index'])->name('penilaian.index');
         Route::get('/penilaian/praktikum/{id}', [\App\Http\Controllers\Admin\PenilaianController::class, 'showPraktikum'])->name('penilaian.praktikum');
@@ -186,6 +189,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/portfolio/edit', [\App\Http\Controllers\Aslab\PortfolioController::class, 'edit'])->name('portfolio.edit');
         Route::patch('/portfolio/update', [\App\Http\Controllers\Aslab\PortfolioController::class, 'update'])->name('portfolio.update');
 
+        // Ratings (Aslab)
+        Route::get('ratings', [\App\Http\Controllers\Aslab\RatingController::class, 'index'])->name('ratings.index');
+
         // Presensi (Aslab)
         Route::get('/presensi/scan', [PresensiController::class, 'scan'])->name('presensi.scan');
         Route::post('/presensi/check-in', [PresensiController::class, 'checkIn'])->name('presensi.check-in');
@@ -211,6 +217,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/riwayat-pendaftaran', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'index'])->name('pendaftaran.index');
             Route::get('/pendaftaran/{id}/progress', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'progress'])->name('pendaftaran.progress');
             Route::post('/tugas/{tugas_id}/submit', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'submitTugas'])->name('pendaftaran.submit-tugas');
+            Route::post('/pendaftaran/{id}/rating', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'submitRating'])->name('pendaftaran.submit-rating');
 
             // Presensi (Praktikan)
             Route::get('/presensi/generate-qr/{jadwal_id}', [PresensiController::class, 'generateQR'])->name('presensi.generate-qr');
