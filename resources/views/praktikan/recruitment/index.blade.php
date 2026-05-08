@@ -42,9 +42,20 @@
                                 <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                                     {{ $period->title }}</h3>
                             </div>
-                            <p class="text-slate-500 text-sm mb-6 leading-relaxed">
-                                {{ $period->description ?? 'Mari kembangkan skill Anda dengan menjadi asisten laboratorium.' }}
-                            </p>
+                            <div class="relative">
+                                <div class="description-container relative overflow-hidden transition-all duration-500 max-h-24 mb-2" id="description-{{ $period->id }}">
+                                    <p class="text-slate-500 text-sm leading-relaxed whitespace-pre-line">
+                                        {{ $period->description ?? 'Mari kembangkan skill Anda dengan menjadi asisten laboratorium.' }}
+                                    </p>
+                                    <div class="description-fade absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white to-transparent pointer-events-none transition-opacity duration-300" id="fade-{{ $period->id }}"></div>
+                                </div>
+                                <button onclick="toggleDescription('{{ $period->id }}')" 
+                                    class="description-toggle-btn hidden text-blue-600 text-[11px] font-bold mb-6 hover:text-blue-800 transition-colors flex items-center gap-1 group" 
+                                    id="btn-{{ $period->id }}">
+                                    <span class="btn-text">Baca Selengkapnya</span>
+                                    <i class="fas fa-chevron-down text-[10px] group-[.active]:rotate-180 transition-transform"></i>
+                                </button>
+                            </div>
 
                             <div class="grid grid-cols-2 gap-4 mb-8">
                                 <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
@@ -232,6 +243,47 @@
             function closeApplyModal() {
                 document.getElementById('applyModal').classList.add('hidden');
             }
+
+            function toggleDescription(id) {
+                const container = document.getElementById('description-' + id);
+                const fade = document.getElementById('fade-' + id);
+                const btn = document.getElementById('btn-' + id);
+                const btnText = btn.querySelector('.btn-text');
+                const btnIcon = btn.querySelector('i');
+
+                if (container.classList.contains('max-h-24')) {
+                    // Expand
+                    container.classList.remove('max-h-24');
+                    container.classList.add('max-h-[1000px]');
+                    fade.classList.add('opacity-0');
+                    btnText.innerText = 'Sembunyikan';
+                    btn.classList.add('active');
+                } else {
+                    // Collapse
+                    container.classList.add('max-h-24');
+                    container.classList.remove('max-h-[1000px]');
+                    fade.classList.remove('opacity-0');
+                    btnText.innerText = 'Baca Selengkapnya';
+                    btn.classList.remove('active');
+                }
+            }
+
+            // Initialize descriptions: hide button if text doesn't overflow
+            document.addEventListener('DOMContentLoaded', function() {
+                const containers = document.querySelectorAll('[id^="description-"]');
+                containers.forEach(container => {
+                    const id = container.id.split('-')[1];
+                    const btn = document.getElementById('btn-' + id);
+                    const fade = document.getElementById('fade-' + id);
+                    
+                    // Check if content overflows (scrollHeight > offsetHeight)
+                    if (container.scrollHeight > container.offsetHeight) {
+                        btn.classList.remove('hidden');
+                    } else {
+                        fade.classList.add('hidden');
+                    }
+                });
+            });
         </script>
     @endpush
 @endsection
