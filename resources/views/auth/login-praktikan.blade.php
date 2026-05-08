@@ -5,9 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Praktikan - LabRPL AdminPanel</title>
-    <!-- Font Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
@@ -19,175 +18,370 @@
     @endif
 
     <!-- PWA & Apple Mobile Web Support -->
-    <meta name="theme-color" content="#001f3f">
+    <meta name="theme-color" content="#2563eb">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="{{ asset('image/rplmini.png') }}">
-    <link rel="apple-touch-startup-image" href="{{ asset('image/rplmini.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <script>
-        // Safer fix for standalone mode links
-        document.addEventListener('click', function(e) {
-            const link = e.target.closest('a');
-            if (link && 
-                link.href && 
-                link.href.indexOf('http') === 0 && 
-                link.href.indexOf(window.location.host) !== -1 &&
-                link.target !== '_blank') {
-                e.preventDefault();
-                window.location.href = link.href;
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 0% 0%, #f0f4f8 0%, #e2e8f0 50%, #d7e3f1 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .main-card {
+            display: flex;
+            width: 100%;
+            max-width: 820px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.08);
+            min-height: 480px;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            padding: 2rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .main-card {
+                flex-direction: column;
             }
-        }, false);
-    </script>
+            .left-panel {
+                display: none;
+            }
+        }
+
+        /* Pattern Decorations */
+        .pattern-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.4;
+        }
+
+        .circle-decoration {
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .circle-1 { width: 240px; height: 240px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .circle-2 { width: 380px; height: 380px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+        .floating-icon {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .right-panel {
+            flex: 1.1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .badge-ai {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 5px 12px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #dbeafe;
+            width: fit-content;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 14px 10px 44px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            color: #1e293b;
+        }
+
+        .input-field:focus {
+            background: white;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            font-size: 0.9rem;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .stat-badge {
+            text-align: center;
+        }
+
+        .stat-num {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .stat-txt {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        .footer-line {
+            margin-top: auto;
+            padding-top: 1.25rem;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .error-msg {
+            font-size: 0.75rem;
+            color: #ef4444;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+    </style>
 </head>
 
-<body class="bg-zinc-50 font-sans text-zinc-900 antialiased min-h-screen flex flex-col items-center justify-center p-4">
+<body>
 
-    <!-- Header Section -->
-    <div class="text-center mb-8">
-        <div class="mb-6 flex justify-center">
-            <img src="{{ asset('image/rplmini.png') }}" class="h-20 w-auto object-contain" alt="Logo">
-        </div>
-        <h1 class="text-2xl font-bold tracking-tight text-zinc-900">Laboratorium Rekayasa Perangkat Lunak</h1>
-        <p class="text-sm text-zinc-500 mt-2 max-w-sm mx-auto">Sistem Informasi Laboratorium Rekayasa Perangkat Lunak -
-            ITATS</p>
-    </div>
+    <div class="flex flex-col items-center w-full">
+        <div class="main-card">
+            <!-- Left Side: Branding & Info -->
+            <div class="left-panel">
+                <div class="pattern-overlay"></div>
+                <div class="circle-decoration circle-1"></div>
+                <div class="circle-decoration circle-2"></div>
 
-    <!-- Login Card -->
-    <div class="w-full max-w-md bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden">
-        <div class="p-8">
-            <div class="flex items-center justify-center gap-3 mb-8">
-                <div
-                    class="h-10 w-10 rounded-xl bg-[#001f3f] flex items-center justify-center text-white shadow-lg shadow-[#001f3f]/20">
-                    <i class="fas fa-user"></i>
+
+
+                <div class="flex-grow flex flex-col items-center justify-center text-center relative z-10">
+                    <div class="mb-5 relative">
+                        <div class="absolute inset-0 bg-blue-400/20 blur-3xl rounded-full"></div>
+                        <img src="{{ asset('image/rplmini.png') }}" class="h-24 w-auto relative z-10" alt="Logo">
+                    </div>
+                    <h2 class="text-2xl font-extrabold mb-1 tracking-tight">Laboratorium RPL</h2>
+                    <p class="text-blue-100/70 text-[10px] font-semibold uppercase tracking-[0.2em] mb-6">Sistem Informasi Rekayasa Perangkat Lunak</p>
+                    
+                    <div class="max-w-[280px]">
+                        <p class="text-sm italic font-light leading-relaxed opacity-90">
+                            "Pendidikan adalah passport untuk masa depan, karena hari esok adalah milik mereka yang mempersiapkannya hari ini."
+                        </p>
+                    </div>
                 </div>
-                <h2 class="text-lg font-bold text-zinc-900 tracking-tight text-center">Login Praktikan</h2>
+
+                <div class="relative z-10 flex justify-between items-end">
+                    <div class="flex gap-8">
+                        <div class="stat-badge">
+                            <span class="stat-num">99%</span>
+                            <span class="stat-txt">Akurasi Data</span>
+                        </div>
+                        <div class="stat-badge">
+                            <span class="stat-num">24/7</span>
+                            <span class="stat-txt">Akses Sistem</span>
+                        </div>
+                        <div class="stat-badge">
+                            <span class="stat-num">IF</span>
+                            <span class="stat-txt">Informatika</span>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
-            <form action="{{ route('login.praktikan.post') }}" method="POST" class="space-y-5">
-                @csrf
+            <!-- Right Side: Login Form -->
+            <div class="right-panel">
+                <div class="mb-6">
+                    <img src="{{ asset('image/logo-itats-biru.jpg') }}" class="h-8 w-auto mb-4" alt="ITATS">
+                    
+                    <div class="badge-ai">
+                        <i class="fas fa-terminal text-[10px]"></i>
+                        Pusat Praktikum Informatika
+                    </div>
 
-                <div class="space-y-2">
-                    <label for="npm" class="block text-sm font-bold text-zinc-700 uppercase tracking-tight">Nomor
-                        Pokok Mahasiswa (NPM)</label>
-                    <div class="relative group">
-                        <span
-                            class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center text-zinc-400 group-focus-within:text-[#001f3f] transition-colors">
-                            <i class="fas fa-id-card text-sm"></i>
-                        </span>
-                        <input type="text" name="npm" id="npm" value="{{ old('npm') }}"
-                            class="block w-full rounded-lg border border-zinc-300 pl-10 pr-3 py-2.5 text-sm transition-all focus:border-[#001f3f] focus:outline-none focus:ring-1 focus:ring-[#001f3f] placeholder:text-zinc-400 font-medium bg-zinc-50/30 focus:bg-white"
-                            placeholder="Contoh: 06.2024.1.XXXXX" required autofocus>
+                    <h1 class="text-2xl font-bold text-slate-900 mb-1">Login Praktikan</h1>
+                    <p class="text-slate-500 text-xs leading-relaxed">Sistem Informasi Laboratorium Rekayasa Perangkat Lunak - ITATS</p>
+                </div>
+
+                <form action="{{ route('login.praktikan.post') }}" method="POST" class="flex-grow">
+                    @csrf
+
+                    <label for="npm" class="form-label">Nomor Pokok Mahasiswa (NPM)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="far fa-id-card"></i></span>
+                        <input type="text" name="npm" id="npm" value="{{ old('npm') }}" class="input-field" placeholder="Contoh: 06.2024.1.XXXXX" required autofocus>
                     </div>
                     @error('npm')
-                        <p class="text-[10px] font-bold text-rose-500 mt-1 uppercase tracking-wide">{{ $message }}</p>
+                        <div class="error-msg">{{ $message }}</div>
                     @enderror
-                </div>
 
-                <div class="space-y-2">
-                    <label for="password"
-                        class="block text-sm font-bold text-zinc-700 uppercase tracking-tight">Password</label>
-                    <div class="relative group">
-                        <span
-                            class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center text-zinc-400 group-focus-within:text-[#001f3f] transition-colors">
-                            <i class="fas fa-lock text-sm"></i>
-                        </span>
-                        <input type="password" name="password" id="password"
-                            class="block w-full rounded-lg border border-zinc-300 pl-10 pr-10 py-2.5 text-sm transition-all focus:border-[#001f3f] focus:outline-none focus:ring-1 focus:ring-[#001f3f] placeholder:text-zinc-400 font-medium bg-zinc-50/30 focus:bg-white"
-                            placeholder="••••••••" required>
-                        <button type="button" onclick="togglePassword('password', this)"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-[#001f3f] transition-colors">
-                            <i class="fas fa-eye text-sm"></i>
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-shield-halved"></i></span>
+                        <input type="password" name="password" id="password" class="input-field" placeholder="••••••••" required>
+                        <button type="button" onclick="togglePassword('password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                </div>
 
-                <div class="flex items-center justify-between py-2">
-                    <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="checkbox" name="remember" value="1" @checked(old('remember'))
-                            class="h-4 w-4 rounded border-zinc-300 text-[#001f3f] focus:ring-[#001f3f] transition-all cursor-pointer">
-                        <span class="text-sm text-zinc-600 group-hover:text-zinc-900 transition-colors">Ingat
-                            saya</span>
-                    </label>
-                    <a href="{{ route('password.request') }}"
-                        class="text-sm font-medium text-zinc-500 hover:text-[#001f3f] transition-colors">Lupa
-                        Password?</a>
-                </div>
+                    <div class="flex items-center justify-between mb-5">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" name="remember" value="1" @checked(old('remember')) class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all cursor-pointer">
+                            <span class="text-xs text-slate-600 group-hover:text-slate-900 transition-colors">Ingat saya</span>
+                        </label>
+                        <a href="{{ route('password.request') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors">Lupa Password?</a>
+                    </div>
 
-                @if(!app()->environment('local'))
-                <div class="flex items-center justify-center py-2">
-                    <div id="turnstile-container"></div>
-                </div>
-                @endif
+                    @if(!app()->environment('local'))
+                    <div class="mb-6 flex justify-center">
+                        <div id="turnstile-container"></div>
+                    </div>
+                    @endif
 
-                <button type="submit"
-                    class="w-full flex justify-center items-center gap-2 rounded-lg bg-[#001f3f] px-4 py-3 text-sm font-bold text-white hover:bg-[#002d5a] transition-all active:scale-[0.98] shadow-lg shadow-[#001f3f]/10 mt-2">
-                    <span>Masuk sebagai Praktikan</span>
-                    <i class="fas fa-arrow-right-to-bracket text-xs"></i>
-                </button>
-            </form>
+                    <button type="submit" class="btn-primary">
+                        <span>Masuk sebagai Praktikan</span>
+                        <i class="fas fa-arrow-right-long text-xs"></i>
+                    </button>
+                    
+                    <div class="mt-4 text-center">
+                        <p class="text-xs text-slate-500">
+                            Belum punya akun? 
+                            <a href="{{ route('register') }}" class="text-blue-600 font-bold hover:underline">Daftar Sekarang</a>
+                        </p>
+                    </div>
+
+                    <div class="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
+                        <i class="fas fa-circle-info text-blue-500 mt-0.5 text-xs"></i>
+                        <p class="text-[10px] text-slate-500 font-medium leading-relaxed italic">
+                            Pastikan NPM yang Anda masukkan sudah terdaftar sebagai Praktikan oleh Laboratorium.
+                        </p>
+                    </div>
+                </form>
+
+                <div class="footer-line">
+                    <span class="flex items-center gap-2"><i class="fas fa-lock"></i> Sistem Terenkripsi</span>
+                    <span class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Server Online</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Action Tip Bottom -->
-        <div class="px-8 py-5 bg-zinc-50 border-t border-zinc-100 space-y-4">
-            <div class="flex items-center gap-3">
-                <div
-                    class="w-10 h-10 rounded-lg bg-white border border-zinc-200 flex items-center justify-center text-[#001f3f] flex-shrink-0 shadow-sm">
-                    <i class="fas fa-info text-xs"></i>
-                </div>
-                <p class="text-xs text-zinc-500 font-medium leading-tight italic">Pastikan NPM yang Anda masukkan sudah
-                    terdaftar sebagai Praktikan oleh Laboratorium.</p>
-            </div>
-
-            <div class="h-[1px] bg-zinc-200/50 w-full"></div>
-
-            <div class="text-center">
-                <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">Belum punya akun?</p>
-                <a href="{{ route('register') }}"
-                    class="inline-flex items-center gap-2 justify-center w-full py-2.5 rounded-xl border border-zinc-200 bg-white text-xs font-black text-zinc-900 hover:bg-zinc-50 transition-all active:scale-[0.98] uppercase tracking-widest">
-                    <span>Daftar Sekarang</span>
-                    <i class="fas fa-user-plus text-[10px]"></i>
-                </a>
-            </div>
-
+        <!-- External Footer Info -->
+        <div class="mt-8 text-center space-y-4">
+             <div class="flex items-center justify-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                 <a href="/" class="hover:text-slate-600 transition-colors">Halaman Utama</a>
+                 <span>•</span>
+                 <span>Pusat Bantuan</span>
+             </div>
+             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
+                 &copy; {{ date('Y') }} LabRPL TEKNIK INFORMATIKA ITATS
+             </p>
         </div>
     </div>
-
-    <!-- Back to Public -->
-    <a href="/"
-        class="mt-8 inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors group">
-        <i class="fas fa-arrow-left text-xs group-hover:-translate-x-1 transition-transform"></i>
-        <span>Kembali ke Halaman Utama</span>
-    </a>
-
-    <p class="text-center text-[11px] font-bold text-zinc-300 uppercase tracking-[0.2em] mt-12 mb-4">
-        &copy; {{ date('Y') }} LabRPL TEKNIK INFORMATIKA ITATS
-    </p>
 
     @if(!app()->environment('local'))
     <script>
         window.onloadTurnstileCallback = function() {
             const container = document.getElementById('turnstile-container');
             if (!container) return;
-
-            // Pastikan container kosong sebelum render
             container.innerHTML = '';
-
-            // Cek jika sudah pernah di-render untuk menghindari double
             if (window.widgetId) {
-                try {
-                    turnstile.remove(window.widgetId);
-                } catch (e) {}
+                try { turnstile.remove(window.widgetId); } catch (e) {}
             }
-
             window.widgetId = turnstile.render("#turnstile-container", {
                 sitekey: "{{ config('services.turnstile.key') }}",
-                callback: function(token) {
-                    console.log("Success:", token);
-                },
+                callback: function(token) { console.log("Success:", token); },
             });
         };
     </script>
@@ -206,7 +400,6 @@
                     toast.onmouseleave = Swal.resumeTimer;
                 }
             })
-
             Toast.fire({
                 icon: 'success',
                 title: '{{ session('logout_success') ?? session('success') }}'

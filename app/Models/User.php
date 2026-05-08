@@ -57,6 +57,11 @@ class User extends Authenticatable
         return $this->hasManyThrough(PendaftaranPraktikum::class, Praktikan::class, 'user_id', 'praktikan_id', 'id', 'id');
     }
 
+    public function aslabApplications()
+    {
+        return $this->hasMany(AslabApplication::class);
+    }
+
     public function assignedStudents()
     {
         return $this->hasManyThrough(PendaftaranPraktikum::class, Aslab::class, 'user_id', 'aslab_id', 'id', 'id');

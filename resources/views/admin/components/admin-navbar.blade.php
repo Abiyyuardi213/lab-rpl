@@ -57,6 +57,13 @@
                         <span
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('praktikan/penugasan*') ? 'w-full' : '' }}"></span>
                     </a>
+
+                    <a href="{{ route('praktikan.recruitment.index') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('praktikan/recruitment*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                        Rekrutmen Aslab
+                        <span
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('praktikan/recruitment*') ? 'w-full' : '' }}"></span>
+                    </a>
                 @elseif (Auth::user()->role && Auth::user()->role->name === 'Aslab')
                     <a href="{{ route('aslab.dashboard') }}"
                         class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('aslab/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
@@ -209,6 +216,9 @@
                             <a href="{{ route('admin.digit-npm.index') }}"
                                 class="block px-4 py-2 text-sm {{ request()->is('admin/digit-npm*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Manage
                                 NPM</a>
+                            <a href="{{ route('admin.recruitment.index') }}"
+                                class="block px-4 py-2 text-sm {{ request()->is('admin/recruitment*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Rekrutmen
+                                Aslab</a>
                         </div>
                     </div>
 
@@ -388,6 +398,9 @@
                 <a href="{{ route('praktikan.penugasan.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('praktikan/penugasan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Soal
                     Praktikum</a>
+                <a href="{{ route('praktikan.recruitment.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('praktikan/recruitment*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Rekrutmen
+                    Aslab</a>
             @elseif(Auth::user()->role && Auth::user()->role->name === 'Aslab')
                 <a href="{{ route('aslab.dashboard') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('aslab/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
@@ -454,6 +467,9 @@
                 <a href="{{ route('admin.penugasan.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/penugasan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Penugasan</a>
+                <a href="{{ route('admin.recruitment.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/recruitment*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    Rekrutmen</a>
                 <a href="{{ route('admin.kegiatan.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/kegiatan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Kegiatan</a>

@@ -167,6 +167,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/penilaian/jadwal/{id}', [\App\Http\Controllers\Admin\PenilaianController::class, 'showJadwal'])->name('penilaian.jadwal');
         Route::post('/penilaian', [\App\Http\Controllers\Admin\PenilaianController::class, 'store'])->name('penilaian.store');
 
+        // Recruitment Management
+        Route::resource('recruitment', \App\Http\Controllers\Admin\RecruitmentController::class);
+        Route::patch('recruitment/application/{application}/status', [\App\Http\Controllers\Admin\RecruitmentController::class, 'updateApplicationStatus'])->name('recruitment.application.status');
+
         // Broadcast Notification
         Route::get('notifications/create', [\App\Http\Controllers\Admin\NotificationController::class, 'create'])->name('notifications.create');
         Route::post('notifications/send', [\App\Http\Controllers\Admin\NotificationController::class, 'send'])->name('notifications.send');
@@ -233,6 +237,10 @@ Route::middleware('auth')->group(function () {
             Route::get('/penugasan', [\App\Http\Controllers\Praktikan\PenugasanController::class, 'index'])->name('penugasan.index');
             Route::get('/penugasan/{id}', [\App\Http\Controllers\Praktikan\PenugasanController::class, 'show'])->name('penugasan.show');
             Route::get('/penugasan/{id}/download', [\App\Http\Controllers\Praktikan\PenugasanController::class, 'download'])->name('penugasan.download');
+            // Recruitment
+            Route::get('/recruitment', [\App\Http\Controllers\Praktikan\RecruitmentController::class, 'index'])->name('recruitment.index');
+            Route::post('/recruitment', [\App\Http\Controllers\Praktikan\RecruitmentController::class, 'store'])->name('recruitment.store');
+            Route::get('/recruitment/{id}', [\App\Http\Controllers\Praktikan\RecruitmentController::class, 'show'])->name('recruitment.show');
         });
     });
 });
