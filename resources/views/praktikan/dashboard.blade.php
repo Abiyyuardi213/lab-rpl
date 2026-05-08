@@ -315,9 +315,10 @@
                                 $now = \Carbon\Carbon::now();
                                 $studentPendaftaran = isset($activePendaftarans) ? $activePendaftarans->firstWhere('praktikum_id', $jadwal->praktikum_id) : null;
                                 $studentSesi = $studentPendaftaran ? $studentPendaftaran->sesi : null;
+                                $bypassWaktu = app()->environment('local') && filter_var(env('PENUGASAN_BYPASS_WAKTU', false), FILTER_VALIDATE_BOOLEAN);
 
-                                $waktuMulai = $studentSesi ? $studentSesi->jam_mulai : $jadwal->waktu_mulai;
-                                $waktuSelesai = $studentSesi ? $studentSesi->jam_selesai : $jadwal->waktu_selesai;
+                                $waktuMulai = (!$bypassWaktu && $studentSesi) ? $studentSesi->jam_mulai : $jadwal->waktu_mulai;
+                                $waktuSelesai = (!$bypassWaktu && $studentSesi) ? $studentSesi->jam_selesai : $jadwal->waktu_selesai;
 
                                 $start = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $waktuMulai);
                                 $end = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $waktuSelesai);
@@ -326,7 +327,7 @@
                                 $isOngoing = $now->between($start, $end);
                                 $isCorrectDay = true;
 
-                                if ($studentSesi && $studentSesi->hari) {
+                                if (!$bypassWaktu && $studentSesi && $studentSesi->hari) {
                                     $daysMap = ['Minggu'=>0,'Senin'=>1,'Selasa'=>2,'Rabu'=>3,'Kamis'=>4,'Jumat'=>5,'Sabtu'=>6];
                                     $sessionDayIndex = $daysMap[$studentSesi->hari] ?? null;
                                     $jadwalDayIndex = \Carbon\Carbon::parse($jadwal->tanggal)->dayOfWeek;
@@ -337,11 +338,29 @@
 
                                 $statusLabel = 'Akan Datang';
                                 $statusClass = 'bg-blue-100 text-blue-700';
-                                $hasPresensi = $jadwal->presensis->isNotEmpty();
+                                $presensi = $jadwal->presensis->first();
+                                $hasPresensi = (bool) $presensi;
+                                $presensiActionClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+                                $presensiActionIcon = 'fa-check-circle';
+                                $presensiActionLabel = 'Kehadiran Tercatat';
 
                                 if ($hasPresensi) {
-                                    $statusLabel = 'Hadir';
-                                    $statusClass = 'bg-emerald-100 text-emerald-700';
+                                    if ($presensi->status === 'terlambat') {
+                                        $statusLabel = 'Terlambat';
+                                        $statusClass = 'bg-amber-100 text-amber-700';
+                                        $presensiActionClass = 'bg-amber-50 text-amber-700 border border-amber-200';
+                                        $presensiActionIcon = 'fa-clock';
+                                        $presensiActionLabel = 'Presensi Terlambat';
+                                    } elseif ($presensi->status === 'alfa') {
+                                        $statusLabel = 'Tidak Hadir';
+                                        $statusClass = 'bg-rose-100 text-rose-700';
+                                        $presensiActionClass = 'bg-rose-50 text-rose-700 border border-rose-200';
+                                        $presensiActionIcon = 'fa-circle-xmark';
+                                        $presensiActionLabel = 'Tidak Hadir';
+                                    } else {
+                                        $statusLabel = 'Hadir';
+                                        $statusClass = 'bg-emerald-100 text-emerald-700';
+                                    }
                                 } elseif ($isFinished) {
                                     $statusLabel = 'Selesai';
                                     $statusClass = 'bg-slate-200 text-slate-600';
@@ -393,8 +412,8 @@
 
                                 <div class="mt-5 pt-4 border-t border-slate-100">
                                     @if ($hasPresensi)
-                                        <div class="w-full py-2.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl flex items-center justify-center gap-2 border border-emerald-200">
-                                            <i class="fas fa-check-circle"></i> Kehadiran Tercatat
+                                        <div class="w-full py-2.5 {{ $presensiActionClass }} text-xs font-bold rounded-xl flex items-center justify-center gap-2">
+                                            <i class="fas {{ $presensiActionIcon }}"></i> {{ $presensiActionLabel }}
                                         </div>
                                     @elseif ($isOngoing && $isCorrectDay)
                                         <a href="{{ route('praktikan.presensi.generate-qr', $jadwal->id) }}" class="w-full py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-md hover:bg-emerald-700 hover:shadow-lg transition-all flex items-center justify-center gap-2">

@@ -70,6 +70,7 @@
                                 // Get presensi for this student in this specific schedule
                                 $presensi = $pendaftaran->presensis->first();
                                 $nilai = $presensi ? $presensi->penilaian : null;
+                                $canGrade = $presensi && in_array($presensi->status, ['hadir', 'terlambat'], true);
                                 
                                 // Improved matching logic: Find by module number if exact title doesn't match
                                 $currentModulNumber = null;
@@ -107,6 +108,9 @@
                                                 @if($presensi->status === 'terlambat')
                                                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500" title="Mahasiswa Terlambat"></span>
                                                     <span class="text-[8px] font-black text-amber-600 uppercase">Terlambat</span>
+                                                @elseif($presensi->status === 'alfa')
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500" title="Mahasiswa Tidak Hadir"></span>
+                                                    <span class="text-[8px] font-black text-rose-600 uppercase">Tidak Hadir</span>
                                                 @else
                                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Mahasiswa Hadir"></span>
                                                     <span class="text-[8px] font-black text-emerald-600 uppercase">Hadir</span>
@@ -142,7 +146,7 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    @if($presensi)
+                                    @if($canGrade)
                                         <button type="button" 
                                                 onclick="openGradingModal('{{ $presensi->id }}', '{{ $praktikan->user->name }}', '{{ $nilai ? $nilai->nilai : '' }}', '{{ $nilaiAsistensi ?? '' }}', '{{ $nilai ? $nilai->catatan : '' }}')"
                                                 class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900 text-white text-[10px] font-bold rounded-md hover:bg-zinc-800 transition-all shadow-sm active:scale-95">
@@ -153,7 +157,7 @@
                                         <button type="button" disabled
                                                 class="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-100 text-zinc-400 text-[10px] font-bold rounded-md cursor-not-allowed">
                                             <i class="fas fa-lock mr-1"></i>
-                                            ABSEN
+                                            {{ $presensi && $presensi->status === 'alfa' ? 'TIDAK HADIR' : 'ABSEN' }}
                                         </button>
                                     @endif
                                 </td>
