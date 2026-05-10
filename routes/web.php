@@ -170,6 +170,7 @@ Route::middleware('auth')->group(function () {
         // Recruitment Management
         Route::resource('recruitment', \App\Http\Controllers\Admin\RecruitmentController::class);
         Route::patch('recruitment/application/{application}/status', [\App\Http\Controllers\Admin\RecruitmentController::class, 'updateApplicationStatus'])->name('recruitment.application.status');
+        Route::post('recruitment/{recruitment}/validate-ipk', [\App\Http\Controllers\Admin\RecruitmentController::class, 'validateIpk'])->name('recruitment.validate-ipk');
 
         // Broadcast Notification
         Route::get('notifications/create', [\App\Http\Controllers\Admin\NotificationController::class, 'create'])->name('notifications.create');

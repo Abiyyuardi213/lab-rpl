@@ -34,6 +34,10 @@
                         <input type="text" id="customSearch" placeholder="Cari pelamar (nama/npm)..."
                             class="flex h-9 w-full rounded-md border border-zinc-200 bg-transparent px-3 py-1 pl-9 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 placeholder:text-zinc-500">
                     </div>
+                    <button type="button" onclick="openValidationModal()" class="inline-flex items-center justify-center rounded-md text-xs font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#001f3f] text-white hover:bg-blue-900 h-9 px-4 py-2 gap-2 shadow-sm">
+                        <i class="fas fa-check-double text-[10px]"></i>
+                        Validasi IPK
+                    </button>
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-2">
@@ -47,35 +51,39 @@
                 <table id="applicantTable" class="w-full text-sm text-left">
                     <thead class="bg-zinc-50 border-b border-zinc-100 text-zinc-500 font-medium h-10">
                         <tr>
-                            <th class="px-6 align-middle font-medium text-zinc-500">MAHASISWA</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500">PERSYARATAN</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500">DOKUMEN</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500 text-center">STATUS</th>
-                            <th class="px-6 align-middle font-medium text-zinc-500 text-right">AKSI</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">MAHASISWA</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">PERSYARATAN</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">DOKUMEN</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-center">STATUS</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-right">AKSI</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100 text-zinc-900">
-                        @foreach ($recruitment->applications as $app)
+                        @foreach ($recruitment->applications->where('status', '!=', 'rejected') as $app)
                             <tr class="hover:bg-zinc-50/50 transition-colors">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full border border-zinc-200 bg-zinc-50 flex items-center justify-center text-zinc-400 overflow-hidden">
+                                        <div class="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center border border-zinc-200 text-zinc-400">
                                             @if($app->user->profile_picture)
-                                                <img src="{{ asset('storage/' . $app->user->profile_picture) }}" class="w-full h-full object-cover">
+                                                <img src="{{ asset('storage/' . $app->user->profile_picture) }}" class="w-full h-full object-cover rounded-full">
                                             @else
                                                 <i class="fas fa-user text-xs"></i>
                                             @endif
                                         </div>
-                                        <div>
+                                        <div class="flex flex-col">
                                             <span class="font-semibold text-zinc-900 block leading-tight">{{ $app->user->name }}</span>
-                                            <span class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">{{ $app->user->praktikan->npm }} | {{ $app->user->praktikan->angkatan }}</span>
+                                            <span class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">{{ $app->user->praktikan->npm ?? 'N/A' }} | {{ $app->user->praktikan->angkatan ?? 'N/A' }}</span>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col gap-0.5">
-                                        <span class="text-[11px] font-bold text-zinc-600">SMT {{ $app->user->praktikan->semester ?? '-' }}</span>
-                                        <span class="text-[10px] text-zinc-400">{{ $app->user->praktikan->jurusan }}</span>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[11px] font-bold text-zinc-600">SMT {{ $app->user->praktikan->semester ?? '-' }}</span>
+                                            <span class="text-[10px] text-zinc-300">|</span>
+                                            <span class="text-[11px] font-bold text-blue-600">IPK {{ number_format($app->ipk, 2) }}</span>
+                                        </div>
+                                        <span class="text-[10px] text-zinc-400">{{ $app->user->praktikan->jurusan ?? '-' }}</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -88,6 +96,12 @@
                                             class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors shadow-sm" title="Buka KHS">
                                             <i class="fas fa-file-invoice text-xs"></i>
                                         </a>
+                                        @if($app->transcript_path)
+                                            <a href="{{ Storage::url($app->transcript_path) }}" target="_blank"
+                                                class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors shadow-sm" title="Buka Transkrip Riwayat Studi">
+                                                <i class="fas fa-file-medical text-xs"></i>
+                                            </a>
+                                        @endif
                                         @if($app->portfolio_url)
                                             <a href="{{ $app->portfolio_url }}" target="_blank"
                                                 class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors shadow-sm" title="Portofolio">
@@ -101,13 +115,11 @@
                                         $statusClasses = [
                                             'pending' => 'bg-amber-50 text-amber-600 border-amber-100',
                                             'shortlisted' => 'bg-blue-50 text-blue-600 border-blue-100',
-                                            'rejected' => 'bg-rose-50 text-rose-600 border-rose-100',
                                             'accepted' => 'bg-emerald-50 text-emerald-600 border-emerald-100',
                                         ];
                                         $statusLabels = [
                                             'pending' => 'Pending',
                                             'shortlisted' => 'Shortlist',
-                                            'rejected' => 'Ditolak',
                                             'accepted' => 'Diterima',
                                         ];
                                     @endphp
@@ -129,9 +141,103 @@
                 </table>
             </div>
         </div>
+
+        <!-- Rejected Table Section -->
+        <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden mt-8">
+            <div class="p-6 pb-4 border-b border-zinc-100 bg-rose-50/30">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-rose-600 flex items-center gap-2">
+                            <i class="fas fa-user-xmark"></i>
+                            Peserta Tidak Lolos
+                        </h3>
+                        <p class="text-[10px] text-rose-500 font-medium mt-1">Daftar pelamar yang ditolak atau tidak memenuhi syarat IPK.</p>
+                    </div>
+                    <span class="px-2.5 py-1 bg-rose-100 text-rose-700 rounded-lg text-[10px] font-black tracking-widest">
+                        {{ $recruitment->applications->where('status', 'rejected')->count() }} PESERTA
+                    </span>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="rejectedTable" class="w-full text-sm text-left">
+                    <thead class="bg-zinc-50 border-b border-zinc-100 text-zinc-500 font-medium h-10">
+                        <tr>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">MAHASISWA</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">PERSYARATAN</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider">KETERANGAN PENOLAKAN</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 uppercase text-[10px] tracking-wider text-right">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-100 text-zinc-900">
+                        @foreach ($recruitment->applications->where('status', 'rejected') as $app)
+                            <tr class="hover:bg-zinc-50/50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3 opacity-70">
+                                        <div class="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center border border-zinc-200 text-zinc-400">
+                                            <i class="fas fa-user text-xs"></i>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="font-semibold text-zinc-900 block leading-tight">{{ $app->user->name }}</span>
+                                            <span class="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">{{ $app->user->praktikan->npm ?? 'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col gap-0.5 opacity-70">
+                                        <span class="text-[11px] font-bold text-zinc-600">IPK {{ number_format($app->ipk, 2) }}</span>
+                                        <span class="text-[10px] text-zinc-400">{{ $app->user->praktikan->jurusan ?? '-' }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="p-2 rounded-lg bg-rose-50/50 border border-rose-100 text-[10px] text-rose-600 leading-relaxed italic">
+                                        {{ $app->admin_notes ?: 'Tidak ada catatan penolakan.' }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-end">
+                                        <button onclick="openStatusModal('{{ $app->id }}', '{{ $app->status }}', '{{ addslashes($app->admin_notes) }}')"
+                                            class="inline-flex items-center justify-center h-8 px-3 rounded-md bg-zinc-100 text-zinc-600 text-[10px] font-bold hover:bg-zinc-200 transition-colors">
+                                            Pulihkan
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <!-- Status Modal -->
+    <!-- Validation Modal -->
+    <div id="validationModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" onclick="closeValidationModal()"></div>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden border border-zinc-200">
+            <div class="p-8 text-center space-y-6">
+                <div class="h-20 w-20 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center mx-auto text-blue-600 shadow-inner">
+                    <i class="fas fa-check-double text-3xl"></i>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-xl font-black text-zinc-900 tracking-tight">Konfirmasi Validasi IPK</h3>
+                    <p class="text-xs text-zinc-500 leading-relaxed">
+                        Sistem akan memeriksa semua pendaftar dengan status <span class="font-bold text-amber-600">Pending</span> dan membandingkannya dengan syarat minimum IPK (<span class="font-bold text-blue-600">{{ number_format($recruitment->min_ipk, 2) }}</span>).
+                    </p>
+                    <p class="text-[10px] text-zinc-400 italic">Peserta yang tidak memenuhi syarat akan otomatis ditolak.</p>
+                </div>
+                <div class="flex flex-col gap-2 pt-2">
+                    <form action="{{ route('admin.recruitment.validate-ipk', $recruitment->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-full inline-flex h-11 items-center justify-center rounded-xl bg-[#001f3f] px-8 py-2 text-sm font-bold text-white shadow-lg shadow-blue-900/25 hover:bg-blue-900 transition-all">
+                            Ya, Jalankan Validasi
+                        </button>
+                    </form>
+                    <button type="button" onclick="closeValidationModal()" class="inline-flex h-11 items-center justify-center rounded-xl bg-zinc-100 px-8 py-2 text-sm font-bold text-zinc-600 hover:bg-zinc-200 transition-all">
+                        Batalkan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="statusModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" onclick="closeStatusModal()"></div>
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden border border-zinc-200">
@@ -280,8 +386,44 @@
                     }
                 });
 
+                var rejectedTable = $('#rejectedTable').DataTable({
+                    dom: 't<"flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
+                    language: {
+                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                        infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                        infoFiltered: "(disaring dari _MAX_ total data)",
+                        lengthMenu: "Tampilkan _MENU_ data",
+                        loadingRecords: "Memuat...",
+                        processing: "Sedang memproses...",
+                        search: "Cari:",
+                        zeroRecords: `
+                            <div class="flex flex-col items-center justify-center py-20 text-zinc-400">
+                                <div class="h-20 w-20 rounded-full bg-zinc-50 flex items-center justify-center mb-4 border border-zinc-100 shadow-inner">
+                                    <i class="fas fa-search text-3xl opacity-20"></i>
+                                </div>
+                                <h3 class="text-sm font-black uppercase tracking-[0.2em] text-zinc-400">Pencarian Tidak Ditemukan</h3>
+                                <p class="text-[10px] italic mt-1 font-medium tracking-tight">Coba gunakan kata kunci pencarian yang lain.</p>
+                            </div>
+                        `,
+                        emptyTable: `
+                            <div class="flex flex-col items-center justify-center py-20 text-zinc-400">
+                                <div class="h-20 w-20 rounded-full bg-zinc-50 flex items-center justify-center mb-4 border border-zinc-100 shadow-inner">
+                                    <i class="fas fa-user-xmark text-3xl opacity-20"></i>
+                                </div>
+                                <h3 class="text-sm font-black uppercase tracking-[0.2em] text-zinc-400">Tidak Ada Peserta</h3>
+                                <p class="text-[10px] italic mt-1 font-medium tracking-tight">Belum ada peserta yang dinyatakan tidak lolos.</p>
+                            </div>
+                        `,
+                        paginate: {
+                            next: '<i class="fas fa-chevron-right text-[10px]"></i>',
+                            previous: '<i class="fas fa-chevron-left text-[10px]"></i>'
+                        }
+                    }
+                });
+
                 $('#customSearch').on('keyup', function() {
                     table.search(this.value).draw();
+                    rejectedTable.search(this.value).draw();
                 });
             });
 
@@ -311,6 +453,14 @@
 
             function closeStatusModal() {
                 document.getElementById('statusModal').classList.add('hidden');
+            }
+
+            function openValidationModal() {
+                document.getElementById('validationModal').classList.remove('hidden');
+            }
+
+            function closeValidationModal() {
+                document.getElementById('validationModal').classList.add('hidden');
             }
         </script>
     @endpush

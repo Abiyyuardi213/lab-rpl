@@ -108,6 +108,10 @@
                                             class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-400 hover:text-[#1a4fa0] hover:bg-zinc-100 transition-colors" title="Lihat Pelamar">
                                             <i class="fas fa-eye text-xs"></i>
                                         </a>
+                                        <a href="{{ route('admin.recruitment.edit', $period->id) }}"
+                                            class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-400 hover:text-amber-600 hover:bg-amber-50 transition-colors" title="Edit Periode">
+                                            <i class="fas fa-edit text-xs"></i>
+                                        </a>
                                         <form id="delete-form-{{ $period->id }}"
                                             action="{{ route('admin.recruitment.destroy', $period->id) }}" method="POST"
                                             class="inline">
@@ -135,6 +139,60 @@
                 padding: 0 !important;
                 background-color: transparent !important;
             }
+
+            /* Pagination Styling */
+            .dataTables_paginate {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.25rem !important;
+            }
+
+            .paginate_button {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                height: 2rem !important;
+                min-width: 2rem !important;
+                padding: 0 0.5rem !important;
+                font-size: 0.75rem !important;
+                font-weight: 600 !important;
+                border-radius: 0.5rem !important;
+                border: 1px solid #e4e4e7 !important;
+                background: white !important;
+                color: #71717a !important;
+                cursor: pointer !important;
+                transition: all 0.2s !important;
+            }
+
+            .paginate_button:hover:not(.disabled):not(.current) {
+                background: #f4f4f5 !important;
+                color: #18181b !important;
+                border-color: #d4d4d8 !important;
+            }
+
+            .paginate_button.current {
+                background: #1a4fa0 !important;
+                color: white !important;
+                border-color: #1a4fa0 !important;
+                box-shadow: 0 4px 6px -1px rgb(26 79 160 / 0.1), 0 2px 4px -2px rgb(26 79 160 / 0.1) !important;
+            }
+
+            .paginate_button.disabled {
+                opacity: 0.5 !important;
+                cursor: not-allowed !important;
+                background: #fafafa !important;
+            }
+
+            .paginate_button.previous,
+            .paginate_button.next {
+                padding: 0 0.75rem !important;
+            }
+
+            .dataTables_info {
+                font-size: 0.75rem !important;
+                color: #71717a !important;
+                font-weight: 500 !important;
+            }
         </style>
     @endpush
 
@@ -153,7 +211,15 @@
                         loadingRecords: "Memuat...",
                         processing: "Sedang memproses...",
                         search: "Cari:",
-                        zeroRecords: "Periode tidak ditemukan",
+                        zeroRecords: `
+                            <div class="flex flex-col items-center justify-center py-20 text-zinc-400">
+                                <div class="h-20 w-20 rounded-full bg-zinc-50 flex items-center justify-center mb-4 border border-zinc-100 shadow-inner">
+                                    <i class="fas fa-search text-3xl opacity-20"></i>
+                                </div>
+                                <h3 class="text-sm font-black uppercase tracking-[0.2em] text-zinc-400">Pencarian Tidak Ditemukan</h3>
+                                <p class="text-[10px] italic mt-1 font-medium tracking-tight">Coba gunakan kata kunci pencarian yang lain.</p>
+                            </div>
+                        `,
                         emptyTable: `
                             <div class="flex flex-col items-center justify-center py-20 text-zinc-400">
                                 <div class="h-20 w-20 rounded-full bg-zinc-50 flex items-center justify-center mb-4 border border-zinc-100 shadow-inner">

@@ -41,8 +41,10 @@ class RecruitmentController extends Controller
             'recruitment_period_id' => 'required|exists:recruitment_periods,id',
             'cv' => 'required|file|mimes:pdf|max:2048',
             'khs' => 'required|file|mimes:pdf|max:2048',
+            'transcript' => 'required|file|mimes:pdf|max:2048',
             'portfolio_url' => 'nullable|url',
             'motivation_letter' => 'nullable|string',
+            'ipk' => 'required|numeric|between:0,4',
         ]);
 
         $user = Auth::user();
@@ -60,14 +62,17 @@ class RecruitmentController extends Controller
 
         $cvPath = $request->file('cv')->store('recruitment/cv', 'public');
         $khsPath = $request->file('khs')->store('recruitment/khs', 'public');
+        $transcriptPath = $request->file('transcript')->store('recruitment/transcripts', 'public');
 
         AslabApplication::create([
             'recruitment_period_id' => $request->recruitment_period_id,
             'user_id' => $user->id,
             'cv_path' => $cvPath,
             'khs_path' => $khsPath,
+            'transcript_path' => $transcriptPath,
             'portfolio_url' => $request->portfolio_url,
             'motivation_letter' => $request->motivation_letter,
+            'ipk' => $request->ipk,
             'status' => 'pending',
         ]);
 

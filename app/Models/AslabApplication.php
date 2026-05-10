@@ -15,8 +15,10 @@ class AslabApplication extends Model
         'user_id',
         'cv_path',
         'khs_path',
+        'transcript_path',
         'portfolio_url',
         'motivation_letter',
+        'ipk',
         'status',
         'admin_notes',
     ];

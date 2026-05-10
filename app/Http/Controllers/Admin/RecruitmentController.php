@@ -106,6 +106,56 @@ class RecruitmentController extends Controller
         }
     }
 
+    public function validateIpk(RecruitmentPeriod $recruitment)
+    {
+        $minIpk = $recruitment->min_ipk;
+        $applications = $recruitment->applications()->where('status', 'pending')->get();
+        
+        if ($applications->isEmpty()) {
+            return back()->with('info', 'Tidak ada pendaftaran dengan status pending untuk divalidasi.');
+        }
+
+        $passedCount = 0;
+        $failedCount = 0;
+
+        foreach ($applications as $application) {
+            if ($application->ipk >= $minIpk) {
+                $application->update(['status' => 'shortlisted']);
+                $passedCount++;
+            } else {
+                $application->update([
+                    'status' => 'rejected', 
+                    'admin_notes' => 'Otomatis: IPK (' . number_format($application->ipk, 2) . ') di bawah persyaratan minimum (' . number_format($minIpk, 2) . ').'
+                ]);
+                $failedCount++;
+            }
+        }
+
+        return back()->with('success', "Validasi IPK selesai. $passedCount pelamar lolos verifikasi, $failedCount pelamar ditolak.");
+    }
+
+    public function edit(RecruitmentPeriod $recruitment)
+    {
+        return view('admin.recruitment.edit', compact('recruitment'));
+    }
+
+    public function update(Request $request, RecruitmentPeriod $recruitment)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'min_ipk' => 'required|numeric|between:0,4.00',
+            'min_semester' => 'required|integer|min:1',
+            'is_active' => 'boolean',
+        ]);
+
+        $recruitment->update($validated);
+
+        return redirect()->route('admin.recruitment.index')->with('success', 'Periode rekrutmen berhasil diperbarui.');
+    }
+
     public function destroy(RecruitmentPeriod $recruitment)
     {
         $recruitment->delete();

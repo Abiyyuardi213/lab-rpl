@@ -44,9 +44,9 @@
                             </div>
                             <div class="relative">
                                 <div class="description-container relative overflow-hidden transition-all duration-500 max-h-24 mb-2" id="description-{{ $period->id }}">
-                                    <p class="text-slate-500 text-sm leading-relaxed whitespace-pre-line">
-                                        {{ $period->description ?? 'Mari kembangkan skill Anda dengan menjadi asisten laboratorium.' }}
-                                    </p>
+                                    <div class="trix-content prose prose-sm max-w-none text-slate-500 text-sm leading-relaxed">
+                                        {!! $period->description ?? 'Mari kembangkan skill Anda dengan menjadi asisten laboratorium.' !!}
+                                    </div>
                                     <div class="description-fade absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white to-transparent pointer-events-none transition-opacity duration-300" id="fade-{{ $period->id }}"></div>
                                 </div>
                                 <button onclick="toggleDescription('{{ $period->id }}')" 
@@ -76,19 +76,37 @@
                                     ->isNotEmpty();
                             @endphp
 
-                            @if ($alreadyApplied)
-                                <div
-                                    class="w-full py-3 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
-                                    <i class="fas fa-check-circle"></i>
-                                    Sudah Mendaftar
-                                </div>
-                            @else
-                                <button onclick="openApplyModal('{{ $period->id }}', '{{ $period->title }}')"
-                                    class="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
-                                    Daftar Sekarang
-                                    <i class="fas fa-arrow-right text-xs"></i>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <button 
+                                    data-id="{{ $period->id }}"
+                                    data-title="{{ $period->title }}"
+                                    data-description="{{ $period->description }}"
+                                    data-ipk="{{ $period->min_ipk }}"
+                                    data-semester="{{ $period->min_semester }}"
+                                    data-start="{{ $period->start_date->format('d M Y') }}"
+                                    data-end="{{ $period->end_date->format('d M Y') }}"
+                                    onclick="openDetailModal(this)"
+                                    class="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+                                    <i class="fas fa-info-circle text-xs"></i>
+                                    Detail Info
                                 </button>
-                            @endif
+                                @if ($alreadyApplied)
+                                    <div
+                                        class="flex-1 py-3 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                                        <i class="fas fa-check-circle"></i>
+                                        Sudah Mendaftar
+                                    </div>
+                                @else
+                                    <button 
+                                        data-id="{{ $period->id }}"
+                                        data-title="{{ $period->title }}"
+                                        onclick="openApplyModal(this)"
+                                        class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
+                                        Daftar Sekarang
+                                        <i class="fas fa-arrow-right text-xs"></i>
+                                    </button>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 @empty
@@ -169,11 +187,58 @@
         </div>
     </div>
 
+    <!-- Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/40" onclick="closeDetailModal()"></div>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
+                <div>
+                    <h3 class="font-bold text-slate-900">Informasi Detail Rekrutmen</h3>
+                    <p class="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5">Persyaratan & Deskripsi</p>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-900 transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-8 overflow-y-auto custom-scrollbar space-y-8">
+                <div>
+                    <h4 id="detailTitle" class="text-2xl font-black text-slate-900 leading-tight mb-4"></h4>
+                    <div class="flex flex-wrap gap-3">
+                        <div class="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-blue-100 flex items-center gap-2">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span id="detailDates"></span>
+                        </div>
+                        <div class="px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-emerald-100 flex items-center gap-2">
+                            <i class="fas fa-graduation-cap"></i>
+                            Min. IPK: <span id="detailIPK"></span>
+                        </div>
+                        <div class="px-3 py-1.5 bg-amber-50 text-amber-700 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-amber-100 flex items-center gap-2">
+                            <i class="fas fa-layer-group"></i>
+                            Min. Semester: <span id="detailSemester"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h5 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+                        <span class="w-8 h-px bg-slate-200"></span>
+                        Deskripsi Lengkap
+                    </h5>
+                    <div id="detailDescription" class="trix-content prose prose-sm max-w-none text-slate-600 leading-relaxed">
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-end shrink-0">
+                <button onclick="closeDetailModal()" class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-300 transition-all">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Apply Modal -->
     <div id="applyModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeApplyModal()"></div>
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl relative z-10 overflow-hidden">
-            <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+        <div class="absolute inset-0 bg-slate-900/40" onclick="closeApplyModal()"></div>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
                 <div>
                     <h3 class="font-bold text-slate-900">Formulir Pendaftaran</h3>
                     <p id="modalPeriodTitle" class="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5">
@@ -183,65 +248,140 @@
                         class="fas fa-times"></i></button>
             </div>
             <form action="{{ route('praktikan.recruitment.store') }}" method="POST" enctype="multipart/form-data"
-                class="p-8 space-y-6">
+                class="flex flex-col overflow-hidden">
                 @csrf
                 <input type="hidden" name="recruitment_period_id" id="modalPeriodId">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700">Unggah CV (PDF)</label>
+                            <input type="file" name="cv" accept=".pdf"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                                required>
+                            <p class="text-[10px] text-slate-400">Maksimal 2MB, format PDF.</p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700">Unggah KHS Terakhir (PDF)</label>
+                            <input type="file" name="khs" accept=".pdf"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                                required>
+                            <p class="text-[10px] text-slate-400">Maksimal 2MB, format PDF.</p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-slate-700">Riwayat Studi (Transkrip PDF)</label>
+                            <input type="file" name="transcript" accept=".pdf"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-4 focus:ring-blue-100 transition-all outline-none"
+                                required>
+                            <p class="text-[10px] text-slate-400">Keseluruhan nilai, format PDF.</p>
+                        </div>
+                    </div>
+
                     <div class="space-y-2">
-                        <label class="text-sm font-bold text-slate-700">Unggah CV (PDF)</label>
-                        <input type="file" name="cv" accept=".pdf"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-4 focus:ring-blue-100 transition-all outline-none"
-                            required>
-                        <p class="text-[10px] text-slate-400">Maksimal 2MB, format PDF.</p>
+                        <label class="text-sm font-bold text-slate-700">Link Portofolio (Opsional)</label>
+                        <div class="relative group">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                                <i class="fas fa-link text-xs"></i>
+                            </span>
+                            <input type="url" name="portfolio_url"
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 transition-all outline-none text-sm"
+                                placeholder="https://github.com/username atau LinkedIn">
+                        </div>
                     </div>
+
                     <div class="space-y-2">
-                        <label class="text-sm font-bold text-slate-700">Unggah KHS Terakhir (PDF)</label>
-                        <input type="file" name="khs" accept=".pdf"
-                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-4 focus:ring-blue-100 transition-all outline-none"
-                            required>
-                        <p class="text-[10px] text-slate-400">Maksimal 2MB, format PDF.</p>
+                        <label class="text-sm font-bold text-slate-700">IPK Total Saat Ini</label>
+                        <div class="relative group">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                                <i class="fas fa-graduation-cap text-xs"></i>
+                            </span>
+                            <input type="number" step="0.01" name="ipk" 
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 transition-all outline-none text-sm"
+                                placeholder="Contoh: 3.50" required>
+                        </div>
+                        <div class="p-3 rounded-xl bg-blue-50 border border-blue-100 space-y-1">
+                            <p class="text-[10px] text-blue-700 font-medium leading-relaxed">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                IPK total bisa di cek di <a href="https://sim.itats.ac.id/krs/nilai/riwayat" target="_blank" class="font-bold underline">sim.itats.ac.id/krs/nilai/riwayat</a>
+                            </p>
+                            <p class="text-[10px] text-blue-700 font-medium leading-relaxed">
+                                <i class="fas fa-print mr-1"></i>
+                                Di cetak dan di upload sebagai bukti kesesuaian IPK.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-slate-700">Surat Motivasi / Alasan Mendaftar</label>
+                        <textarea name="motivation_letter" rows="4"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 transition-all outline-none text-sm"
+                            placeholder="Ceritakan mengapa Anda tertarik menjadi asisten lab..."></textarea>
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-700">Link Portofolio (Opsional)</label>
-                    <div class="relative group">
-                        <span
-                            class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
-                            <i class="fas fa-link text-xs"></i>
-                        </span>
-                        <input type="url" name="portfolio_url"
-                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 transition-all outline-none text-sm"
-                            placeholder="https://github.com/username atau LinkedIn">
-                    </div>
+                <div class="p-6 border-t border-slate-100 bg-slate-50/50 shrink-0">
+                    <button type="submit"
+                        class="w-full py-4 bg-[#001f3f] text-white rounded-2xl font-bold hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/20">
+                        Kirim Pendaftaran
+                    </button>
                 </div>
-
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-700">Surat Motivasi / Alasan Mendaftar</label>
-                    <textarea name="motivation_letter" rows="4"
-                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-600 transition-all outline-none text-sm"
-                        placeholder="Ceritakan mengapa Anda tertarik menjadi asisten lab..."></textarea>
-                </div>
-
-                <button type="submit"
-                    class="w-full py-4 bg-[#001f3f] text-white rounded-2xl font-bold hover:bg-blue-900 transition-all shadow-xl shadow-blue-900/20">
-                    Kirim Pendaftaran
-                </button>
             </form>
         </div>
     </div>
 
+    @push('styles')
+        <style>
+            .custom-scrollbar {
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 #f1f5f9;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
+                transform: translateZ(0);
+                backface-visibility: hidden;
+                will-change: scroll-position;
+            }
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 6px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: #f1f5f9;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+        </style>
+    @endpush
+
     @push('scripts')
         <script>
-            function openApplyModal(id, title) {
-                document.getElementById('modalPeriodId').value = id;
-                document.getElementById('modalPeriodTitle').innerText = title;
+            function openApplyModal(el) {
+                const data = el.dataset;
+                document.getElementById('modalPeriodId').value = data.id;
+                document.getElementById('modalPeriodTitle').innerText = data.title;
                 document.getElementById('applyModal').classList.remove('hidden');
             }
 
             function closeApplyModal() {
                 document.getElementById('applyModal').classList.add('hidden');
+            }
+
+            function openDetailModal(el) {
+                const data = el.dataset;
+                document.getElementById('detailTitle').innerText = data.title;
+                document.getElementById('detailDescription').innerHTML = data.description || 'Tidak ada deskripsi tambahan.';
+                document.getElementById('detailIPK').innerText = data.ipk;
+                document.getElementById('detailSemester').innerText = data.semester;
+                document.getElementById('detailDates').innerText = data.start + ' - ' + data.end;
+                document.getElementById('detailModal').classList.remove('hidden');
+            }
+
+            function closeDetailModal() {
+                document.getElementById('detailModal').classList.add('hidden');
             }
 
             function toggleDescription(id) {

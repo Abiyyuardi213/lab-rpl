@@ -1,27 +1,28 @@
 @extends('layouts.admin')
 
-@section('title', 'Tambah Periode Rekrutmen')
+@section('title', 'Edit Periode Rekrutmen')
 
 @section('content')
     <div class="space-y-6">
         <!-- Header Section -->
         <div class="flex items-start justify-between">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-zinc-900">Buat Periode Rekrutmen Baru</h1>
-                <p class="text-sm text-zinc-500 mt-1">Buka pendaftaran asisten laboratorium baru untuk mahasiswa.</p>
+                <h1 class="text-2xl font-bold tracking-tight text-zinc-900">Edit Periode Rekrutmen</h1>
+                <p class="text-sm text-zinc-500 mt-1">Perbarui detail periode pendaftaran asisten laboratorium.</p>
             </div>
             <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
                 <a href="{{ route('admin.dashboard') }}" class="hover:text-zinc-900 transition-colors">Home</a>
                 <span>/</span>
                 <a href="{{ route('admin.recruitment.index') }}" class="hover:text-zinc-900 transition-colors">Rekrutmen</a>
                 <span>/</span>
-                <span class="text-zinc-900 font-semibold">Tambah</span>
+                <span class="text-zinc-900 font-semibold">Edit</span>
             </div>
         </div>
 
-        <form action="{{ route('admin.recruitment.store') }}" method="POST"
+        <form action="{{ route('admin.recruitment.update', $recruitment->id) }}" method="POST"
             class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             @csrf
+            @method('PATCH')
 
             <div class="lg:col-span-2 space-y-6">
                 <!-- Main Form -->
@@ -29,7 +30,7 @@
                     <div class="space-y-4">
                         <div class="grid gap-2">
                             <label for="title" class="text-sm font-bold text-zinc-900">Judul Periode</label>
-                            <input type="text" id="title" name="title" value="{{ old('title') }}" required
+                            <input type="text" id="title" name="title" value="{{ old('title', $recruitment->title) }}" required
                                 class="flex h-10 w-full rounded-md border border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 placeholder:text-zinc-400"
                                 placeholder="Contoh: Open Recruitment Aslab Ganjil 2024">
                             @error('title')
@@ -39,7 +40,7 @@
 
                         <div class="grid gap-2">
                             <label for="description" class="text-sm font-bold text-zinc-900">Deskripsi (Opsional)</label>
-                            <input id="description" type="hidden" name="description" value="{{ old('description') }}">
+                            <input id="description" type="hidden" name="description" value="{{ old('description', $recruitment->description) }}">
                             <trix-editor input="description"
                                 class="trix-content prose prose-sm max-w-none min-h-[200px] rounded-md border border-zinc-200 bg-transparent px-3 py-2 text-sm shadow-sm transition-colors focus:ring-1 focus:ring-zinc-950 placeholder:text-zinc-400"
                                 placeholder="Jelaskan detail rekrutmen atau pengumuman di sini..."></trix-editor>
@@ -51,12 +52,12 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div class="grid gap-2">
                                 <label for="start_date" class="text-sm font-bold text-zinc-900">Tanggal Mulai</label>
-                                <input type="date" name="start_date" id="start_date" value="{{ old('start_date', date('Y-m-d')) }}" required
+                                <input type="date" name="start_date" id="start_date" value="{{ old('start_date', $recruitment->start_date->format('Y-m-d')) }}" required
                                     class="flex h-10 w-full rounded-md border border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
                             </div>
                             <div class="grid gap-2">
                                 <label for="end_date" class="text-sm font-bold text-zinc-900">Tanggal Berakhir</label>
-                                <input type="date" name="end_date" id="end_date" value="{{ old('end_date', date('Y-m-d', strtotime('+14 days'))) }}" required
+                                <input type="date" name="end_date" id="end_date" value="{{ old('end_date', $recruitment->end_date->format('Y-m-d')) }}" required
                                     class="flex h-10 w-full rounded-md border border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
                             </div>
                         </div>
@@ -73,7 +74,7 @@
                         <div class="grid gap-2">
                             <label for="min_ipk" class="text-xs font-bold text-zinc-500 uppercase">Minimum IPK</label>
                             <input type="number" step="0.01" id="min_ipk" name="min_ipk"
-                                value="{{ old('min_ipk', '3.00') }}" required
+                                value="{{ old('min_ipk', $recruitment->min_ipk) }}" required
                                 class="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-all">
                             @error('min_ipk')
                                 <p class="text-[11px] text-rose-500 font-medium">{{ $message }}</p>
@@ -82,7 +83,7 @@
 
                         <div class="grid gap-2">
                             <label for="min_semester" class="text-xs font-bold text-zinc-500 uppercase">Minimum Semester</label>
-                            <input type="number" id="min_semester" name="min_semester" value="{{ old('min_semester', '3') }}"
+                            <input type="number" id="min_semester" name="min_semester" value="{{ old('min_semester', $recruitment->min_semester) }}"
                                 class="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-all">
                             @error('min_semester')
                                 <p class="text-[11px] text-rose-500 font-medium">{{ $message }}</p>
@@ -90,7 +91,8 @@
                         </div>
 
                         <div class="flex items-center space-x-2 py-2">
-                            <input type="checkbox" id="is_active" name="is_active" value="1" checked
+                            <input type="hidden" name="is_active" value="0">
+                            <input type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', $recruitment->is_active) ? 'checked' : '' }}
                                 class="h-4 w-4 rounded border-zinc-300 text-[#1a4fa0] focus:ring-[#1a4fa0]">
                             <label for="is_active" class="text-sm font-medium text-zinc-700">Aktifkan Periode</label>
                         </div>
@@ -100,7 +102,7 @@
                 <div class="flex flex-col gap-2">
                     <button type="submit"
                         class="inline-flex h-11 items-center justify-center rounded-xl bg-[#1a4fa0] px-8 py-2 text-sm font-bold text-white shadow-lg shadow-[#1a4fa0]/25 hover:bg-[#1a4fa0]/90 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                        Simpan Periode
+                        Perbarui Periode
                     </button>
                     <a href="{{ route('admin.recruitment.index') }}"
                         class="inline-flex h-11 items-center justify-center rounded-xl bg-zinc-100 px-8 py-2 text-sm font-bold text-zinc-600 hover:bg-zinc-200 transition-all">
@@ -127,4 +129,3 @@
         }
     </style>
 @endpush
-
