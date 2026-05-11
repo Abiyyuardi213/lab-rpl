@@ -111,14 +111,14 @@
                 {{-- Content Column --}}
                 <main class="lg:col-span-8">
                     @if ($pengumuman->gambar)
-                        <div class="relative mb-12 group">
+                        <div class="relative mb-12 group max-w-2xl mx-auto">
                             <div
                                 class="absolute -inset-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-[2rem] blur opacity-10 group-hover:opacity-20 transition duration-1000">
                             </div>
                             <div
-                                class="relative rounded-[1.5rem] overflow-hidden bg-slate-100 shadow-2xl shadow-blue-900/10 border border-slate-200">
+                                class="relative rounded-[1.5rem] overflow-hidden bg-slate-50 shadow-2xl shadow-blue-900/10 border border-slate-200 flex justify-center">
                                 <img src="{{ asset('storage/' . $pengumuman->gambar) }}" alt="{{ $pengumuman->judul }}"
-                                    class="w-full h-auto object-cover transition duration-700 group-hover:scale-[1.02]">
+                                    class="max-w-full max-h-[450px] w-auto h-auto object-contain transition duration-700 group-hover:scale-[1.02]">
                                 <a href="{{ asset('storage/' . $pengumuman->gambar) }}" target="_blank"
                                     class="absolute bottom-6 right-6 inline-flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-xs font-bold text-slate-900 shadow-lg hover:bg-white transition-all scale-0 group-hover:scale-100 origin-bottom-right">
                                     <i class="fas fa-expand-alt"></i> Lihat Resolusi Penuh
@@ -323,7 +323,10 @@
 
         .trix-content img {
             border-radius: 1.25rem;
-            margin: 2.5rem 0;
+            margin: 2.5rem auto;
+            display: block;
+            max-height: 450px;
+            width: auto;
             box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.15);
             border: 1px solid rgba(0, 0, 0, 0.05);
         }
