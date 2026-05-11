@@ -150,6 +150,17 @@ class DashboardController extends Controller
             }
         }
 
-        return view('praktikan.dashboard', compact('praktikums', 'upcomingSchedules', 'activePendaftarans', 'penugasans'));
+        $recruitmentSchedules = collect();
+        if ($user) {
+            $recruitmentSchedules = \App\Models\RecruitmentSchedule::whereHas('applications', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })
+            ->where('date', '>=', now()->toDateString())
+            ->orderBy('date', 'asc')
+            ->orderBy('start_time', 'asc')
+            ->get();
+        }
+
+        return view('praktikan.dashboard', compact('praktikums', 'upcomingSchedules', 'activePendaftarans', 'penugasans', 'recruitmentSchedules'));
     }
 }

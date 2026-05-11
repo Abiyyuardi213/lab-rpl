@@ -89,6 +89,16 @@
                             @enderror
                         </div>
 
+                        <div class="grid gap-2">
+                            <label for="whatsapp_link" class="text-xs font-bold text-zinc-500 uppercase">Link Grup WhatsApp (Opsional)</label>
+                            <input type="url" id="whatsapp_link" name="whatsapp_link" value="{{ old('whatsapp_link') }}"
+                                class="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 transition-all"
+                                placeholder="https://chat.whatsapp.com/...">
+                            @error('whatsapp_link')
+                                <p class="text-[11px] text-rose-500 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <div class="flex items-center space-x-2 py-2">
                             <input type="checkbox" id="is_active" name="is_active" value="1" checked
                                 class="h-4 w-4 rounded border-zinc-300 text-[#1a4fa0] focus:ring-[#1a4fa0]">

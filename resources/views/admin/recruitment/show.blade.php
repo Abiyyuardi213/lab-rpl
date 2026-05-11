@@ -25,9 +25,20 @@
             </div>
         </div>
 
-        <!-- Table Container -->
-        <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
-            <div class="p-6 pb-4 flex items-center justify-between gap-4 border-b border-zinc-100">
+        <!-- Tabs -->
+        <div class="flex items-center gap-1 p-1 bg-zinc-100 rounded-xl w-fit">
+            <button onclick="switchTab('applicants')" id="applicantsTab" class="tab-btn px-6 py-2 rounded-lg text-xs font-bold transition-all bg-white text-[#001f3f] shadow-sm">
+                <i class="fas fa-users mr-2"></i>Daftar Pelamar
+            </button>
+            <button onclick="switchTab('scheduling')" id="schedulingTab" class="tab-btn px-6 py-2 rounded-lg text-xs font-bold transition-all text-zinc-500 hover:text-zinc-900">
+                <i class="fas fa-calendar-check mr-2"></i>Jadwal Tes
+            </button>
+        </div>
+
+        <div id="applicantsContent" class="space-y-8 tab-content">
+            <!-- Table Container -->
+            <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
+                <div class="p-6 pb-4 flex items-center justify-between gap-4 border-b border-zinc-100">
                 <div class="flex items-center gap-2 flex-1">
                     <div class="relative max-w-sm w-full">
                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
@@ -206,6 +217,204 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+        </div>
+    </div>
+
+    <!-- Scheduling Content -->
+    <div id="schedulingContent" class="hidden space-y-8 tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Create Schedule Form -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden sticky top-6">
+                    <div class="p-6 border-b border-zinc-100 bg-zinc-50/50">
+                        <h3 class="text-sm font-black uppercase tracking-[0.2em] text-zinc-900 flex items-center gap-2">
+                            <i class="fas fa-plus-circle text-blue-600"></i>
+                            Buat Jadwal Baru
+                        </h3>
+                    </div>
+                    <form action="{{ route('admin.recruitment.schedule.store', $recruitment->id) }}" method="POST" class="p-6 space-y-4"
+                        onsubmit="event.preventDefault(); Swal.fire({
+                            title: 'Simpan Jadwal?',
+                            text: 'Jadwal baru akan dibuat untuk periode rekrutmen ini.',
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#001f3f',
+                            cancelButtonColor: '#6c757d',
+                            confirmButtonText: 'Ya, Simpan!',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => { if (result.isConfirmed) { this.submit(); } })">
+                        @csrf
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Nama Agenda</label>
+                            <input type="text" name="name" placeholder="Contoh: Tes Wawancara - Sesi 1" required
+                                class="w-full rounded-xl border border-zinc-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Tanggal</label>
+                            <input type="date" name="date" required
+                                class="w-full rounded-xl border border-zinc-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Mulai</label>
+                                <input type="time" name="start_time" required
+                                    class="w-full rounded-xl border border-zinc-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Selesai</label>
+                                <input type="time" name="end_time" required
+                                    class="w-full rounded-xl border border-zinc-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Lokasi / Link</label>
+                            <input type="text" name="location" placeholder="Ruang Lab / Zoom Link" required
+                                class="w-full rounded-xl border border-zinc-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Catatan (Opsional)</label>
+                            <textarea name="notes" rows="3" placeholder="Instruksi tambahan bagi peserta..."
+                                class="w-full rounded-xl border border-zinc-200 px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all"></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-[#001f3f] text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-900 transition-all shadow-lg shadow-blue-900/20">
+                            Simpan Jadwal
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Schedule List -->
+            <div class="lg:col-span-2 space-y-6">
+                @forelse($recruitment->schedules as $schedule)
+                    <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-zinc-100 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex flex-col items-center justify-center border border-blue-100">
+                                    <span class="text-[10px] font-black uppercase leading-none">{{ $schedule->date->format('M') }}</span>
+                                    <span class="text-lg font-black leading-none">{{ $schedule->date->format('d') }}</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-zinc-900">{{ $schedule->name }}</h4>
+                                    <div class="flex items-center gap-3 text-[10px] text-zinc-500 font-medium mt-1">
+                                        <span class="flex items-center gap-1"><i class="far fa-clock text-blue-500"></i> {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</span>
+                                        <span class="flex items-center gap-1"><i class="fas fa-location-dot text-rose-500"></i> {{ $schedule->location }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="openAssignModal('{{ $schedule->id }}', '{{ $schedule->name }}')" class="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-emerald-100 transition-all border border-emerald-100">
+                                    <i class="fas fa-user-plus mr-1"></i> Tambah Peserta
+                                </button>
+                                <form action="{{ route('admin.recruitment.schedule.destroy', $schedule->id) }}" method="POST"
+                                    onsubmit="event.preventDefault(); Swal.fire({
+                                        title: 'Hapus Jadwal?',
+                                        text: 'Data jadwal dan daftar peserta di dalamnya akan dihapus secara permanen!',
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonColor: '#d33',
+                                        cancelButtonColor: '#6c757d',
+                                        confirmButtonText: 'Ya, Hapus!',
+                                        cancelButtonText: 'Batal'
+                                    }).then((result) => { if (result.isConfirmed) { this.submit(); } })">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="h-9 w-9 flex items-center justify-center text-rose-400 hover:text-rose-600 transition-colors">
+                                        <i class="far fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="p-0">
+                            <table class="w-full text-xs text-left">
+                                <thead class="bg-zinc-50/50 border-b border-zinc-100 text-zinc-400">
+                                    <tr>
+                                        <th class="px-6 py-3 font-bold uppercase tracking-widest">NAMA PESERTA</th>
+                                        <th class="px-6 py-3 font-bold uppercase tracking-widest">NPM</th>
+                                        <th class="px-6 py-3 font-bold uppercase tracking-widest text-right">STATUS</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-zinc-100">
+                                    @forelse($schedule->applications as $app)
+                                        <tr class="hover:bg-zinc-50/50 transition-colors">
+                                            <td class="px-6 py-3 font-semibold text-zinc-700">{{ $app->user->name }}</td>
+                                            <td class="px-6 py-3 text-zinc-500">{{ $app->user->praktikan->npm ?? 'N/A' }}</td>
+                                            <td class="px-6 py-3 text-right">
+                                                <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100 text-[9px] font-bold uppercase">Terjadwal</span>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="px-6 py-8 text-center text-zinc-400 italic">Belum ada peserta yang ditetapkan.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @empty
+                    <div class="bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-200 py-12 flex flex-col items-center justify-center text-zinc-400">
+                        <i class="fas fa-calendar-alt text-4xl mb-4 opacity-20"></i>
+                        <p class="text-sm font-bold uppercase tracking-widest">Belum Ada Jadwal</p>
+                        <p class="text-[10px] mt-1">Silakan buat jadwal tes baru menggunakan formulir di samping.</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Applicants Modal -->
+    <div id="assignModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" onclick="closeAssignModal()"></div>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden border border-zinc-200">
+            <div class="p-6 border-b border-zinc-100 flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold text-zinc-900">Tambah Peserta ke Jadwal</h3>
+                    <p id="assignModalScheduleName" class="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5"></p>
+                </div>
+                <button onclick="closeAssignModal()" class="text-zinc-400 hover:text-zinc-900 transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="assignForm" method="POST" class="p-6"
+                onsubmit="event.preventDefault(); Swal.fire({
+                    title: 'Tetapkan Peserta?',
+                    text: 'Peserta yang dipilih akan didaftarkan ke jadwal ini.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#1a4fa0',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Tetapkan',
+                    cancelButtonText: 'Batal'
+                }).then((result) => { if (result.isConfirmed) { this.submit(); } })">
+                @csrf
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400">Pilih Peserta (Lolos Administrasi)</span>
+                        <button type="button" onclick="selectAllShortlisted()" class="text-[10px] font-bold text-blue-600 hover:underline">Pilih Semua</button>
+                    </div>
+                    <div class="max-h-60 overflow-y-auto custom-scrollbar space-y-2 pr-2">
+                        @foreach($recruitment->applications->where('status', 'shortlisted') as $app)
+                            <label class="flex items-center gap-3 p-3 rounded-xl border border-zinc-100 hover:bg-zinc-50 transition-colors cursor-pointer group">
+                                <input type="checkbox" name="application_ids[]" value="{{ $app->id }}" class="w-4 h-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500 shortlisted-checkbox">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-zinc-700 group-hover:text-zinc-900">{{ $app->user->name }}</span>
+                                    <span class="text-[10px] text-zinc-400">{{ $app->user->praktikan->npm ?? 'N/A' }} | IPK {{ number_format($app->ipk, 2) }}</span>
+                                </div>
+                            </label>
+                        @endforeach
+                        @if($recruitment->applications->where('status', 'shortlisted')->isEmpty())
+                            <p class="text-center text-zinc-400 italic text-xs py-4">Tidak ada peserta berstatus shortlist.</p>
+                        @endif
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2 pt-6">
+                    <button type="submit" class="w-full inline-flex h-11 items-center justify-center rounded-xl bg-[#1a4fa0] px-8 py-2 text-sm font-bold text-white shadow-lg shadow-[#1a4fa0]/25 hover:bg-[#1a4fa0]/90 transition-all">
+                        Tetapkan Peserta
+                    </button>
+                    <button type="button" onclick="closeAssignModal()" class="inline-flex h-11 items-center justify-center rounded-xl bg-zinc-100 px-8 py-2 text-sm font-bold text-zinc-600 hover:bg-zinc-200 transition-all">
+                        Batal
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -461,6 +670,45 @@
 
             function closeValidationModal() {
                 document.getElementById('validationModal').classList.add('hidden');
+            }
+
+            function switchTab(tab) {
+                // Update buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('bg-white', 'text-[#001f3f]', 'shadow-sm');
+                    btn.classList.add('text-zinc-500', 'hover:text-zinc-900');
+                });
+                
+                const activeBtn = document.getElementById(tab + 'Tab');
+                activeBtn.classList.add('bg-white', 'text-[#001f3f]', 'shadow-sm');
+                activeBtn.classList.remove('text-zinc-500', 'hover:text-zinc-900');
+
+                // Update content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(tab + 'Content').classList.remove('hidden');
+            }
+
+            function openAssignModal(scheduleId, scheduleName) {
+                const modal = document.getElementById('assignModal');
+                const form = document.getElementById('assignForm');
+                const nameDisplay = document.getElementById('assignModalScheduleName');
+
+                form.action = `{{ url('admin/recruitment/schedule') }}/${scheduleId}/assign`;
+                nameDisplay.textContent = scheduleName;
+                
+                modal.classList.remove('hidden');
+            }
+
+            function closeAssignModal() {
+                document.getElementById('assignModal').classList.add('hidden');
+            }
+
+            function selectAllShortlisted() {
+                document.querySelectorAll('.shortlisted-checkbox').forEach(cb => {
+                    cb.checked = true;
+                });
             }
         </script>
     @endpush

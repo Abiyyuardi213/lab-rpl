@@ -32,4 +32,9 @@ class AslabApplication extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function schedules()
+    {
+        return $this->belongsToMany(RecruitmentSchedule::class, 'aslab_application_schedule');
+    }
 }

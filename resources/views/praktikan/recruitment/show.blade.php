@@ -142,6 +142,39 @@
 
             <!-- Right Column: Info & Summary -->
             <div class="space-y-6">
+                @if($application->schedules->isNotEmpty())
+                    <div class="bg-white rounded-3xl border border-zinc-200 shadow-sm p-8">
+                        <h2 class="text-sm font-black uppercase tracking-[0.2em] text-[#1a4fa0] mb-6 flex items-center gap-2">
+                            <i class="fas fa-calendar-alt"></i>
+                            Jadwal Tes Lanjutan
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            @foreach($application->schedules as $schedule)
+                                <div class="p-5 rounded-2xl bg-blue-50/50 border border-blue-100 flex items-start gap-4 group">
+                                    <div class="h-14 w-14 rounded-2xl bg-[#1a4fa0] text-white flex flex-col items-center justify-center shadow-lg shadow-blue-900/20">
+                                        <span class="text-[10px] font-black uppercase leading-none">{{ $schedule->date->format('M') }}</span>
+                                        <span class="text-xl font-black leading-none">{{ $schedule->date->format('d') }}</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-zinc-900 leading-tight">{{ $schedule->name }}</h4>
+                                        <div class="flex flex-col gap-y-1 mt-2 text-[11px] font-medium text-zinc-500">
+                                            <span class="flex items-center gap-1.5"><i class="far fa-clock text-blue-500"></i> {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</span>
+                                            <span class="flex items-center gap-1.5"><i class="fas fa-location-dot text-rose-500"></i> {{ $schedule->location }}</span>
+                                        </div>
+                                        @if($schedule->notes)
+                                            <div class="mt-4 p-3 rounded-xl bg-white/60 border border-blue-100 text-[11px] text-blue-800 italic leading-relaxed">
+                                                <span class="font-black uppercase text-[9px] not-italic text-blue-400 block mb-1">Instruksi:</span>
+                                                {{ $schedule->notes }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <div class="bg-white rounded-3xl border border-zinc-200 shadow-sm p-8">
                     <h2 class="text-sm font-black uppercase tracking-[0.2em] text-zinc-400 mb-6">Ringkasan Lamaran</h2>
                     
@@ -155,6 +188,23 @@
                             <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">Tanggal Submit</p>
                             <p class="text-sm font-bold text-zinc-900">{{ $application->created_at->translatedFormat('d F Y, H:i') }}</p>
                         </div>
+
+                        @if($application->period->whatsapp_link)
+                            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-between group">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-10 w-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md">
+                                        <i class="fab fa-whatsapp text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-[11px] font-black text-emerald-900 uppercase tracking-tight">Grup Koordinasi</h4>
+                                        <p class="text-[10px] text-emerald-600 font-medium leading-none">Klik untuk bergabung</p>
+                                    </div>
+                                </div>
+                                <a href="{{ $application->period->whatsapp_link }}" target="_blank" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-emerald-700 transition-all">
+                                    Join
+                                </a>
+                            </div>
+                        @endif
 
                         <div class="pt-4 border-t border-zinc-100">
                             <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">Dokumen Terlampir</p>

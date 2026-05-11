@@ -17,7 +17,7 @@ class RecruitmentController extends Controller
             ->where('end_date', '>=', now())
             ->get();
 
-        $myApplications = AslabApplication::with('period')
+        $myApplications = AslabApplication::with(['period', 'schedules'])
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
@@ -27,7 +27,7 @@ class RecruitmentController extends Controller
 
     public function show($id)
     {
-        $application = AslabApplication::with('period')
+        $application = AslabApplication::with(['period', 'schedules'])
             ->where('user_id', Auth::id())
             ->where('id', $id)
             ->firstOrFail();
@@ -58,7 +58,7 @@ class RecruitmentController extends Controller
         }
 
         $period = RecruitmentPeriod::find($request->recruitment_period_id);
-        
+
 
         $cvPath = $request->file('cv')->store('recruitment/cv', 'public');
         $khsPath = $request->file('khs')->store('recruitment/khs', 'public');

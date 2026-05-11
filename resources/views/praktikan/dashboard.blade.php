@@ -290,6 +290,56 @@
             @endif
         </div>
 
+        <!-- Recruitment Schedules (Upcoming Test for Aslab Candidates) -->
+        @if(isset($recruitmentSchedules) && $recruitmentSchedules->isNotEmpty())
+            <div class="bg-gradient-to-br from-[#1a4fa0] to-[#001f3f] rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden group mb-8">
+                <div class="absolute right-0 top-0 opacity-10 transform translate-x-1/4 -translate-y-1/4 transition-transform group-hover:scale-110 duration-700 pointer-events-none">
+                    <i class="fas fa-clipboard-check text-9xl"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner">
+                            <i class="fas fa-calendar-check text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold tracking-tight">Jadwal Tes Seleksi Aslab</h2>
+                            <p class="text-blue-100/80 text-xs">Agenda seleksi asisten laboratorium mendatang yang harus Anda ikuti</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach($recruitmentSchedules as $rs)
+                            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-5 border border-white/10 hover:bg-white/20 transition-all group/card">
+                                <div class="flex items-start gap-4">
+                                    <div class="h-12 w-12 rounded-xl bg-white text-[#001f3f] flex flex-col items-center justify-center shrink-0 shadow-lg">
+                                        <span class="text-[8px] font-black uppercase leading-none">{{ $rs->date->format('M') }}</span>
+                                        <span class="text-lg font-black leading-none">{{ $rs->date->format('d') }}</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-sm leading-tight line-clamp-1">{{ $rs->name }}</h4>
+                                        <div class="mt-2 space-y-1.5">
+                                            <div class="flex items-center gap-2 text-[10px] text-blue-50 font-medium">
+                                                <i class="far fa-clock text-blue-300"></i>
+                                                {{ \Carbon\Carbon::parse($rs->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($rs->end_time)->format('H:i') }}
+                                            </div>
+                                            <div class="flex items-center gap-2 text-[10px] text-blue-50 font-medium">
+                                                <i class="fas fa-map-marker-alt text-rose-300"></i>
+                                                {{ $rs->location }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+                                    <span class="text-[9px] font-bold text-blue-200 uppercase tracking-widest">Tahap Seleksi</span>
+                                    <a href="{{ route('praktikan.recruitment.index') }}" class="text-[9px] font-black bg-white/20 hover:bg-white text-white hover:text-[#001f3f] px-3 py-1.5 rounded-lg transition-all border border-white/10">Detail</a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Upcoming Schedules -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden" id="tour-step-4">
             <div id="toggle-jadwal-btn" class="p-5 border-b border-slate-100 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors">

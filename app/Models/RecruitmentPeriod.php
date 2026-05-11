@@ -15,6 +15,7 @@ class RecruitmentPeriod extends Model
         'description',
         'start_date',
         'end_date',
+        'whatsapp_link',
         'min_ipk',
         'min_semester',
         'is_active',
@@ -30,5 +31,10 @@ class RecruitmentPeriod extends Model
     public function applications()
     {
         return $this->hasMany(AslabApplication::class);
+    }
+
+    public function schedules()
+    {
+        return $this->hasMany(RecruitmentSchedule::class);
     }
 }

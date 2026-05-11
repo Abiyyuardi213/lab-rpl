@@ -85,6 +85,7 @@
                                     data-semester="{{ $period->min_semester }}"
                                     data-start="{{ $period->start_date->format('d M Y') }}"
                                     data-end="{{ $period->end_date->format('d M Y') }}"
+                                    data-wa="{{ $period->whatsapp_link }}"
                                     onclick="openDetailModal(this)"
                                     class="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
                                     <i class="fas fa-info-circle text-xs"></i>
@@ -137,6 +138,8 @@
                             <tr class="bg-slate-50/50 border-b border-slate-100">
                                 <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500">Periode</th>
                                 <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500">Tgl Daftar</th>
+                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500">Jadwal Tes</th>
+                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-center">Grup WA</th>
                                 <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-center">Status</th>
                                 <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500">Aksi</th>
                             </tr>
@@ -145,10 +148,54 @@
                             @forelse($myApplications as $app)
                                 <tr class="hover:bg-zinc-50/50 transition-colors">
                                     <td class="px-6 py-4">
-                                        <p class="font-bold text-zinc-900">{{ $app->period->title }}</p>
+                                        <p class="font-bold text-zinc-900 leading-tight">{{ $app->period->title }}</p>
                                     </td>
                                     <td class="px-6 py-4 text-xs text-zinc-500 font-medium">
                                         {{ $app->created_at->format('d M Y') }}
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if($app->period->whatsapp_link)
+                                            <div class="flex justify-center">
+                                                <a href="{{ $app->period->whatsapp_link }}" target="_blank" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-500 hover:text-white transition-all shadow-sm" title="Gabung Grup WhatsApp">
+                                                    <i class="fab fa-whatsapp text-lg"></i>
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div class="text-center">
+                                                <span class="text-[10px] text-zinc-400 italic">Belum tersedia</span>
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @if($app->schedules->isNotEmpty())
+                                            <div class="space-y-2">
+                                                @foreach($app->schedules as $schedule)
+                                                    <div class="p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-between group">
+                                                        <div class="flex items-center gap-3">
+                                                            <div class="h-8 w-8 rounded-lg bg-[#001f3f] text-white flex flex-col items-center justify-center">
+                                                                <span class="text-[7px] font-black uppercase leading-none">{{ $schedule->date->format('M') }}</span>
+                                                                <span class="text-xs font-black leading-none">{{ $schedule->date->format('d') }}</span>
+                                                            </div>
+                                                            <div>
+                                                                <p class="text-[10px] font-bold text-blue-900 leading-tight">{{ $schedule->name }}</p>
+                                                                <p class="text-[8px] text-blue-600 mt-0.5">
+                                                                    <i class="far fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}
+                                                                    <span class="mx-1">|</span>
+                                                                    <i class="fas fa-map-marker-alt mr-1 text-rose-500"></i> {{ $schedule->location }}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        @if($schedule->notes)
+                                                            <button onclick="Swal.fire({title: '{{ $schedule->name }}', text: '{{ addslashes($schedule->notes) }}', icon: 'info', confirmButtonText: 'Tutup', customClass: {confirmButton: 'bg-blue-600 rounded-xl px-6 py-2 text-white font-bold'}})" class="h-6 w-6 rounded-md bg-white text-blue-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border border-blue-100 shadow-sm" title="Lihat Catatan">
+                                                                <i class="fas fa-info text-[8px]"></i>
+                                                            </button>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <p class="text-[10px] text-slate-400 italic">Belum ada jadwal tes.</p>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         @php
@@ -225,6 +272,27 @@
                     <div id="detailDescription" class="trix-content prose prose-sm max-w-none text-slate-600 leading-relaxed">
                     </div>
                 </div>
+
+                <div id="waLinkContainer" class="hidden pt-6 border-t border-slate-100">
+                    <h5 class="text-xs font-black uppercase tracking-[0.2em] text-emerald-500 flex items-center gap-2 mb-4">
+                        <span class="w-8 h-px bg-emerald-200"></span>
+                        Grup Koordinasi
+                    </h5>
+                    <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-between group">
+                        <div class="flex items-center gap-4">
+                            <div class="h-12 w-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-900/20">
+                                <i class="fab fa-whatsapp text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-emerald-900">Gabung Grup Resmi</h4>
+                                <p class="text-[11px] text-emerald-600 font-medium">Klik tombol untuk masuk ke grup WhatsApp.</p>
+                            </div>
+                        </div>
+                        <a id="detailWA" href="#" target="_blank" class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-md">
+                            Join Now
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-end shrink-0">
                 <button onclick="closeDetailModal()" class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-300 transition-all">
@@ -247,8 +315,18 @@
                 <button onclick="closeApplyModal()" class="text-slate-400 hover:text-slate-900 transition-colors"><i
                         class="fas fa-times"></i></button>
             </div>
-            <form action="{{ route('praktikan.recruitment.store') }}" method="POST" enctype="multipart/form-data"
-                class="flex flex-col overflow-hidden">
+            <form id="applyForm" action="{{ route('praktikan.recruitment.store') }}" method="POST" enctype="multipart/form-data"
+                class="flex flex-col overflow-hidden"
+                onsubmit="event.preventDefault(); Swal.fire({
+                    title: 'Kirim Pendaftaran?',
+                    text: 'Pastikan semua data (IPK & Berkas) sudah benar. Anda tidak dapat mengubah data setelah dikirim.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#1a4fa0',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Kirim Sekarang!',
+                    cancelButtonText: 'Cek Kembali'
+                }).then((result) => { if (result.isConfirmed) { this.submit(); } })">
                 @csrf
                 <input type="hidden" name="recruitment_period_id" id="modalPeriodId">
 
@@ -377,6 +455,17 @@
                 document.getElementById('detailIPK').innerText = data.ipk;
                 document.getElementById('detailSemester').innerText = data.semester;
                 document.getElementById('detailDates').innerText = data.start + ' - ' + data.end;
+                
+                const waContainer = document.getElementById('waLinkContainer');
+                const waLink = document.getElementById('detailWA');
+                
+                if (data.wa && data.wa !== '') {
+                    waContainer.classList.remove('hidden');
+                    waLink.href = data.wa;
+                } else {
+                    waContainer.classList.add('hidden');
+                }
+
                 document.getElementById('detailModal').classList.remove('hidden');
             }
 
@@ -417,13 +506,37 @@
                     const fade = document.getElementById('fade-' + id);
                     
                     // Check if content overflows (scrollHeight > offsetHeight)
-                    if (container.scrollHeight > container.offsetHeight) {
-                        btn.classList.remove('hidden');
-                    } else {
-                        fade.classList.add('hidden');
+                    if (container.scrollHeight <= container.offsetHeight) {
+                        btn.style.display = 'none';
+                        fade.style.display = 'none';
                     }
                 });
             });
+
+            @if(session('success'))
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Pendaftaran Berhasil!',
+                    text: "{{ session('success') }}",
+                    customClass: {
+                        popup: 'rounded-2xl shadow-2xl border border-emerald-50 bg-white p-4',
+                        title: 'text-sm font-black text-slate-800',
+                        htmlContainer: 'text-[11px] text-slate-500 mt-1 font-medium',
+                    }
+                });
+            @endif
         </script>
     @endpush
 @endsection

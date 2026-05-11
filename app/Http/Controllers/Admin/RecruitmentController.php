@@ -45,7 +45,11 @@ class RecruitmentController extends Controller
 
     public function show(RecruitmentPeriod $recruitment)
     {
-        $recruitment->load(['applications.user.praktikan']);
+        $recruitment->load([
+            'applications.user.praktikan',
+            'applications.schedules',
+            'schedules.applications.user.praktikan'
+        ]);
         return view('admin.recruitment.show', compact('recruitment'));
     }
 
@@ -134,6 +138,49 @@ class RecruitmentController extends Controller
         return back()->with('success', "Validasi IPK selesai. $passedCount pelamar lolos verifikasi, $failedCount pelamar ditolak.");
     }
 
+    public function storeSchedule(Request $request, RecruitmentPeriod $recruitment)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'date' => 'required|date',
+            'start_time' => 'required',
+            'end_time' => 'required|after:start_time',
+            'location' => 'required|string|max:255',
+            'notes' => 'nullable|string',
+        ]);
+
+        $schedule = $recruitment->schedules()->create($validated);
+
+        // Otomatis masukkan peserta yang lolos seleksi (shortlisted) ke jadwal baru ini
+        $shortlistedIds = $recruitment->applications()
+            ->where('status', 'shortlisted')
+            ->pluck('id');
+
+        if ($shortlistedIds->isNotEmpty()) {
+            $schedule->applications()->sync($shortlistedIds);
+        }
+
+        return back()->with('success', 'Jadwal tes berhasil dibuat. ' . $shortlistedIds->count() . ' peserta shortlist otomatis didaftarkan.');
+    }
+
+    public function destroySchedule(\App\Models\RecruitmentSchedule $schedule)
+    {
+        $schedule->delete();
+        return back()->with('success', 'Jadwal tes berhasil dihapus.');
+    }
+
+    public function assignApplicants(Request $request, \App\Models\RecruitmentSchedule $schedule)
+    {
+        $request->validate([
+            'application_ids' => 'required|array',
+            'application_ids.*' => 'exists:aslab_applications,id',
+        ]);
+
+        $schedule->applications()->syncWithoutDetaching($request->application_ids);
+
+        return back()->with('success', 'Berhasil menetapkan peserta ke jadwal ini.');
+    }
+
     public function edit(RecruitmentPeriod $recruitment)
     {
         return view('admin.recruitment.edit', compact('recruitment'));
@@ -146,6 +193,7 @@ class RecruitmentController extends Controller
             'description' => 'nullable|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'whatsapp_link' => 'nullable|url',
             'min_ipk' => 'required|numeric|between:0,4.00',
             'min_semester' => 'required|integer|min:1',
             'is_active' => 'boolean',

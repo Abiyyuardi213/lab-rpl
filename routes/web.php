@@ -171,6 +171,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('recruitment', \App\Http\Controllers\Admin\RecruitmentController::class);
         Route::patch('recruitment/application/{application}/status', [\App\Http\Controllers\Admin\RecruitmentController::class, 'updateApplicationStatus'])->name('recruitment.application.status');
         Route::post('recruitment/{recruitment}/validate-ipk', [\App\Http\Controllers\Admin\RecruitmentController::class, 'validateIpk'])->name('recruitment.validate-ipk');
+        Route::post('recruitment/{recruitment}/schedule', [\App\Http\Controllers\Admin\RecruitmentController::class, 'storeSchedule'])->name('recruitment.schedule.store');
+        Route::delete('recruitment/schedule/{schedule}', [\App\Http\Controllers\Admin\RecruitmentController::class, 'destroySchedule'])->name('recruitment.schedule.destroy');
+        Route::post('recruitment/schedule/{schedule}/assign', [\App\Http\Controllers\Admin\RecruitmentController::class, 'assignApplicants'])->name('recruitment.schedule.assign');
 
         // Broadcast Notification
         Route::get('notifications/create', [\App\Http\Controllers\Admin\NotificationController::class, 'create'])->name('notifications.create');
