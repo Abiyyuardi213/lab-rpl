@@ -245,7 +245,14 @@
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
-                                        <button onclick="openEditModal('{{ $p->id }}', '{{ $p->praktikum_id }}', '{{ $p->sesi_id }}', '{{ $p->jadwal_praktikum_id }}', '{{ $p->kode_akhir_npm }}', '{{ addslashes($p->judul) }}', '{{ addslashes($p->deskripsi) }}')"
+                                        <button onclick="openEditModal(this)"
+                                            data-id="{{ $p->id }}"
+                                            data-praktikum-id="{{ $p->praktikum_id }}"
+                                            data-sesi-id="{{ $p->sesi_id }}"
+                                            data-jadwal-id="{{ $p->jadwal_praktikum_id }}"
+                                            data-kode-npm="{{ $p->kode_akhir_npm }}"
+                                            data-judul="{{ $p->judul }}"
+                                            data-deskripsi="{{ $p->deskripsi }}"
                                             class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-amber-600 hover:bg-amber-50 transition-colors">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
@@ -785,7 +792,15 @@
             });
         }
 
-        function openEditModal(id, praktikumId, sesiId, jadwalId, kodeNpm, judul, deskripsi) {
+        function openEditModal(button) {
+            const id = button.getAttribute('data-id');
+            const praktikumId = button.getAttribute('data-praktikum-id');
+            const sesiId = button.getAttribute('data-sesi-id');
+            const jadwalId = button.getAttribute('data-jadwal-id');
+            const kodeNpm = button.getAttribute('data-kode-npm');
+            const judul = button.getAttribute('data-judul');
+            const deskripsi = button.getAttribute('data-deskripsi');
+
             const form = document.getElementById('form-edit-penugasan');
             form.action = `/admin/penugasan/${id}`;
             

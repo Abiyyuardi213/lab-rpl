@@ -186,7 +186,10 @@
                                                             </div>
                                                         </div>
                                                         @if($schedule->notes)
-                                                            <button onclick="Swal.fire({title: '{{ $schedule->name }}', text: '{{ addslashes($schedule->notes) }}', icon: 'info', confirmButtonText: 'Tutup', customClass: {confirmButton: 'bg-blue-600 rounded-xl px-6 py-2 text-white font-bold'}})" class="h-6 w-6 rounded-md bg-white text-blue-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border border-blue-100 shadow-sm" title="Lihat Catatan">
+                                                            <button onclick="showScheduleNotes(this)"
+                                                                data-name="{{ $schedule->name }}"
+                                                                data-notes="{{ $schedule->notes }}"
+                                                                class="h-6 w-6 rounded-md bg-white text-blue-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity border border-blue-100 shadow-sm" title="Lihat Catatan">
                                                                 <i class="fas fa-info text-[8px]"></i>
                                                             </button>
                                                         @endif
@@ -437,6 +440,20 @@
 
     @push('scripts')
         <script>
+            function showScheduleNotes(button) {
+                const name = button.getAttribute('data-name');
+                const notes = button.getAttribute('data-notes');
+                Swal.fire({
+                    title: name,
+                    text: notes,
+                    icon: 'info',
+                    confirmButtonText: 'Tutup',
+                    customClass: {
+                        confirmButton: 'bg-blue-600 rounded-xl px-6 py-2 text-white font-bold'
+                    }
+                });
+            }
+
             function openApplyModal(el) {
                 const data = el.dataset;
                 document.getElementById('modalPeriodId').value = data.id;

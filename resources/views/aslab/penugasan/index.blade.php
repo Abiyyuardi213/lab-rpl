@@ -101,7 +101,11 @@
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
                                         @if ($p->aslab_id === Auth::user()->aslab->id)
-                                            <button onclick="openEditModal('{{ $p->id }}', '{{ $p->kode_akhir_npm }}', '{{ addslashes($p->judul) }}', '{{ addslashes($p->deskripsi) }}')"
+                                            <button onclick="openEditModal(this)"
+                                                data-id="{{ $p->id }}"
+                                                data-kode-npm="{{ $p->kode_akhir_npm }}"
+                                                data-judul="{{ $p->judul }}"
+                                                data-deskripsi="{{ $p->deskripsi }}"
                                                 class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
                                                 title="Edit Tugas">
                                                 <i class="fas fa-edit text-xs"></i>
@@ -342,7 +346,12 @@
             }
         });
 
-        function openEditModal(id, kodeNpm, judul, deskripsi) {
+        function openEditModal(button) {
+            const id = button.getAttribute('data-id');
+            const kodeNpm = button.getAttribute('data-kode-npm');
+            const judul = button.getAttribute('data-judul');
+            const deskripsi = button.getAttribute('data-deskripsi');
+
             const form = document.getElementById('form-edit-penugasan');
             form.action = `/aslab/penugasan/${id}`;
             document.getElementById('edit-kode-npm').value = kodeNpm;

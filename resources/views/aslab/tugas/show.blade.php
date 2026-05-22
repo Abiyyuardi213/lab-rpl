@@ -33,7 +33,11 @@
                         <span class="w-2 h-2 rounded-full bg-[#001f3f]"></span>
                         Informasi Penugasan
                     </h3>
-                    <button onclick="openEditModal('{{ $representative->id }}', '{{ $representative->judul }}', '{{ $representative->due_date ? $representative->due_date->format('Y-m-d') : '' }}', '{{ addslashes($representative->deskripsi) }}')"
+                    <button onclick="openEditModal(this)"
+                        data-id="{{ $representative->id }}"
+                        data-judul="{{ $representative->judul }}"
+                        data-due-date="{{ $representative->due_date ? $representative->due_date->format('Y-m-d') : '' }}"
+                        data-deskripsi="{{ $representative->deskripsi }}"
                         class="h-7 px-3 rounded-lg bg-zinc-50 border border-zinc-200 text-[10px] font-bold text-zinc-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all uppercase tracking-wider flex items-center gap-2">
                         <i class="fas fa-edit text-[9px]"></i>
                         Edit Penugasan
@@ -319,7 +323,12 @@
             document.getElementById('modal-review').classList.remove('hidden');
         }
 
-        function openEditModal(id, judul, dueDate, deskripsi) {
+        function openEditModal(button) {
+            const id = button.getAttribute('data-id');
+            const judul = button.getAttribute('data-judul');
+            const dueDate = button.getAttribute('data-due-date');
+            const deskripsi = button.getAttribute('data-deskripsi');
+
             const form = document.getElementById('form-edit-tugas');
             form.action = `/aslab/tugas/${id}`;
             document.getElementById('edit-judul').value = judul;

@@ -111,7 +111,11 @@
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-1">
-                                        <button onclick="openEditModal('{{ $t->id }}', '{{ $t->judul }}', '{{ $t->due_date ? $t->due_date->format('Y-m-d') : '' }}', '{{ addslashes($t->deskripsi) }}')"
+                                        <button onclick="openEditModal(this)"
+                                            data-id="{{ $t->id }}"
+                                            data-judul="{{ $t->judul }}"
+                                            data-due-date="{{ $t->due_date ? $t->due_date->format('Y-m-d') : '' }}"
+                                            data-deskripsi="{{ $t->deskripsi }}"
                                             class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                                             title="Edit Penugasan">
                                             <i class="fas fa-edit text-xs"></i>
@@ -425,7 +429,12 @@
             });
         }
 
-        function openEditModal(id, judul, dueDate, deskripsi) {
+        function openEditModal(button) {
+            const id = button.getAttribute('data-id');
+            const judul = button.getAttribute('data-judul');
+            const dueDate = button.getAttribute('data-due-date');
+            const deskripsi = button.getAttribute('data-deskripsi');
+
             const form = document.getElementById('form-edit-tugas');
             form.action = `/aslab/tugas/${id}`;
             document.getElementById('edit-judul').value = judul;

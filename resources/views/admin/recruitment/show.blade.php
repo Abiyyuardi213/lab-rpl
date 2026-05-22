@@ -140,7 +140,10 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-end gap-1">
-                                        <button onclick="openStatusModal('{{ $app->id }}', '{{ $app->status }}', '{{ addslashes($app->admin_notes) }}')"
+                                        <button onclick="openStatusModal(this)"
+                                            data-id="{{ $app->id }}"
+                                            data-status="{{ $app->status }}"
+                                            data-notes="{{ $app->admin_notes }}"
                                             class="inline-flex items-center justify-center h-8 px-3 rounded-md bg-zinc-100 text-zinc-600 text-[10px] font-bold hover:bg-zinc-200 transition-colors">
                                             Update Status
                                         </button>
@@ -206,7 +209,10 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-end">
-                                        <button onclick="openStatusModal('{{ $app->id }}', '{{ $app->status }}', '{{ addslashes($app->admin_notes) }}')"
+                                        <button onclick="openStatusModal(this)"
+                                            data-id="{{ $app->id }}"
+                                            data-status="{{ $app->status }}"
+                                            data-notes="{{ $app->admin_notes }}"
                                             class="inline-flex items-center justify-center h-8 px-3 rounded-md bg-zinc-100 text-zinc-600 text-[10px] font-bold hover:bg-zinc-200 transition-colors">
                                             Pulihkan
                                         </button>
@@ -636,7 +642,11 @@
                 });
             });
 
-            function openStatusModal(id, status, notes) {
+            function openStatusModal(button) {
+                const id = button.getAttribute('data-id');
+                const status = button.getAttribute('data-status');
+                const notes = button.getAttribute('data-notes');
+
                 const modal = document.getElementById('statusModal');
                 const form = document.getElementById('statusForm');
                 const statusSelect = document.getElementById('modalStatus');
@@ -645,7 +655,7 @@
 
                 form.action = `{{ url('admin/recruitment/application') }}/${id}/status`;
                 statusSelect.value = status;
-                notesText.value = notes === 'null' ? '' : notes;
+                notesText.value = notes === 'null' || !notes ? '' : notes;
                 
                 modal.classList.remove('hidden');
                 
