@@ -205,14 +205,17 @@
                         @foreach ($penugasans as $index => $p)
                             @php
                                 $registeredStudents = $p->sesi?->pendaftarans ?? collect();
-                                $filteredStudents = $registeredStudents->filter(function($student) use ($p, $penugasans) {
+                                $filteredStudents = $registeredStudents->filter(function($student) use ($p, $penugasans, $jadwal) {
                                     $studentNpm = $student->praktikan?->npm ?? '';
                                     $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
                                     
                                     $defaultPenugasan = $studentLastDigit !== null
                                         ? $penugasans->where('sesi_id', $student->sesi_id)->firstWhere('kode_akhir_npm', $studentLastDigit)
                                         : null;
-                                    $customPenugasan = $student->penugasanOverride?->penugasan;
+                                    // Ambil override spesifik untuk jadwal ini (bukan override dari modul lain)
+                                    $customPenugasan = $student->penugasanOverrides
+                                        ->where('jadwal_praktikum_id', $jadwal->id)
+                                        ->first()?->penugasan;
                                     $currentPenugasan = $customPenugasan ?? $defaultPenugasan;
                                     
                                     return $currentPenugasan && $currentPenugasan->id === $p->id;
@@ -288,14 +291,17 @@
     @foreach ($penugasans as $p)
         @php
             $registeredStudents = $p->sesi?->pendaftarans ?? collect();
-            $filteredStudents = $registeredStudents->filter(function($student) use ($p, $penugasans) {
+            $filteredStudents = $registeredStudents->filter(function($student) use ($p, $penugasans, $jadwal) {
                 $studentNpm = $student->praktikan?->npm ?? '';
                 $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
                 
                 $defaultPenugasan = $studentLastDigit !== null
                     ? $penugasans->where('sesi_id', $student->sesi_id)->firstWhere('kode_akhir_npm', $studentLastDigit)
                     : null;
-                $customPenugasan = $student->penugasanOverride?->penugasan;
+                // Ambil override spesifik untuk jadwal ini (bukan override dari modul lain)
+                $customPenugasan = $student->penugasanOverrides
+                    ->where('jadwal_praktikum_id', $jadwal->id)
+                    ->first()?->penugasan;
                 $currentPenugasan = $customPenugasan ?? $defaultPenugasan;
                 
                 return $currentPenugasan && $currentPenugasan->id === $p->id;
@@ -349,7 +355,10 @@
                                             $defaultPenugasan = $studentLastDigit !== null
                                                 ? $penugasans->where('sesi_id', $student->sesi_id)->firstWhere('kode_akhir_npm', $studentLastDigit)
                                                 : null;
-                                            $customPenugasan = $student->penugasanOverride?->penugasan;
+                                            // Override spesifik jadwal ini saja
+                                            $customPenugasan = $student->penugasanOverrides
+                                                ->where('jadwal_praktikum_id', $jadwal->id)
+                                                ->first()?->penugasan;
                                             $currentPenugasan = $customPenugasan ?? $defaultPenugasan;
                                         @endphp
                                         <tr class="hover:bg-zinc-50/50">

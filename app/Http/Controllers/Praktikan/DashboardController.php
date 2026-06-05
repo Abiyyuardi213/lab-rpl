@@ -76,31 +76,44 @@ class DashboardController extends Controller
             $pendaftarans = \App\Models\PendaftaranPraktikum::with([
                 'praktikum',
                 'sesi',
-                'penugasanOverride.penugasan.praktikum',
-                'penugasanOverride.penugasan.sesi',
-                'penugasanOverride.penugasan.aslab.user',
+                'penugasanOverrides.penugasan.praktikum',
+                'penugasanOverrides.penugasan.sesi',
+                'penugasanOverrides.penugasan.aslab.user',
             ])
                 ->where('praktikan_id', $praktikan->id)
                 ->where('status', 'verified')
                 ->get();
 
-            $overridePenugasanIds = $pendaftarans->pluck('penugasanOverride.penugasan_id')->filter()->values();
-            $overrideSesiIds = $pendaftarans->filter(fn($pendaftaran) => $pendaftaran->penugasanOverride)->pluck('sesi_id');
-            $defaultSesiIds = $pendaftarans->whereNotIn('sesi_id', $overrideSesiIds)->pluck('sesi_id')->values();
-
-            $defaultPenugasans = \App\Models\Penugasan::with(['praktikum', 'sesi', 'aslab.user'])
-                ->whereIn('sesi_id', $defaultSesiIds)
-                ->where('kode_akhir_npm', (string)$lastDigit)
-                ->orderBy('created_at', 'desc')
+            $praktikumIds = $pendaftarans->pluck('praktikum_id')->unique();
+            $allPenugasans = \App\Models\Penugasan::with(['praktikum', 'sesi', 'aslab.user', 'jadwalPraktikum'])
+                ->whereIn('praktikum_id', $praktikumIds)
                 ->get();
 
-            $overridePenugasans = \App\Models\Penugasan::with(['praktikum', 'sesi', 'aslab.user'])
-                ->whereIn('id', $overridePenugasanIds)
-                ->get();
+            $filteredPenugasans = $allPenugasans->filter(function ($penugasan) use ($pendaftarans, $lastDigit) {
+                $pendaftaran = $pendaftarans->where('sesi_id', $penugasan->sesi_id)
+                    ->where('praktikum_id', $penugasan->praktikum_id)
+                    ->first();
 
-            $penugasans = $defaultPenugasans
-                ->merge($overridePenugasans)
-                ->unique('id')
+                if (!$pendaftaran) {
+                    return false;
+                }
+
+                $override = $pendaftaran->penugasanOverrides
+                    ->where('jadwal_praktikum_id', $penugasan->jadwal_praktikum_id)
+                    ->first();
+
+                if ($override) {
+                    return $override->penugasan_id === $penugasan->id;
+                }
+
+                $kode = (string) $penugasan->kode_akhir_npm;
+                if ($kode === '*') return true;
+                if ($lastDigit !== null && $kode === $lastDigit) return true;
+
+                return false;
+            });
+
+            $penugasans = $filteredPenugasans
                 ->sortByDesc('created_at')
                 ->values();
 

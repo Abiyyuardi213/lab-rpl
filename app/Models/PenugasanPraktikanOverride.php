@@ -13,6 +13,7 @@ class PenugasanPraktikanOverride extends Model
     protected $fillable = [
         'pendaftaran_id',
         'penugasan_id',
+        'jadwal_praktikum_id',
     ];
 
     public $incrementing = false;
@@ -26,5 +27,10 @@ class PenugasanPraktikanOverride extends Model
     public function penugasan()
     {
         return $this->belongsTo(Penugasan::class, 'penugasan_id');
+    }
+
+    public function jadwalPraktikum()
+    {
+        return $this->belongsTo(JadwalPraktikum::class, 'jadwal_praktikum_id');
     }
 }

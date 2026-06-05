@@ -67,6 +67,11 @@ class PendaftaranPraktikum extends Model
         return $this->hasOne(PenugasanPraktikanOverride::class, 'pendaftaran_id');
     }
 
+    public function penugasanOverrides()
+    {
+        return $this->hasMany(PenugasanPraktikanOverride::class, 'pendaftaran_id');
+    }
+
     public function rating()
     {
         return $this->hasOne(Rating::class, 'pendaftaran_id');
