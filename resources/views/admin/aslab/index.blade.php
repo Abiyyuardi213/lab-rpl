@@ -104,6 +104,13 @@
                                             class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-[#001f3f] hover:bg-zinc-100 transition-colors">
                                             <i class="fas fa-edit text-xs"></i>
                                         </a>
+                                        <form action="{{ route('admin.aslab.impersonate', $aslab->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" title="Login Sebagai Aslab"
+                                                class="inline-flex items-center justify-center h-8 w-8 rounded-md text-zinc-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
+                                                <i class="fas fa-sign-in-alt text-xs"></i>
+                                            </button>
+                                        </form>
                                         <form id="delete-form-{{ $aslab->id }}"
                                             action="{{ route('admin.aslab.destroy', $aslab->id) }}" method="POST"
                                             class="inline">

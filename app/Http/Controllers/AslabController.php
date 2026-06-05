@@ -163,6 +163,24 @@ class AslabController extends Controller
         return redirect()->route('admin.aslab.index')->with('success', 'Aslab berhasil dihapus.');
     }
 
+    public function impersonate($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Hanya boleh impersonate user ber-role Aslab
+        if (!$user->role || $user->role->name !== 'Aslab') {
+            return redirect()->back()->with('error', 'User yang dipilih bukan Aslab.');
+        }
+
+        // Simpan ID admin yang sedang login ke session
+        $adminId = \Illuminate\Support\Facades\Auth::id();
+        session()->put('impersonated_by', $adminId);
+
+        \Illuminate\Support\Facades\Auth::login($user);
+
+        return redirect()->route('aslab.dashboard')->with('success', 'Berhasil login sebagai aslab ' . $user->name);
+    }
+
     public function toggleStatus($id)
     {
         $user = User::findOrFail($id);
