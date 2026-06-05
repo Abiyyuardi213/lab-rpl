@@ -25,9 +25,9 @@ class PenugasanController extends Controller
         $pendaftarans = PendaftaranPraktikum::with([
             'praktikum',
             'sesi',
-            'penugasanOverride.penugasan.praktikum',
-            'penugasanOverride.penugasan.sesi',
-            'penugasanOverride.penugasan.aslab.user',
+            'penugasanOverrides.penugasan.praktikum',
+            'penugasanOverrides.penugasan.sesi',
+            'penugasanOverrides.penugasan.aslab.user',
         ])
             ->where('praktikan_id', $praktikan->id)
             ->where('status', 'verified')
@@ -37,30 +37,36 @@ class PenugasanController extends Controller
         $lastChar = substr($npm, -1);
         $lastDigit = is_numeric($lastChar) ? (string)$lastChar : null;
 
-        $overridePenugasanIds = $pendaftarans->map(fn($p) => $p->penugasanOverride?->penugasan_id)->filter()->values();
-        
-        $overrideSesiIds = $pendaftarans->filter(fn($p) => $p->penugasanOverride)->pluck('sesi_id');
-        
-        $defaultSesiIds = $pendaftarans->whereNotIn('sesi_id', $overrideSesiIds)->pluck('sesi_id')->values();
-
-        $allPotentialPenugasans = Penugasan::with(['praktikum', 'sesi', 'aslab.user', 'jadwalPraktikum'])
-            ->whereIn('sesi_id', $defaultSesiIds)
+        $praktikumIds = $pendaftarans->pluck('praktikum_id')->unique();
+        $allPenugasans = Penugasan::with(['praktikum', 'sesi', 'aslab.user', 'jadwalPraktikum'])
+            ->whereIn('praktikum_id', $praktikumIds)
             ->get();
 
-        $defaultPenugasans = $allPotentialPenugasans->filter(function ($penugasan) use ($lastDigit) {
+        $filteredPenugasans = $allPenugasans->filter(function ($penugasan) use ($pendaftarans, $lastDigit) {
+            $pendaftaran = $pendaftarans->where('sesi_id', $penugasan->sesi_id)
+                ->where('praktikum_id', $penugasan->praktikum_id)
+                ->first();
+
+            if (!$pendaftaran) {
+                return false;
+            }
+
+            $override = $pendaftaran->penugasanOverrides
+                ->where('jadwal_praktikum_id', $penugasan->jadwal_praktikum_id)
+                ->first();
+
+            if ($override) {
+                return $override->penugasan_id === $penugasan->id;
+            }
+
             $kode = (string) $penugasan->kode_akhir_npm;
             if ($kode === '*') return true;
             if ($lastDigit !== null && $kode === $lastDigit) return true;
+
             return false;
         });
 
-        $overridePenugasans = Penugasan::with(['praktikum', 'sesi', 'aslab.user'])
-            ->whereIn('id', $overridePenugasanIds)
-            ->get();
-
-        $penugasans = $defaultPenugasans
-            ->merge($overridePenugasans)
-            ->unique('id')
+        $penugasans = $filteredPenugasans
             ->sort(function ($a, $b) {
                 if ($a->praktikum_id !== $b->praktikum_id) {
                     return $a->praktikum_id <=> $b->praktikum_id;
@@ -137,7 +143,9 @@ class PenugasanController extends Controller
 
         $penugasan = Penugasan::with(['praktikum', 'sesi', 'aslab.user', 'jadwalPraktikum'])->findOrFail($id);
 
-        $pendaftaran = PendaftaranPraktikum::with('penugasanOverride')
+        $pendaftaran = PendaftaranPraktikum::with(['penugasanOverrides' => function($q) use ($penugasan) {
+                $q->where('jadwal_praktikum_id', $penugasan->jadwal_praktikum_id);
+            }])
             ->where('praktikan_id', $praktikan->id)
             ->where('sesi_id', $penugasan->sesi_id)
             ->where('status', 'verified')
@@ -152,9 +160,10 @@ class PenugasanController extends Controller
         $lastDigit = is_numeric($lastChar) ? (string)$lastChar : null;
         $kodeSoal = (string) $penugasan->kode_akhir_npm;
         
-        $hasCustomAssignment = $pendaftaran->penugasanOverride?->penugasan_id === $penugasan->id;
+        $override = $pendaftaran->penugasanOverrides->first();
+        $hasCustomAssignment = $override && $override->penugasan_id === $penugasan->id;
 
-        if ($pendaftaran->penugasanOverride && !$hasCustomAssignment) {
+        if ($override && !$hasCustomAssignment) {
             abort(403, 'Soal ini sudah diganti khusus oleh admin.');
         }
 
@@ -227,7 +236,9 @@ class PenugasanController extends Controller
 
         $penugasan = Penugasan::with(['sesi', 'jadwalPraktikum'])->findOrFail($id);
 
-        $pendaftaran = PendaftaranPraktikum::with('penugasanOverride')
+        $pendaftaran = PendaftaranPraktikum::with(['penugasanOverrides' => function($q) use ($penugasan) {
+                $q->where('jadwal_praktikum_id', $penugasan->jadwal_praktikum_id);
+            }])
             ->where('praktikan_id', $praktikan->id)
             ->where('sesi_id', $penugasan->sesi_id)
             ->where('status', 'verified')
@@ -242,7 +253,8 @@ class PenugasanController extends Controller
         $lastDigit = is_numeric($lastChar) ? (string)$lastChar : null;
         $kodeSoal = (string) $penugasan->kode_akhir_npm;
         
-        $hasCustomAssignment = $pendaftaran->penugasanOverride?->penugasan_id === $penugasan->id;
+        $override = $pendaftaran->penugasanOverrides->first();
+        $hasCustomAssignment = $override && $override->penugasan_id === $penugasan->id;
 
         $isUniversal = $kodeSoal === '*';
         $isMatchDigit = ($lastDigit !== null && $kodeSoal === $lastDigit);

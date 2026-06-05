@@ -43,7 +43,10 @@ class PenugasanController extends Controller
                 'praktikum',
                 'sesi.pendaftarans.praktikan.user',
                 'sesi.pendaftarans.aslab.user',
-                'sesi.pendaftarans.penugasanOverride.penugasan',
+                'sesi.pendaftarans.penugasanOverrides' => function($query) use ($id) {
+                    $query->where('jadwal_praktikum_id', $id);
+                },
+                'sesi.pendaftarans.penugasanOverrides.penugasan',
                 'sesi.penugasans',
                 'aslab.user',
                 'jadwalPraktikum',
@@ -222,25 +225,32 @@ class PenugasanController extends Controller
     {
         $request->validate([
             'penugasan_id' => 'nullable|exists:penugasans,id',
+            // jadwal_id wajib ada agar override tidak pernah tersimpan tanpa konteks modul
+            'jadwal_id'    => 'required|exists:jadwal_praktikums,id',
         ]);
 
+        $jadwalId = $request->jadwal_id;
+
         if (!$request->filled('penugasan_id')) {
-            PenugasanPraktikanOverride::where('pendaftaran_id', $pendaftaran->id)->delete();
+            PenugasanPraktikanOverride::where('pendaftaran_id', $pendaftaran->id)
+                ->where('jadwal_praktikum_id', $jadwalId)
+                ->delete();
 
-            // Fix: Ensure we redirect back correctly. If no jadwal_id, go to index or parent show.
-            if ($request->filled('jadwal_id')) {
-                return redirect()->route('admin.penugasan.show', $request->jadwal_id)
-                    ->with('success', 'Soal praktikan dikembalikan ke aturan digit akhir NPM.');
-            }
-
-            return redirect()->route('admin.penugasan.index')
+            return redirect()->route('admin.penugasan.show', $jadwalId)
                 ->with('success', 'Soal praktikan dikembalikan ke aturan digit akhir NPM.');
         }
 
         $penugasan = Penugasan::findOrFail($request->penugasan_id);
 
+        // Guard: jadwal_id selalu dari request (sudah divalidasi), bukan dari penugasan
+        // Ini mencegah override tersimpan dengan jadwal_praktikum_id = NULL
+        if (!$jadwalId) {
+            return redirect()->route('admin.penugasan.show', $jadwalId)
+                ->with('error', 'Gagal menyimpan: Jadwal praktikum tidak teridentifikasi.');
+        }
+
         if ($penugasan->praktikum_id !== $pendaftaran->praktikum_id) {
-            return redirect()->route('admin.penugasan.index')
+            return redirect()->route('admin.penugasan.show', $jadwalId)
                 ->with('error', 'Soal yang dipilih harus berasal dari praktikum yang sama.');
         }
 
@@ -251,21 +261,27 @@ class PenugasanController extends Controller
 
         // Jika kode soal SAMA dengan digit NPM mahasiswa → hapus override (kembalikan ke default)
         if ($studentLastDigit !== null && (string)$penugasan->kode_akhir_npm === (string)$studentLastDigit) {
-            PenugasanPraktikanOverride::where('pendaftaran_id', $pendaftaran->id)->delete();
+            PenugasanPraktikanOverride::where('pendaftaran_id', $pendaftaran->id)
+                ->where('jadwal_praktikum_id', $jadwalId)
+                ->delete();
 
-            return redirect()->route('admin.penugasan.show', $request->jadwal_id ?? $penugasan->jadwal_praktikum_id)
+            return redirect()->route('admin.penugasan.show', $jadwalId)
                 ->with('success', 'Soal sesuai digit NPM mahasiswa. Dikembalikan ke default (digit ' . $studentLastDigit . ').');
         }
 
-        // Kode tidak cocok dengan digit NPM → soal khusus
+        // Kode tidak cocok dengan digit NPM → soal khusus, selalu terikat ke jadwalId
         PenugasanPraktikanOverride::updateOrCreate(
-            ['pendaftaran_id' => $pendaftaran->id],
+            [
+                'pendaftaran_id'      => $pendaftaran->id,
+                'jadwal_praktikum_id' => $jadwalId,
+            ],
             ['penugasan_id' => $penugasan->id]
         );
 
-        return redirect()->route('admin.penugasan.show', $request->jadwal_id ?? $penugasan->jadwal_praktikum_id)
+        return redirect()->route('admin.penugasan.show', $jadwalId)
             ->with('success', 'Soal khusus praktikan berhasil diperbarui.');
     }
+
 
     public function destroy($id)
     {
