@@ -74,7 +74,10 @@ class TugasController extends Controller
                     $query->whereNull('due_date');
                 }
             })
-            ->get();
+            ->orderBy('updated_at', 'desc')
+            ->get()
+            ->unique('pendaftaran_id')
+            ->values();
 
         return view('aslab.tugas.show', compact('representative', 'tugas'));
     }

@@ -79,6 +79,7 @@ Route::middleware('auth')->group(function () {
         // Aslab Management
         Route::resource('aslab', \App\Http\Controllers\AslabController::class);
         Route::patch('aslab/{id}/toggle-status', [\App\Http\Controllers\AslabController::class, 'toggleStatus'])->name('aslab.toggle-status');
+        Route::post('aslab/{id}/impersonate', [\App\Http\Controllers\AslabController::class, 'impersonate'])->name('aslab.impersonate');
 
         // Praktikum Management
         Route::resource('praktikum', \App\Http\Controllers\PraktikumController::class);

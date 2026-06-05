@@ -160,22 +160,32 @@
                         <option value="25">25 data</option>
                         <option value="50">50 data</option>
                     </select>
-                    <select id="filterSesi"
-                        class="h-9 rounded-md border border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
-                        <option value="">Semua Sesi</option>
-                        @foreach($penugasans->pluck('sesi.nama_sesi')->filter()->unique() as $namaSesi)
-                            <option value="{{ $namaSesi }}">{{ $namaSesi }}</option>
-                        @endforeach
-                        @if($penugasans->contains(fn($p) => is_null($p->sesi)))
-                            <option value="Semua Sesi">Semua Sesi</option>
-                        @endif
-                    </select>
                     <button onclick="document.getElementById('modal-penugasan').classList.remove('hidden')"
                         class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-4 py-2 text-sm font-medium text-white shadow hover:bg-[#002d5a] transition-colors whitespace-nowrap">
                         <i class="fas fa-plus mr-2 text-xs"></i>
                         Tambah Soal
                     </button>
                 </div>
+            </div>
+
+            <!-- Tab Sesi -->
+            <div class="flex border-b border-zinc-100 bg-zinc-50/30 px-6 shrink-0 overflow-x-auto gap-2">
+                <button type="button" onclick="filterByTabSesi('')" id="tab-sesi-all"
+                    class="px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 border-[#001f3f] text-[#001f3f] transition-all tab-sesi-btn whitespace-nowrap">
+                    Semua Sesi
+                </button>
+                @foreach($penugasans->pluck('sesi.nama_sesi')->filter()->unique()->sort() as $namaSesi)
+                    <button type="button" onclick="filterByTabSesi('{{ $namaSesi }}')" id="tab-sesi-{{ Str::slug($namaSesi) }}"
+                        class="px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-zinc-400 hover:text-zinc-600 transition-all tab-sesi-btn whitespace-nowrap">
+                        {{ $namaSesi }}
+                    </button>
+                @endforeach
+                @if($penugasans->contains(fn($p) => is_null($p->sesi)))
+                    <button type="button" onclick="filterByTabSesi('Semua Sesi')" id="tab-sesi-semua-sesi"
+                        class="px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-zinc-400 hover:text-zinc-600 transition-all tab-sesi-btn whitespace-nowrap">
+                        Semua Sesi (Tanpa Sesi)
+                    </button>
+                @endif
             </div>
 
             <!-- Table -->
@@ -200,7 +210,7 @@
                                     $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
                                     
                                     $defaultPenugasan = $studentLastDigit !== null
-                                        ? $penugasans->firstWhere('kode_akhir_npm', $studentLastDigit)
+                                        ? $penugasans->where('sesi_id', $student->sesi_id)->firstWhere('kode_akhir_npm', $studentLastDigit)
                                         : null;
                                     $customPenugasan = $student->penugasanOverride?->penugasan;
                                     $currentPenugasan = $customPenugasan ?? $defaultPenugasan;
@@ -283,7 +293,7 @@
                 $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
                 
                 $defaultPenugasan = $studentLastDigit !== null
-                    ? $penugasans->firstWhere('kode_akhir_npm', $studentLastDigit)
+                    ? $penugasans->where('sesi_id', $student->sesi_id)->firstWhere('kode_akhir_npm', $studentLastDigit)
                     : null;
                 $customPenugasan = $student->penugasanOverride?->penugasan;
                 $currentPenugasan = $customPenugasan ?? $defaultPenugasan;
@@ -337,7 +347,7 @@
                                             $studentNpm = $student->praktikan?->npm ?? '';
                                             $studentLastDigit = is_numeric(substr($studentNpm, -1)) ? (int) substr($studentNpm, -1) : null;
                                             $defaultPenugasan = $studentLastDigit !== null
-                                                ? $penugasans->firstWhere('kode_akhir_npm', $studentLastDigit)
+                                                ? $penugasans->where('sesi_id', $student->sesi_id)->firstWhere('kode_akhir_npm', $studentLastDigit)
                                                 : null;
                                             $customPenugasan = $student->penugasanOverride?->penugasan;
                                             $currentPenugasan = $customPenugasan ?? $defaultPenugasan;
@@ -746,10 +756,6 @@
                     table.search(this.value).draw();
                 });
 
-                $('#filterSesi').on('change', function() {
-                    table.column(3).search(this.value).draw();
-                });
-
                 $('#customLength').on('change', function() {
                     table.page.len($(this).val()).draw();
                 });
@@ -759,6 +765,24 @@
             setupDropZone('drop-zone', 'file_soal_tambah', 'file-label-tambah');
             setupDropZone('drop-zone-edit', 'file_soal_edit', 'file-label-edit');
         });
+
+        function filterByTabSesi(namaSesi) {
+            $('.tab-sesi-btn').removeClass('border-[#001f3f] text-[#001f3f]').addClass('border-transparent text-zinc-400');
+            
+            if (namaSesi === '') {
+                $('#tab-sesi-all').addClass('border-[#001f3f] text-[#001f3f]').removeClass('border-transparent text-zinc-400');
+            } else {
+                const slug = namaSesi.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                $(`#tab-sesi-${slug}`).addClass('border-[#001f3f] text-[#001f3f]').removeClass('border-transparent text-zinc-400');
+            }
+            
+            var table = $('#penugasanTable').DataTable();
+            if (namaSesi === '') {
+                table.column(3).search('').draw();
+            } else {
+                table.column(3).search('^' + namaSesi + '$', true, false).draw();
+            }
+        }
 
         function setupDropZone(dropZoneId, inputId, labelId) {
             const dropZone = document.getElementById(dropZoneId);
