@@ -162,7 +162,8 @@
                     <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
-            <form action="{{ route('aslab.tugas.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+            <form action="{{ route('aslab.tugas.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4"
+                onsubmit="handleTugasSubmit(this, event)">
                 @csrf
                 <div class="space-y-1.5">
                     <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Mata Praktikum</label>
@@ -201,9 +202,10 @@
                         class="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-600 transition-all hover:bg-zinc-50">
                         BATAL
                     </button>
-                    <button type="submit"
-                        class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-6 text-xs font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a]">
-                        KIRIM TUGAS
+                    <button type="submit" id="btn-kirim-tugas"
+                        class="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#001f3f] px-6 text-xs font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a] disabled:opacity-60 disabled:cursor-not-allowed">
+                        <span id="btn-kirim-tugas-text">KIRIM TUGAS</span>
+                        <i id="btn-kirim-tugas-spinner" class="fas fa-spinner fa-spin hidden text-[10px]"></i>
                     </button>
                 </div>
             </form>
@@ -461,6 +463,26 @@
                 title: '{{ session('success') }}'
             });
         @endif
+
+        // Proteksi Anti Double-Submit untuk form Tambah Tugas
+        function handleTugasSubmit(form, event) {
+            const btn = document.getElementById('btn-kirim-tugas');
+            const btnText = document.getElementById('btn-kirim-tugas-text');
+            const btnSpinner = document.getElementById('btn-kirim-tugas-spinner');
+
+            // Validasi HTML5 sudah lolos, disable tombol
+            btn.disabled = true;
+            btnText.textContent = 'MENGIRIM...';
+            btnSpinner.classList.remove('hidden');
+
+            // Safety: jika ada error dari server dan halaman tidak redirect,
+            // re-enable setelah 10 detik agar aslab tidak stuck
+            setTimeout(function() {
+                btn.disabled = false;
+                btnText.textContent = 'KIRIM TUGAS';
+                btnSpinner.classList.add('hidden');
+            }, 10000);
+        }
 
         // Close modal on click outside
         window.onclick = function(event) {
