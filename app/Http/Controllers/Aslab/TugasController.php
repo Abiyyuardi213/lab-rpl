@@ -135,6 +135,7 @@ class TugasController extends Controller
 
         $students = PendaftaranPraktikum::where('aslab_id', $aslab->id)
             ->where('praktikum_id', $request->praktikum_id)
+            ->where('status', 'verified') // Hanya mahasiswa yang sudah diverifikasi
             ->get();
 
         if ($students->isEmpty()) {
@@ -142,15 +143,30 @@ class TugasController extends Controller
         }
 
         foreach ($students as $student) {
-            TugasAsistensi::create([
-                'pendaftaran_id' => $student->id,
-                'aslab_id' => $aslab->id,
-                'judul' => $request->judul,
-                'deskripsi' => $request->deskripsi,
-                'file_tugas' => $filePath,
-                'due_date' => $request->due_date,
-                'status' => 'pending'
-            ]);
+            // Gunakan firstOrCreate untuk mencegah duplikat jika aslab double-submit
+            // Kunci unik: kombinasi pendaftaran_id + judul + deskripsi + due_date
+            $dueDateFormatted = $request->due_date 
+                ? \Carbon\Carbon::parse($request->due_date)->toDateString() 
+                : null;
+
+            $existingTugas = TugasAsistensi::where('pendaftaran_id', $student->id)
+                ->where('aslab_id', $aslab->id)
+                ->where('judul', $request->judul)
+                ->where('deskripsi', $request->deskripsi)
+                ->whereDate('due_date', $dueDateFormatted ?? '1970-01-01')
+                ->first();
+
+            if (!$existingTugas) {
+                TugasAsistensi::create([
+                    'pendaftaran_id' => $student->id,
+                    'aslab_id' => $aslab->id,
+                    'judul' => $request->judul,
+                    'deskripsi' => $request->deskripsi,
+                    'file_tugas' => $filePath,
+                    'due_date' => $request->due_date,
+                    'status' => 'pending'
+                ]);
+            }
         }
 
         return back()->with('success', 'Tugas asistensi berhasil diberikan kepada ' . $students->count() . ' mahasiswa.');
