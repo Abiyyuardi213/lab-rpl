@@ -168,6 +168,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/penilaian/jadwal/{id}', [\App\Http\Controllers\Admin\PenilaianController::class, 'showJadwal'])->name('penilaian.jadwal');
         Route::post('/penilaian', [\App\Http\Controllers\Admin\PenilaianController::class, 'store'])->name('penilaian.store');
 
+        // Penilaian Akhir (Admin)
+        Route::get('/penilaian-akhir', [\App\Http\Controllers\Admin\PenilaianAkhirController::class, 'index'])->name('penilaian-akhir.index');
+        Route::get('/penilaian-akhir/praktikum/{id}', [\App\Http\Controllers\Admin\PenilaianAkhirController::class, 'showPraktikum'])->name('penilaian-akhir.praktikum');
+        Route::post('/penilaian-akhir/praktikum/{id}/import', [\App\Http\Controllers\Admin\PenilaianAkhirController::class, 'import'])->name('penilaian-akhir.import');
+        Route::put('/penilaian-akhir/{pendaftaran_id}', [\App\Http\Controllers\Admin\PenilaianAkhirController::class, 'update'])->name('penilaian-akhir.update');
+
         // Recruitment Management
         Route::resource('recruitment', \App\Http\Controllers\Admin\RecruitmentController::class);
         Route::patch('recruitment/application/{application}/status', [\App\Http\Controllers\Admin\RecruitmentController::class, 'updateApplicationStatus'])->name('recruitment.application.status');

@@ -76,4 +76,9 @@ class PendaftaranPraktikum extends Model
     {
         return $this->hasOne(Rating::class, 'pendaftaran_id');
     }
+
+    public function penilaianAkhir()
+    {
+        return $this->hasOne(PenilaianAkhir::class, 'pendaftaran_id');
+    }
 }
