@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Praktikum;
 use App\Models\PendaftaranPraktikum;
 use App\Models\PenilaianAkhir;
+use App\Exports\PenilaianAkhirExport;
+use App\Exports\PenilaianAkhirTemplate;
 use App\Imports\PenilaianAkhirImport;
 use App\Traits\HasActivityLog;
 use Maatwebsite\Excel\Facades\Excel;
@@ -99,6 +101,76 @@ class PenilaianAkhirController extends Controller
         );
 
         return back()->with('success', 'Nilai akhir praktikan berhasil diimport.');
+    }
+
+    /**
+     * Download import template for final grades.
+     */
+    public function downloadTemplate($praktikum_id)
+    {
+        $praktikum = Praktikum::findOrFail($praktikum_id);
+
+        return Excel::download(
+            new PenilaianAkhirTemplate($praktikum),
+            'template-penilaian-akhir-' . $praktikum->kode_praktikum . '.xlsx'
+        );
+    }
+
+    /**
+     * Export final grades matrix to Excel.
+     */
+    public function export($praktikum_id)
+    {
+        $praktikum = Praktikum::findOrFail($praktikum_id);
+
+        $pendaftarans = PendaftaranPraktikum::with(['praktikan.user', 'penilaianAkhir', 'presensis.penilaian', 'tugasAsistensis', 'praktikum.jadwals'])
+            ->where('praktikum_id', $praktikum_id)
+            ->where('status', 'verified')
+            ->get();
+
+        $grades = [];
+        foreach ($pendaftarans as $pendaftaran) {
+            if ($pendaftaran->penilaianAkhir) {
+                $grades[] = [
+                    'pendaftaran' => $pendaftaran,
+                    'grades' => $pendaftaran->penilaianAkhir->toArray(),
+                ];
+            } else {
+                $nilaiDosen = [];
+                $nilaiLaporan = 0;
+                $nilaiTugasAkhir = 0;
+
+                $calculated = PenilaianAkhir::calculateGrades(
+                    $pendaftaran,
+                    $nilaiDosen,
+                    $nilaiLaporan,
+                    $nilaiTugasAkhir,
+                    false
+                );
+
+                $grades[] = [
+                    'pendaftaran' => $pendaftaran,
+                    'grades' => $calculated,
+                ];
+            }
+        }
+
+        usort($grades, function ($a, $b) {
+            $nameA = $a['pendaftaran']->praktikan->user->name ?? '';
+            $nameB = $b['pendaftaran']->praktikan->user->name ?? '';
+            return strcasecmp($nameA, $nameB);
+        });
+
+        $this->logActivity(
+            'Export Penilaian Akhir',
+            'Admin mengexport matriks penilaian akhir praktikum: ' . $praktikum->nama_praktikum,
+            ['praktikum_id' => $praktikum_id]
+        );
+
+        return Excel::download(
+            new PenilaianAkhirExport($praktikum, $grades),
+            'matriks-penilaian-akhir-' . $praktikum->kode_praktikum . '.xlsx'
+        );
     }
 
     /**

@@ -10,10 +10,17 @@
                 <h1 class="text-2xl font-bold tracking-tight text-zinc-900 uppercase">Rekap Penilaian Akhir</h1>
                 <p class="text-sm text-zinc-500 font-medium italic mt-0.5">"{{ $praktikum->nama_praktikum }} ({{ $praktikum->kode_praktikum }})"</p>
             </div>
-            <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
-                <a href="{{ route('admin.penilaian-akhir.index') }}" class="hover:text-zinc-900 transition-colors">Penilaian Akhir</a>
-                <span>/</span>
-                <span class="text-zinc-900 font-semibold">{{ $praktikum->kode_praktikum }}</span>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.penilaian-akhir.export', $praktikum->id) }}"
+                    class="inline-flex items-center gap-2 h-9 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg shadow-lg shadow-emerald-600/20 transition-all">
+                    <i class="fas fa-file-excel text-xs"></i>
+                    Export Excel
+                </a>
+                <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
+                    <a href="{{ route('admin.penilaian-akhir.index') }}" class="hover:text-zinc-900 transition-colors">Penilaian Akhir</a>
+                    <span>/</span>
+                    <span class="text-zinc-900 font-semibold">{{ $praktikum->kode_praktikum }}</span>
+                </div>
             </div>
         </div>
 
@@ -63,7 +70,14 @@
                             <i class="fas fa-file-excel text-emerald-600 text-sm"></i>
                             Import Nilai Dosen & Dropout (Gugur)
                         </h3>
-                        <span class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Excel / Spreadsheet</span>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('admin.penilaian-akhir.template', $praktikum->id) }}"
+                                class="inline-flex items-center gap-1.5 h-7 px-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-[9px] font-bold uppercase tracking-widest rounded-md border border-zinc-200 transition-colors">
+                                <i class="fas fa-download text-[8px]"></i>
+                                Download Template
+                            </a>
+                            <span class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Excel / Spreadsheet</span>
+                        </div>
                     </div>
                     <form action="{{ route('admin.penilaian-akhir.import', $praktikum->id) }}" method="POST" enctype="multipart/form-data" class="mt-4 flex flex-col sm:flex-row gap-4 items-end">
                         @csrf
