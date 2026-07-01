@@ -62,6 +62,10 @@
                     mencetak praktikan yang kompeten dalam pengembangan perangkat lunak di ITATS.
                 </p>
                 <div class="flex flex-wrap items-center gap-4 mt-2">
+                    <a href="{{ route('portal-tamu.index') }}"
+                        class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border-2 border-slate-200 bg-white text-slate-700 hover:bg-slate-100 h-12 px-8 py-2">
+                        <i class="fas fa-clipboard-list mr-2"></i> Portal Tamu
+                    </a>
                     @guest
                         <a href="{{ route('login.praktikan') }}"
                             class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-12 px-8 py-2 shadow-lg shadow-[#1a4fa0]/25">

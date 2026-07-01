@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GuestVisitController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WelcomeController;
@@ -45,6 +46,9 @@ Route::get('/pengumuman', [WelcomeController::class, 'pengumuman'])->name('pengu
 Route::get('/pengumuman/{slug}', [WelcomeController::class, 'pengumumanDetail'])->name('pengumuman.show');
 Route::get('/kegiatan', [WelcomeController::class, 'kegiatan'])->name('kegiatan.public');
 Route::get('/kegiatan/{slug}', [WelcomeController::class, 'kegiatanDetail'])->name('kegiatan.show');
+Route::get('/portal-tamu', [GuestVisitController::class, 'index'])->name('portal-tamu.index');
+Route::post('/portal-tamu', [GuestVisitController::class, 'store'])->name('portal-tamu.store')->middleware('throttle:20,1');
+Route::patch('/portal-tamu/{guestVisit}/checkout', [GuestVisitController::class, 'checkout'])->name('portal-tamu.checkout')->middleware('throttle:30,1');
 Route::get('/p/{token}', [PresensiController::class, 'publicVerify'])->name('presensi.public-verify');
 Route::get('/s/{token}', [PresensiController::class, 'scanLanding'])->name('presensi.scan-landing');
 Route::get('/impostor', function () {
@@ -152,6 +156,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('pengumuman', \App\Http\Controllers\Admin\PengumumanController::class);
         Route::patch('pengumuman/{pengumuman}/toggle-status', [\App\Http\Controllers\Admin\PengumumanController::class, 'toggleStatus'])->name('pengumuman.toggle-status');
         Route::resource('presensi', \App\Http\Controllers\Admin\PresensiController::class)->only(['index', 'destroy']);
+        Route::get('daftar-tamu', [\App\Http\Controllers\Admin\GuestVisitController::class, 'index'])->name('guest-visits.index');
+        Route::get('daftar-tamu/template', [\App\Http\Controllers\Admin\GuestVisitController::class, 'downloadTemplate'])->name('guest-visits.template');
+        Route::post('daftar-tamu/import/preview', [\App\Http\Controllers\Admin\GuestVisitController::class, 'previewImport'])->name('guest-visits.import-preview');
+        Route::post('daftar-tamu/import/confirm', [\App\Http\Controllers\Admin\GuestVisitController::class, 'confirmImport'])->name('guest-visits.import-confirm');
         Route::resource('kegiatan', \App\Http\Controllers\Admin\KegiatanController::class);
         Route::patch('kegiatan/{kegiatan}/toggle-status', [\App\Http\Controllers\Admin\KegiatanController::class, 'toggleStatus'])->name('kegiatan.toggle-status');
         
@@ -262,4 +270,3 @@ Route::get('/check-npm', [\App\Http\Controllers\AuthController::class, 'checkNpm
 
 // Portfolio Route (Placed at the end to avoid shadowing preserved keywords like dashboard/portfolio)
 Route::get('/aslab/{slug}', [WelcomeController::class, 'aslabPortfolio'])->name('aslab.portfolio');
-
