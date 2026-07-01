@@ -83,6 +83,46 @@ class GuestVisitController extends Controller
             ->with('info', 'Review import dibatalkan.');
     }
 
+    public function update(Request $request, GuestVisit $guestVisit)
+    {
+        $validated = $request->validate([
+            'visit_date' => ['required', 'date'],
+            'started_time' => ['required', 'date_format:H:i'],
+            'ended_time' => ['nullable', 'date_format:H:i'],
+            'guest_name' => ['required', 'string', 'max:255'],
+            'guest_count' => ['required', 'integer', 'min:1', 'max:500'],
+            'activity_purpose' => ['required', 'string', 'max:2000'],
+            'lab_condition' => ['required', 'string', 'max:255'],
+            'additional_note' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $startedAt = Carbon::parse($validated['visit_date'] . ' ' . $validated['started_time']);
+        $endedAt = filled($validated['ended_time'])
+            ? Carbon::parse($validated['visit_date'] . ' ' . $validated['ended_time'])
+            : null;
+
+        if ($endedAt && $endedAt->lt($startedAt)) {
+            return back()
+                ->withErrors(['ended_time' => 'Jam keluar tidak boleh lebih awal dari jam mulai.'])
+                ->withInput();
+        }
+
+        $guestVisit->update([
+            'visit_date' => $validated['visit_date'],
+            'started_at' => $startedAt,
+            'ended_at' => $endedAt,
+            'guest_name' => $validated['guest_name'],
+            'guest_count' => $validated['guest_count'],
+            'activity_purpose' => $validated['activity_purpose'],
+            'lab_condition' => $validated['lab_condition'],
+            'additional_note' => $validated['additional_note'] ?? null,
+        ]);
+
+        return redirect()
+            ->route('admin.guest-visits.index', $request->only(['start_date', 'end_date', 'q', 'page']))
+            ->with('success', 'Data tamu berhasil diperbarui.');
+    }
+
     private function indexPayload(Request $request): array
     {
         $validated = $request->validate([

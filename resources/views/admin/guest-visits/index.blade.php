@@ -287,6 +287,7 @@
                             <th class="px-6 align-middle font-medium text-zinc-500">TUJUAN</th>
                             <th class="px-6 align-middle font-medium text-zinc-500">KONDISI</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-center">STATUS</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500 text-right">AKSI</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100 text-zinc-900">
@@ -334,10 +335,30 @@
                                         </span>
                                     @endif
                                 </td>
+                                <td class="px-6 py-4 text-right">
+                                    @php
+                                        $editPayload = [
+                                            'id' => $visit->id,
+                                            'visit_date' => $visit->visit_date->format('Y-m-d'),
+                                            'started_time' => $visit->started_at->format('H:i'),
+                                            'ended_time' => $visit->ended_at ? $visit->ended_at->format('H:i') : '',
+                                            'guest_name' => $visit->guest_name,
+                                            'guest_count' => $visit->guest_count,
+                                            'activity_purpose' => $visit->activity_purpose,
+                                            'lab_condition' => $visit->lab_condition,
+                                            'additional_note' => $visit->additional_note,
+                                        ];
+                                    @endphp
+                                    <button type="button"
+                                        onclick='openEditGuestVisitModal(@json($editPayload))'
+                                        class="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-blue-50 hover:text-[#1a4fa0]">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </button>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-16 text-center">
+                                <td colspan="8" class="px-6 py-16 text-center">
                                     <div class="flex flex-col items-center justify-center text-zinc-400">
                                         <div class="h-16 w-16 rounded-2xl bg-zinc-50 flex items-center justify-center mb-4 border border-zinc-100">
                                             <i class="fas fa-address-book text-2xl opacity-30"></i>
@@ -357,6 +378,95 @@
                     {{ $guestVisits->links() }}
                 </div>
             @endif
+        </div>
+    </div>
+
+    <div id="editGuestVisitModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-zinc-950/60" onclick="closeEditGuestVisitModal()"></div>
+        <div class="relative flex min-h-screen w-full items-center justify-center px-4 py-6">
+            <div class="flex max-h-[calc(100vh-5rem)] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xl">
+                <div class="shrink-0 flex items-start justify-between gap-4 border-b border-zinc-100 p-6">
+                    <div>
+                        <div class="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-[#1a4fa0]">
+                            <i class="fas fa-user-pen"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-zinc-900">Edit Data Tamu</h3>
+                        <p class="mt-1 text-sm text-zinc-500">Perbarui record kunjungan tamu lab.</p>
+                    </div>
+                    <button type="button" onclick="closeEditGuestVisitModal()"
+                        class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="editGuestVisitForm" method="POST" class="flex min-h-0 flex-1 flex-col">
+                    @csrf
+                    @method('PATCH')
+                    <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+                    <input type="hidden" name="end_date" value="{{ request('end_date') }}">
+                    <input type="hidden" name="q" value="{{ request('q') }}">
+                    <input type="hidden" name="page" value="{{ request('page') }}">
+
+                    <div class="grid min-h-0 grid-cols-1 gap-4 overflow-y-auto overscroll-contain p-6 md:grid-cols-2">
+                        <div>
+                            <label for="edit_visit_date" class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Tanggal</label>
+                            <input type="date" id="edit_visit_date" name="visit_date" required
+                                class="mt-1 h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-950/5">
+                        </div>
+                        <div>
+                            <label for="edit_guest_name" class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Nama Tamu</label>
+                            <input type="text" id="edit_guest_name" name="guest_name" required
+                                class="mt-1 h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-950/5">
+                        </div>
+                        <div>
+                            <label for="edit_started_time" class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Jam Mulai</label>
+                            <input type="time" id="edit_started_time" name="started_time" required
+                                class="mt-1 h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-950/5">
+                        </div>
+                        <div>
+                            <label for="edit_ended_time" class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Jam Keluar</label>
+                            <input type="time" id="edit_ended_time" name="ended_time"
+                                class="mt-1 h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-950/5">
+                        </div>
+                        <div>
+                            <label for="edit_guest_count" class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Jumlah Tamu</label>
+                            <input type="number" id="edit_guest_count" name="guest_count" min="1" max="500" required
+                                class="mt-1 h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-950/5">
+                        </div>
+                        <div>
+                            <label for="edit_lab_condition" class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Kondisi Lab</label>
+                            <select id="edit_lab_condition" name="lab_condition" required
+                                class="mt-1 h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-950/5">
+                                <option value="Baik">Baik</option>
+                                <option value="Cukup Baik">Cukup Baik</option>
+                                <option value="Perlu Perhatian">Perlu Perhatian</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="edit_activity_purpose" class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Tujuan Aktivitas</label>
+                            <textarea id="edit_activity_purpose" name="activity_purpose" rows="3" required
+                                class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-950/5"></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="edit_additional_note" class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Keterangan Tambahan</label>
+                            <textarea id="edit_additional_note" name="additional_note" rows="2"
+                                class="mt-1 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-950/5"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="shrink-0 flex flex-col-reverse gap-3 border-t border-zinc-100 bg-white p-4 sm:flex-row sm:justify-end">
+                        <button type="button" onclick="closeEditGuestVisitModal()"
+                            class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-bold text-zinc-600 hover:bg-zinc-50">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="inline-flex h-10 items-center justify-center rounded-xl bg-[#1a4fa0] px-5 text-sm font-black text-white shadow hover:bg-[#1a4fa0]/90">
+                            <i class="fas fa-save mr-2"></i>
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 @endsection
@@ -381,6 +491,7 @@
     @endif
 
     <script>
+        const guestVisitUpdateUrlTemplate = '{{ route('admin.guest-visits.update', '__ID__') }}';
         const guestVisitDropzone = document.getElementById('guestVisitDropzone');
         const guestVisitFileInput = document.getElementById('file_excel');
         const guestVisitFileName = document.getElementById('guestVisitFileName');
@@ -443,6 +554,35 @@
             }
 
             form?.submit();
+        }
+
+        function openEditGuestVisitModal(visit) {
+            const modal = document.getElementById('editGuestVisitModal');
+            const form = document.getElementById('editGuestVisitForm');
+            const conditionSelect = document.getElementById('edit_lab_condition');
+
+            form.action = guestVisitUpdateUrlTemplate.replace('__ID__', visit.id);
+            document.getElementById('edit_visit_date').value = visit.visit_date ?? '';
+            document.getElementById('edit_started_time').value = visit.started_time ?? '';
+            document.getElementById('edit_ended_time').value = visit.ended_time ?? '';
+            document.getElementById('edit_guest_name').value = visit.guest_name ?? '';
+            document.getElementById('edit_guest_count').value = visit.guest_count ?? 1;
+            document.getElementById('edit_activity_purpose').value = visit.activity_purpose ?? '';
+            document.getElementById('edit_additional_note').value = visit.additional_note ?? '';
+
+            if (visit.lab_condition && !Array.from(conditionSelect.options).some((option) => option.value === visit.lab_condition)) {
+                const option = document.createElement('option');
+                option.value = visit.lab_condition;
+                option.textContent = visit.lab_condition;
+                conditionSelect.appendChild(option);
+            }
+            conditionSelect.value = visit.lab_condition ?? 'Baik';
+
+            modal?.classList.remove('hidden');
+        }
+
+        function closeEditGuestVisitModal() {
+            document.getElementById('editGuestVisitModal')?.classList.add('hidden');
         }
     </script>
 @endpush

@@ -161,6 +161,7 @@ Route::middleware('auth')->group(function () {
         Route::post('daftar-tamu/import/preview', [\App\Http\Controllers\Admin\GuestVisitController::class, 'previewImport'])->name('guest-visits.import-preview');
         Route::post('daftar-tamu/import/confirm', [\App\Http\Controllers\Admin\GuestVisitController::class, 'confirmImport'])->name('guest-visits.import-confirm');
         Route::post('daftar-tamu/import/cancel', [\App\Http\Controllers\Admin\GuestVisitController::class, 'cancelImport'])->name('guest-visits.import-cancel');
+        Route::patch('daftar-tamu/{guestVisit}', [\App\Http\Controllers\Admin\GuestVisitController::class, 'update'])->name('guest-visits.update');
         Route::resource('kegiatan', \App\Http\Controllers\Admin\KegiatanController::class);
         Route::patch('kegiatan/{kegiatan}/toggle-status', [\App\Http\Controllers\Admin\KegiatanController::class, 'toggleStatus'])->name('kegiatan.toggle-status');
         
