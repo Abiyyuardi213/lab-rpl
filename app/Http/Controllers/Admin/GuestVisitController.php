@@ -71,7 +71,16 @@ class GuestVisitController extends Controller
 
         return redirect()
             ->route('admin.guest-visits.index')
-            ->with('success', count($rows) . ' data tamu berhasil diimport.');
+            ->with('import_success', count($rows) . ' data tamu berhasil diimport.');
+    }
+
+    public function cancelImport()
+    {
+        session()->forget('guest_visit_import_rows');
+
+        return redirect()
+            ->route('admin.guest-visits.index')
+            ->with('info', 'Review import dibatalkan.');
     }
 
     private function indexPayload(Request $request): array

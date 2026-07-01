@@ -92,17 +92,27 @@
                                 {{ $validPreviewCount }} baris siap import, {{ $invalidPreviewCount }} baris perlu diperbaiki.
                             </p>
                         </div>
-                        @if ($validPreviewCount > 0)
-                            <form action="{{ route('admin.guest-visits.import-confirm') }}" method="POST" id="confirmGuestVisitImportForm">
+                        <div class="flex flex-col gap-2 sm:flex-row">
+                            <form action="{{ route('admin.guest-visits.import-cancel') }}" method="POST">
                                 @csrf
-                                <button type="button"
-                                    onclick="openGuestVisitImportModal()"
-                                    class="inline-flex h-10 items-center justify-center rounded-xl bg-emerald-600 px-5 py-2 text-sm font-black text-white shadow hover:bg-emerald-700 transition-colors">
-                                    <i class="fas fa-check-circle mr-2"></i>
-                                    Setujui Import
+                                <button type="submit"
+                                    class="inline-flex h-10 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 px-5 py-2 text-sm font-black text-rose-700 hover:bg-rose-100 transition-colors">
+                                    <i class="fas fa-times-circle mr-2"></i>
+                                    Batal Import
                                 </button>
                             </form>
-                        @endif
+                            @if ($validPreviewCount > 0)
+                                <form action="{{ route('admin.guest-visits.import-confirm') }}" method="POST" id="confirmGuestVisitImportForm">
+                                    @csrf
+                                    <button type="button"
+                                        onclick="openGuestVisitImportModal()"
+                                        class="inline-flex h-10 items-center justify-center rounded-xl bg-emerald-600 px-5 py-2 text-sm font-black text-white shadow hover:bg-emerald-700 transition-colors">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        Setujui Import
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
 
                     @if (!empty($previewErrors))
@@ -204,9 +214,17 @@
                                 </div>
 
                                 <div class="flex flex-col-reverse gap-3 border-t border-zinc-100 p-6 sm:flex-row sm:justify-end">
+                                    <form action="{{ route('admin.guest-visits.import-cancel') }}" method="POST">
+                                        @csrf
+                                        <button type="submit"
+                                            class="inline-flex h-10 w-full items-center justify-center rounded-xl border border-rose-100 bg-rose-50 px-5 text-sm font-black text-rose-700 hover:bg-rose-100 sm:w-auto">
+                                            <i class="fas fa-ban mr-2"></i>
+                                            Batal Import
+                                        </button>
+                                    </form>
                                     <button type="button" onclick="closeGuestVisitImportModal()"
                                         class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-5 text-sm font-bold text-zinc-600 hover:bg-zinc-50">
-                                        Batal
+                                        Kembali Review
                                     </button>
                                     <button type="button" onclick="submitGuestVisitImport()"
                                         class="inline-flex h-10 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-black text-white shadow hover:bg-emerald-700">
@@ -344,6 +362,24 @@
 @endsection
 
 @push('scripts')
+    @if (session('import_success'))
+        <script>
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '{{ session('import_success') }}',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'rounded-xl shadow-xl border border-emerald-100',
+                    title: 'text-sm font-bold text-slate-800'
+                }
+            });
+        </script>
+    @endif
+
     <script>
         const guestVisitDropzone = document.getElementById('guestVisitDropzone');
         const guestVisitFileInput = document.getElementById('file_excel');

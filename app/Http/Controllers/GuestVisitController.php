@@ -10,8 +10,10 @@ class GuestVisitController extends Controller
     public function index(Request $request)
     {
         $search = trim((string) $request->query('q', ''));
+        $today = now()->toDateString();
 
         $activeVisits = GuestVisit::query()
+            ->whereDate('visit_date', $today)
             ->whereNull('ended_at')
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($subQuery) use ($search) {
@@ -25,6 +27,7 @@ class GuestVisitController extends Controller
 
         $completedVisits = GuestVisit::query()
             ->whereNotNull('ended_at')
+            ->whereDate('ended_at', $today)
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('guest_name', 'like', "%{$search}%")
