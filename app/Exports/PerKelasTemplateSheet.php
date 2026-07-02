@@ -7,22 +7,33 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Font;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 
-class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize, WithEvents
+class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize, WithStartRow, WithEvents
 {
     protected $praktikum;
     protected $pendaftarans;
+    protected $kelas;
+    protected $dosenList;
 
-    public function __construct($praktikum, Collection $pendaftarans)
+    public function __construct($praktikum, Collection $pendaftarans, $kelas, array $dosenList)
     {
         $this->praktikum = $praktikum;
         $this->pendaftarans = $pendaftarans;
+        $this->kelas = $kelas;
+        $this->dosenList = $dosenList;
+    }
+
+    public function startRow(): int
+    {
+        return 2;
     }
 
     public function collection()
@@ -58,7 +69,7 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
     public function styles(Worksheet $sheet): array
     {
         return [
-            1 => ['font' => ['bold' => true]],
+            2 => ['font' => ['bold' => true]],
         ];
     }
 
@@ -70,7 +81,33 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
                 $lastCol = $sheet->getHighestColumn();
                 $lastRow = $sheet->getHighestRow();
 
-                $sheet->getStyle("A1:{$lastCol}1")->applyFromArray([
+                $dosenText = !empty($this->dosenList) ? implode(', ', $this->dosenList) : '-';
+
+                $infoText = $this->praktikum->nama_praktikum . ' (' . $this->praktikum->kode_praktikum . ')';
+                $infoText .= ' | Kelas: ' . ($this->kelas ?: '-');
+                $infoText .= ' | Dosen Pengampu: ' . $dosenText;
+
+                $sheet->mergeCells("A1:{$lastCol}1");
+                $sheet->getCell('A1')->setValue($infoText);
+
+                $sheet->getStyle('A1')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'size' => 12,
+                        'color' => ['rgb' => 'FFFFFF'],
+                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'color' => ['rgb' => '001F3F'],
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_LEFT,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                ]);
+                $sheet->getRowDimension(1)->setRowHeight(30);
+
+                $sheet->getStyle("A2:{$lastCol}2")->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'size' => 10,
@@ -78,7 +115,7 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
                     ],
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
-                        'color' => ['rgb' => '001F3F'],
+                        'color' => ['rgb' => '1E40AF'],
                     ],
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -87,7 +124,7 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
                     ],
                 ]);
 
-                $sheet->getRowDimension(1)->setRowHeight(35);
+                $sheet->getRowDimension(2)->setRowHeight(35);
 
                 $sheet->getStyle("A1:{$lastCol}{$lastRow}")->applyFromArray([
                     'borders' => [
@@ -98,36 +135,27 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
                     ],
                 ]);
 
-                $sheet->getStyle("A2:{$lastCol}{$lastRow}")->applyFromArray([
+                $sheet->getStyle("A3:{$lastCol}{$lastRow}")->applyFromArray([
                     'alignment' => [
                         'vertical' => Alignment::VERTICAL_CENTER,
                     ],
                 ]);
 
-                $sheet->getStyle("A2:A{$lastRow}")->applyFromArray([
-                    'font' => [
-                        'bold' => true,
-                        'size' => 10,
-                    ],
-                    'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    ],
+                $sheet->getStyle("A3:A{$lastRow}")->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 10],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                $sheet->getStyle("B2:B{$lastRow}")->applyFromArray([
-                    'font' => [
-                        'size' => 10,
-                    ],
+                $sheet->getStyle("B3:B{$lastRow}")->applyFromArray([
+                    'font' => ['size' => 10],
                 ]);
 
                 $scoreColStart = 3;
                 $scoreColEnd = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($lastCol);
                 for ($col = $scoreColStart; $col <= $scoreColEnd; $col++) {
                     $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($col);
-                    $sheet->getStyle("{$colLetter}2:{$colLetter}{$lastRow}")->applyFromArray([
-                        'alignment' => [
-                            'horizontal' => Alignment::HORIZONTAL_CENTER,
-                        ],
+                    $sheet->getStyle("{$colLetter}3:{$colLetter}{$lastRow}")->applyFromArray([
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                     ]);
                 }
             },

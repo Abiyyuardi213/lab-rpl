@@ -26,15 +26,17 @@ class PenilaianAkhirTemplate implements WithMultipleSheets
 
         $sheets = [];
         foreach ($pendaftarans as $kelas => $group) {
+            $dosenList = $group->pluck('dosen_pengampu')->filter()->unique()->values()->toArray();
+
             $sheetName = 'Kelas ' . $kelas;
             if (strlen($sheetName) > 31) {
                 $sheetName = substr($sheetName, 0, 31);
             }
-            $sheets[$sheetName] = new PerKelasTemplateSheet($this->praktikum, $group);
+            $sheets[$sheetName] = new PerKelasTemplateSheet($this->praktikum, $group, $kelas, $dosenList);
         }
 
         if (empty($sheets)) {
-            $sheets['Data'] = new PerKelasTemplateSheet($this->praktikum, collect([]));
+            $sheets['Data'] = new PerKelasTemplateSheet($this->praktikum, collect([]), '', []);
         }
 
         return $sheets;
