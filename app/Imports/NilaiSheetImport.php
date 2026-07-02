@@ -54,20 +54,13 @@ class NilaiSheetImport implements ToCollection
             // Extract lecturer scores
             $nilaiDosen = [];
             for ($i = 1; $i <= $jumlahModul; $i++) {
-                $colIndex = 6 + 3 * ($i - 1);
+                $colIndex = 2 + ($i - 1);
                 $score = $row[$colIndex] ?? 0;
                 $nilaiDosen[$i] = is_numeric($score) ? intval($score) : 0;
             }
 
-            // Extract Lprn score
-            $lprnIndex = 4 + 3 * $jumlahModul;
-            $lprnScore = $row[$lprnIndex] ?? 0;
-            $nilaiLaporan = is_numeric($lprnScore) ? intval($lprnScore) : 0;
-
-            // Extract TA score
-            $taIndex = 5 + 3 * $jumlahModul;
-            $taScore = $row[$taIndex] ?? 0;
-            $nilaiTugasAkhir = is_numeric($taScore) ? intval($taScore) : 0;
+            $nilaiLaporan = 0;
+            $nilaiTugasAkhir = 0;
 
             // Calculate final grade (default is_gugur = false)
             $calculated = PenilaianAkhir::calculateGrades($pendaftaran, $nilaiDosen, $nilaiLaporan, $nilaiTugasAkhir, false);

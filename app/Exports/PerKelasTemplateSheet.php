@@ -11,10 +11,8 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Font;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Color;
 
 class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize, WithEvents
 {
@@ -40,10 +38,6 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
                 $row[] = 0;
             }
 
-            $row[] = 0;
-            $row[] = 0;
-            $row[] = '';
-
             $rows[] = $row;
         }
 
@@ -57,10 +51,6 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
         for ($i = 1; $i <= $this->praktikum->jumlah_modul; $i++) {
             $headings[] = "Nilai Dosen Modul {$i}";
         }
-
-        $headings[] = 'Laporan';
-        $headings[] = 'Tugas Akhir';
-        $headings[] = 'Alasan Gugur';
 
         return $headings;
     }
@@ -140,32 +130,6 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
                         ],
                     ]);
                 }
-
-                $lastColLetter = $lastCol;
-                $sheet->getStyle("{$lastColLetter}2:{$lastColLetter}{$lastRow}")->applyFromArray([
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'color' => ['rgb' => 'FEE2E2'],
-                    ],
-                ]);
-
-                $taCol = 3 + $this->praktikum->jumlah_modul;
-                $taLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($taCol);
-                $sheet->getStyle("{$taLetter}2:{$taLetter}{$lastRow}")->applyFromArray([
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'color' => ['rgb' => 'FEF3C7'],
-                    ],
-                ]);
-
-                $lprnCol = 4 + $this->praktikum->jumlah_modul;
-                $lprnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($lprnCol);
-                $sheet->getStyle("{$lprnLetter}2:{$lprnLetter}{$lastRow}")->applyFromArray([
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'color' => ['rgb' => 'FEF3C7'],
-                    ],
-                ]);
             },
         ];
     }

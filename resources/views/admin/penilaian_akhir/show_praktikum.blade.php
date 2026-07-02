@@ -68,7 +68,7 @@
                     <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
                         <h3 class="text-xs font-black text-zinc-900 uppercase tracking-wider flex items-center gap-2">
                             <i class="fas fa-file-excel text-emerald-600 text-sm"></i>
-                            Import Nilai Dosen & Dropout (Gugur)
+                            Import Nilai Dosen
                         </h3>
                         <div class="flex items-center gap-2">
                             <a href="{{ route('admin.penilaian-akhir.template', $praktikum->id) }}"
@@ -102,7 +102,7 @@
                 <div class="bg-amber-50 border border-amber-200/60 rounded-lg p-3 text-[10px] text-amber-800 mt-4 leading-relaxed font-medium">
                     <span class="font-bold"><i class="fas fa-info-circle mr-1"></i> PANDUAN:</span><br>
                     • <span class="font-bold">Download Template</span> → File Excel terpisah per kelas (P, Q, V) dengan NPM & Nama sudah terisi. Dosen tinggal mengisi nilai.<br>
-                    • <span class="font-bold">Format Import</span> → Sheet <b>NILAI</b>: Kolom <b>A</b> NPM, Kolom <b>G, J, M, P</b> Nilai Dosen Modul 1-4, Kolom <b>Q</b> Laporan, Kolom <b>R</b> Tugas Akhir. Sheet <b>GUGUR</b>: Kolom <b>A</b> NPM, Kolom <b>D</b> Alasan Gugur.</div>
+                    • <span class="font-bold">Format Import</span> → Sheet <b>NILAI</b>: Kolom <b>A</b> NPM, Kolom <b>B</b> Nama, lalu kolom berikutnya untuk Nilai Dosen per modul sesuai jumlah modul.</div>
                 </div>
             </div>
         </div>

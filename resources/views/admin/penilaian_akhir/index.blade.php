@@ -28,8 +28,8 @@
                     </h3>
                     <p class="text-zinc-500 text-xs font-medium max-w-2xl leading-relaxed">
                         Kalkulasi akhir berdasarkan bobot nilai **Asisten/Live (40%)** (Rata-rata Praktikum, Asistensi, dan
-                        Laporan) dan **Nilai Dosen (60%)**. Import nilai dosen, Laporan, dan Tugas Akhir via template
-                        spreadsheet atau lakukan override manual langsung.
+                        Laporan) dan **Nilai Dosen (60%)**. Import nilai dosen via template spreadsheet atau lakukan
+                        override manual langsung.
                     </p>
                 </div>
                 <div class="flex items-center gap-4">
