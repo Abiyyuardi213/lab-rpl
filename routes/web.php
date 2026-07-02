@@ -139,7 +139,13 @@ Route::middleware('auth')->group(function () {
             Route::get('/dashboard', fn() => 'Fasilitas Dashboard')->name('dashboard');
         });
         Route::get('/gedung', fn() => 'Gedung Index')->name('gedung.index');
-        Route::get('/kelas', fn() => 'Kelas Index')->name('kelas.index');
+        Route::resource('dosen', \App\Http\Controllers\Admin\DosenController::class)->except(['create', 'show', 'edit']);
+        Route::patch('dosen/{dosen}/toggle-status', [\App\Http\Controllers\Admin\DosenController::class, 'toggleStatus'])->name('dosen.toggle-status');
+
+        Route::resource('kelas', \App\Http\Controllers\Admin\KelasController::class)->except(['create', 'show', 'edit'])->parameters([
+            'kelas' => 'kelas'
+        ]);
+        Route::patch('kelas/{kelas}/toggle-status', [\App\Http\Controllers\Admin\KelasController::class, 'toggleStatus'])->name('kelas.toggle-status');
         Route::patch('digit-npm/{digitNpm}/toggle-status', [\App\Http\Controllers\Admin\DigitNpmController::class, 'toggleStatus'])->name('digit-npm.toggle-status');
         Route::resource('digit-npm', \App\Http\Controllers\Admin\DigitNpmController::class)->except(['create', 'show', 'edit']);
         Route::patch('penugasan/praktikan/{pendaftaran}/soal', [\App\Http\Controllers\Admin\PenugasanController::class, 'updateStudentAssignment'])->name('penugasan.praktikan-soal.update');

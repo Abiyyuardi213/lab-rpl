@@ -176,24 +176,34 @@
                         class="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden transition-all hover:shadow-md">
                         <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
                             <h3 class="font-bold text-zinc-900 text-sm">Opsi Dosen</h3>
-                            <button type="button" onclick="addItem('dosen-list', 'daftar_dosen[]')"
-                                class="h-8 px-3 rounded-lg bg-[#001f3f] text-white text-[10px] font-bold uppercase transition-all hover:bg-[#002d5a] active:scale-95">
-                                + Tambah
-                            </button>
                         </div>
                         <div class="p-6 space-y-4">
-                            <div id="dosen-list" class="space-y-2">
-                                @foreach ($praktikum->daftar_dosen ?? [] as $dosen)
-                                    <div class="flex gap-2 group">
-                                        <input type="text" name="daftar_dosen[]" value="{{ $dosen }}" required
-                                            placeholder="Nama Dosen"
-                                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1 text-sm outline-none focus:bg-white focus:border-[#001f3f] transition-all">
-                                        <button type="button" onclick="this.parentElement.remove()"
-                                            class="h-10 w-10 flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
-                                            <i class="fas fa-trash-alt text-[10px]"></i>
-                                        </button>
+                            <div class="max-h-48 overflow-y-auto border border-zinc-100 rounded-lg p-3 space-y-2 bg-zinc-50/50">
+                                @forelse($dosens as $dosen)
+                                    <label class="flex items-start gap-2.5 text-xs font-medium text-zinc-700 cursor-pointer hover:text-zinc-900 transition-colors">
+                                        <input type="checkbox" name="daftar_dosen[]" value="{{ $dosen->nama }}"
+                                            class="rounded border-zinc-300 text-[#001f3f] focus:ring-[#001f3f]/10 mt-0.5"
+                                            {{ (is_array(old('daftar_dosen')) && in_array($dosen->nama, old('daftar_dosen'))) || (!is_array(old('daftar_dosen')) && is_array($praktikum->daftar_dosen) && in_array($dosen->nama, $praktikum->daftar_dosen)) ? 'checked' : '' }}>
+                                        <div class="flex flex-col">
+                                            <span class="font-bold">{{ $dosen->nama }}</span>
+                                            @if($dosen->nip)
+                                                <span class="text-[9px] text-zinc-400">NIP: {{ $dosen->nip }}</span>
+                                            @endif
+                                        </div>
+                                    </label>
+                                @empty
+                                    <div class="text-center py-4 text-xs text-zinc-400">
+                                        Belum ada dosen aktif.
                                     </div>
-                                @endforeach
+                                @endforelse
+                            </div>
+                            @error('daftar_dosen')
+                                <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
+                            @enderror
+                            <div class="mt-2 text-right">
+                                <a href="{{ route('admin.dosen.index') }}" target="_blank" class="text-[10px] font-bold text-[#001f3f] hover:underline uppercase tracking-wide">
+                                    <i class="fas fa-cog mr-1"></i> Kelola Dosen
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -202,24 +212,29 @@
                         class="rounded-2xl border border-zinc-200 bg-white shadow-sm overflow-hidden transition-all hover:shadow-md">
                         <div class="p-6 border-b border-zinc-100 bg-zinc-50/50 flex items-center justify-between">
                             <h3 class="font-bold text-zinc-900 text-sm">Opsi Kelas</h3>
-                            <button type="button" onclick="addItem('kelas-list', 'daftar_kelas_mk[]')"
-                                class="h-8 px-3 rounded-lg bg-[#001f3f] text-white text-[10px] font-bold uppercase transition-all hover:bg-[#002d5a] active:scale-95">
-                                + Tambah
-                            </button>
                         </div>
                         <div class="p-6 space-y-4">
-                            <div id="kelas-list" class="space-y-2">
-                                @foreach ($praktikum->daftar_kelas_mk ?? [] as $kelas)
-                                    <div class="flex gap-2 group">
-                                        <input type="text" name="daftar_kelas_mk[]" value="{{ $kelas }}"
-                                            required placeholder="4IAxx / 2KAxx"
-                                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1 text-sm outline-none focus:bg-white focus:border-[#001f3f] transition-all">
-                                        <button type="button" onclick="this.parentElement.remove()"
-                                            class="h-10 w-10 flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
-                                            <i class="fas fa-trash-alt text-[10px]"></i>
-                                        </button>
+                            <div class="max-h-48 overflow-y-auto border border-zinc-100 rounded-lg p-3 space-y-2 bg-zinc-50/50">
+                                @forelse($kelas as $k)
+                                    <label class="flex items-center gap-2.5 text-xs font-semibold text-zinc-700 cursor-pointer hover:text-zinc-900 transition-colors">
+                                        <input type="checkbox" name="daftar_kelas_mk[]" value="{{ $k->nama_kelas }}"
+                                            class="rounded border-zinc-300 text-[#001f3f] focus:ring-[#001f3f]/10"
+                                            {{ (is_array(old('daftar_kelas_mk')) && in_array($k->nama_kelas, old('daftar_kelas_mk'))) || (!is_array(old('daftar_kelas_mk')) && is_array($praktikum->daftar_kelas_mk) && in_array($k->nama_kelas, $praktikum->daftar_kelas_mk)) ? 'checked' : '' }}>
+                                        <span>{{ $k->nama_kelas }}</span>
+                                    </label>
+                                @empty
+                                    <div class="text-center py-4 text-xs text-zinc-400">
+                                        Belum ada kelas aktif.
                                     </div>
-                                @endforeach
+                                @endforelse
+                            </div>
+                            @error('daftar_kelas_mk')
+                                <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
+                            @enderror
+                            <div class="mt-2 text-right">
+                                <a href="{{ route('admin.kelas.index') }}" target="_blank" class="text-[10px] font-bold text-[#001f3f] hover:underline uppercase tracking-wide">
+                                    <i class="fas fa-cog mr-1"></i> Kelola Kelas
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -237,21 +252,5 @@
                 </div>
             </div>
         </form>
-
-        <script>
-            function addItem(containerId, inputName) {
-                const container = document.getElementById(containerId);
-                const div = document.createElement('div');
-                div.className = 'flex gap-2 animate-in fade-in slide-in-from-top-1 duration-200';
-                div.innerHTML = `
-                    <input type="text" name="${inputName}" required placeholder="${containerId === 'dosen-list' ? 'Nama Dosen' : 'Contoh: 4IA01'}"
-                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:border-[#001f3f] outline-none">
-                    <button type="button" onclick="this.parentElement.remove()" class="h-10 w-10 flex items-center justify-center rounded-lg border border-rose-100 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
-                        <i class="fas fa-trash-alt text-[10px]"></i>
-                    </button>
-                `;
-                container.appendChild(div);
-            }
-        </script>
     </div>
 @endsection

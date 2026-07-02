@@ -172,12 +172,12 @@
                     <!-- Akademik Dropdown -->
                     <div class="relative group">
                         <button
-                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('admin/praktikum*') || request()->is('admin/jadwal-praktikum*') || request()->is('admin/pendaftaran*') || request()->is('admin/presensi*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('admin/praktikum*') || request()->is('admin/jadwal-praktikum*') || request()->is('admin/pendaftaran*') || request()->is('admin/presensi*') || request()->is('admin/dosen*') || request()->is('admin/kelas*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                             Akademik
                             <i
                                 class="fas fa-chevron-down text-[10px] transition-transform duration-300 group-hover:rotate-180"></i>
                             <span
-                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/praktikum*') || request()->is('admin/jadwal-praktikum*') || request()->is('admin/pendaftaran*') || request()->is('admin/presensi*') ? 'w-full' : '' }}"></span>
+                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/praktikum*') || request()->is('admin/jadwal-praktikum*') || request()->is('admin/pendaftaran*') || request()->is('admin/presensi*') || request()->is('admin/dosen*') || request()->is('admin/kelas*') ? 'w-full' : '' }}"></span>
                         </button>
                         <div
                             class="absolute left-0 top-full mt-1 w-48 bg-white border border-slate-100 rounded-xl shadow-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
@@ -195,6 +195,10 @@
                                 class="block px-4 py-2 text-sm {{ request()->is('admin/penilaian') || request()->is('admin/penilaian/praktikum*') || request()->is('admin/penilaian/jadwal*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Penilaian</a>
                             <a href="{{ route('admin.penilaian-akhir.index') }}"
                                 class="block px-4 py-2 text-sm {{ request()->is('admin/penilaian-akhir*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Penilaian Akhir</a>
+                            <a href="{{ route('admin.dosen.index') }}"
+                                class="block px-4 py-2 text-sm {{ request()->is('admin/dosen*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Master Dosen</a>
+                            <a href="{{ route('admin.kelas.index') }}"
+                                class="block px-4 py-2 text-sm {{ request()->is('admin/kelas*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Master Kelas</a>
                         </div>
                     </div>
 
@@ -447,6 +451,10 @@
                 <a href="{{ route('admin.praktikum.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Praktikum</a>
+                <a href="{{ route('admin.dosen.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/dosen*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Master Dosen</a>
+                <a href="{{ route('admin.kelas.index') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/kelas*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Master Kelas</a>
                 <a href="{{ route('admin.jadwal-praktikum.index') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/jadwal-praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Jadwal</a>
