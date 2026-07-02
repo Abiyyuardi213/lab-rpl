@@ -92,7 +92,7 @@ class PenilaianAkhirController extends Controller
 
         $praktikum = Praktikum::findOrFail($praktikum_id);
 
-        Excel::import(new PenilaianAkhirImport($praktikum_id), $request->file('file_excel'));
+        Excel::import(new PenilaianAkhirImport($praktikum_id, $request->file('file_excel')), $request->file('file_excel'));
 
         $this->logActivity(
             'Import Penilaian Akhir',

@@ -4,10 +4,8 @@ namespace App\Exports;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -16,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Style\Font;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 
-class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize, WithStartRow, WithEvents
+class PerKelasTemplateSheet implements FromCollection, ShouldAutoSize, WithCustomStartCell, WithEvents
 {
     protected $praktikum;
     protected $pendaftarans;
@@ -31,9 +29,9 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
         $this->dosenList = $dosenList;
     }
 
-    public function startRow(): int
+    public function startCell(): string
     {
-        return 2;
+        return 'A3';
     }
 
     public function collection()
@@ -66,13 +64,6 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
         return $headings;
     }
 
-    public function styles(Worksheet $sheet): array
-    {
-        return [
-            2 => ['font' => ['bold' => true]],
-        ];
-    }
-
     public function registerEvents(): array
     {
         return [
@@ -81,8 +72,10 @@ class PerKelasTemplateSheet implements FromCollection, WithHeadings, WithStyles,
                 $lastCol = $sheet->getHighestColumn();
                 $lastRow = $sheet->getHighestRow();
 
-                $dosenText = !empty($this->dosenList) ? implode(', ', $this->dosenList) : '-';
+                // Write headings to row 2
+                $sheet->getDelegate()->fromArray($this->headings(), null, 'A2');
 
+                $dosenText = !empty($this->dosenList) ? implode(', ', $this->dosenList) : '-';
                 $infoText = $this->praktikum->nama_praktikum . ' (' . $this->praktikum->kode_praktikum . ')';
                 $infoText .= ' | Kelas: ' . ($this->kelas ?: '-');
                 $infoText .= ' | Dosen Pengampu: ' . $dosenText;
