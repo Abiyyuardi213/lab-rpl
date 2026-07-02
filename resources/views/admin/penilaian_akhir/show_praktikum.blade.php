@@ -100,9 +100,9 @@
                     </form>
                 </div>
                 <div class="bg-amber-50 border border-amber-200/60 rounded-lg p-3 text-[10px] text-amber-800 mt-4 leading-relaxed font-medium">
-                    <span class="font-bold"><i class="fas fa-info-circle mr-1"></i> PANDUAN KOLOM EXCEL:</span><br>
-                    • **Sheet 1 (NILAI)**: Baris 1 & 2 Header. Kolom **A**: NPM, Kolom **G, J, M, P**: Nilai Dosen Modul 1-4, Kolom **Q**: Laporan, Kolom **R**: Tugas Akhir (TA).<br>
-                    • **Sheet 3 (GUGUR)**: Kolom **A**: NPM, Kolom **D**: Alasan Gugur (mengundurkan diri / tidak memenuhi syarat).
+                    <span class="font-bold"><i class="fas fa-info-circle mr-1"></i> PANDUAN:</span><br>
+                    • <span class="font-bold">Download Template</span> → File Excel terpisah per kelas (P, Q, V) dengan NPM & Nama sudah terisi. Dosen tinggal mengisi nilai.<br>
+                    • <span class="font-bold">Format Import</span> → Sheet <b>NILAI</b>: Kolom <b>A</b> NPM, Kolom <b>G, J, M, P</b> Nilai Dosen Modul 1-4, Kolom <b>Q</b> Laporan, Kolom <b>R</b> Tugas Akhir. Sheet <b>GUGUR</b>: Kolom <b>A</b> NPM, Kolom <b>D</b> Alasan Gugur.</div>
                 </div>
             </div>
         </div>

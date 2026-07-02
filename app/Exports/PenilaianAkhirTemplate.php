@@ -17,9 +17,26 @@ class PenilaianAkhirTemplate implements WithMultipleSheets
 
     public function sheets(): array
     {
-        return [
-            'NILAI' => new NilaiTemplateSheet($this->praktikum),
-            'GUGUR' => new GugurTemplateSheet($this->praktikum),
-        ];
+        $pendaftarans = PendaftaranPraktikum::with('praktikan')
+            ->where('praktikum_id', $this->praktikum->id)
+            ->where('status', 'verified')
+            ->get()
+            ->groupBy('asal_kelas_mata_kuliah')
+            ->sortKeys();
+
+        $sheets = [];
+        foreach ($pendaftarans as $kelas => $group) {
+            $sheetName = 'Kelas ' . $kelas;
+            if (strlen($sheetName) > 31) {
+                $sheetName = substr($sheetName, 0, 31);
+            }
+            $sheets[$sheetName] = new PerKelasTemplateSheet($this->praktikum, $group);
+        }
+
+        if (empty($sheets)) {
+            $sheets['Data'] = new PerKelasTemplateSheet($this->praktikum, collect([]));
+        }
+
+        return $sheets;
     }
 }
