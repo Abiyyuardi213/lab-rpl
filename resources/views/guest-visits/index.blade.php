@@ -159,7 +159,7 @@
 
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                 @forelse ($activeVisits as $visit)
-                    <article class="relative flex min-h-[305px] flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-[#168947] to-[#20bd5b] p-3.5 text-white shadow-lg shadow-emerald-900/10">
+                    <article class="relative flex min-h-[305px] flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-[#168947] to-[#20bd5b] p-3.5 text-white shadow-lg shadow-emerald-900/10 will-change-transform">
                         <div class="absolute right-0 top-0 h-9 w-3/5 rounded-bl-2xl bg-white/10"></div>
                         <div class="relative z-10 flex flex-1 flex-col">
                             <div class="flex items-start justify-between gap-3">
@@ -245,7 +245,7 @@
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                     @forelse ($completedVisits as $visit)
-                        <article class="relative flex min-h-[285px] flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-[#991b1b] to-[#ef4444] p-3.5 text-white shadow-lg shadow-rose-900/10">
+                        <article class="relative flex min-h-[285px] flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-[#991b1b] to-[#ef4444] p-3.5 text-white shadow-lg shadow-rose-900/10 will-change-transform">
                             <div class="absolute right-0 top-0 h-9 w-3/5 rounded-bl-2xl bg-white/10"></div>
                             <div class="relative z-10 flex flex-1 flex-col">
                                 <div class="flex items-start justify-between gap-3">
