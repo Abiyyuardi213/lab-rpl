@@ -106,7 +106,7 @@
 
     {{-- Header --}}
     <header
-        class="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+        class="sticky top-0 z-50 border-b border-slate-200 bg-white">
         <div class="max-w-screen-2xl mx-auto px-6">
             <div class="flex h-24 items-center justify-between">
                 {{-- Brand --}}

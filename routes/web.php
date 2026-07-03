@@ -164,7 +164,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('daftar-tamu/{guestVisit}', [\App\Http\Controllers\Admin\GuestVisitController::class, 'update'])->name('guest-visits.update');
         Route::resource('kegiatan', \App\Http\Controllers\Admin\KegiatanController::class);
         Route::patch('kegiatan/{kegiatan}/toggle-status', [\App\Http\Controllers\Admin\KegiatanController::class, 'toggleStatus'])->name('kegiatan.toggle-status');
-        
+
         // Activity Log
         Route::get('logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('logs.index');
         Route::get('logs/{id}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'show'])->name('logs.show');

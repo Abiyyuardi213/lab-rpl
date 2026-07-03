@@ -53,6 +53,16 @@ class WelcomeController extends Controller
         // Hierarchy ordering
         $hierarchy = [
             'Koordinator Laboratorium',
+            'Kepala Project Laboratorium',
+            'Laboran',
+            'Asisten Laboran',
+            'Tim Kajian Bidang',
+            'PUK Pembangunan Berkelanjutan (SDGs)',
+            'PUK Teknologi Tepat Guna',
+            'PUI Industri dan Digital',
+            'Rekayasa Perangkat Lunak',
+            'Game Edukasi',
+            'Web dan Mobile Programming',
             'Koordinator Praktikum Pemrograman Terstruktur',
             'Koordinator Praktikum Struktur Data',
             'Koordinator Praktikum Basis Data',
@@ -84,6 +94,16 @@ class WelcomeController extends Controller
         // Hierarchy ordering
         $hierarchy = [
             'Koordinator Laboratorium',
+            'Kepala Project Laboratorium',
+            'Laboran',
+            'Asisten Laboran',
+            'Tim Kajian Bidang',
+            'PUK Pembangunan Berkelanjutan (SDGs)',
+            'PUK Teknologi Tepat Guna',
+            'PUI Industri dan Digital',
+            'Rekayasa Perangkat Lunak',
+            'Game Edukasi',
+            'Web dan Mobile Programming',
             'Koordinator Praktikum Pemrograman Terstruktur',
             'Koordinator Praktikum Struktur Data',
             'Koordinator Praktikum Basis Data',
