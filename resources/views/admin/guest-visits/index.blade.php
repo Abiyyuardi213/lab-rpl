@@ -266,6 +266,11 @@
                             <i class="fas fa-filter mr-2 text-xs"></i>
                             Filter
                         </button>
+                        <a href="{{ route('admin.guest-visits.export-pdf', request()->only(['start_date', 'end_date', 'q'])) }}"
+                            class="inline-flex h-10 items-center justify-center rounded-xl bg-rose-600 px-4 py-2 text-sm font-bold text-white shadow hover:bg-rose-700 transition-colors">
+                            <i class="fas fa-file-pdf mr-2 text-xs"></i>
+                            Export PDF
+                        </a>
                         @if (request()->anyFilled(['start_date', 'end_date', 'q']))
                             <a href="{{ route('admin.guest-visits.index') }}"
                                 class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-bold text-zinc-600 hover:bg-zinc-50 transition-colors">
