@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GuestVisit;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -12,6 +13,57 @@ class GuestVisitController extends Controller
     public function index(Request $request)
     {
         return view('admin.guest-visits.index', $this->indexPayload($request));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $validated = $request->validate([
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'q' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $query = GuestVisit::query();
+
+        if (! empty($validated['start_date'])) {
+            $query->whereDate('visit_date', '>=', $validated['start_date']);
+        }
+
+        if (! empty($validated['end_date'])) {
+            $query->whereDate('visit_date', '<=', $validated['end_date']);
+        }
+
+        if (! empty($validated['q'])) {
+            $search = trim($validated['q']);
+            $query->where(function ($subQuery) use ($search) {
+                $subQuery->where('guest_name', 'like', "%{$search}%")
+                    ->orWhere('activity_purpose', 'like', "%{$search}%")
+                    ->orWhere('lab_condition', 'like', "%{$search}%");
+            });
+        }
+
+        $guestVisits = $query->orderByDesc('visit_date')
+            ->orderByDesc('started_at')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $periode = '';
+        if (! empty($validated['start_date']) && ! empty($validated['end_date'])) {
+            $periode = Carbon::parse($validated['start_date'])->translatedFormat('d M Y')
+                . ' - '
+                . Carbon::parse($validated['end_date'])->translatedFormat('d M Y');
+        } elseif (! empty($validated['start_date'])) {
+            $periode = 'Mulai ' . Carbon::parse($validated['start_date'])->translatedFormat('d M Y');
+        } elseif (! empty($validated['end_date'])) {
+            $periode = 'Sampai ' . Carbon::parse($validated['end_date'])->translatedFormat('d M Y');
+        } else {
+            $periode = 'Semua Data';
+        }
+
+        $pdf = Pdf::loadView('admin.guest-visits.pdf', compact('guestVisits', 'periode'));
+        $pdf->setPaper('A4', 'landscape');
+
+        return $pdf->download('laporan-daftar-tamu-lab-rpl.pdf');
     }
 
     public function downloadTemplate()

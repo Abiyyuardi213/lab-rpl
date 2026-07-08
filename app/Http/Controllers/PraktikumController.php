@@ -9,6 +9,8 @@ use App\Models\Aslab;
 use App\Models\AslabPraktikum;
 use App\Models\SesiPraktikum;
 use App\Models\PendaftaranPraktikum;
+use App\Models\Dosen;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +26,9 @@ class PraktikumController extends Controller
 
     public function create()
     {
-        return view('admin.praktikum.create');
+        $dosens = Dosen::active()->orderBy('nama')->get();
+        $kelas = Kelas::active()->orderBy('nama_kelas')->get();
+        return view('admin.praktikum.create', compact('dosens', 'kelas'));
     }
 
     public function store(Request $request)
@@ -109,7 +113,20 @@ class PraktikumController extends Controller
     public function edit($id)
     {
         $praktikum = Praktikum::findOrFail($id);
-        return view('admin.praktikum.edit', compact('praktikum'));
+        
+        $selectedDosens = $praktikum->daftar_dosen ?? [];
+        $dosens = Dosen::where('is_active', true)
+            ->orWhereIn('nama', $selectedDosens)
+            ->orderBy('nama')
+            ->get();
+            
+        $selectedKelas = $praktikum->daftar_kelas_mk ?? [];
+        $kelas = Kelas::where('is_active', true)
+            ->orWhereIn('nama_kelas', $selectedKelas)
+            ->orderBy('nama_kelas')
+            ->get();
+            
+        return view('admin.praktikum.edit', compact('praktikum', 'dosens', 'kelas'));
     }
 
     public function update(Request $request, $id)
