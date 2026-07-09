@@ -15,7 +15,7 @@
                     Mengenal <span class="text-[#1a4fa0]">Lab. Rekayasa Perangkat Lunak</span>
                 </h1>
                 <p class="text-lg text-slate-600 max-w-prose leading-relaxed">
-                    Pusat pembelajaran yang berfokus pada pengampuan praktikum Pemrograman Terstruktur, Struktur Data, dan
+                    Pusat pembelajaran yang berfokus pada pengampuan praktikum Pemrograman Terstruktur, Basis Data, dan
                     Basis Data. Kami berdedikasi untuk membekali mahasiswa dengan keahlian fundamental dalam rekayasa
                     perangkat lunak demi mencetak tenaga ahli informatika yang kompeten.
                 </p>
@@ -172,13 +172,13 @@
                         <li class="flex gap-4">
                             <span
                                 class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">1</span>
-                            <p>Menyelenggarakan praktikum Pemrograman Terstruktur, Struktur Data, dan Basis Data yang
+                            <p>Menyelenggarakan praktikum Pemrograman Terstruktur, Basis Data, dan Basis Data yang
                                 berkualitas.</p>
                         </li>
                         <li class="flex gap-4">
                             <span
                                 class="w-6 h-6 rounded-full bg-indigo-100 text-[#1a4fa0] text-xs flex-shrink-0 flex items-center justify-center font-bold mt-1">2</span>
-                            <p>Membekali mahasiswa dengan kemampuan logika pemrograman yang kuat, optimasi struktur data,
+                            <p>Membekali mahasiswa dengan kemampuan logika pemrograman yang kuat, optimasi basis data,
                                 dan manajemen data yang efektif.</p>
                         </li>
                         <li class="flex gap-4">
