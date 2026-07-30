@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\Praktikum;
 use App\Models\PendaftaranPraktikum;
 use App\Models\PenilaianAkhir;
+use App\Models\Presensi;
+use App\Models\PenilaianPraktikum;
+use App\Models\TugasAsistensi;
+use App\Models\Aslab;
 use App\Exports\PenilaianAkhirExport;
 use App\Exports\PenilaianAkhirTemplate;
 use App\Imports\PenilaianAkhirImport;
@@ -36,18 +40,50 @@ class PenilaianAkhirController extends Controller
     {
         $praktikum = Praktikum::findOrFail($praktikum_id);
 
-        $pendaftarans = PendaftaranPraktikum::with(['praktikan.user', 'penilaianAkhir'])
+        $schedules = $praktikum->jadwals()
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('waktu_mulai', 'asc')
+            ->get();
+
+        $pendaftarans = PendaftaranPraktikum::with([
+            'praktikan.user',
+            'penilaianAkhir',
+            'presensis.penilaian',
+            'tugasAsistensis'
+        ])
             ->where('praktikum_id', $praktikum_id)
             ->where('status', 'verified')
             ->get();
 
         $grades = [];
         foreach ($pendaftarans as $pendaftaran) {
+            // Compute module scores ahead of time so Blade doesn't execute queries in loops
+            $prakScores = [];
+            $astScores = [];
+
+            foreach ($schedules as $index => $sched) {
+                $modulNum = $index + 1;
+                if ($modulNum > $praktikum->jumlah_modul) break;
+
+                $pres = $pendaftaran->presensis->firstWhere('jadwal_id', $sched->id);
+                $prakScores[$modulNum] = ($pres && $pres->penilaian) ? $pres->penilaian->nilai : 0;
+
+                $tugas = $pendaftaran->tugasAsistensis->firstWhere('judul', $sched->judul_modul);
+                $astScores[$modulNum] = $tugas ? ($tugas->nilai ?? 0) : 0;
+            }
+
+            for ($i = 1; $i <= $praktikum->jumlah_modul; $i++) {
+                if (!isset($prakScores[$i])) $prakScores[$i] = 0;
+                if (!isset($astScores[$i])) $astScores[$i] = 0;
+            }
+
             if ($pendaftaran->penilaianAkhir) {
                 $grades[] = [
                     'pendaftaran' => $pendaftaran,
                     'grades' => $pendaftaran->penilaianAkhir->toArray(),
                     'is_db' => true,
+                    'prak_scores' => $prakScores,
+                    'ast_scores' => $astScores,
                 ];
             } else {
                 // Dynamically calculate grades with default zeros
@@ -60,13 +96,17 @@ class PenilaianAkhirController extends Controller
                     $nilaiDosen,
                     $nilaiLaporan,
                     $nilaiTugasAkhir,
-                    false
+                    false,
+                    null,
+                    $schedules
                 );
 
                 $grades[] = [
                     'pendaftaran' => $pendaftaran,
                     'grades' => $calculated,
                     'is_db' => false,
+                    'prak_scores' => $prakScores,
+                    'ast_scores' => $astScores,
                 ];
             }
         }
@@ -179,6 +219,10 @@ class PenilaianAkhirController extends Controller
     public function update(Request $request, $pendaftaran_id)
     {
         $request->validate([
+            'nilai_praktikum' => 'nullable|array',
+            'nilai_praktikum.*' => 'nullable|integer|between:0,100',
+            'nilai_asistensi' => 'nullable|array',
+            'nilai_asistensi.*' => 'nullable|integer|between:0,100',
             'nilai_dosen' => 'nullable|array',
             'nilai_dosen.*' => 'nullable|integer|between:0,100',
             'nilai_laporan' => 'nullable|integer|between:0,100',
@@ -187,13 +231,75 @@ class PenilaianAkhirController extends Controller
             'alasan_gugur' => 'nullable|string',
         ]);
 
-        $pendaftaran = PendaftaranPraktikum::with('praktikan.user')->findOrFail($pendaftaran_id);
+        $pendaftaran = PendaftaranPraktikum::with(['praktikan.user', 'praktikum'])->findOrFail($pendaftaran_id);
+        $praktikum = $pendaftaran->praktikum;
 
+        $schedules = $praktikum->jadwals()
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('waktu_mulai', 'asc')
+            ->get();
+
+        $nilaiPraktikum = $request->input('nilai_praktikum', []);
+        $nilaiAsistensi = $request->input('nilai_asistensi', []);
         $nilaiDosen = $request->input('nilai_dosen', []);
         $nilaiLaporan = $request->input('nilai_laporan', 0);
         $nilaiTugasAkhir = $request->input('nilai_tugas_akhir', 0);
         $isGugur = (bool)$request->input('is_gugur', false);
         $alasanGugur = $request->input('alasan_gugur');
+
+        $aslabId = $pendaftaran->aslab_id ?? Aslab::first()?->id;
+
+        // 1. Update Presensi & PenilaianPraktikum (Nilai Prak)
+        foreach ($nilaiPraktikum as $modulIndex => $val) {
+            $modulNum = (int)$modulIndex;
+            if ($modulNum < 1 || $modulNum > $praktikum->jumlah_modul) continue;
+
+            $sched = $schedules->get($modulNum - 1);
+            if ($sched) {
+                $presensi = Presensi::firstOrCreate(
+                    [
+                        'pendaftaran_id' => $pendaftaran->id,
+                        'jadwal_id' => $sched->id,
+                    ],
+                    [
+                        'status' => 'hadir',
+                    ]
+                );
+
+                PenilaianPraktikum::updateOrCreate(
+                    ['presensi_id' => $presensi->id],
+                    [
+                        'aslab_id' => $aslabId,
+                        'nilai' => (int)$val,
+                    ]
+                );
+            }
+        }
+
+        // 2. Update TugasAsistensi (Nilai Ast)
+        foreach ($nilaiAsistensi as $modulIndex => $val) {
+            $modulNum = (int)$modulIndex;
+            if ($modulNum < 1 || $modulNum > $praktikum->jumlah_modul) continue;
+
+            $sched = $schedules->get($modulNum - 1);
+            if ($sched) {
+                TugasAsistensi::updateOrCreate(
+                    [
+                        'pendaftaran_id' => $pendaftaran->id,
+                        'judul' => $sched->judul_modul,
+                    ],
+                    [
+                        'aslab_id' => $aslabId,
+                        'nilai' => (int)$val,
+                        'status' => 'reviewed',
+                    ]
+                );
+            }
+        }
+
+        // Reset loaded relations so calculateGrades reads newly updated scores from DB
+        $pendaftaran->unsetRelation('presensis');
+        $pendaftaran->unsetRelation('tugasAsistensis');
 
         $calculated = PenilaianAkhir::calculateGrades(
             $pendaftaran,
@@ -201,7 +307,8 @@ class PenilaianAkhirController extends Controller
             $nilaiLaporan,
             $nilaiTugasAkhir,
             $isGugur,
-            $alasanGugur
+            $alasanGugur,
+            $schedules
         );
 
         $penilaianAkhir = PenilaianAkhir::updateOrCreate(
@@ -216,5 +323,23 @@ class PenilaianAkhirController extends Controller
         );
 
         return back()->with('success', 'Nilai akhir praktikan berhasil diperbarui.');
+    }
+
+    /**
+     * Reset/delete the overridden final grade for a specific student registration.
+     */
+    public function destroy($pendaftaran_id)
+    {
+        $pendaftaran = PendaftaranPraktikum::with('praktikan.user')->findOrFail($pendaftaran_id);
+
+        PenilaianAkhir::where('pendaftaran_id', $pendaftaran_id)->delete();
+
+        $this->logActivity(
+            'Delete/Reset Penilaian Akhir',
+            'Admin menghapus/reset override nilai akhir praktikan: ' . ($pendaftaran->praktikan->user->name ?? ''),
+            ['pendaftaran_id' => $pendaftaran_id]
+        );
+
+        return back()->with('success', 'Nilai akhir praktikan berhasil dihapus dan di-reset.');
     }
 }

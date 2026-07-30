@@ -126,12 +126,13 @@
             </div>
 
             <!-- Sticky columns horizontally scrollable table container -->
-            <div class="overflow-x-auto select-none scrollbar-thin scrollbar-thumb-zinc-200">
+            <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-zinc-200">
                 <table class="w-full text-left border-collapse" style="min-width: 1600px;">
                     <thead>
                         <tr class="bg-zinc-50/80 border-b border-zinc-200 text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-                            <th class="sticky left-0 bg-zinc-50 z-20 px-6 py-4 min-w-[140px] max-w-[140px] w-[140px] border-r border-zinc-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">NPM</th>
-                            <th class="sticky left-[140px] bg-zinc-50 z-20 px-6 py-4 min-w-[200px] max-w-[200px] w-[200px] border-r border-zinc-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">Nama</th>
+                            <th class="sticky left-0 bg-zinc-50 z-20 px-6 py-4 min-w-[140px] max-w-[140px] w-[140px] border-r border-zinc-200 [will-change:transform]">NPM</th>
+                            <th class="sticky left-[140px] bg-zinc-50 z-20 px-6 py-4 min-w-[200px] max-w-[200px] w-[200px] border-r border-zinc-200 [will-change:transform]">Nama</th>
+                            <th class="sticky left-[340px] bg-zinc-50 z-20 px-4 py-4 text-center min-w-[80px] max-w-[80px] w-[80px] border-r-2 border-zinc-200 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.06)] text-zinc-800 font-bold [will-change:transform]">Aksi</th>
                             
                             <!-- Dynamic Modul Headers -->
                             @for($i = 1; $i <= $praktikum->jumlah_modul; $i++)
@@ -151,8 +152,7 @@
                             <th class="px-4 py-4 text-center border-r border-zinc-200 bg-zinc-100 text-zinc-600">Tot Dos</th>
                             <th class="px-6 py-4 text-center border-r border-zinc-200 bg-slate-900 text-white font-bold">Nilai Akhir</th>
                             <th class="px-4 py-4 text-center border-r border-zinc-200 bg-slate-850 text-white font-bold">Huruf</th>
-                            <th class="px-6 py-4 text-center border-r border-zinc-200 bg-zinc-100 text-zinc-800 font-bold">Status</th>
-                            <th class="px-6 py-4 text-center text-zinc-800 font-bold">Aksi</th>
+                            <th class="px-6 py-4 text-center bg-zinc-100 text-zinc-800 font-bold">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100 text-xs font-medium text-zinc-700">
@@ -165,34 +165,25 @@
                             @endphp
                             <tr class="hover:bg-zinc-50/30 transition-colors {{ $isGugur ? 'bg-zinc-50/60 opacity-60' : '' }}">
                                 <!-- Sticky Columns -->
-                                <td class="sticky left-0 bg-white z-10 px-6 py-4 font-bold text-zinc-900 border-r border-zinc-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
+                                <td class="sticky left-0 bg-white z-10 px-6 py-4 font-bold text-zinc-900 border-r border-zinc-100 [will-change:transform]">
                                     {{ $pendaftaran->praktikan->npm }}
                                 </td>
-                                <td class="sticky left-[140px] bg-white z-10 px-6 py-4 font-semibold text-zinc-700 border-r border-zinc-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] line-clamp-1 uppercase" title="{{ $pendaftaran->praktikan->user->name }}">
+                                <td class="sticky left-[140px] bg-white z-10 px-6 py-4 font-semibold text-zinc-700 border-r border-zinc-100 line-clamp-1 uppercase [will-change:transform]" title="{{ $pendaftaran->praktikan->user->name }}">
                                     {{ $pendaftaran->praktikan->user->name }}
+                                </td>
+                                <td class="sticky left-[340px] bg-white z-10 px-4 py-4 text-center min-w-[80px] max-w-[80px] w-[80px] border-r-2 border-zinc-200 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.06)] [will-change:transform]">
+                                    <button onclick='openEditModal("{{ $pendaftaran->id }}", "{{ addslashes($pendaftaran->praktikan->user->name) }}", "{{ $pendaftaran->praktikan->npm }}", @json($g), @json($gradeData["prak_scores"]), @json($gradeData["ast_scores"]))'
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#001f3f]/5 text-[#001f3f] border border-zinc-200 transition-colors shadow-sm"
+                                            title="Ubah & Override Nilai">
+                                        <i class="fas fa-edit text-xs"></i>
+                                    </button>
                                 </td>
 
                                 <!-- Dynamic Modul Grades -->
                                 @for($i = 1; $i <= $praktikum->jumlah_modul; $i++)
                                     @php
-                                        // Retrieve practical score (Prak)
-                                        // Match by schedule index
-                                        $schedulesList = $pendaftaran->praktikum->jadwals()->orderBy('tanggal', 'asc')->orderBy('waktu_mulai', 'asc')->get();
-                                        $sched = $schedulesList->get($i - 1);
-                                        $prakScore = 0;
-                                        if ($sched) {
-                                            $pres = $pendaftaran->presensis->firstWhere('jadwal_id', $sched->id);
-                                            $prakScore = ($pres && $pres->penilaian) ? $pres->penilaian->nilai : 0;
-                                        }
-
-                                        // Retrieve assistance score (Ast)
-                                        $astScore = 0;
-                                        if ($sched) {
-                                            $tugas = $pendaftaran->tugasAsistensis->firstWhere('judul', $sched->judul_modul);
-                                            $astScore = $tugas ? ($tugas->nilai ?? 0) : 0;
-                                        }
-
-                                        // Lecturer score
+                                        $prakScore = $gradeData['prak_scores'][$i] ?? 0;
+                                        $astScore = $gradeData['ast_scores'][$i] ?? 0;
                                         $dosScore = $g['nilai_dosen'][$i] ?? 0;
                                     @endphp
                                     <td class="px-3 py-4 text-center border-r border-zinc-100 bg-zinc-50/10">{{ $prakScore }}</td>
@@ -222,7 +213,7 @@
                                 <td class="px-6 py-4 text-center border-r border-zinc-100 bg-slate-900/5 text-slate-900 font-black text-sm">{{ number_format($g['nilai_akhir'], 2) }}</td>
                                 <td class="px-4 py-4 text-center border-r border-zinc-100 bg-zinc-50/20 text-zinc-900 font-black text-sm">{{ $g['nilai_huruf'] }}</td>
                                 
-                                <td class="px-6 py-4 text-center border-r border-zinc-100">
+                                <td class="px-6 py-4 text-center">
                                     @if($isGugur)
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-800 border border-slate-200 uppercase" title="Alasan: {{ $g['alasan_gugur'] }}">
                                             GUGUR
@@ -236,14 +227,6 @@
                                             TIDAK LULUS
                                         </span>
                                     @endif
-                                </td>
-
-                                <td class="px-6 py-4 text-center">
-                                    <button onclick='openEditModal("{{ $pendaftaran->id }}", "{{ addslashes($pendaftaran->praktikan->user->name) }}", "{{ $pendaftaran->praktikan->npm }}", @json($g))'
-                                            class="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#001f3f]/5 text-[#001f3f] border border-zinc-200 transition-colors shadow-sm"
-                                            title="Ubah & Override Nilai">
-                                        <i class="fas fa-edit text-xs"></i>
-                                    </button>
                                 </td>
                             </tr>
                         @empty
@@ -264,11 +247,11 @@
     </div>
 
     <!-- Manual Override Edit Modal -->
-    <div id="modal-edit-nilai" class="fixed inset-0 z-[60] hidden bg-zinc-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300">
-        <div class="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-2xl border border-zinc-200 animate-in fade-in zoom-in duration-200">
+    <div id="modal-edit-nilai" class="fixed inset-0 z-[60] hidden bg-zinc-900/50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl w-full max-w-lg overflow-hidden border border-zinc-200 shadow-xl">
             <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
                 <div class="flex items-center gap-3">
-                    <div class="h-8 w-8 rounded-lg bg-[#001f3f] flex items-center justify-center text-white shadow-lg shadow-[#001f3f]/20">
+                    <div class="h-8 w-8 rounded-lg bg-[#001f3f] flex items-center justify-center text-white shadow-md shadow-[#001f3f]/20">
                         <i class="fas fa-user-edit text-xs"></i>
                     </div>
                     <div>
@@ -281,7 +264,7 @@
                 </button>
             </div>
             
-            <form id="form-edit-nilai" method="POST" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto scrollbar-thin">
+            <form id="form-edit-nilai" method="POST" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto overscroll-contain scrollbar-thin [will-change:transform]">
                 @csrf
                 @method('PUT')
                 
@@ -297,18 +280,35 @@
                     </div>
                 </div>
 
-                <!-- Lecturer Grades Input Loop -->
+                <!-- Module Grades Input Loop (Prak, Ast, Dosen) -->
                 <div class="space-y-3">
                     <h4 class="text-[9px] font-black text-zinc-400 uppercase tracking-wider border-b border-zinc-100 pb-1 flex items-center gap-1.5">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        Nilai Dosen (Skor 0 - 100)
+                        <i class="fas fa-list-ol text-[#001f3f]"></i>
+                        Nilai Per Modul (Praktikum, Asistensi, Dosen)
                     </h4>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2.5">
                         @for($i = 1; $i <= $praktikum->jumlah_modul; $i++)
-                            <div class="space-y-1.5">
-                                <label class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Modul {{ $i }} Dosen</label>
-                                <input type="number" name="nilai_dosen[{{ $i }}]" id="input-nilai-dosen-{{ $i }}" min="0" max="100" required
-                                    class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                            <div class="p-3 bg-zinc-50/80 border border-zinc-200/80 rounded-xl space-y-2">
+                                <span class="text-[10px] font-black text-zinc-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fas fa-cube text-[#001f3f]"></i> Modul {{ $i }}
+                                </span>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <div>
+                                        <label class="text-[8px] font-bold text-zinc-500 uppercase tracking-tight block mb-1">Nilai Prak</label>
+                                        <input type="number" name="nilai_praktikum[{{ $i }}]" id="input-nilai-prak-{{ $i }}" min="0" max="100" required
+                                            class="flex h-9 w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-semibold focus:border-[#001f3f] focus:ring-1 focus:ring-[#001f3f] outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="text-[8px] font-bold text-zinc-500 uppercase tracking-tight block mb-1">Nilai Ast</label>
+                                        <input type="number" name="nilai_asistensi[{{ $i }}]" id="input-nilai-ast-{{ $i }}" min="0" max="100" required
+                                            class="flex h-9 w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-semibold focus:border-[#001f3f] focus:ring-1 focus:ring-[#001f3f] outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="text-[8px] font-bold text-zinc-500 uppercase tracking-tight block mb-1">Nilai Dosen</label>
+                                        <input type="number" name="nilai_dosen[{{ $i }}]" id="input-nilai-dosen-{{ $i }}" min="0" max="100" required
+                                            class="flex h-9 w-full rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-semibold focus:border-[#001f3f] focus:ring-1 focus:ring-[#001f3f] outline-none">
+                                    </div>
+                                </div>
                             </div>
                         @endfor
                     </div>
@@ -324,13 +324,13 @@
                         <div class="space-y-1.5">
                             <label class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Nilai Laporan</label>
                             <input type="number" name="nilai_laporan" id="input-nilai-laporan" min="0" max="100" required
-                                class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                                class="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-1 text-sm font-semibold focus:border-[#001f3f] focus:ring-1 focus:ring-[#001f3f] outline-none">
                         </div>
                         @if($praktikum->ada_tugas_akhir)
                             <div class="space-y-1.5">
                                 <label class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Nilai Tugas Akhir</label>
                                 <input type="number" name="nilai_tugas_akhir" id="input-nilai-ta" min="0" max="100" required
-                                    class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                                    class="flex h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 py-1 text-sm font-semibold focus:border-[#001f3f] focus:ring-1 focus:ring-[#001f3f] outline-none">
                             </div>
                         @endif
                     </div>
@@ -353,16 +353,29 @@
                 </div>
 
                 <!-- Form Buttons -->
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-zinc-100">
-                    <button type="button" onclick="closeEditModal()"
-                        class="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 px-5 text-xs font-bold text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700 transition-colors">
-                        BATAL
+                <div class="flex items-center justify-between gap-3 pt-4 border-t border-zinc-100">
+                    <button type="button" id="btn-delete-nilai" onclick="confirmDeleteNilai()"
+                        class="inline-flex h-9 items-center justify-center rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-4 text-xs font-bold transition-colors gap-1.5">
+                        <i class="fas fa-trash-alt text-xs"></i>
+                        Hapus / Reset
                     </button>
-                    <button type="submit"
-                        class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-6 text-xs font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a]">
-                        SIMPAN PERUBAHAN
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="closeEditModal()"
+                            class="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 px-5 text-xs font-bold text-zinc-500 hover:bg-zinc-50 hover:text-zinc-700 transition-colors">
+                            BATAL
+                        </button>
+                        <button type="submit"
+                            class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-6 text-xs font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a]">
+                            SIMPAN PERUBAHAN
+                        </button>
+                    </div>
                 </div>
+            </form>
+
+            <!-- Hidden Delete Form -->
+            <form id="form-delete-nilai" method="POST" class="hidden">
+                @csrf
+                @method('DELETE')
             </form>
         </div>
     </div>
@@ -378,23 +391,47 @@
             }
         }
 
-        function openEditModal(pendaftaranId, studentName, npm, grades) {
+        function openEditModal(pendaftaranId, studentName, npm, grades, prakScores, astScores) {
             const modal = document.getElementById('modal-edit-nilai');
             const form = document.getElementById('form-edit-nilai');
             
             // Set form action route
             form.action = `/admin/penilaian-akhir/${pendaftaranId}`;
+
+            // Set delete form action route & show/hide delete button
+            const deleteForm = document.getElementById('form-delete-nilai');
+            const deleteBtn = document.getElementById('btn-delete-nilai');
+            if (deleteForm) {
+                deleteForm.action = `/admin/penilaian-akhir/${pendaftaranId}`;
+            }
+            if (deleteBtn) {
+                if (grades && grades.id) {
+                    deleteBtn.classList.remove('hidden');
+                } else {
+                    deleteBtn.classList.add('hidden');
+                }
+            }
             
             // Populate student details
             document.getElementById('modal-student-name').innerText = studentName;
             document.getElementById('modal-student-npm').innerText = npm;
             
-            // Populate lecturer scores
+            // Populate module scores (Prak, Ast, Dosen)
             const jumlahModul = {{ $praktikum->jumlah_modul }};
             for (let i = 1; i <= jumlahModul; i++) {
-                const input = document.getElementById('input-nilai-dosen-' + i);
-                if (input) {
-                    input.value = grades.nilai_dosen ? (grades.nilai_dosen[i] || 0) : 0;
+                const inputPrak = document.getElementById('input-nilai-prak-' + i);
+                if (inputPrak) {
+                    inputPrak.value = (prakScores && prakScores[i] !== undefined) ? prakScores[i] : 0;
+                }
+
+                const inputAst = document.getElementById('input-nilai-ast-' + i);
+                if (inputAst) {
+                    inputAst.value = (astScores && astScores[i] !== undefined) ? astScores[i] : 0;
+                }
+
+                const inputDos = document.getElementById('input-nilai-dosen-' + i);
+                if (inputDos) {
+                    inputDos.value = (grades.nilai_dosen ? (grades.nilai_dosen[i] || 0) : 0);
                 }
             }
             
@@ -434,6 +471,23 @@
                 reasonContainer.classList.add('hidden');
                 reasonInput.removeAttribute('required');
             }
+        }
+
+        function confirmDeleteNilai() {
+            Swal.fire({
+                title: 'Hapus / Reset Nilai?',
+                text: 'Nilai override praktikan akan dihapus dan dikembalikan ke perhitungan otomatis.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-delete-nilai').submit();
+                }
+            });
         }
     </script>
 @endsection
