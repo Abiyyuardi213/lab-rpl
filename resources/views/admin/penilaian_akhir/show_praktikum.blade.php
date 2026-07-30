@@ -11,7 +11,7 @@
                 <p class="text-sm text-zinc-500 font-medium italic mt-0.5">"{{ $praktikum->nama_praktikum }} ({{ $praktikum->kode_praktikum }})"</p>
             </div>
             <div class="flex items-center gap-3">
-                <a href="{{ route('admin.penilaian-akhir.export', $praktikum->id) }}"
+                <a href="{{ route('admin.penilaian-akhir.export', array_merge([$praktikum->id], request()->query())) }}"
                     class="inline-flex items-center gap-2 h-9 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg shadow-lg shadow-emerald-600/20 transition-all">
                     <i class="fas fa-file-excel text-xs"></i>
                     Export Excel
@@ -102,27 +102,63 @@
                 <div class="bg-amber-50 border border-amber-200/60 rounded-lg p-3 text-[10px] text-amber-800 mt-4 leading-relaxed font-medium">
                     <span class="font-bold"><i class="fas fa-info-circle mr-1"></i> PANDUAN:</span><br>
                     • <span class="font-bold">Download Template</span> → File Excel terpisah per kelas (P, Q, V) dengan NPM & Nama sudah terisi. Dosen tinggal mengisi nilai.<br>
-                    • <span class="font-bold">Format Import</span> → Sheet <b>NILAI</b>: Kolom <b>A</b> NPM, Kolom <b>B</b> Nama, lalu kolom berikutnya untuk Nilai Dosen per modul sesuai jumlah modul.</div>
+                    • <span class="font-bold">Format Import</span> → Sheet <b>NILAI</b>: Kolom <b>A</b> NPM, Kolom <b>B</b> Nama, lalu kolom berikutnya untuk Nilai Dosen per modul sesuai jumlah modul.
                 </div>
             </div>
         </div>
 
-        <!-- Grade Matrix Table -->
-        <div class="rounded-xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
-            <div class="p-6 border-b border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-50/20">
+        <!-- Grade Matrix Table Card -->
+        <div class="mt-6 rounded-xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
+            <!-- Table Header & Search/Filter Controls -->
+            <div class="p-5 border-b border-zinc-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-zinc-50/40">
                 <div>
                     <h3 class="text-sm font-bold text-zinc-800 uppercase tracking-wider leading-none">Matriks Penilaian Akhir</h3>
                     <p class="text-[10px] text-zinc-400 font-medium mt-1">Scroll ke samping untuk melihat detail nilai praktikum, asistensi, laporan, TA, dan dosen.</p>
                 </div>
-                <!-- Custom styling info -->
-                <div class="flex gap-2">
-                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-zinc-500 uppercase px-2 py-1 rounded bg-zinc-100 border border-zinc-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Lulus
-                    </span>
-                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-zinc-500 uppercase px-2 py-1 rounded bg-zinc-100 border border-zinc-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Tidak Lulus
-                    </span>
-                </div>
+
+                <!-- Search & Aslab Filter Form -->
+                <form method="GET" action="{{ route('admin.penilaian-akhir.praktikum', $praktikum->id) }}" class="flex flex-col sm:flex-row items-center gap-3">
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:w-64">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari NPM atau Nama..."
+                            class="w-full h-9 pl-9 pr-8 text-xs bg-white border border-zinc-200 rounded-lg shadow-sm focus:outline-none focus:border-[#001f3f] focus:ring-1 focus:ring-[#001f3f] transition-all">
+                        @if(request('search'))
+                            <a href="{{ route('admin.penilaian-akhir.praktikum', array_merge([$praktikum->id], request()->except('search'))) }}" 
+                                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 text-xs">
+                                <i class="fas fa-times-circle"></i>
+                            </a>
+                        @endif
+                    </div>
+
+                    <!-- Aslab Filter Select -->
+                    <div class="relative w-full sm:w-56">
+                        <select name="aslab_id" onchange="this.form.submit()"
+                            class="w-full h-9 px-3 text-xs bg-white border border-zinc-200 rounded-lg shadow-sm focus:outline-none focus:border-[#001f3f] focus:ring-1 focus:ring-[#001f3f] font-medium text-zinc-700 transition-all cursor-pointer">
+                            <option value="">-- Semua Aslab --</option>
+                            <option value="none" {{ request('aslab_id') === 'none' ? 'selected' : '' }}>-- Tanpa Aslab --</option>
+                            @foreach($aslabs as $aslab)
+                                <option value="{{ $aslab->id }}" {{ request('aslab_id') == $aslab->id ? 'selected' : '' }}>
+                                    Aslab: {{ $aslab->user->name ?? 'Aslab' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Submit & Reset Buttons -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button type="submit" class="h-9 px-4 bg-[#001f3f] hover:bg-[#002d5a] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-all shadow-sm">
+                            <i class="fas fa-filter text-[10px] mr-1"></i> Filter
+                        </button>
+                        @if(request('search') || request('aslab_id'))
+                            <a href="{{ route('admin.penilaian-akhir.praktikum', $praktikum->id) }}" 
+                                class="h-9 px-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 text-xs font-bold rounded-lg transition-all flex items-center justify-center border border-zinc-200"
+                                title="Reset Filter">
+                                <i class="fas fa-undo text-[10px]"></i>
+                            </a>
+                        @endif
+                    </div>
+                </form>
             </div>
 
             <!-- Sticky columns horizontally scrollable table container -->
@@ -168,8 +204,15 @@
                                 <td class="sticky left-0 bg-white z-10 px-6 py-4 font-bold text-zinc-900 border-r border-zinc-100 [will-change:transform]">
                                     {{ $pendaftaran->praktikan->npm }}
                                 </td>
-                                <td class="sticky left-[140px] bg-white z-10 px-6 py-4 font-semibold text-zinc-700 border-r border-zinc-100 line-clamp-1 uppercase [will-change:transform]" title="{{ $pendaftaran->praktikan->user->name }}">
-                                    {{ $pendaftaran->praktikan->user->name }}
+                                <td class="sticky left-[140px] bg-white z-10 px-6 py-4 font-semibold text-zinc-700 border-r border-zinc-100 uppercase [will-change:transform]" title="{{ $pendaftaran->praktikan->user->name }}">
+                                    <div class="font-bold text-zinc-900 truncate max-w-[180px]">{{ $pendaftaran->praktikan->user->name }}</div>
+                                    @if($pendaftaran->aslab && $pendaftaran->aslab->user)
+                                        <span class="text-[9px] font-semibold text-indigo-600 tracking-tight block capitalize normal-case truncate max-w-[180px] mt-0.5">
+                                            <i class="fas fa-user-tie text-[8px] mr-0.5 text-indigo-400"></i> {{ $pendaftaran->aslab->user->name }}
+                                        </span>
+                                    @else
+                                        <span class="text-[9px] font-medium text-zinc-300 block leading-tight mt-0.5">Tanpa Aslab</span>
+                                    @endif
                                 </td>
                                 <td class="sticky left-[340px] bg-white z-10 px-4 py-4 text-center min-w-[80px] max-w-[80px] w-[80px] border-r-2 border-zinc-200 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.06)] [will-change:transform]">
                                     <button onclick='openEditModal("{{ $pendaftaran->id }}", "{{ addslashes($pendaftaran->praktikan->user->name) }}", "{{ $pendaftaran->praktikan->npm }}", @json($g), @json($gradeData["prak_scores"]), @json($gradeData["ast_scores"]))'
