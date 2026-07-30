@@ -68,19 +68,24 @@ class PenilaianAkhirExport implements FromCollection, WithHeadings, WithMapping,
             ->get();
 
         for ($i = 1; $i <= $this->praktikum->jumlah_modul; $i++) {
-            $sched = $schedulesList->get($i - 1);
+            $targetTitle = "Modul " . $i;
 
-            $prakScore = 0;
-            if ($sched) {
-                $pres = $pendaftaran->presensis->firstWhere('jadwal_id', $sched->id);
-                $prakScore = ($pres && $pres->penilaian) ? $pres->penilaian->nilai : 0;
-            }
+            $pres = $pendaftaran->presensis->first(function ($p) use ($targetTitle, $i) {
+                if (!$p->jadwal) return false;
+                $jTitle = $p->jadwal->judul_modul;
+                return strcasecmp($jTitle, $targetTitle) === 0 
+                    || str_contains(strtolower($jTitle), strtolower($targetTitle))
+                    || str_contains(strtolower($jTitle), "modul " . $i);
+            });
+            $prakScore = ($pres && $pres->penilaian) ? $pres->penilaian->nilai : 0;
 
-            $astScore = 0;
-            if ($sched) {
-                $tugas = $pendaftaran->tugasAsistensis->firstWhere('judul', $sched->judul_modul);
-                $astScore = $tugas ? ($tugas->nilai ?? 0) : 0;
-            }
+            $tugas = $pendaftaran->tugasAsistensis->first(function ($t) use ($targetTitle, $i) {
+                $tTitle = $t->judul;
+                return strcasecmp($tTitle, $targetTitle) === 0 
+                    || str_contains(strtolower($tTitle), strtolower($targetTitle))
+                    || str_contains(strtolower($tTitle), "modul " . $i);
+            });
+            $astScore = $tugas ? ($tugas->nilai ?? 0) : 0;
 
             $dosScore = $g['nilai_dosen'][$i] ?? 0;
 

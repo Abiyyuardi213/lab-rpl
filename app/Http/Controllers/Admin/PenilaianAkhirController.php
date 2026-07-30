@@ -36,45 +36,83 @@ class PenilaianAkhirController extends Controller
     /**
      * Show the final grades for a specific practical course.
      */
-    public function showPraktikum($praktikum_id)
+    public function showPraktikum(Request $request, $praktikum_id)
     {
-        $praktikum = Praktikum::findOrFail($praktikum_id);
+        $praktikum = Praktikum::with('aslabs.user')->findOrFail($praktikum_id);
 
         $schedules = $praktikum->jadwals()
             ->orderBy('tanggal', 'asc')
             ->orderBy('waktu_mulai', 'asc')
             ->get();
 
-        $pendaftarans = PendaftaranPraktikum::with([
+        $search = trim((string) $request->query('search', ''));
+        $aslabFilter = $request->query('aslab_id', '');
+
+        $query = PendaftaranPraktikum::with([
             'praktikan.user',
+            'aslab.user',
             'penilaianAkhir',
             'presensis.penilaian',
             'tugasAsistensis'
         ])
             ->where('praktikum_id', $praktikum_id)
-            ->where('status', 'verified')
-            ->get();
+            ->where('status', 'verified');
+
+        // Apply Search Filter (NPM or Name)
+        if ($search !== '') {
+            $query->whereHas('praktikan', function ($q) use ($search) {
+                $q->where('npm', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function ($u) use ($search) {
+                      $u->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        // Apply Aslab Filter
+        if ($aslabFilter !== '') {
+            if ($aslabFilter === 'none') {
+                $query->whereNull('aslab_id');
+            } else {
+                $query->where('aslab_id', $aslabFilter);
+            }
+        }
+
+        $pendaftarans = $query->get();
+
+        // Get aslabs for filter dropdown
+        $aslabs = $praktikum->aslabs;
+        if ($aslabs->isEmpty()) {
+            // Fallback: get all aslabs with users
+            $aslabs = Aslab::with('user')->get();
+        }
 
         $grades = [];
         foreach ($pendaftarans as $pendaftaran) {
-            // Compute module scores ahead of time so Blade doesn't execute queries in loops
+            // Compute module scores ahead of time by module number (1..jumlah_modul)
             $prakScores = [];
             $astScores = [];
 
-            foreach ($schedules as $index => $sched) {
-                $modulNum = $index + 1;
-                if ($modulNum > $praktikum->jumlah_modul) break;
-
-                $pres = $pendaftaran->presensis->firstWhere('jadwal_id', $sched->id);
-                $prakScores[$modulNum] = ($pres && $pres->penilaian) ? $pres->penilaian->nilai : 0;
-
-                $tugas = $pendaftaran->tugasAsistensis->firstWhere('judul', $sched->judul_modul);
-                $astScores[$modulNum] = $tugas ? ($tugas->nilai ?? 0) : 0;
-            }
-
             for ($i = 1; $i <= $praktikum->jumlah_modul; $i++) {
-                if (!isset($prakScores[$i])) $prakScores[$i] = 0;
-                if (!isset($astScores[$i])) $astScores[$i] = 0;
+                $targetTitle = "Modul " . $i;
+
+                // 1. Practical Score (Prak)
+                $pres = $pendaftaran->presensis->first(function ($p) use ($targetTitle, $i) {
+                    if (!$p->jadwal) return false;
+                    $jTitle = $p->jadwal->judul_modul;
+                    return strcasecmp($jTitle, $targetTitle) === 0 
+                        || str_contains(strtolower($jTitle), strtolower($targetTitle))
+                        || str_contains(strtolower($jTitle), "modul " . $i);
+                });
+                $prakScores[$i] = ($pres && $pres->penilaian) ? $pres->penilaian->nilai : 0;
+
+                // 2. Assistance Score (Ast)
+                $tugas = $pendaftaran->tugasAsistensis->first(function ($t) use ($targetTitle, $i) {
+                    $tTitle = $t->judul;
+                    return strcasecmp($tTitle, $targetTitle) === 0 
+                        || str_contains(strtolower($tTitle), strtolower($targetTitle))
+                        || str_contains(strtolower($tTitle), "modul " . $i);
+                });
+                $astScores[$i] = $tugas ? ($tugas->nilai ?? 0) : 0;
             }
 
             if ($pendaftaran->penilaianAkhir) {
@@ -118,7 +156,7 @@ class PenilaianAkhirController extends Controller
             return strcasecmp($nameA, $nameB);
         });
 
-        return view('admin.penilaian_akhir.show_praktikum', compact('praktikum', 'grades'));
+        return view('admin.penilaian_akhir.show_praktikum', compact('praktikum', 'grades', 'aslabs'));
     }
 
     /**
@@ -159,14 +197,35 @@ class PenilaianAkhirController extends Controller
     /**
      * Export final grades matrix to Excel.
      */
-    public function export($praktikum_id)
+    public function export(Request $request, $praktikum_id)
     {
         $praktikum = Praktikum::findOrFail($praktikum_id);
 
-        $pendaftarans = PendaftaranPraktikum::with(['praktikan.user', 'penilaianAkhir', 'presensis.penilaian', 'tugasAsistensis', 'praktikum.jadwals'])
+        $search = trim((string) $request->query('search', ''));
+        $aslabFilter = $request->query('aslab_id', '');
+
+        $query = PendaftaranPraktikum::with(['praktikan.user', 'aslab.user', 'penilaianAkhir', 'presensis.penilaian', 'tugasAsistensis', 'praktikum.jadwals'])
             ->where('praktikum_id', $praktikum_id)
-            ->where('status', 'verified')
-            ->get();
+            ->where('status', 'verified');
+
+        if ($search !== '') {
+            $query->whereHas('praktikan', function ($q) use ($search) {
+                $q->where('npm', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function ($u) use ($search) {
+                      $u->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        if ($aslabFilter !== '') {
+            if ($aslabFilter === 'none') {
+                $query->whereNull('aslab_id');
+            } else {
+                $query->where('aslab_id', $aslabFilter);
+            }
+        }
+
+        $pendaftarans = $query->get();
 
         $grades = [];
         foreach ($pendaftarans as $pendaftaran) {
@@ -254,7 +313,17 @@ class PenilaianAkhirController extends Controller
             $modulNum = (int)$modulIndex;
             if ($modulNum < 1 || $modulNum > $praktikum->jumlah_modul) continue;
 
-            $sched = $schedules->get($modulNum - 1);
+            $targetTitle = "Modul " . $modulNum;
+            $sched = $schedules->first(function ($s) use ($targetTitle, $modulNum, $pendaftaran) {
+                $match = strcasecmp($s->judul_modul, $targetTitle) === 0 || str_contains(strtolower($s->judul_modul), "modul " . $modulNum);
+                if ($pendaftaran->sesi_id) {
+                    return $match && $s->sesi_id == $pendaftaran->sesi_id;
+                }
+                return $match;
+            }) ?? $schedules->first(function ($s) use ($targetTitle, $modulNum) {
+                return strcasecmp($s->judul_modul, $targetTitle) === 0 || str_contains(strtolower($s->judul_modul), "modul " . $modulNum);
+            });
+
             if ($sched) {
                 $presensi = Presensi::firstOrCreate(
                     [
@@ -281,20 +350,26 @@ class PenilaianAkhirController extends Controller
             $modulNum = (int)$modulIndex;
             if ($modulNum < 1 || $modulNum > $praktikum->jumlah_modul) continue;
 
-            $sched = $schedules->get($modulNum - 1);
-            if ($sched) {
-                TugasAsistensi::updateOrCreate(
-                    [
-                        'pendaftaran_id' => $pendaftaran->id,
-                        'judul' => $sched->judul_modul,
-                    ],
-                    [
-                        'aslab_id' => $aslabId,
-                        'nilai' => (int)$val,
-                        'status' => 'reviewed',
-                    ]
-                );
-            }
+            $targetTitle = "Modul " . $modulNum;
+
+            // Check if student already has a tugas_asistensi matching "Modul X"
+            $existingTugas = $pendaftaran->tugasAsistensis->first(function ($t) use ($targetTitle, $modulNum) {
+                return strcasecmp($t->judul, $targetTitle) === 0 || str_contains(strtolower($t->judul), "modul " . $modulNum);
+            });
+
+            $judulModul = $existingTugas ? $existingTugas->judul : $targetTitle;
+
+            TugasAsistensi::updateOrCreate(
+                [
+                    'pendaftaran_id' => $pendaftaran->id,
+                    'judul' => $judulModul,
+                ],
+                [
+                    'aslab_id' => $aslabId,
+                    'nilai' => (int)$val,
+                    'status' => 'reviewed',
+                ]
+            );
         }
 
         // Reset loaded relations so calculateGrades reads newly updated scores from DB

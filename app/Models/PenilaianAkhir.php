@@ -46,16 +46,12 @@ class PenilaianAkhir extends Model
         return $this->belongsTo(PendaftaranPraktikum::class, 'pendaftaran_id');
     }
 
-    /**
-     * Calculate and return grades for a student's practical course registration.
-     */
     public static function calculateGrades(PendaftaranPraktikum $pendaftaran, array $nilaiDosen = [], ?int $nilaiLaporan = null, ?int $nilaiTugasAkhir = null, bool $isGugur = false, ?string $alasanGugur = null, $schedules = null): array
     {
         $praktikum = $pendaftaran->praktikum;
         $jumlahModul = $praktikum->jumlah_modul;
         $adaTugasAkhir = $praktikum->ada_tugas_akhir;
 
-        // 1. Get Practical Scores (Prak) from penilaian_praktikums
         $presensis = $pendaftaran->relationLoaded('presensis') ? $pendaftaran->presensis : $pendaftaran->presensis()->with('penilaian')->get();
         if (!$schedules) {
             $schedules = JadwalPraktikum::where('praktikum_id', $praktikum->id)
@@ -65,52 +61,36 @@ class PenilaianAkhir extends Model
         }
 
         $prakScores = [];
-        foreach ($schedules as $index => $schedule) {
-            $modulNum = $index + 1;
-            if ($modulNum > $jumlahModul) {
-                break;
-            }
-
-            $presensi = $presensis->firstWhere('jadwal_id', $schedule->id);
-            $score = ($presensi && $presensi->penilaian) ? $presensi->penilaian->nilai : 0;
-            $prakScores[$modulNum] = $score;
-        }
-
-        // Fill remaining modules with 0 if schedules are fewer than jumlah_modul
         for ($i = 1; $i <= $jumlahModul; $i++) {
-            if (!isset($prakScores[$i])) {
-                $prakScores[$i] = 0;
-            }
+            $targetTitle = "Modul " . $i;
+            $presensi = $presensis->first(function ($p) use ($targetTitle, $i) {
+                if (!$p->jadwal) return false;
+                $jTitle = $p->jadwal->judul_modul;
+                return strcasecmp($jTitle, $targetTitle) === 0 
+                    || str_contains(strtolower($jTitle), strtolower($targetTitle))
+                    || str_contains(strtolower($jTitle), "modul " . $i);
+            });
+            $prakScores[$i] = ($presensi && $presensi->penilaian) ? $presensi->penilaian->nilai : 0;
         }
 
-        // 2. Get Assistant Scores (Ast) from tugas_asistensis
         $tugasList = $pendaftaran->relationLoaded('tugasAsistensis') ? $pendaftaran->tugasAsistensis : $pendaftaran->tugasAsistensis()->get();
         $astScores = [];
-        foreach ($schedules as $index => $schedule) {
-            $modulNum = $index + 1;
-            if ($modulNum > $jumlahModul) {
-                break;
-            }
-
-            // Find tugas by matching the title exactly with schedule's module title
-            $tugas = $tugasList->firstWhere('judul', $schedule->judul_modul);
-            $astScores[$modulNum] = $tugas ? ($tugas->nilai ?? 0) : 0;
-        }
-
-        // Fill remaining modules with 0
         for ($i = 1; $i <= $jumlahModul; $i++) {
-            if (!isset($astScores[$i])) {
-                $astScores[$i] = 0;
-            }
+            $targetTitle = "Modul " . $i;
+            $tugas = $tugasList->first(function ($t) use ($targetTitle, $i) {
+                $tTitle = $t->judul;
+                return strcasecmp($tTitle, $targetTitle) === 0 
+                    || str_contains(strtolower($tTitle), strtolower($targetTitle))
+                    || str_contains(strtolower($tTitle), "modul " . $i);
+            });
+            $astScores[$i] = $tugas ? ($tugas->nilai ?? 0) : 0;
         }
 
-        // 3. Lecturer Scores (Dos)
         $dosScores = [];
         for ($i = 1; $i <= $jumlahModul; $i++) {
             $dosScores[$i] = isset($nilaiDosen[$i]) ? intval($nilaiDosen[$i]) : (isset($nilaiDosen['Modul ' . $i]) ? intval($nilaiDosen['Modul ' . $i]) : 0);
         }
 
-        // 4. Calculate Total Prak
         $sumPrak = array_sum($prakScores);
         if ($adaTugasAkhir) {
             $totalPrak = ($sumPrak + ($nilaiTugasAkhir ?? 0)) / ($jumlahModul + 1);
@@ -118,21 +98,16 @@ class PenilaianAkhir extends Model
             $totalPrak = $jumlahModul > 0 ? $sumPrak / $jumlahModul : 0;
         }
 
-        // 5. Calculate Total Ast
         $sumAst = array_sum($astScores);
         $totalAst = $jumlahModul > 0 ? $sumAst / $jumlahModul : 0;
 
-        // 6. Calculate Total Prak + Ast
         $totalPrakAst = (($nilaiLaporan ?? 0) + $totalPrak + $totalAst) / 3;
 
-        // 7. Calculate Total Dos
         $sumDos = array_sum($dosScores);
         $totalDos = $jumlahModul > 0 ? $sumDos / $jumlahModul : 0;
 
-        // 8. Calculate Nilai Akhir
         $nilaiAkhir = ($totalPrakAst * 0.4) + ($totalDos * 0.6);
 
-        // 9. Grade Letter (Huruf)
         $nilaiHuruf = 'E';
         if ($nilaiAkhir >= 91) {
             $nilaiHuruf = 'A+';
@@ -156,7 +131,6 @@ class PenilaianAkhir extends Model
             $nilaiHuruf = 'E';
         }
 
-        // 10. Keterangan (Status Kelulusan)
         $statusKelulusan = in_array($nilaiHuruf, ['D', 'E'], true) ? 'TIDAK LULUS' : 'LULUS';
 
         return [
