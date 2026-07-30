@@ -192,6 +192,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/penilaian-akhir/praktikum/{id}/template', [\App\Http\Controllers\Admin\PenilaianAkhirController::class, 'downloadTemplate'])->name('penilaian-akhir.template');
         Route::get('/penilaian-akhir/praktikum/{id}/export', [\App\Http\Controllers\Admin\PenilaianAkhirController::class, 'export'])->name('penilaian-akhir.export');
         Route::put('/penilaian-akhir/{pendaftaran_id}', [\App\Http\Controllers\Admin\PenilaianAkhirController::class, 'update'])->name('penilaian-akhir.update');
+        Route::delete('/penilaian-akhir/{pendaftaran_id}', [\App\Http\Controllers\Admin\PenilaianAkhirController::class, 'destroy'])->name('penilaian-akhir.destroy');
 
         // Recruitment Management
         Route::resource('recruitment', \App\Http\Controllers\Admin\RecruitmentController::class);

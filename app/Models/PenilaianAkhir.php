@@ -49,18 +49,20 @@ class PenilaianAkhir extends Model
     /**
      * Calculate and return grades for a student's practical course registration.
      */
-    public static function calculateGrades(PendaftaranPraktikum $pendaftaran, array $nilaiDosen = [], ?int $nilaiLaporan = null, ?int $nilaiTugasAkhir = null, bool $isGugur = false, ?string $alasanGugur = null): array
+    public static function calculateGrades(PendaftaranPraktikum $pendaftaran, array $nilaiDosen = [], ?int $nilaiLaporan = null, ?int $nilaiTugasAkhir = null, bool $isGugur = false, ?string $alasanGugur = null, $schedules = null): array
     {
         $praktikum = $pendaftaran->praktikum;
         $jumlahModul = $praktikum->jumlah_modul;
         $adaTugasAkhir = $praktikum->ada_tugas_akhir;
 
         // 1. Get Practical Scores (Prak) from penilaian_praktikums
-        $presensis = $pendaftaran->presensis()->with('penilaian')->get();
-        $schedules = JadwalPraktikum::where('praktikum_id', $praktikum->id)
-            ->orderBy('tanggal', 'asc')
-            ->orderBy('waktu_mulai', 'asc')
-            ->get();
+        $presensis = $pendaftaran->relationLoaded('presensis') ? $pendaftaran->presensis : $pendaftaran->presensis()->with('penilaian')->get();
+        if (!$schedules) {
+            $schedules = JadwalPraktikum::where('praktikum_id', $praktikum->id)
+                ->orderBy('tanggal', 'asc')
+                ->orderBy('waktu_mulai', 'asc')
+                ->get();
+        }
 
         $prakScores = [];
         foreach ($schedules as $index => $schedule) {
@@ -82,7 +84,7 @@ class PenilaianAkhir extends Model
         }
 
         // 2. Get Assistant Scores (Ast) from tugas_asistensis
-        $tugasList = $pendaftaran->tugasAsistensis()->get();
+        $tugasList = $pendaftaran->relationLoaded('tugasAsistensis') ? $pendaftaran->tugasAsistensis : $pendaftaran->tugasAsistensis()->get();
         $astScores = [];
         foreach ($schedules as $index => $schedule) {
             $modulNum = $index + 1;
