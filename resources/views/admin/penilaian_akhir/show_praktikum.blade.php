@@ -84,10 +84,10 @@
                         <div class="flex-grow w-full space-y-1.5">
                             <label class="text-[9px] font-black text-zinc-400 uppercase tracking-widest pl-1">Pilih File Spreadsheet (.xlsx, .xls)</label>
                             <div class="flex items-center justify-center w-full">
-                                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-zinc-300 border-dashed rounded-lg cursor-pointer bg-zinc-50 hover:bg-zinc-100 transition-colors">
+                                <label id="excel-dropzone" class="flex flex-col items-center justify-center w-full h-24 border-2 border-zinc-300 border-dashed rounded-lg cursor-pointer bg-zinc-50 hover:bg-zinc-100 transition-all duration-200">
                                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <i class="fas fa-cloud-upload-alt text-zinc-400 text-2xl mb-2"></i>
-                                        <p class="text-xs text-zinc-500" id="file-chosen-text"><span class="font-bold">Klik untuk unggah</span> atau seret file</p>
+                                        <i class="fas fa-cloud-upload-alt text-zinc-400 text-2xl mb-2 transition-transform duration-200" id="upload-icon"></i>
+                                        <p class="text-xs text-zinc-500" id="file-chosen-text"><span class="font-bold">Klik untuk unggah</span> atau seret file ke sini</p>
                                     </div>
                                     <input type="file" name="file_excel" id="file_excel_input" accept=".xlsx,.xls" required class="hidden" onchange="updateFileText(this)" />
                                 </label>
@@ -255,6 +255,8 @@
                                                 $dosScore = $dosArr[$i];
                                             } elseif (isset($dosArr[(string)$i])) {
                                                 $dosScore = $dosArr[(string)$i];
+                                            } elseif (isset($dosArr['Modul ' . $i])) {
+                                                $dosScore = $dosArr['Modul ' . $i];
                                             } else {
                                                 $dosScore = 0;
                                             }
@@ -523,6 +525,8 @@
                             dosVal = nd[i];
                         } else if (nd[String(i)] !== undefined && nd[String(i)] !== null) {
                             dosVal = nd[String(i)];
+                        } else if (nd['Modul ' + i] !== undefined && nd['Modul ' + i] !== null) {
+                            dosVal = nd['Modul ' + i];
                         }
                     }
                     inputDos.value = dosVal;
@@ -584,8 +588,61 @@
             });
         }
 
-        // --- Live Search Functionality ---
+        // --- Live Search & Drag Drop Functionality ---
         document.addEventListener('DOMContentLoaded', function () {
+            // Drag & Drop File Upload
+            const dropzone = document.getElementById('excel-dropzone');
+            const fileInput = document.getElementById('file_excel_input');
+            const uploadIcon = document.getElementById('upload-icon');
+
+            if (dropzone && fileInput) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropzone.addEventListener(eventName, function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }, false);
+                });
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropzone.addEventListener(eventName, function () {
+                        dropzone.classList.add('border-emerald-500', 'bg-emerald-50/60', 'ring-2', 'ring-emerald-500/20');
+                        if (uploadIcon) uploadIcon.classList.add('scale-125', 'text-emerald-600');
+                    }, false);
+                });
+
+                ['dragleave', 'dragend', 'drop'].forEach(eventName => {
+                    dropzone.addEventListener(eventName, function () {
+                        dropzone.classList.remove('border-emerald-500', 'bg-emerald-50/60', 'ring-2', 'ring-emerald-500/20');
+                        if (uploadIcon) uploadIcon.classList.remove('scale-125', 'text-emerald-600');
+                    }, false);
+                });
+
+                dropzone.addEventListener('drop', function (e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+
+                    if (files && files.length > 0) {
+                        const file = files[0];
+                        const ext = file.name.split('.').pop().toLowerCase();
+                        if (ext === 'xlsx' || ext === 'xls') {
+                            fileInput.files = files;
+                            updateFileText(fileInput);
+                        } else {
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Format File Salah',
+                                    text: 'Silakan unggah file dengan format .xlsx atau .xls',
+                                    confirmButtonColor: '#001f3f'
+                                });
+                            } else {
+                                alert('Silakan unggah file dengan format .xlsx atau .xls');
+                            }
+                        }
+                    }
+                }, false);
+            }
+
             const searchInput = document.getElementById('search-input');
             const filterForm = document.getElementById('filter-form');
 

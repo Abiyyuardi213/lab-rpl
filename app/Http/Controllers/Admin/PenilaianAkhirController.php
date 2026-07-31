@@ -400,8 +400,8 @@ class PenilaianAkhirController extends Controller
                 $nilaiDosen[$i] = (int)$nilaiDosenInput[$i];
             } elseif (isset($nilaiDosenInput[(string)$i])) {
                 $nilaiDosen[$i] = (int)$nilaiDosenInput[(string)$i];
-            } elseif (isset($nilaiDosenInput[$i - 1])) {
-                $nilaiDosen[$i] = (int)$nilaiDosenInput[$i - 1];
+            } elseif (isset($nilaiDosenInput['Modul ' . $i])) {
+                $nilaiDosen[$i] = (int)$nilaiDosenInput['Modul ' . $i];
             } else {
                 $nilaiDosen[$i] = 0;
             }

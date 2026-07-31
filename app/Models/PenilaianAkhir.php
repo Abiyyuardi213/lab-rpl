@@ -107,8 +107,6 @@ class PenilaianAkhir extends Model
                 $val = $nilaiDosen[$i];
             } elseif (isset($nilaiDosen[(string)$i])) {
                 $val = $nilaiDosen[(string)$i];
-            } elseif (isset($nilaiDosen[$i - 1])) {
-                $val = $nilaiDosen[$i - 1];
             } elseif (isset($nilaiDosen['Modul ' . $i])) {
                 $val = $nilaiDosen['Modul ' . $i];
             } else {
