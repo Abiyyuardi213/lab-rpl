@@ -316,6 +316,13 @@ class PraktikumController extends Controller
             'token' => (string) \Illuminate\Support\Str::random(32),
         ]);
 
+        $jTitle = strtolower($request->judul_modul);
+        if (str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir')) {
+            if (!$praktikum->ada_tugas_akhir) {
+                $praktikum->update(['ada_tugas_akhir' => true]);
+            }
+        }
+
         return back()->with('success', 'Jadwal Modul Praktikum berhasil ditambahkan.');
     }
 

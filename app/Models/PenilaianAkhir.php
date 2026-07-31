@@ -52,13 +52,28 @@ class PenilaianAkhir extends Model
         $jumlahModul = $praktikum->jumlah_modul;
         $adaTugasAkhir = $praktikum->ada_tugas_akhir;
 
-        $presensis = $pendaftaran->relationLoaded('presensis') ? $pendaftaran->presensis : $pendaftaran->presensis()->with('penilaian')->get();
+        $presensis = $pendaftaran->relationLoaded('presensis') ? $pendaftaran->presensis : $pendaftaran->presensis()->with(['jadwal', 'penilaian'])->get();
         if (!$schedules) {
             $schedules = JadwalPraktikum::where('praktikum_id', $praktikum->id)
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('waktu_mulai', 'asc')
                 ->get();
         }
+
+        // Auto-detect Tugas Akhir score from presensis if $nilaiTugasAkhir is null or 0
+        $taPresensi = $presensis->first(function ($p) {
+            if (!$p->jadwal) return false;
+            $jTitle = strtolower($p->jadwal->judul_modul);
+            return str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir');
+        });
+
+        $autoTaScore = ($taPresensi && $taPresensi->penilaian) ? $taPresensi->penilaian->nilai : 0;
+
+        if (($nilaiTugasAkhir === null || $nilaiTugasAkhir == 0) && $autoTaScore > 0) {
+            $nilaiTugasAkhir = $autoTaScore;
+        }
+
+        $adaTugasAkhir = $praktikum->ada_tugas_akhir || $taPresensi !== null || ($nilaiTugasAkhir ?? 0) > 0;
 
         $prakScores = [];
         for ($i = 1; $i <= $jumlahModul; $i++) {
