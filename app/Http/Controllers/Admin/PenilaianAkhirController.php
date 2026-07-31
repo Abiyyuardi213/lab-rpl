@@ -47,6 +47,7 @@ class PenilaianAkhirController extends Controller
 
         $search = trim((string) $request->query('search', ''));
         $aslabFilter = $request->query('aslab_id', '');
+        $dosenFilter = $request->query('dosen_pengampu', '');
 
         $query = PendaftaranPraktikum::with([
             'praktikan.user',
@@ -58,13 +59,15 @@ class PenilaianAkhirController extends Controller
             ->where('praktikum_id', $praktikum_id)
             ->where('status', 'verified');
 
-        // Apply Search Filter (NPM or Name)
+        // Apply Search Filter (NPM, Name, or Dosen Pembimbing)
         if ($search !== '') {
-            $query->whereHas('praktikan', function ($q) use ($search) {
-                $q->where('npm', 'like', '%' . $search . '%')
-                  ->orWhereHas('user', function ($u) use ($search) {
-                      $u->where('name', 'like', '%' . $search . '%');
-                  });
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('praktikan', function ($pq) use ($search) {
+                    $pq->where('npm', 'like', '%' . $search . '%')
+                      ->orWhereHas('user', function ($u) use ($search) {
+                          $u->where('name', 'like', '%' . $search . '%');
+                      });
+                })->orWhere('dosen_pengampu', 'like', '%' . $search . '%');
             });
         }
 
@@ -77,14 +80,41 @@ class PenilaianAkhirController extends Controller
             }
         }
 
+        // Apply Dosen Pembimbing Filter
+        if ($dosenFilter !== '') {
+            if ($dosenFilter === 'none') {
+                $query->where(function ($q) {
+                    $q->whereNull('dosen_pengampu')->orWhere('dosen_pengampu', '');
+                });
+            } else {
+                $query->where('dosen_pengampu', $dosenFilter);
+            }
+        }
+
         $pendaftarans = $query->get();
 
         // Get aslabs for filter dropdown
         $aslabs = $praktikum->aslabs;
         if ($aslabs->isEmpty()) {
-            // Fallback: get all aslabs with users
             $aslabs = Aslab::with('user')->get();
         }
+
+        // Get dosens for filter dropdown
+        $dosensList = PendaftaranPraktikum::where('praktikum_id', $praktikum_id)
+            ->whereNotNull('dosen_pengampu')
+            ->where('dosen_pengampu', '!=', '')
+            ->distinct()
+            ->pluck('dosen_pengampu')
+            ->toArray();
+
+        if (!empty($praktikum->daftar_dosen) && is_array($praktikum->daftar_dosen)) {
+            $dosensList = array_values(array_unique(array_merge($praktikum->daftar_dosen, $dosensList)));
+        }
+
+        if (empty($dosensList)) {
+            $dosensList = \App\Models\Dosen::active()->pluck('nama')->toArray();
+        }
+        sort($dosensList);
 
         $grades = [];
         foreach ($pendaftarans as $pendaftaran) {
@@ -181,7 +211,7 @@ class PenilaianAkhirController extends Controller
             return strcasecmp($nameA, $nameB);
         });
 
-        return view('admin.penilaian_akhir.show_praktikum', compact('praktikum', 'grades', 'aslabs'));
+        return view('admin.penilaian_akhir.show_praktikum', compact('praktikum', 'grades', 'aslabs', 'dosensList'));
     }
 
     /**
@@ -228,17 +258,20 @@ class PenilaianAkhirController extends Controller
 
         $search = trim((string) $request->query('search', ''));
         $aslabFilter = $request->query('aslab_id', '');
+        $dosenFilter = $request->query('dosen_pengampu', '');
 
         $query = PendaftaranPraktikum::with(['praktikan.user', 'aslab.user', 'penilaianAkhir', 'presensis.penilaian', 'tugasAsistensis', 'praktikum.jadwals'])
             ->where('praktikum_id', $praktikum_id)
             ->where('status', 'verified');
 
         if ($search !== '') {
-            $query->whereHas('praktikan', function ($q) use ($search) {
-                $q->where('npm', 'like', '%' . $search . '%')
-                  ->orWhereHas('user', function ($u) use ($search) {
-                      $u->where('name', 'like', '%' . $search . '%');
-                  });
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('praktikan', function ($pq) use ($search) {
+                    $pq->where('npm', 'like', '%' . $search . '%')
+                      ->orWhereHas('user', function ($u) use ($search) {
+                          $u->where('name', 'like', '%' . $search . '%');
+                      });
+                })->orWhere('dosen_pengampu', 'like', '%' . $search . '%');
             });
         }
 
@@ -247,6 +280,16 @@ class PenilaianAkhirController extends Controller
                 $query->whereNull('aslab_id');
             } else {
                 $query->where('aslab_id', $aslabFilter);
+            }
+        }
+
+        if ($dosenFilter !== '') {
+            if ($dosenFilter === 'none') {
+                $query->where(function ($q) {
+                    $q->whereNull('dosen_pengampu')->orWhere('dosen_pengampu', '');
+                });
+            } else {
+                $query->where('dosen_pengampu', $dosenFilter);
             }
         }
 
@@ -345,11 +388,24 @@ class PenilaianAkhirController extends Controller
 
         $nilaiPraktikum = $request->input('nilai_praktikum', []);
         $nilaiAsistensi = $request->input('nilai_asistensi', []);
-        $nilaiDosen = $request->input('nilai_dosen', []);
+        $nilaiDosenInput = $request->input('nilai_dosen', []);
         $nilaiLaporan = $request->input('nilai_laporan', 0);
         $nilaiTugasAkhir = $request->input('nilai_tugas_akhir', 0);
         $isGugur = (bool)$request->input('is_gugur', false);
         $alasanGugur = $request->input('alasan_gugur');
+
+        $nilaiDosen = [];
+        for ($i = 1; $i <= $praktikum->jumlah_modul; $i++) {
+            if (isset($nilaiDosenInput[$i])) {
+                $nilaiDosen[$i] = (int)$nilaiDosenInput[$i];
+            } elseif (isset($nilaiDosenInput[(string)$i])) {
+                $nilaiDosen[$i] = (int)$nilaiDosenInput[(string)$i];
+            } elseif (isset($nilaiDosenInput[$i - 1])) {
+                $nilaiDosen[$i] = (int)$nilaiDosenInput[$i - 1];
+            } else {
+                $nilaiDosen[$i] = 0;
+            }
+        }
 
         $aslabId = $pendaftaran->aslab_id ?? Aslab::first()?->id;
 

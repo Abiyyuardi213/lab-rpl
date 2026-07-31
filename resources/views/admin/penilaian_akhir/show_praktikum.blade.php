@@ -117,22 +117,23 @@
                 </div>
 
                 <!-- Search & Aslab Filter Form -->
-                <form method="GET" action="{{ route('admin.penilaian-akhir.praktikum', $praktikum->id) }}" class="flex flex-col sm:flex-row items-center gap-3">
+                <form id="filter-form" method="GET" action="{{ route('admin.penilaian-akhir.praktikum', $praktikum->id) }}" class="flex flex-col sm:flex-row items-center gap-3">
                     <!-- Search Input -->
                     <div class="relative w-full sm:w-64">
                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari NPM atau Nama..."
+                        <input type="text" id="search-input" name="search" value="{{ request('search') }}" placeholder="Cari NPM atau Nama..."
+                            autocomplete="off"
                             class="w-full h-9 pl-9 pr-8 text-xs bg-white border border-zinc-200 rounded-lg shadow-sm focus:outline-none focus:border-[#001f3f] focus:ring-1 focus:ring-[#001f3f] transition-all">
                         @if(request('search'))
                             <a href="{{ route('admin.penilaian-akhir.praktikum', array_merge([$praktikum->id], request()->except('search'))) }}" 
-                                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 text-xs">
+                                class="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 text-xs" title="Hapus pencarian">
                                 <i class="fas fa-times-circle"></i>
                             </a>
                         @endif
                     </div>
 
                     <!-- Aslab Filter Select -->
-                    <div class="relative w-full sm:w-56">
+                    <div class="relative w-full sm:w-52">
                         <select name="aslab_id" onchange="this.form.submit()"
                             class="w-full h-9 px-3 text-xs bg-white border border-zinc-200 rounded-lg shadow-sm focus:outline-none focus:border-[#001f3f] focus:ring-1 focus:ring-[#001f3f] font-medium text-zinc-700 transition-all cursor-pointer">
                             <option value="">-- Semua Aslab --</option>
@@ -145,12 +146,26 @@
                         </select>
                     </div>
 
+                    <!-- Dosen Pembimbing Filter Select -->
+                    <div class="relative w-full sm:w-56">
+                        <select name="dosen_pengampu" onchange="this.form.submit()"
+                            class="w-full h-9 px-3 text-xs bg-white border border-zinc-200 rounded-lg shadow-sm focus:outline-none focus:border-[#001f3f] focus:ring-1 focus:ring-[#001f3f] font-medium text-zinc-700 transition-all cursor-pointer">
+                            <option value="">-- Semua Dosen Pembimbing --</option>
+                            <option value="none" {{ request('dosen_pengampu') === 'none' ? 'selected' : '' }}>-- Tanpa Dosen --</option>
+                            @foreach($dosensList as $dosenName)
+                                <option value="{{ $dosenName }}" {{ request('dosen_pengampu') == $dosenName ? 'selected' : '' }}>
+                                    Dosen: {{ $dosenName }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <!-- Submit & Reset Buttons -->
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <button type="submit" class="h-9 px-4 bg-[#001f3f] hover:bg-[#002d5a] text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-all shadow-sm">
                             <i class="fas fa-filter text-[10px] mr-1"></i> Filter
                         </button>
-                        @if(request('search') || request('aslab_id'))
+                        @if(request('search') || request('aslab_id') || request('dosen_pengampu'))
                             <a href="{{ route('admin.penilaian-akhir.praktikum', $praktikum->id) }}" 
                                 class="h-9 px-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-600 text-xs font-bold rounded-lg transition-all flex items-center justify-center border border-zinc-200"
                                 title="Reset Filter">
@@ -199,7 +214,10 @@
                                 $isDb = $gradeData['is_db'];
                                 $isGugur = $g['is_gugur'] ?? false;
                             @endphp
-                            <tr class="hover:bg-zinc-50/30 transition-colors {{ $isGugur ? 'bg-zinc-50/60 opacity-60' : '' }}">
+                            <tr class="hover:bg-zinc-50/30 transition-colors {{ $isGugur ? 'bg-zinc-50/60 opacity-60' : '' }} grade-row"
+                                data-npm="{{ strtolower($pendaftaran->praktikan->npm) }}"
+                                data-name="{{ strtolower($pendaftaran->praktikan->user->name) }}"
+                                data-dosen="{{ strtolower($pendaftaran->dosen_pengampu ?? '') }}">
                                 <!-- Sticky Columns -->
                                 <td class="sticky left-0 bg-white z-10 px-6 py-4 font-bold text-zinc-900 border-r border-zinc-100 [will-change:transform]">
                                     {{ $pendaftaran->praktikan->npm }}
@@ -213,6 +231,11 @@
                                     @else
                                         <span class="text-[9px] font-medium text-zinc-300 block leading-tight mt-0.5">Tanpa Aslab</span>
                                     @endif
+                                    @if($pendaftaran->dosen_pengampu)
+                                        <span class="text-[9px] font-semibold text-emerald-700 tracking-tight block capitalize normal-case truncate max-w-[180px] mt-0.5" title="Dosen Pembimbing/Pengampu">
+                                            <i class="fas fa-user-graduate text-[8px] mr-0.5 text-emerald-500"></i> Dosbing: {{ $pendaftaran->dosen_pengampu }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="sticky left-[340px] bg-white z-10 px-4 py-4 text-center min-w-[80px] max-w-[80px] w-[80px] border-r-2 border-zinc-200 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.06)] [will-change:transform]">
                                     <button onclick='openEditModal("{{ $pendaftaran->id }}", "{{ addslashes($pendaftaran->praktikan->user->name) }}", "{{ $pendaftaran->praktikan->npm }}", @json($g), @json($gradeData["prak_scores"]), @json($gradeData["ast_scores"]))'
@@ -222,12 +245,22 @@
                                     </button>
                                 </td>
 
-                                <!-- Dynamic Modul Grades -->
                                 @for($i = 1; $i <= $praktikum->jumlah_modul; $i++)
                                     @php
                                         $prakScore = $gradeData['prak_scores'][$i] ?? 0;
                                         $astScore = $gradeData['ast_scores'][$i] ?? 0;
-                                        $dosScore = $g['nilai_dosen'][$i] ?? 0;
+                                        $dosArr = $g['nilai_dosen'] ?? [];
+                                        if (is_array($dosArr)) {
+                                            if (isset($dosArr[$i])) {
+                                                $dosScore = $dosArr[$i];
+                                            } elseif (isset($dosArr[(string)$i])) {
+                                                $dosScore = $dosArr[(string)$i];
+                                            } else {
+                                                $dosScore = 0;
+                                            }
+                                        } else {
+                                            $dosScore = 0;
+                                        }
                                     @endphp
                                     <td class="px-3 py-4 text-center border-r border-zinc-100 bg-zinc-50/10">{{ $prakScore }}</td>
                                     <td class="px-3 py-4 text-center border-r border-zinc-100 bg-zinc-50/10">{{ $astScore }}</td>
@@ -283,6 +316,15 @@
                                 </td>
                             </tr>
                         @endforelse
+                        <tr id="no-search-results-row" style="display: none;">
+                            <td colspan="25" class="px-6 py-12 text-center text-zinc-400">
+                                <div class="flex flex-col items-center justify-center">
+                                    <i class="fas fa-search text-3xl opacity-20 mb-3"></i>
+                                    <p class="font-black uppercase tracking-widest text-[10px]">Data Tidak Ditemukan</p>
+                                    <p class="text-[10px] italic font-medium mt-1 tracking-tight">Tidak ada praktikan yang sesuai dengan kata kunci pencarian.</p>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -474,7 +516,16 @@
 
                 const inputDos = document.getElementById('input-nilai-dosen-' + i);
                 if (inputDos) {
-                    inputDos.value = (grades.nilai_dosen ? (grades.nilai_dosen[i] || 0) : 0);
+                    let dosVal = 0;
+                    if (grades && grades.nilai_dosen) {
+                        const nd = grades.nilai_dosen;
+                        if (nd[i] !== undefined && nd[i] !== null) {
+                            dosVal = nd[i];
+                        } else if (nd[String(i)] !== undefined && nd[String(i)] !== null) {
+                            dosVal = nd[String(i)];
+                        }
+                    }
+                    inputDos.value = dosVal;
                 }
             }
             
@@ -532,5 +583,54 @@
                 }
             });
         }
+
+        // --- Live Search Functionality ---
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('search-input');
+            const filterForm = document.getElementById('filter-form');
+
+            if (searchInput && filterForm) {
+                // Restore cursor focus & position if search query exists
+                if (searchInput.value) {
+                    const len = searchInput.value.length;
+                    searchInput.focus();
+                    searchInput.setSelectionRange(len, len);
+                }
+
+                let searchTimeout = null;
+
+                searchInput.addEventListener('input', function () {
+                    const query = this.value.toLowerCase().trim();
+
+                    // 1. Instant Client-Side Row Filtering (Zero latency)
+                    const rows = document.querySelectorAll('tbody tr.grade-row');
+                    let visibleCount = 0;
+
+                    rows.forEach(function (row) {
+                        const npm = (row.getAttribute('data-npm') || '').toLowerCase();
+                        const name = (row.getAttribute('data-name') || '').toLowerCase();
+                        const dosen = (row.getAttribute('data-dosen') || '').toLowerCase();
+
+                        if (query === '' || npm.includes(query) || name.includes(query) || dosen.includes(query)) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    const noDataRow = document.getElementById('no-search-results-row');
+                    if (noDataRow) {
+                        noDataRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
+                    }
+
+                    // 2. Debounced Form Submission (Auto submit after 400ms typing pause)
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function () {
+                        filterForm.submit();
+                    }, 400);
+                });
+            }
+        });
     </script>
 @endsection

@@ -103,7 +103,18 @@ class PenilaianAkhir extends Model
 
         $dosScores = [];
         for ($i = 1; $i <= $jumlahModul; $i++) {
-            $dosScores[$i] = isset($nilaiDosen[$i]) ? intval($nilaiDosen[$i]) : (isset($nilaiDosen['Modul ' . $i]) ? intval($nilaiDosen['Modul ' . $i]) : 0);
+            if (isset($nilaiDosen[$i])) {
+                $val = $nilaiDosen[$i];
+            } elseif (isset($nilaiDosen[(string)$i])) {
+                $val = $nilaiDosen[(string)$i];
+            } elseif (isset($nilaiDosen[$i - 1])) {
+                $val = $nilaiDosen[$i - 1];
+            } elseif (isset($nilaiDosen['Modul ' . $i])) {
+                $val = $nilaiDosen['Modul ' . $i];
+            } else {
+                $val = 0;
+            }
+            $dosScores[$i] = intval($val);
         }
 
         $sumPrak = array_sum($prakScores);
