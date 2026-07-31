@@ -115,10 +115,35 @@ class PenilaianAkhirController extends Controller
                 $astScores[$i] = $tugas ? ($tugas->nilai ?? 0) : 0;
             }
 
+            // Auto-detect Tugas Akhir score from presensis if a schedule exists with title containing Tugas Akhir / TA / Akhir
+            $taPresensi = $pendaftaran->presensis->first(function ($p) {
+                if (!$p->jadwal) return false;
+                $jTitle = strtolower($p->jadwal->judul_modul);
+                return str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir');
+            });
+            $autoTaScore = ($taPresensi && $taPresensi->penilaian) ? $taPresensi->penilaian->nilai : 0;
+
             if ($pendaftaran->penilaianAkhir) {
+                $gData = $pendaftaran->penilaianAkhir->toArray();
+
+                // If DB value for nilai_tugas_akhir is 0/null, fallback to auto-detected TA score from presensi
+                if ((empty($gData['nilai_tugas_akhir']) || $gData['nilai_tugas_akhir'] == 0) && $autoTaScore > 0) {
+                    $gData['nilai_tugas_akhir'] = $autoTaScore;
+                    $recalculated = PenilaianAkhir::calculateGrades(
+                        $pendaftaran,
+                        $gData['nilai_dosen'] ?? [],
+                        $gData['nilai_laporan'] ?? 0,
+                        $autoTaScore,
+                        $gData['is_gugur'] ?? false,
+                        $gData['alasan_gugur'] ?? null,
+                        $schedules
+                    );
+                    $gData = array_merge($gData, $recalculated);
+                }
+
                 $grades[] = [
                     'pendaftaran' => $pendaftaran,
-                    'grades' => $pendaftaran->penilaianAkhir->toArray(),
+                    'grades' => $gData,
                     'is_db' => true,
                     'prak_scores' => $prakScores,
                     'ast_scores' => $astScores,
@@ -127,7 +152,7 @@ class PenilaianAkhirController extends Controller
                 // Dynamically calculate grades with default zeros
                 $nilaiDosen = [];
                 $nilaiLaporan = 0;
-                $nilaiTugasAkhir = 0;
+                $nilaiTugasAkhir = $autoTaScore;
 
                 $calculated = PenilaianAkhir::calculateGrades(
                     $pendaftaran,
@@ -229,15 +254,35 @@ class PenilaianAkhirController extends Controller
 
         $grades = [];
         foreach ($pendaftarans as $pendaftaran) {
+            $taPres = $pendaftaran->presensis->first(function ($p) {
+                if (!$p->jadwal) return false;
+                $jTitle = strtolower($p->jadwal->judul_modul);
+                return str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir');
+            });
+            $autoTaScore = ($taPres && $taPres->penilaian) ? $taPres->penilaian->nilai : 0;
+
             if ($pendaftaran->penilaianAkhir) {
+                $gData = $pendaftaran->penilaianAkhir->toArray();
+                if ((empty($gData['nilai_tugas_akhir']) || $gData['nilai_tugas_akhir'] == 0) && $autoTaScore > 0) {
+                    $gData['nilai_tugas_akhir'] = $autoTaScore;
+                    $recalculated = PenilaianAkhir::calculateGrades(
+                        $pendaftaran,
+                        $gData['nilai_dosen'] ?? [],
+                        $gData['nilai_laporan'] ?? 0,
+                        $autoTaScore,
+                        $gData['is_gugur'] ?? false,
+                        $gData['alasan_gugur'] ?? null
+                    );
+                    $gData = array_merge($gData, $recalculated);
+                }
                 $grades[] = [
                     'pendaftaran' => $pendaftaran,
-                    'grades' => $pendaftaran->penilaianAkhir->toArray(),
+                    'grades' => $gData,
                 ];
             } else {
                 $nilaiDosen = [];
                 $nilaiLaporan = 0;
-                $nilaiTugasAkhir = 0;
+                $nilaiTugasAkhir = $autoTaScore;
 
                 $calculated = PenilaianAkhir::calculateGrades(
                     $pendaftaran,
@@ -368,6 +413,31 @@ class PenilaianAkhirController extends Controller
                     'aslab_id' => $aslabId,
                     'nilai' => (int)$val,
                     'status' => 'reviewed',
+                ]
+            );
+        }
+
+        // 3. Sync Tugas Akhir to Presensi & PenilaianPraktikum if a TA schedule exists
+        $taSched = $schedules->first(function ($s) {
+            $jTitle = strtolower($s->judul_modul);
+            return str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir');
+        });
+        if ($taSched && $nilaiTugasAkhir !== null) {
+            $presensiTA = Presensi::firstOrCreate(
+                [
+                    'pendaftaran_id' => $pendaftaran->id,
+                    'jadwal_id' => $taSched->id,
+                ],
+                [
+                    'status' => 'hadir',
+                ]
+            );
+
+            PenilaianPraktikum::updateOrCreate(
+                ['presensi_id' => $presensiTA->id],
+                [
+                    'aslab_id' => $aslabId,
+                    'nilai' => (int)$nilaiTugasAkhir,
                 ]
             );
         }
