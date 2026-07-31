@@ -59,11 +59,14 @@ class NilaiSheetImport implements ToCollection
                 $nilaiDosen[$i] = is_numeric($score) ? intval($score) : 0;
             }
 
-            $nilaiLaporan = 0;
-            $nilaiTugasAkhir = 0;
+            $existingRecord = $pendaftaran->penilaianAkhir;
+            $nilaiLaporan = $existingRecord?->nilai_laporan ?? 0;
+            $nilaiTugasAkhir = $existingRecord?->nilai_tugas_akhir ?? 0;
+            $isGugur = $existingRecord?->is_gugur ?? false;
+            $alasanGugur = $existingRecord?->alasan_gugur ?? null;
 
-            // Calculate final grade (default is_gugur = false)
-            $calculated = PenilaianAkhir::calculateGrades($pendaftaran, $nilaiDosen, $nilaiLaporan, $nilaiTugasAkhir, false);
+            // Calculate final grade with updated lecturer scores
+            $calculated = PenilaianAkhir::calculateGrades($pendaftaran, $nilaiDosen, $nilaiLaporan, $nilaiTugasAkhir, $isGugur, $alasanGugur);
 
             // Save or update PenilaianAkhir
             PenilaianAkhir::updateOrCreate(
