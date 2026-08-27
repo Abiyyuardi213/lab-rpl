@@ -3,6 +3,19 @@
 @section('title', 'Semua Notifikasi')
 
 @section('content')
+@php
+    $markAllRoute = 'praktikan.notifications.markAllAsRead';
+    $markReadRoute = 'praktikan.notifications.markAsRead';
+    if (Auth::user()->role) {
+        if (Auth::user()->role->name === 'Super Admin' || Auth::user()->role->name === 'Admin') {
+            $markAllRoute = 'admin.notifications.markAllAsRead';
+            $markReadRoute = 'admin.notifications.markAsRead';
+        } elseif (Auth::user()->role->name === 'Aslab') {
+            $markAllRoute = 'aslab.notifications.markAllAsRead';
+            $markReadRoute = 'aslab.notifications.markAsRead';
+        }
+    }
+@endphp
 <div class="max-w-4xl mx-auto space-y-6">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -12,7 +25,7 @@
         </div>
         <div class="flex items-center gap-3">
             @if(Auth::user()->unreadNotifications->count() > 0)
-            <a href="{{ route('notifications.markAllAsRead') }}" class="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-100 transition-all border border-emerald-100 shadow-sm flex items-center gap-2">
+            <a href="{{ route($markAllRoute) }}" class="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-100 transition-all border border-emerald-100 shadow-sm flex items-center gap-2">
                 <i class="fas fa-check-double"></i> Tandai Semua Dibaca
             </a>
             @endif
@@ -20,7 +33,7 @@
     </div>
 
     <!-- Content -->
-    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-100 bg-[#001f3f]/5">
             <h2 class="text-sm font-black text-slate-900 tracking-widest uppercase"><i class="fas fa-bell text-[#001f3f] mr-2"></i> Riwayat Notifikasi</h2>
         </div>
@@ -49,7 +62,7 @@
                         
                         @if(!$notification->read_at)
                         <div class="flex-shrink-0">
-                            <a href="{{ route('notifications.markAsRead', $notification->id) }}" class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-slate-200 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200 transition-all group" title="Tandai dibaca">
+                            <a href="{{ route($markReadRoute, $notification->id) }}" class="inline-flex items-center justify-center w-10 h-10 rounded-full border border-slate-200 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200 transition-all group" title="Tandai dibaca">
                                 <i class="fas fa-check group-hover:scale-110 transition-transform"></i>
                             </a>
                         </div>

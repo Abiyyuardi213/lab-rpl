@@ -83,7 +83,17 @@
                     </div>
 
                     <div class="p-4 bg-zinc-50/50 border-t border-zinc-100">
-                        <a href="{{ route('notifications.index') }}"
+                        @php
+                            $notifRoute = 'praktikan.notifications.index';
+                            if (Auth::user()->role) {
+                                if (Auth::user()->role->name === 'Super Admin' || Auth::user()->role->name === 'Admin') {
+                                    $notifRoute = 'admin.notifications.index';
+                                } elseif (Auth::user()->role->name === 'Aslab') {
+                                    $notifRoute = 'aslab.notifications.index';
+                                }
+                            }
+                        @endphp
+                        <a href="{{ route($notifRoute) }}"
                             class="block w-full py-2 bg-white border border-zinc-200 rounded-xl text-center text-xs font-black text-zinc-500 hover:text-zinc-900 transition-all uppercase tracking-widest">LIHAT
                             SEMUA</a>
                     </div>

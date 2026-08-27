@@ -483,13 +483,13 @@
             const form = document.getElementById('form-edit-nilai');
             
             // Set form action route
-            form.action = `/admin/penilaian-akhir/${pendaftaranId}`;
+            form.action = `/administrator/penilaian-akhir/${pendaftaranId}`;
 
             // Set delete form action route & show/hide delete button
             const deleteForm = document.getElementById('form-delete-nilai');
             const deleteBtn = document.getElementById('btn-delete-nilai');
             if (deleteForm) {
-                deleteForm.action = `/admin/penilaian-akhir/${pendaftaranId}`;
+                deleteForm.action = `/administrator/penilaian-akhir/${pendaftaranId}`;
             }
             if (deleteBtn) {
                 if (grades && grades.id) {

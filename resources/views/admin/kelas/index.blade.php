@@ -203,14 +203,14 @@
         }
 
         function openEditModal(kelas) {
-            document.getElementById('form-edit-kelas').action = `/admin/kelas/${kelas.id}`;
+            document.getElementById('form-edit-kelas').action = `/administrator/kelas/${kelas.id}`;
             document.getElementById('edit-nama_kelas').value = kelas.nama_kelas;
             document.getElementById('edit-is-active').checked = kelas.is_active;
             toggleModal('modal-edit-kelas');
         }
 
         function toggleStatus(id, button) {
-            fetch(`/admin/kelas/${id}/toggle-status`, {
+            fetch(`/administrator/kelas/${id}/toggle-status`, {
                 method: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',

@@ -215,7 +215,7 @@
         }
 
         function openEditModal(dosen) {
-            document.getElementById('form-edit-dosen').action = `/admin/dosen/${dosen.id}`;
+            document.getElementById('form-edit-dosen').action = `/administrator/dosen/${dosen.id}`;
             document.getElementById('edit-nama').value = dosen.nama;
             document.getElementById('edit-nip').value = dosen.nip || '';
             document.getElementById('edit-is-active').checked = dosen.is_active;
@@ -223,7 +223,7 @@
         }
 
         function toggleStatus(id, button) {
-            fetch(`/admin/dosen/${id}/toggle-status`, {
+            fetch(`/administrator/dosen/${id}/toggle-status`, {
                 method: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',

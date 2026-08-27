@@ -4,7 +4,7 @@
             <!-- Left: Logo -->
             <div class="flex-1 flex items-center">
                 @php
-                    $logoUrl = url('/admin/dashboard');
+                    $logoUrl = url('/administrator/dashboard');
                     if (Auth::check() && Auth::user()->role) {
                         if (Auth::user()->role->name === 'Praktikan') {
                             $logoUrl = route('praktikan.dashboard');
@@ -131,11 +131,11 @@
                             class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->routeIs('aslab.portfolio.*') ? 'w-full' : '' }}"></span>
                     </a>
                 @else
-                    <a href="{{ url('/admin/dashboard') }}"
-                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('admin/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                    <a href="{{ url('/administrator/dashboard') }}"
+                        class="relative group text-sm font-semibold transition-colors hover:text-[#001f3f] {{ request()->is('administrator/dashboard') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                         Dashboard
                         <span
-                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/dashboard') ? 'w-full' : '' }}"></span>
+                            class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('administrator/dashboard') ? 'w-full' : '' }}"></span>
                     </a>
 
                     <div class="h-4 w-px bg-slate-200"></div>
@@ -143,28 +143,28 @@
                     <!-- Manajemen Pengguna Dropdown -->
                     <div class="relative group">
                         <button
-                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('admin/aslab*') || request()->is('admin/praktikan*') || request()->is('admin/user*') || request()->is('admin/role*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('administrator/aslab*') || request()->is('administrator/praktikan*') || request()->is('administrator/user*') || request()->is('administrator/role*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                             Data Pengguna
                             <i
                                 class="fas fa-chevron-down text-[10px] transition-transform duration-300 group-hover:rotate-180"></i>
                             <span
-                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/aslab*') || request()->is('admin/praktikan*') || request()->is('admin/user*') || request()->is('admin/role*') ? 'w-full' : '' }}"></span>
+                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('administrator/aslab*') || request()->is('administrator/praktikan*') || request()->is('administrator/user*') || request()->is('administrator/role*') ? 'w-full' : '' }}"></span>
                         </button>
                         <div
                             class="absolute left-0 top-full mt-1 w-48 bg-white border border-slate-100 rounded-xl shadow-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
                             @if (Auth::user()->role->name === 'Super Admin')
                                 <a href="{{ route('admin.role.index') }}"
-                                    class="block px-4 py-2 text-sm {{ request()->is('admin/role*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Manajemen
+                                    class="block px-4 py-2 text-sm {{ request()->is('administrator/role*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Manajemen
                                     Role</a>
                                 <a href="{{ route('admin.user.index') }}"
-                                    class="block px-4 py-2 text-sm {{ request()->is('admin/user*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Manajemen
+                                    class="block px-4 py-2 text-sm {{ request()->is('administrator/user*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Manajemen
                                     User</a>
                             @endif
                             <a href="{{ route('admin.aslab.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/aslab*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Data
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/aslab*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Data
                                 Asisten Lab</a>
                             <a href="{{ route('admin.praktikan.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/praktikan*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Data
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/praktikan*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Data
                                 Praktikan</a>
                         </div>
                     </div>
@@ -172,61 +172,61 @@
                     <!-- Akademik Dropdown -->
                     <div class="relative group">
                         <button
-                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('admin/praktikum*') || request()->is('admin/jadwal-praktikum*') || request()->is('admin/pendaftaran*') || request()->is('admin/presensi*') || request()->is('admin/dosen*') || request()->is('admin/kelas*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('administrator/praktikum*') || request()->is('administrator/jadwal-praktikum*') || request()->is('administrator/pendaftaran*') || request()->is('administrator/presensi*') || request()->is('administrator/dosen*') || request()->is('administrator/kelas*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                             Akademik
                             <i
                                 class="fas fa-chevron-down text-[10px] transition-transform duration-300 group-hover:rotate-180"></i>
                             <span
-                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/praktikum*') || request()->is('admin/jadwal-praktikum*') || request()->is('admin/pendaftaran*') || request()->is('admin/presensi*') || request()->is('admin/dosen*') || request()->is('admin/kelas*') ? 'w-full' : '' }}"></span>
+                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('administrator/praktikum*') || request()->is('administrator/jadwal-praktikum*') || request()->is('administrator/pendaftaran*') || request()->is('administrator/presensi*') || request()->is('administrator/dosen*') || request()->is('administrator/kelas*') ? 'w-full' : '' }}"></span>
                         </button>
                         <div
                             class="absolute left-0 top-full mt-1 w-48 bg-white border border-slate-100 rounded-xl shadow-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
                             <a href="{{ route('admin.praktikum.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/praktikum*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Mata
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/praktikum*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Mata
                                 Praktikum</a>
                             <a href="{{ route('admin.jadwal-praktikum.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/jadwal-praktikum*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Jadwal
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/jadwal-praktikum*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Jadwal
                                 & Sesi</a>
                             <a href="{{ route('admin.pendaftaran.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/pendaftaran*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Pendaftaran</a>
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/pendaftaran*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Pendaftaran</a>
                             <a href="{{ route('admin.presensi.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/presensi*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Presensi</a>
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/presensi*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Presensi</a>
                             <a href="{{ route('admin.penilaian.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/penilaian') || request()->is('admin/penilaian/praktikum*') || request()->is('admin/penilaian/jadwal*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Penilaian</a>
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/penilaian') || request()->is('administrator/penilaian/praktikum*') || request()->is('administrator/penilaian/jadwal*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Penilaian</a>
                             <a href="{{ route('admin.penilaian-akhir.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/penilaian-akhir*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Penilaian Akhir</a>
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/penilaian-akhir*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Penilaian Akhir</a>
                             <a href="{{ route('admin.dosen.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/dosen*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Master Dosen</a>
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/dosen*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Master Dosen</a>
                             <a href="{{ route('admin.kelas.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/kelas*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Master Kelas</a>
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/kelas*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Master Kelas</a>
                         </div>
                     </div>
 
                     <!-- Kegiatan & Tugas Dropdown -->
                     <div class="relative group">
                         <button
-                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('admin/penugasan*') || request()->is('admin/kegiatan*') || request()->is('admin/daftar-tamu*') || request()->is('admin/digit-npm*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('administrator/penugasan*') || request()->is('administrator/kegiatan*') || request()->is('administrator/daftar-tamu*') || request()->is('administrator/digit-npm*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                             Kegiatan
                             <i
                                 class="fas fa-chevron-down text-[10px] transition-transform duration-300 group-hover:rotate-180"></i>
                             <span
-                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/penugasan*') || request()->is('admin/kegiatan*') || request()->is('admin/daftar-tamu*') || request()->is('admin/digit-npm*') ? 'w-full' : '' }}"></span>
+                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('administrator/penugasan*') || request()->is('administrator/kegiatan*') || request()->is('administrator/daftar-tamu*') || request()->is('administrator/digit-npm*') ? 'w-full' : '' }}"></span>
                         </button>
                         <div
                             class="absolute left-0 top-full mt-1 w-48 bg-white border border-slate-100 rounded-xl shadow-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
                             <a href="{{ route('admin.kegiatan.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/kegiatan*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Daftar
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/kegiatan*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Daftar
                                 Kegiatan</a>
                             <a href="{{ route('admin.guest-visits.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/daftar-tamu*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Daftar
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/daftar-tamu*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Daftar
                                 Tamu</a>
                             <a href="{{ route('admin.penugasan.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/penugasan*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Penugasan</a>
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/penugasan*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Penugasan</a>
                             <a href="{{ route('admin.digit-npm.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/digit-npm*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Manage
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/digit-npm*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Manage
                                 NPM</a>
                             <a href="{{ route('admin.recruitment.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/recruitment*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Rekrutmen
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/recruitment*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Rekrutmen
                                 Aslab</a>
                         </div>
                     </div>
@@ -234,23 +234,23 @@
                     <!-- Informasi Dropdown -->
                     <div class="relative group">
                         <button
-                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('admin/pengumuman*') || request()->is('admin/notifications*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
+                            class="relative flex items-center gap-1.5 text-sm font-semibold transition-colors hover:text-[#001f3f] py-4 -my-4 {{ request()->is('administrator/pengumuman*') || request()->is('administrator/notifications*') ? 'text-[#001f3f]' : 'text-slate-600' }}">
                             Informasi
                             <i
                                 class="fas fa-chevron-down text-[10px] transition-transform duration-300 group-hover:rotate-180"></i>
                             <span
-                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('admin/pengumuman*') || request()->is('admin/notifications*') ? 'w-full' : '' }}"></span>
+                                class="absolute bottom-3 left-1/2 w-0 h-0.5 bg-[#001f3f] transition-all duration-300 transform -translate-x-1/2 group-hover:w-full {{ request()->is('administrator/pengumuman*') || request()->is('administrator/notifications*') ? 'w-full' : '' }}"></span>
                         </button>
                         <div
                             class="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-100 rounded-xl shadow-xl py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
                             <a href="{{ route('admin.logs.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/logs*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Log Aktivitas</a>
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/logs*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Log Aktivitas</a>
                             <a href="{{ route('admin.ratings.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/ratings*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Rating Praktikan</a>
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/ratings*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Rating Praktikan</a>
                             <a href="{{ route('admin.pengumuman.index') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/pengumuman*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Pengumuman</a>
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/pengumuman*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Pengumuman</a>
                             <a href="{{ route('admin.notifications.create') }}"
-                                class="block px-4 py-2 text-sm {{ request()->is('admin/notifications*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Kirim
+                                class="block px-4 py-2 text-sm {{ request()->is('administrator/notifications*') ? 'bg-primary/5 text-primary font-bold' : 'text-slate-600 hover:bg-slate-50 hover:text-[#001f3f]' }}">Kirim
                                 Notifikasi</a>
                         </div>
                     </div>
@@ -349,7 +349,7 @@
 
                             <div class="space-y-1">
                                 @php
-                                    $dashboardUrl = url('/admin/dashboard');
+                                    $dashboardUrl = url('/administrator/dashboard');
                                     $profileEditRoute = 'admin.profile.edit';
                                     if (Auth::user()->role) {
                                         if (Auth::user()->role->name === 'Praktikan') {
@@ -433,70 +433,70 @@
                 <a href="{{ route('aslab.portfolio.edit') }}"
                     class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->routeIs('aslab.portfolio.*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Portfolio Saya</a>
             @else
-                <a href="{{ url('/admin/dashboard') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
+                <a href="{{ url('/administrator/dashboard') }}"
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/dashboard') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Dashboard</a>
                 @if (Auth::user()->role->name === 'Super Admin')
                     <a href="{{ route('admin.role.index') }}"
-                        class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/role*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                        class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/role*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                         Role</a>
                 @endif
                 <a href="{{ route('admin.aslab.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/aslab*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/aslab*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Aslab</a>
                 @if (Auth::user()->role->name === 'Super Admin')
                     <a href="{{ route('admin.user.index') }}"
-                        class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/user*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                        class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/user*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                         User</a>
                 @endif
                 <a href="{{ route('admin.praktikum.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Praktikum</a>
                 <a href="{{ route('admin.dosen.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/dosen*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Master Dosen</a>
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/dosen*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Master Dosen</a>
                 <a href="{{ route('admin.kelas.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/kelas*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Master Kelas</a>
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/kelas*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Master Kelas</a>
                 <a href="{{ route('admin.jadwal-praktikum.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/jadwal-praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/jadwal-praktikum*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Jadwal</a>
                 <a href="{{ route('admin.presensi.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/presensi*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Riwayat
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/presensi*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Riwayat
                     Presensi</a>
                 <a href="{{ route('admin.penilaian.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/penilaian') || request()->is('admin/penilaian/praktikum*') || request()->is('admin/penilaian/jadwal*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/penilaian') || request()->is('administrator/penilaian/praktikum*') || request()->is('administrator/penilaian/jadwal*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Penilaian</a>
                 <a href="{{ route('admin.penilaian-akhir.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/penilaian-akhir*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/penilaian-akhir*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Penilaian Akhir</a>
                 <a href="{{ route('admin.pendaftaran.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/pendaftaran*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/pendaftaran*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Pendaftaran</a>
                 <a href="{{ route('admin.praktikan.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/praktikan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/praktikan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Praktikan</a>
                 <a href="{{ route('admin.pengumuman.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/pengumuman*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/pengumuman*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Pengumuman</a>
                 <a href="{{ route('admin.logs.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/logs*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Log Aktivitas</a>
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/logs*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Log Aktivitas</a>
                 <a href="{{ route('admin.ratings.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/ratings*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Rating Praktikan</a>
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/ratings*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Rating Praktikan</a>
                 <a href="{{ route('admin.penugasan.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/penugasan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/penugasan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Penugasan</a>
                 <a href="{{ route('admin.recruitment.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/recruitment*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/recruitment*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Rekrutmen</a>
                 <a href="{{ route('admin.kegiatan.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/kegiatan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/kegiatan*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manajemen
                     Kegiatan</a>
                 <a href="{{ route('admin.guest-visits.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/daftar-tamu*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Daftar
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/daftar-tamu*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Daftar
                     Tamu</a>
                 <a href="{{ route('admin.digit-npm.index') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/digit-npm*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manage
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/digit-npm*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Manage
                     NPM</a>
                 <a href="{{ route('admin.notifications.create') }}"
-                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('admin/notifications*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Kirim
+                    class="block px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-sm font-bold {{ request()->is('administrator/notifications*') ? 'bg-primary/5 text-primary' : 'text-slate-600' }}">Kirim
                     Notifikasi</a>
             @endif
 
@@ -583,7 +583,7 @@
         '{{ Auth::user()->unreadNotifications->first() ? Auth::user()->unreadNotifications->first()->id : '' }}';
 
     function fetchNotifications() {
-        fetch("{{ route('notifications.fetch') }}", {
+        fetch("{{ route('admin.notifications.fetch') }}", {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json'

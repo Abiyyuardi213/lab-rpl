@@ -632,7 +632,7 @@
             const deskripsi = button.getAttribute('data-deskripsi');
 
             const form = document.getElementById('form-edit-penugasan');
-            form.action = `/admin/penugasan/${id}`;
+            form.action = `/administrator/penugasan/${id}`;
             document.getElementById('edit-jadwal-praktikum').value = jadwalId || '';
             document.getElementById('edit-kode-npm').value = kodeNpm;
             document.getElementById('edit-judul').value = judul;

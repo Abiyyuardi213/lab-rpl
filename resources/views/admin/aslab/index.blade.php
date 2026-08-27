@@ -225,7 +225,7 @@
                 span.classList.add('translate-x-4');
             }
 
-            fetch(`/admin/aslab/${id}/toggle-status`, {
+            fetch(`/administrator/aslab/${id}/toggle-status`, {
                 method: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
