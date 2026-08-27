@@ -10,13 +10,6 @@
                 <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
                 <p class="text-slate-500 mt-1 text-sm sm:text-base">Selamat datang kembali, {{ Auth::user()->name }}</p>
             </div>
-            <div>
-                <span
-                    class="inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
-                    System Online
-                </span>
-            </div>
         </div>
 
         <!-- Stats Cards -->

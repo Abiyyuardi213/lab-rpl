@@ -331,7 +331,7 @@
         function openEditModal(jadwal) {
             $('#modalTitle').text('Edit Jadwal');
             $('#formMethod').val('PATCH');
-            $('#jadwalForm').attr('action', `/admin/jadwal-praktikum/${jadwal.id}`);
+            $('#jadwalForm').attr('action', `/administrator/jadwal-praktikum/${jadwal.id}`);
 
             $('#modal_praktikum_id').val(jadwal.praktikum_id);
             filterSessions(); // Filter dulu biar option muncul
@@ -391,7 +391,7 @@
                 if (result.isConfirmed) {
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/admin/jadwal-praktikum/${id}`;
+                    form.action = `/administrator/jadwal-praktikum/${id}`;
                     form.innerHTML = `
                         @csrf
                         @method('DELETE')

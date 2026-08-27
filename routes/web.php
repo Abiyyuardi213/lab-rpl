@@ -63,13 +63,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::post('/leave-impersonation', [\App\Http\Controllers\PraktikanController::class, 'leaveImpersonation'])->name('impersonation.leave');
 
-    // Notifications
-    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/fetch', [\App\Http\Controllers\NotificationController::class, 'fetch'])->name('notifications.fetch');
-    Route::get('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
-    Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+    // Secure Storage Access for Authenticated Users
+    Route::get('/storage/{path}', function ($path) {
+        $filePath = storage_path('app/public/' . $path);
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+        return response()->file($filePath);
+    })->where('path', '.*')->name('secure.storage');
 
-    Route::prefix('admin')->name('admin.')->middleware(['role.admin'])->group(function () {
+    Route::prefix('administrator')->name('admin.')->middleware(['role.admin'])->group(function () {
+        Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/fetch', [\App\Http\Controllers\NotificationController::class, 'fetch'])->name('notifications.fetch');
+        Route::get('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+        Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
         // Role & User Management (Super Admin ONLY)
@@ -215,6 +222,10 @@ Route::middleware('auth')->group(function () {
 
     // Aslab Section
     Route::prefix('aslab')->name('aslab.')->middleware(['role.aslab'])->group(function () {
+        Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/fetch', [\App\Http\Controllers\NotificationController::class, 'fetch'])->name('notifications.fetch');
+        Route::get('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+        Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
         Route::get('/dashboard', [\App\Http\Controllers\Aslab\DashboardController::class, 'index'])->name('dashboard');
         Route::get('/pendaftaran', [\App\Http\Controllers\Aslab\PendaftaranController::class, 'index'])->name('pendaftaran.index');
         Route::post('tugas/direct', [\App\Http\Controllers\Aslab\TugasController::class, 'storeDirect'])->name('tugas.store-direct');
@@ -246,6 +257,10 @@ Route::middleware('auth')->group(function () {
     // Praktikan Section
     Route::prefix('praktikan')->name('praktikan.')->group(function () {
         Route::middleware(['role.praktikan'])->group(function () {
+            Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+            Route::get('/notifications/fetch', [\App\Http\Controllers\NotificationController::class, 'fetch'])->name('notifications.fetch');
+            Route::get('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
+            Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
             Route::get('/dashboard', [\App\Http\Controllers\Praktikan\DashboardController::class, 'index'])->name('dashboard');
             Route::get('/daftar-praktikum/{praktikum_id}', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'create'])->name('pendaftaran.create');
             Route::post('/daftar-praktikum', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'store'])->name('pendaftaran.store');

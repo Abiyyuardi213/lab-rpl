@@ -46,16 +46,29 @@
 
 <body class="bg-gray-50/50 min-h-screen font-sans antialiased text-slate-800 flex flex-col">
 
-    <!-- Floating Navbar -->
-    @include('admin.components.admin-navbar')
+    <!-- Old Navbar Layout (Preserved for backup, currently hidden) -->
+    <div class="hidden">
+        @include('admin.components.admin-navbar')
+    </div>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-20 sm:py-24 flex-grow w-full">
-        @yield('content')
-    </main>
+    <!-- Floating Sidebar -->
+    @include('admin.components.admin-sidebar')
 
-    <div class="mt-auto">
-        @include('admin.components.admin-footer')
+    <!-- Main Outer Container with Sidebar Offset -->
+    <div class="lg:pl-72 flex flex-col min-h-screen transition-all duration-300">
+        
+        <!-- Seamless Header -->
+        @include('admin.components.admin-header')
+
+        <!-- Main Content -->
+        <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+            @yield('content')
+        </main>
+
+        <!-- Seamless Footer -->
+        <div class="mt-auto">
+            @include('admin.components.admin-footer')
+        </div>
     </div>
 
     <!-- Floating Return to Admin Button (Impersonate Mode) -->
@@ -106,8 +119,29 @@
         </script>
     @endif
 
-    <!-- PWA Service Worker Registration -->
+    <!-- PWA Service Worker Registration & Sidebar Toggle JS -->
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtn = document.getElementById('toggle-sidebar-btn');
+            const closeBtn = document.getElementById('close-sidebar-btn');
+            const sidebar = document.getElementById('floating-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+
+            function openSidebar() {
+                if (sidebar) sidebar.classList.remove('-translate-x-full');
+                if (backdrop) backdrop.classList.remove('hidden');
+            }
+
+            function closeSidebar() {
+                if (sidebar) sidebar.classList.add('-translate-x-full');
+                if (backdrop) backdrop.classList.add('hidden');
+            }
+
+            if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+            if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+            if (backdrop) backdrop.addEventListener('click', closeSidebar);
+        });
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').then((registration) => {

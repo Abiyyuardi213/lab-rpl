@@ -593,7 +593,7 @@
     <script>
         function editSesi(sesi) {
             const form = document.getElementById('editSesiForm');
-            form.action = `/admin/praktikum/sesi/${sesi.id}#sesi-section`;
+            form.action = `/administrator/praktikum/sesi/${sesi.id}#sesi-section`;
 
             document.getElementById('edit_nama_sesi').value = sesi.nama_sesi;
             document.getElementById('edit_hari').value = sesi.hari;

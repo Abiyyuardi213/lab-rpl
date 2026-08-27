@@ -229,7 +229,7 @@
         }
 
         function openEditModal(digitNpm) {
-            document.getElementById('form-edit-digit').action = `/admin/digit-npm/${digitNpm.id}`;
+            document.getElementById('form-edit-digit').action = `/administrator/digit-npm/${digitNpm.id}`;
             document.getElementById('edit-digit').value = digitNpm.digit;
             document.getElementById('edit-label').value = digitNpm.label;
             document.getElementById('edit-sort-order').value = digitNpm.sort_order;
@@ -238,7 +238,7 @@
         }
 
         function toggleStatus(id, button) {
-            fetch(`/admin/digit-npm/${id}/toggle-status`, {
+            fetch(`/administrator/digit-npm/${id}/toggle-status`, {
                 method: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',

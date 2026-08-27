@@ -264,7 +264,7 @@
 
         function editRole(role) {
             const form = document.getElementById('form-edit-role');
-            form.action = `/admin/role/${role.id}`;
+            form.action = `/administrator/role/${role.id}`;
             document.getElementById('edit-name').value = role.name;
             document.getElementById('edit-display-name').value = role.display_name;
             document.getElementById('edit-description').value = role.description || '';

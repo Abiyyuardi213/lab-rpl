@@ -217,7 +217,7 @@
                 span.classList.add('translate-x-4');
             }
 
-            fetch(`/admin/praktikan/${id}/toggle-status`, {
+            fetch(`/administrator/praktikan/${id}/toggle-status`, {
                 method: 'PATCH',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -282,7 +282,7 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`/admin/praktikan/${id}`, {
+                    fetch(`/administrator/praktikan/${id}`, {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
