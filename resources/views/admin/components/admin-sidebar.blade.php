@@ -1,5 +1,5 @@
 <aside id="floating-sidebar"
-    class="fixed top-4 bottom-4 left-4 z-40 w-72 bg-[#001f3f] text-slate-200 border border-slate-800 rounded-xl shadow-2xl flex flex-col transition-all duration-300 transform -translate-x-full lg:translate-x-0">
+    class="hidden lg:flex lg:flex-col fixed top-4 bottom-4 left-4 z-40 w-72 bg-[#001f3f] text-slate-200 border border-slate-800 rounded-xl shadow-2xl transition-all duration-300">
 
     <!-- Sidebar Header / Logo -->
     <div class="p-5 border-b border-white/10 flex items-center justify-between">
@@ -90,11 +90,15 @@
                 </a>
             </div>
         @else
-            <!-- Dashboard Single Item -->
-            <div>
-                <a href="{{ url('/administrator/dashboard') }}"
-                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all {{ request()->is('administrator/dashboard') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
-                    <i class="fas fa-tachometer-alt w-4 text-center"></i> Dashboard
+            <!-- Dashboard Menu Section -->
+            <div class="space-y-1">
+                <a href="{{ route('admin.dashboard') }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                    <i class="fas fa-chart-line w-4 text-center"></i> Dashboard Utama
+                </a>
+                <a href="{{ route('admin.dashboard2') }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all {{ request()->routeIs('admin.dashboard2') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                    <i class="fas fa-[#001f3f] fa-chart-area w-4 text-center text-emerald-400"></i> Live Monitoring (Dark)
                 </a>
             </div>
 
@@ -306,9 +310,7 @@
     </div>
 </aside>
 
-<!-- Overlay for Mobile Sidebar -->
-<div id="sidebar-backdrop"
-    class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-30 hidden lg:hidden transition-opacity duration-300"></div>
+
 
 <script>
     function toggleSubmenu(id, arrowId) {

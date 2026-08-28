@@ -100,4 +100,65 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact('stats', 'activities'));
     }
+
+    public function dashboard2(Request $request)
+    {
+        $selectedYear = $request->get('year', date('Y'));
+
+        // Available years from pendaftaran
+        $years = \App\Models\PendaftaranPraktikum::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year')
+            ->toArray();
+
+        if (!in_array(date('Y'), $years)) {
+            array_unshift($years, (int)date('Y'));
+        }
+
+        // Cumulative monthly registration counts for selected year (Up to current month)
+        $monthlyCounts = [];
+        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        $runningTotal = 0;
+        $currentMonth = (int)date('n');
+        $isCurrentYear = ($selectedYear == date('Y'));
+
+        for ($m = 1; $m <= 12; $m++) {
+            if ($isCurrentYear && $m > $currentMonth) {
+                // Bulan di masa depan yang belum dilalui diisi null agar titik & garis grafik terhenti sampai bulan ini
+                $monthlyCounts[] = null;
+            } else {
+                $monthCount = \App\Models\PendaftaranPraktikum::whereYear('created_at', $selectedYear)
+                    ->whereMonth('created_at', $m)
+                    ->count();
+                $runningTotal += $monthCount;
+                $monthlyCounts[] = $runningTotal;
+            }
+        }
+
+        // Stats summary
+        $totalRegistered = \App\Models\PendaftaranPraktikum::whereYear('created_at', $selectedYear)->count();
+        $verifiedCount = \App\Models\PendaftaranPraktikum::whereYear('created_at', $selectedYear)->where('status', 'verified')->count();
+        $pendingCount = \App\Models\PendaftaranPraktikum::whereYear('created_at', $selectedYear)->where('status', 'pending')->count();
+        $rejectedCount = \App\Models\PendaftaranPraktikum::whereYear('created_at', $selectedYear)->where('status', 'rejected')->count();
+
+        // Recent live tickers
+        $liveActivities = \App\Models\PendaftaranPraktikum::with(['praktikan.user', 'praktikum'])
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('admin.dashboard2', compact(
+            'selectedYear',
+            'years',
+            'months',
+            'monthlyCounts',
+            'totalRegistered',
+            'verifiedCount',
+            'pendingCount',
+            'rejectedCount',
+            'liveActivities'
+        ));
+    }
 }
