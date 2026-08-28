@@ -119,29 +119,8 @@
         </script>
     @endif
 
-    <!-- PWA Service Worker Registration & Sidebar Toggle JS -->
+    <!-- PWA Service Worker Registration -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleBtn = document.getElementById('toggle-sidebar-btn');
-            const closeBtn = document.getElementById('close-sidebar-btn');
-            const sidebar = document.getElementById('floating-sidebar');
-            const backdrop = document.getElementById('sidebar-backdrop');
-
-            function openSidebar() {
-                if (sidebar) sidebar.classList.remove('-translate-x-full');
-                if (backdrop) backdrop.classList.remove('hidden');
-            }
-
-            function closeSidebar() {
-                if (sidebar) sidebar.classList.add('-translate-x-full');
-                if (backdrop) backdrop.classList.add('hidden');
-            }
-
-            if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
-            if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
-            if (backdrop) backdrop.addEventListener('click', closeSidebar);
-        });
-
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').then((registration) => {

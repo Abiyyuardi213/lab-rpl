@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead');
         Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
         Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard-2', [\App\Http\Controllers\Admin\DashboardController::class, 'dashboard2'])->name('dashboard2');
 
         // Role & User Management (Super Admin ONLY)
         Route::middleware('role.superadmin')->group(function () {
