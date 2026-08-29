@@ -167,6 +167,7 @@
                                 <td class="px-6 py-4 text-right">
                                     <a href="{{ route('admin.penugasan.show', $j->id) }}"
                                         class="inline-flex h-8 items-center justify-center rounded-md bg-[#001f3f] px-4 text-[10px] font-bold uppercase tracking-wider text-white hover:bg-[#002d5a] transition-colors shadow-sm">
+                                        <i class="fas fa-edit mr-1.5 text-xs"></i>
                                         Kelola Soal
                                     </a>
                                 </td>

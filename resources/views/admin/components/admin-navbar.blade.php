@@ -259,6 +259,22 @@
 
             <!-- Right: Profile & Action -->
             <div class="flex-1 flex items-center justify-end gap-2 sm:gap-4">
+                @php
+                    $notifIndexRoute = 'praktikan.notifications.index';
+                    $markAllRoute = 'praktikan.notifications.markAllAsRead';
+                    $markReadRoute = 'praktikan.notifications.markAsRead';
+                    if (Auth::check() && Auth::user()->role) {
+                        if (Auth::user()->role->name === 'Super Admin' || Auth::user()->role->name === 'Admin') {
+                            $notifIndexRoute = 'admin.notifications.index';
+                            $markAllRoute = 'admin.notifications.markAllAsRead';
+                            $markReadRoute = 'admin.notifications.markAsRead';
+                        } elseif (Auth::user()->role->name === 'Aslab') {
+                            $notifIndexRoute = 'aslab.notifications.index';
+                            $markAllRoute = 'aslab.notifications.markAllAsRead';
+                            $markReadRoute = 'aslab.notifications.markAsRead';
+                        }
+                    }
+                @endphp
                 {{-- Notification Bell --}}
                 <div class="relative group">
                     <button
@@ -281,21 +297,25 @@
                             class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
                             <h3 class="text-xs font-black text-slate-900 tracking-wider uppercase">Notifikasi</h3>
                             @if (Auth::user()->unreadNotifications->count() > 0)
-                                <a href="{{ route('notifications.markAllAsRead') }}"
+                                <a href="{{ route($markAllRoute) }}"
                                     class="text-[10px] font-bold text-[#001f3f] hover:underline">Tandai semua dibaca</a>
                             @endif
                         </div>
                         <div class="max-h-80 overflow-y-auto w-full scrollbar-thin scrollbar-thumb-slate-200">
-                            @forelse(Auth::user()->unreadNotifications->take(5) as $notification)
+                            @forelse (Auth::user()->notifications->take(5) as $notification)
                                 <div
-                                    class="px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition w-full group/notif relative">
-                                    <h4 class="text-sm font-bold text-slate-900 pr-6">
-                                        {{ $notification->data['title'] ?? 'Info' }}</h4>
-                                    <p class="text-xs text-slate-500 mt-0.5 line-clamp-2">
+                                    class="px-4 py-3 border-b border-slate-50 hover:bg-slate-50/80 transition relative group/notif {{ $notification->read_at ? 'opacity-60' : 'bg-blue-50/20' }}">
+                                    <h4 class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                        @if (!$notification->read_at)
+                                            <span class="h-1.5 w-1.5 rounded-full bg-blue-600"></span>
+                                        @endif
+                                        {{ $notification->data['title'] ?? 'Notifikasi' }}
+                                    </h4>
+                                    <p class="text-xs text-slate-500 mt-1 line-clamp-2">
                                         {{ $notification->data['message'] ?? '' }}</p>
                                     <span
                                         class="text-[10px] text-slate-400 mt-1 block">{{ $notification->created_at->diffForHumans() }}</span>
-                                    <a href="{{ route('notifications.markAsRead', $notification->id) }}"
+                                    <a href="{{ route($markReadRoute, $notification->id) }}"
                                         class="absolute right-3 top-3 text-slate-300 hover:text-[#001f3f] opacity-0 group-hover/notif:opacity-100 transition"
                                         title="Tandai dibaca">
                                         <i class="fas fa-check-circle"></i>
@@ -310,7 +330,7 @@
                         </div>
                         @if (Auth::user()->notifications->count() > 0)
                             <div class="px-4 py-2 border-t border-slate-100 text-center bg-slate-50/50 rounded-b-xl">
-                                <a href="{{ route('notifications.index') }}"
+                                <a href="{{ route($notifIndexRoute) }}"
                                     class="text-[10px] font-bold text-slate-500 hover:text-[#001f3f]">Lihat semua
                                     notifikasi ({{ Auth::user()->unreadNotifications->count() }})</a>
                             </div>
