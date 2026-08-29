@@ -16,7 +16,7 @@ class DashboardController extends Controller
             'roles' => Role::count(),
             'active_users' => User::where('status', true)->count(),
             'praktikums' => \App\Models\Praktikum::count(),
-            'active_praktikums' => \App\Models\Praktikum::where('status_praktikum', '!=', 'berakhir')->count(),
+            'active_praktikums' => \App\Models\Praktikum::whereIn('status_praktikum', ['open_registration', 'on_progress'])->count(),
             'praktikan' => User::whereHas('role', function ($q) {
                 $q->where('name', 'Praktikan');
             })->count(),
@@ -149,6 +149,18 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
 
+        // Marquee Ticker Stats per Praktikum
+        $praktikumStats = \App\Models\Praktikum::withCount(['pendaftarans' => function ($q) use ($selectedYear) {
+            $q->whereYear('created_at', $selectedYear);
+        }])->get()->map(function ($p) use ($totalRegistered) {
+            $percentage = $totalRegistered > 0 ? round(($p->pendaftarans_count / $totalRegistered) * 100, 1) : 0;
+            return (object)[
+                'nama' => $p->nama_praktikum,
+                'count' => $p->pendaftarans_count,
+                'percentage' => $percentage
+            ];
+        });
+
         return view('admin.dashboard2', compact(
             'selectedYear',
             'years',
@@ -158,7 +170,8 @@ class DashboardController extends Controller
             'verifiedCount',
             'pendingCount',
             'rejectedCount',
-            'liveActivities'
+            'liveActivities',
+            'praktikumStats'
         ));
     }
 }

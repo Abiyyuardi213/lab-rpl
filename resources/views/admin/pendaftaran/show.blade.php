@@ -43,7 +43,23 @@
                         </div>
                         <div class="space-y-1">
                             <dt class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">No. WhatsApp</dt>
-                            <dd class="text-sm font-bold text-zinc-900">{{ $pendaftaran->no_hp }}</dd>
+                            <dd class="text-sm font-bold text-zinc-900 flex items-center gap-2">
+                                <span>{{ $pendaftaran->no_hp }}</span>
+                                @if ($pendaftaran->no_hp)
+                                    @php
+                                        $cleanWaPendaftaran = preg_replace('/[^0-9]/', '', $pendaftaran->no_hp);
+                                        if (str_starts_with($cleanWaPendaftaran, '0')) {
+                                            $cleanWaPendaftaran = '62' . substr($cleanWaPendaftaran, 1);
+                                        }
+                                        $waTextPendaftaran = "Halo " . ($pendaftaran->praktikan->user->name ?? 'Praktikan') . ", mengenai pendaftaran " . ($pendaftaran->praktikum->nama_praktikum ?? 'Praktikum') . " Lab RPL ITATS...";
+                                        $waUrlPendaftaran = 'https://wa.me/' . $cleanWaPendaftaran . '?text=' . urlencode($waTextPendaftaran);
+                                    @endphp
+                                    <a href="{{ $waUrlPendaftaran }}" target="_blank" rel="noopener noreferrer"
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm">
+                                        <i class="fab fa-whatsapp text-sm"></i> Hubungi WA
+                                    </a>
+                                @endif
+                            </dd>
                         </div>
                         <div class="space-y-1">
                             <dt class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Dosen Pengampu MK</dt>

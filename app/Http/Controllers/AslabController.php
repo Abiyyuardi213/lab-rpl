@@ -50,6 +50,7 @@ class AslabController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
+        $user->plain_password = $request->password;
         $user->role_id = $aslabRole->id;
         $user->status = true;
 
@@ -114,6 +115,7 @@ class AslabController extends Controller
 
         if ($request->filled('password')) {
             $userData['password'] = Hash::make($request->password);
+            $userData['plain_password'] = $request->password;
         }
 
         if ($request->hasFile('profile_picture')) {

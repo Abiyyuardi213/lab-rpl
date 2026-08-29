@@ -8,16 +8,23 @@ use Illuminate\Http\Request;
 
 class JadwalPraktikumController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $jadwals = JadwalPraktikum::with(['praktikum', 'sesi'])
+        $selectedPraktikum = $request->get('praktikum_id');
+
+        $query = JadwalPraktikum::with(['praktikum', 'sesi'])
             ->orderBy('tanggal', 'desc')
-            ->orderBy('waktu_mulai', 'desc')
-            ->get();
-        $praktikums = Praktikum::where('status_praktikum', '!=', 'finished')->get();
+            ->orderBy('waktu_mulai', 'desc');
+
+        if ($selectedPraktikum) {
+            $query->where('praktikum_id', $selectedPraktikum);
+        }
+
+        $jadwals = $query->get();
+        $praktikums = Praktikum::orderBy('nama_praktikum', 'asc')->get();
         $sesis = \App\Models\SesiPraktikum::orderBy('nama_sesi')->get();
 
-        return view('admin.jadwal_praktikum.index', compact('jadwals', 'praktikums', 'sesis'));
+        return view('admin.jadwal_praktikum.index', compact('jadwals', 'praktikums', 'sesis', 'selectedPraktikum'));
     }
 
     public function store(Request $request)

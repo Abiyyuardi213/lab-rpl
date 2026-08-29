@@ -653,7 +653,8 @@
                 const notesText = document.getElementById('modalNotes');
                 const warning = document.getElementById('acceptedWarning');
 
-                form.action = `{{ url('admin/recruitment/application') }}/${id}/status`;
+                const routeUrl = "{{ route('admin.recruitment.application.status', ':id') }}";
+                form.action = routeUrl.replace(':id', id);
                 statusSelect.value = status;
                 notesText.value = notes === 'null' || !notes ? '' : notes;
                 

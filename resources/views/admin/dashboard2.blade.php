@@ -7,6 +7,42 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <div class="space-y-6">
+        <!-- CoinMarketCap Style Live Marquee Ticker Bar -->
+        <div class="bg-[#0b0e14] border border-slate-800 rounded-xl overflow-hidden py-2.5 px-4 shadow-xl">
+            <div class="flex items-center gap-3 overflow-hidden text-xs font-semibold whitespace-nowrap">
+                <div class="flex items-center gap-1.5 shrink-0 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-md border border-emerald-500/20 text-[11px] font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <i class="fas fa-[#001f3f] fa-chart-pie mr-1"></i> DISTRIBUSI PRAKTIKUM ({{ $selectedYear }}):
+                </div>
+
+                <!-- Scrolling Marquee Text Animation -->
+                <div class="overflow-hidden relative w-full">
+                    <div class="inline-flex items-center gap-8 animate-[marquee_25s_linear_infinite] hover:[animation-play-state:paused]">
+                        @forelse($praktikumStats as $st)
+                            <div class="inline-flex items-center gap-2 text-slate-300">
+                                <span class="font-bold text-white">{{ $st->nama }}</span>
+                                <span class="text-slate-400">({{ $st->count }} mhs)</span>
+                                <span class="inline-flex items-center font-bold text-[11px] {{ $st->percentage > 0 ? 'text-emerald-400' : 'text-slate-500' }}">
+                                    <i class="fas fa-caret-{{ $st->percentage > 0 ? 'up' : 'down' }} mr-0.5"></i>
+                                    {{ $st->percentage }}%
+                                </span>
+                                <span class="text-slate-700 ml-4">|</span>
+                            </div>
+                        @empty
+                            <span class="text-slate-500 italic text-xs">Belum ada data distribusi mata praktikum.</span>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            @keyframes marquee {
+                0% { transform: translateX(100%); }
+                100% { transform: translateX(-100%); }
+            }
+        </style>
+
         <!-- Top Bar: CoinMarketCap Style Header & Year Filter -->
         <div class="bg-[#0b0e14] border border-slate-800 rounded-xl p-5 shadow-2xl text-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">

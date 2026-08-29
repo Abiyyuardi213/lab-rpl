@@ -142,6 +142,16 @@
                                     @error('password')
                                         <p class="text-[10px] font-medium text-rose-500 mt-1">{{ $message }}</p>
                                     @enderror
+
+                                    @if (Auth::check() && Auth::user()->role && Auth::user()->role->name === 'Super Admin')
+                                        <div class="pt-1">
+                                            <button type="button" onclick="openShowPasswordModal()"
+                                                class="inline-flex items-center gap-1.5 text-xs font-bold text-[#001f3f] hover:text-blue-800 transition-colors bg-blue-50/80 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200/60 shadow-sm cursor-pointer">
+                                                <i class="fas fa-key text-[11px] text-amber-500"></i>
+                                                Lihat Kata Sandi Saat Ini
+                                            </button>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -222,10 +232,86 @@
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+    @if (Auth::check() && Auth::user()->role && Auth::user()->role->name === 'Super Admin')
+        <!-- Modal Lihat Kata Sandi (Khusus Super Admin) -->
+        <div id="showPasswordModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" onclick="closeShowPasswordModal()"></div>
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden border border-zinc-200">
+                <div class="p-6 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
+                    <div class="flex items-center gap-2">
+                        <div class="h-8 w-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200">
+                            <i class="fas fa-key text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-zinc-900 tracking-tight text-sm">Kata Sandi Akun</h3>
+                            <p class="text-[11px] text-zinc-400 font-medium">Khusus Otoritas Super Admin</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeShowPasswordModal()" class="text-zinc-400 hover:text-zinc-900 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Nama Akun</span>
+                        <p class="text-sm font-bold text-zinc-900">{{ $praktikan->name }} ({{ $praktikan->npm }})</p>
+                    </div>
+                    
+                    <div class="space-y-1.5">
+                        <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Kata Sandi Tersimpan</span>
+                        <div class="flex items-center justify-between p-3.5 bg-zinc-50 border border-zinc-200 rounded-xl font-mono text-sm">
+                            <span id="currentPlainPasswordText" class="font-bold text-[#001f3f] tracking-wide select-all">
+                                {{ $praktikan->plain_password ?: 'Belum pernah diubah via admin (Default NPM)' }}
+                            </span>
+                            <button type="button" onclick="copyPasswordToClipboard()" class="text-xs text-zinc-500 hover:text-[#001f3f] transition-colors flex items-center gap-1 font-sans font-bold">
+                                <i class="far fa-copy"></i>
+                                <span id="copyTextState">Salin</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 border border-amber-200/80 rounded-xl flex items-start gap-2.5">
+                        <i class="fas fa-shield-halved text-amber-500 text-xs mt-0.5"></i>
+                        <p class="text-[11px] text-amber-800 font-medium leading-relaxed">
+                            Jaga kerahasiaan kata sandi pengguna ini. Gunakan hanya untuk keperluan penanganan bantuan teknis akun mahasiswa.
+                        </p>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="button" onclick="closeShowPasswordModal()"
+                            class="w-full inline-flex h-10 items-center justify-center rounded-xl bg-[#001f3f] px-6 text-sm font-bold text-white shadow-md hover:bg-[#002d5a] transition-all">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <script>
+        function openShowPasswordModal() {
+            const modal = document.getElementById('showPasswordModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function closeShowPasswordModal() {
+            const modal = document.getElementById('showPasswordModal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function copyPasswordToClipboard() {
+            const text = document.getElementById('currentPlainPasswordText').innerText.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                const label = document.getElementById('copyTextState');
+                label.innerText = 'Tersalin!';
+                setTimeout(() => { label.innerText = 'Salin'; }, 2000);
+            });
+        }
+
         function previewImage(input) {
             const preview = document.getElementById('image-preview');
             const placeholder = document.getElementById('placeholder-text');
