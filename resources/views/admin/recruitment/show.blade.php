@@ -225,8 +225,6 @@
             </div>
         </div>
     </div>
-        </div>
-    </div>
 
     <!-- Scheduling Content -->
     <div id="schedulingContent" class="hidden space-y-8 tab-content">
@@ -640,6 +638,10 @@
                     table.search(this.value).draw();
                     rejectedTable.search(this.value).draw();
                 });
+
+                if (window.location.hash === '#scheduling' || new URLSearchParams(window.location.search).get('tab') === 'scheduling') {
+                    switchTab('scheduling');
+                }
             });
 
             function openStatusModal(button) {
@@ -706,7 +708,8 @@
                 const form = document.getElementById('assignForm');
                 const nameDisplay = document.getElementById('assignModalScheduleName');
 
-                form.action = `{{ url('admin/recruitment/schedule') }}/${scheduleId}/assign`;
+                const assignRouteUrl = "{{ route('admin.recruitment.schedule.assign', ':id') }}";
+                form.action = assignRouteUrl.replace(':id', scheduleId);
                 nameDisplay.textContent = scheduleName;
                 
                 modal.classList.remove('hidden');
