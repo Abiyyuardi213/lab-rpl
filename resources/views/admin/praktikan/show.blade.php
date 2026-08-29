@@ -15,6 +15,20 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
+                @if ($praktikan->no_hp)
+                    @php
+                        $cleanHp = preg_replace('/[^0-9]/', '', $praktikan->no_hp);
+                        if (str_starts_with($cleanHp, '0')) {
+                            $cleanHp = '62' . substr($cleanHp, 1);
+                        }
+                        $waUrl = 'https://wa.me/' . $cleanHp . '?text=' . urlencode("Halo " . $praktikan->name . " (NPM: " . $praktikan->npm . "), kami dari Laboratorium RPL ITATS...");
+                    @endphp
+                    <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex h-9 items-center justify-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors gap-2">
+                        <i class="fab fa-whatsapp text-base"></i>
+                        Hubungi WhatsApp
+                    </a>
+                @endif
                 <a href="{{ route('admin.praktikan.edit', $praktikan->id) }}" data-spa
                     class="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-zinc-100 hover:text-zinc-900 transition-colors">
                     <i class="fas fa-edit mr-2 text-xs"></i>
@@ -124,11 +138,24 @@
                                 </dd>
                             </div>
                             <div>
-                                <dt class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] mb-1">No. HP
+                                <dt class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] mb-1">No. HP / WhatsApp
                                 </dt>
                                 <dd class="text-sm font-semibold text-zinc-900 flex items-center gap-2">
                                     <i class="fas fa-phone text-zinc-300"></i>
                                     {{ $praktikan->no_hp ?? '-' }}
+                                    @if ($praktikan->no_hp)
+                                        @php
+                                            $cleanHpInline = preg_replace('/[^0-9]/', '', $praktikan->no_hp);
+                                            if (str_starts_with($cleanHpInline, '0')) {
+                                                $cleanHpInline = '62' . substr($cleanHpInline, 1);
+                                            }
+                                            $waUrlInline = 'https://wa.me/' . $cleanHpInline . '?text=' . urlencode("Halo " . $praktikan->name . " (NPM: " . $praktikan->npm . "), kami dari Laboratorium RPL ITATS...");
+                                        @endphp
+                                        <a href="{{ $waUrlInline }}" target="_blank" rel="noopener noreferrer"
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors text-xs font-bold border border-emerald-200">
+                                            <i class="fab fa-whatsapp"></i> Chat WA
+                                        </a>
+                                    @endif
                                 </dd>
                             </div>
                             <div>

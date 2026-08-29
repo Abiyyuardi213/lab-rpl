@@ -59,7 +59,20 @@
                             class="flex h-9 w-full rounded-md border border-zinc-200 bg-transparent px-3 py-1 pl-9 text-sm shadow-sm transition-colors placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                    <!-- Dropdown Filter Praktikum -->
+                    <form method="GET" action="{{ route('admin.jadwal-praktikum.index') }}" class="flex items-center">
+                        <select name="praktikum_id" onchange="this.form.submit()"
+                            class="h-9 rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 cursor-pointer font-medium text-zinc-700">
+                            <option value="">-- Semua Mata Praktikum --</option>
+                            @foreach ($praktikums as $p)
+                                <option value="{{ $p->id }}" {{ isset($selectedPraktikum) && $selectedPraktikum == $p->id ? 'selected' : '' }}>
+                                    {{ $p->nama_praktikum }} ({{ $p->kode_praktikum }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+
                     <select id="customLength"
                         class="h-9 rounded-md border border-zinc-200 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950">
                         <option value="10">10 data</option>
@@ -68,7 +81,7 @@
                         <option value="100">100 data</option>
                     </select>
                     <button onclick="openAddModal()"
-                        class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-4 py-2 text-sm font-medium text-white shadow hover:bg-[#002d5a] transition-colors">
+                        class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-4 py-2 text-sm font-medium text-white shadow hover:bg-[#002d5a] transition-colors whitespace-nowrap">
                         <i class="fas fa-plus mr-2 text-xs"></i>
                         Tambah Jadwal
                     </button>

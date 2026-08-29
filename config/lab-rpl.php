@@ -15,6 +15,7 @@ return [
     'jabatan_aslab' => [
         'Struktural Laboratorium' => [
             'Anggota',
+            'Programmer',
             'Koordinator Laboratorium',
             'Koordinator Praktikum Pemrograman Terstruktur',
             'Koordinator Praktikum Struktur Data',

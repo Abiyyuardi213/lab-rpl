@@ -39,6 +39,7 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
+        $user->plain_password = $request->password;
         $user->role_id = $request->role_id;
         
         if ($request->hasFile('profile_picture')) {
@@ -78,6 +79,7 @@ class UserController extends Controller
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
+            $user->plain_password = $request->password;
         }
 
         if ($request->hasFile('profile_picture')) {
