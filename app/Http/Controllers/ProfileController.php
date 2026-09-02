@@ -34,10 +34,14 @@ class ProfileController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'username' => 'required|string|unique:users,username,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
+
+        // Jika bukan praktikan, izinkan ubah username
+        if (!$user->role || $user->role->name !== 'Praktikan') {
+            $rules['username'] = 'required|string|unique:users,username,' . $user->id;
+        }
 
         // Add role-specific rules
         if ($user->role) {
@@ -52,7 +56,9 @@ class ProfileController extends Controller
 
         $user->name = $request->name;
         $user->email = $request->email;
-        $user->username = $request->username;
+        if (!$user->role || $user->role->name !== 'Praktikan') {
+            $user->username = $request->username;
+        }
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);

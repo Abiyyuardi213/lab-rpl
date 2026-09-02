@@ -105,6 +105,7 @@ Route::middleware('auth')->group(function () {
         Route::post('praktikum/{praktikum_id}/aslab', [\App\Http\Controllers\PraktikumController::class, 'storeAslab'])->name('praktikum.aslab.store');
         Route::delete('praktikum/aslab/{id}', [\App\Http\Controllers\PraktikumController::class, 'destroyAslab'])->name('praktikum.aslab.destroy');
         Route::patch('praktikum/pendaftaran/{pendaftaran_id}/assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'assignStudentToAslab'])->name('praktikum.pendaftaran.assign-aslab');
+        Route::patch('praktikum/pendaftaran/{pendaftaran_id}/graduation-status', [\App\Http\Controllers\PraktikumController::class, 'updateGraduationStatus'])->name('praktikum.pendaftaran.update-graduation-status');
         Route::post('praktikum/{praktikum_id}/auto-assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'autoAssignAslab'])->name('praktikum.auto-assign-aslab');
         Route::post('praktikum/{praktikum_id}/bulk-assign-aslab', [\App\Http\Controllers\PraktikumController::class, 'bulkAssignAslab'])->name('praktikum.bulk-assign-aslab');
         Route::get('praktikum/{id}/export-students', [\App\Http\Controllers\PraktikumController::class, 'exportStudents'])->name('praktikum.export-students');
@@ -160,7 +161,9 @@ Route::middleware('auth')->group(function () {
         Route::post('penugasan/bulk', [\App\Http\Controllers\Admin\PenugasanController::class, 'bulkStore'])->name('penugasan.bulk-store');
         Route::resource('penugasan', \App\Http\Controllers\Admin\PenugasanController::class);
         Route::get('/support', fn() => 'Support Index')->name('support.index');
-        Route::get('/laboratorium', fn() => 'Laboratorium Index')->name('laboratorium.index');
+        Route::get('/laboratorium', [\App\Http\Controllers\Admin\LabSettingController::class, 'index'])->name('laboratorium.index');
+        Route::put('/laboratorium', [\App\Http\Controllers\Admin\LabSettingController::class, 'update'])->name('laboratorium.update');
+        Route::resource('certificate', \App\Http\Controllers\Admin\CertificateController::class);
         Route::prefix('peminjaman-ruangan')->name('peminjaman-ruangan.')->group(function () {
             Route::get('/monitoring', fn() => 'Monitoring')->name('monitoring');
             Route::get('/', fn() => 'Peminjaman Index')->name('index');
@@ -267,6 +270,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/daftar-praktikum', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'store'])->name('pendaftaran.store');
             Route::get('/riwayat-pendaftaran', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'index'])->name('pendaftaran.index');
             Route::get('/pendaftaran/{id}/progress', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'progress'])->name('pendaftaran.progress');
+            Route::get('/pendaftaran/{id}/sertifikat', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'downloadSertifikat'])->name('pendaftaran.sertifikat');
             Route::post('/tugas/{tugas_id}/submit', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'submitTugas'])->name('pendaftaran.submit-tugas');
             Route::post('/pendaftaran/{id}/rating', [\App\Http\Controllers\Praktikan\PendaftaranController::class, 'submitRating'])->name('pendaftaran.submit-rating');
 

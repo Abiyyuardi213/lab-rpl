@@ -4,79 +4,124 @@
 
 @section('content')
     <div class="space-y-8">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Rekrutmen Aslab</h1>
-                <p class="text-slate-500 mt-1 text-sm">Bergabunglah menjadi bagian dari tim asisten Laboratorium RPL.</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Rekrutmen Asisten Laboratorium</h1>
+                <p class="text-slate-500 mt-1 text-sm sm:text-base">Bergabunglah menjadi bagian dari tim asisten Laboratorium RPL.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span
+                    class="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-50 text-[#001f3f] text-xs font-bold border border-blue-100 shadow-sm">
+                    <i class="fas fa-user-plus mr-2 text-blue-600"></i>
+                    Open Recruitment
+                </span>
             </div>
         </div>
 
-        <!-- Active Oprec Periods -->
+        <!-- Stat Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+                class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center gap-5 transition-all hover:shadow-md hover:border-blue-200 cursor-default">
+                <div class="h-14 w-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                    <i class="fas fa-bullhorn text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Lowongan Ditawarkan</h3>
+                    <p class="text-xl font-bold text-slate-900 mb-1">
+                        {{ $allPeriods->where('is_active', true)->where('end_date', '>=', now())->count() }} <span class="text-sm font-medium text-slate-500 normal-case">Periode Aktif</span>
+                    </p>
+                    <p class="text-[10px] text-slate-500 font-medium">Kesempatan terbuka untuk mahasiwa aktif</p>
+                </div>
+            </div>
+
+            <div
+                class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex items-center gap-5 transition-all hover:shadow-md hover:border-purple-200 cursor-default">
+                <div class="h-14 w-14 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                    <i class="fas fa-history text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Lamaran Dikirim</h3>
+                    <p class="text-xl font-bold text-slate-900 mb-1">
+                        {{ $myApplications->count() }} <span class="text-sm font-medium text-slate-500 normal-case">Pendaftaran</span>
+                    </p>
+                    <p class="text-[10px] text-slate-500 font-medium">Riwayat pengajuan berkas aslab Anda</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Oprec Periods -->
         <div class="space-y-4">
-            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <i class="fas fa-bullhorn text-blue-600"></i>
-                Lowongan Tersedia
-            </h2>
+            <div class="flex items-center gap-3 mb-2">
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Lowongan Rekrutmen</h2>
+                <span class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md">{{ $allPeriods->count() }} Total Periode</span>
+            </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                @forelse($activePeriods as $period)
+                @forelse($allPeriods as $period)
+                    @php
+                        $isOpen = $period->is_active && $period->end_date >= now();
+                        $alreadyApplied = $myApplications
+                            ->where('recruitment_period_id', $period->id)
+                            ->isNotEmpty();
+                    @endphp
                     <div
-                        class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row transition-all hover:shadow-md group">
+                        class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row transition-all hover:shadow-md hover:border-blue-200 group {{ !$isOpen ? 'opacity-85' : '' }}">
                         <div
-                            class="md:w-1/3 bg-gradient-to-br from-blue-600 to-indigo-700 p-8 flex flex-col items-center justify-center text-white text-center relative overflow-hidden">
+                            class="md:w-1/3 {{ $isOpen ? 'bg-gradient-to-br from-[#001f3f] to-[#003366]' : 'bg-gradient-to-br from-slate-700 to-slate-800' }} p-6 flex flex-col items-center justify-center text-white text-center relative overflow-hidden">
                             <div class="absolute inset-0 opacity-10">
                                 <i class="fas fa-users text-[120px] -rotate-12 transform translate-x-4"></i>
                             </div>
                             <div class="relative z-10">
                                 <div
-                                    class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-4 mx-auto border border-white/20">
-                                    <i class="fas fa-user-plus text-2xl"></i>
+                                    class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-3 mx-auto border border-white/20 shadow-sm">
+                                    <i class="fas {{ $isOpen ? 'fa-user-plus' : 'fa-clock-rotate-left' }} text-xl text-white"></i>
                                 </div>
-                                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">Pendaftaran
-                                    Hingga</p>
-                                <p class="text-lg font-black">{{ $period->end_date->format('d M Y') }}</p>
+                                <p class="text-[10px] font-bold uppercase tracking-widest text-slate-200 mb-1">
+                                    {{ $isOpen ? 'Batas Pendaftaran' : 'Berakhir Pada' }}
+                                </p>
+                                <p class="text-base font-bold text-white">{{ $period->end_date->format('d M Y') }}</p>
+                                @if(!$isOpen)
+                                    <span class="inline-block mt-2 px-2 py-0.5 rounded bg-rose-500/30 text-rose-200 border border-rose-400/30 text-[9px] font-bold uppercase tracking-wider">Tutup</span>
+                                @endif
                             </div>
                         </div>
-                        <div class="flex-grow p-8">
-                            <div class="flex items-start justify-between mb-2">
-                                <h3 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
-                                    {{ $period->title }}</h3>
-                            </div>
-                            <div class="relative">
-                                <div class="description-container relative overflow-hidden transition-all duration-500 max-h-24 mb-2" id="description-{{ $period->id }}">
-                                    <div class="trix-content prose prose-sm max-w-none text-slate-500 text-sm leading-relaxed">
-                                        {!! $period->description ?? 'Mari kembangkan skill Anda dengan menjadi asisten laboratorium.' !!}
+                        <div class="flex-grow p-6 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-start justify-between gap-2 mb-2">
+                                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                                        {{ $period->title }}
+                                    </h3>
+                                </div>
+                                
+                                <div class="relative mb-4">
+                                    <div class="description-container relative overflow-hidden transition-all duration-500 max-h-20" id="description-{{ $period->id }}">
+                                        <div class="trix-content prose prose-sm max-w-none text-slate-500 text-xs leading-relaxed">
+                                            {!! $period->description ?? 'Mari kembangkan skill Anda dengan menjadi asisten laboratorium.' !!}
+                                        </div>
+                                        <div class="description-fade absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-white to-transparent pointer-events-none transition-opacity duration-300" id="fade-{{ $period->id }}"></div>
                                     </div>
-                                    <div class="description-fade absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-white to-transparent pointer-events-none transition-opacity duration-300" id="fade-{{ $period->id }}"></div>
+                                    <button onclick="toggleDescription('{{ $period->id }}')" 
+                                        class="description-toggle-btn hidden text-blue-600 text-[11px] font-bold mt-1 hover:text-blue-800 transition-colors flex items-center gap-1 group" 
+                                        id="btn-{{ $period->id }}">
+                                        <span class="btn-text">Baca Selengkapnya</span>
+                                        <i class="fas fa-chevron-down text-[10px] group-[.active]:rotate-180 transition-transform"></i>
+                                    </button>
                                 </div>
-                                <button onclick="toggleDescription('{{ $period->id }}')" 
-                                    class="description-toggle-btn hidden text-blue-600 text-[11px] font-bold mb-6 hover:text-blue-800 transition-colors flex items-center gap-1 group" 
-                                    id="btn-{{ $period->id }}">
-                                    <span class="btn-text">Baca Selengkapnya</span>
-                                    <i class="fas fa-chevron-down text-[10px] group-[.active]:rotate-180 transition-transform"></i>
-                                </button>
-                            </div>
 
-                            <div class="grid grid-cols-2 gap-4 mb-8">
-                                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Min. IPK
-                                    </p>
-                                    <p class="text-sm font-bold text-slate-800">{{ $period->min_ipk }}</p>
-                                </div>
-                                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Min.
-                                        Semester</p>
-                                    <p class="text-sm font-bold text-slate-800">{{ $period->min_semester }}</p>
+                                <div class="grid grid-cols-2 gap-3 mb-6">
+                                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Min. IPK</p>
+                                        <p class="text-sm font-bold text-slate-800">{{ $period->min_ipk }}</p>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Min. Semester</p>
+                                        <p class="text-sm font-bold text-slate-800">Semester {{ $period->min_semester }}</p>
+                                    </div>
                                 </div>
                             </div>
 
-                            @php
-                                $alreadyApplied = $myApplications
-                                    ->where('recruitment_period_id', $period->id)
-                                    ->isNotEmpty();
-                            @endphp
-
-                            <div class="flex flex-col sm:flex-row gap-3">
+                            <div class="flex flex-col sm:flex-row gap-3 pt-2 border-t border-slate-100">
                                 <button 
                                     data-id="{{ $period->id }}"
                                     data-title="{{ $period->title }}"
@@ -87,22 +132,29 @@
                                     data-end="{{ $period->end_date->format('d M Y') }}"
                                     data-wa="{{ $period->whatsapp_link }}"
                                     onclick="openDetailModal(this)"
-                                    class="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+                                    class="flex-1 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-bold text-xs hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
                                     <i class="fas fa-info-circle text-xs"></i>
                                     Detail Info
                                 </button>
+
                                 @if ($alreadyApplied)
                                     <div
-                                        class="flex-1 py-3 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                                        class="flex-1 py-2.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl font-bold text-xs flex items-center justify-center gap-2">
                                         <i class="fas fa-check-circle"></i>
                                         Sudah Mendaftar
                                     </div>
+                                @elseif(!$isOpen)
+                                    <button disabled
+                                        class="flex-1 py-2.5 bg-slate-100 text-slate-400 border border-slate-200 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2">
+                                        <i class="fas fa-lock text-xs"></i>
+                                        Pendaftaran Ditutup
+                                    </button>
                                 @else
                                     <button 
                                         data-id="{{ $period->id }}"
                                         data-title="{{ $period->title }}"
                                         onclick="openApplyModal(this)"
-                                        class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2">
+                                        class="flex-1 py-2.5 bg-[#001f3f] text-white rounded-xl font-bold text-xs hover:bg-slate-800 transition-all shadow-md flex items-center justify-center gap-2">
                                         Daftar Sekarang
                                         <i class="fas fa-arrow-right text-xs"></i>
                                     </button>
@@ -112,13 +164,13 @@
                     </div>
                 @empty
                     <div
-                        class="col-span-full py-16 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                        class="col-span-full py-12 text-center bg-white rounded-2xl border border-dashed border-slate-200 shadow-sm">
                         <div
-                            class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300 text-2xl">
+                            class="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-300 text-xl border border-slate-100">
                             <i class="fas fa-clock"></i>
                         </div>
-                        <h3 class="text-slate-900 font-bold">Belum Ada Rekrutmen</h3>
-                        <p class="text-slate-500 text-sm mt-1">Saat ini belum ada periode rekrutmen aslab yang dibuka.</p>
+                        <h3 class="text-slate-900 font-bold text-sm">Belum Ada Lowongan Rekrutmen</h3>
+                        <p class="text-slate-500 text-xs mt-1">Saat ini belum ada periode rekrutmen asisten laboratorium yang dibuka.</p>
                     </div>
                 @endforelse
             </div>
@@ -126,59 +178,55 @@
 
         <!-- My Applications Status -->
         <div class="space-y-4">
-            <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <i class="fas fa-history text-slate-400"></i>
-                Riwayat Lamaran Saya
-            </h2>
+            <div class="flex items-center gap-3 mb-2">
+                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Riwayat Lamaran Saya</h2>
+                <span class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md">{{ $myApplications->count() }} Total</span>
+            </div>
 
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse text-sm">
                         <thead>
-                            <tr class="bg-slate-50/50 border-b border-slate-100">
-                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500">Periode</th>
-                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500">Tgl Daftar</th>
-                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500">Jadwal Tes</th>
-                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-center">Grup WA</th>
-                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-center">Status</th>
-                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-widest text-slate-500">Aksi</th>
+                            <tr class="bg-slate-50/50 border-b border-slate-100 text-slate-500">
+                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-wider">Periode Rekrutmen</th>
+                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-wider">Tanggal Daftar</th>
+                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-wider text-center">Grup WA</th>
+                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-wider">Jadwal Tes</th>
+                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-wider text-center">Status</th>
+                                <th class="px-6 py-4 font-bold text-[10px] uppercase tracking-wider text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-zinc-100 text-zinc-900">
+                        <tbody class="divide-y divide-slate-100 text-slate-900">
                             @forelse($myApplications as $app)
-                                <tr class="hover:bg-zinc-50/50 transition-colors">
+                                <tr class="hover:bg-slate-50/50 transition-colors">
                                     <td class="px-6 py-4">
-                                        <p class="font-bold text-zinc-900 leading-tight">{{ $app->period->title }}</p>
+                                        <p class="font-bold text-slate-900 leading-tight">{{ $app->period->title }}</p>
                                     </td>
-                                    <td class="px-6 py-4 text-xs text-zinc-500 font-medium">
+                                    <td class="px-6 py-4 text-xs text-slate-500 font-medium">
                                         {{ $app->created_at->format('d M Y') }}
                                     </td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-6 py-4 text-center">
                                         @if($app->period->whatsapp_link)
-                                            <div class="flex justify-center">
-                                                <a href="{{ $app->period->whatsapp_link }}" target="_blank" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-500 hover:text-white transition-all shadow-sm" title="Gabung Grup WhatsApp">
-                                                    <i class="fab fa-whatsapp text-lg"></i>
-                                                </a>
-                                            </div>
+                                            <a href="{{ $app->period->whatsapp_link }}" target="_blank" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-500 hover:text-white transition-all shadow-sm" title="Gabung Grup WhatsApp">
+                                                <i class="fab fa-whatsapp text-base"></i>
+                                            </a>
                                         @else
-                                            <div class="text-center">
-                                                <span class="text-[10px] text-zinc-400 italic">Belum tersedia</span>
-                                            </div>
+                                            <span class="text-[10px] text-slate-400 italic">Belum tersedia</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4">
                                         @if($app->schedules->isNotEmpty())
                                             <div class="space-y-2">
                                                 @foreach($app->schedules as $schedule)
-                                                    <div class="p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-between group">
-                                                        <div class="flex items-center gap-3">
-                                                            <div class="h-8 w-8 rounded-lg bg-[#001f3f] text-white flex flex-col items-center justify-center">
-                                                                <span class="text-[7px] font-black uppercase leading-none">{{ $schedule->date->format('M') }}</span>
-                                                                <span class="text-xs font-black leading-none">{{ $schedule->date->format('d') }}</span>
+                                                    <div class="p-2.5 rounded-xl bg-blue-50/70 border border-blue-100 flex items-center justify-between group">
+                                                        <div class="flex items-center gap-2.5">
+                                                            <div class="h-7 w-7 rounded-lg bg-[#001f3f] text-white flex flex-col items-center justify-center">
+                                                                <span class="text-[6px] font-black uppercase leading-none">{{ $schedule->date->format('M') }}</span>
+                                                                <span class="text-[10px] font-black leading-none">{{ $schedule->date->format('d') }}</span>
                                                             </div>
                                                             <div>
-                                                                <p class="text-[10px] font-bold text-blue-900 leading-tight">{{ $schedule->name }}</p>
-                                                                <p class="text-[8px] text-blue-600 mt-0.5">
+                                                                <p class="text-[10px] font-bold text-blue-950 leading-tight">{{ $schedule->name }}</p>
+                                                                <p class="text-[8px] text-blue-700 mt-0.5">
                                                                     <i class="far fa-clock mr-1"></i> {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }}
                                                                     <span class="mx-1">|</span>
                                                                     <i class="fas fa-map-marker-alt mr-1 text-rose-500"></i> {{ $schedule->location }}
@@ -203,31 +251,31 @@
                                     <td class="px-6 py-4 text-center">
                                         @php
                                             $statusClasses = [
-                                                'pending' => 'bg-amber-50 text-amber-600 border-amber-100',
-                                                'shortlisted' => 'bg-blue-50 text-blue-600 border-blue-100',
-                                                'rejected' => 'bg-rose-50 text-rose-600 border-rose-100',
-                                                'accepted' => 'bg-emerald-50 text-emerald-600 border-emerald-100',
+                                                'pending' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                                'shortlisted' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                                'rejected' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                                'accepted' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
                                             ];
                                             $statusLabels = [
-                                                'pending' => 'Pending',
-                                                'shortlisted' => 'Shortlist',
-                                                'rejected' => 'Ditolak',
-                                                'accepted' => 'Diterima',
+                                                'pending' => 'Menunggu Verifikasi',
+                                                'shortlisted' => 'Shortlist (Lolos)',
+                                                'rejected' => 'Tidak Lolos',
+                                                'accepted' => 'Diterima Resmi',
                                             ];
                                         @endphp
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border {{ $statusClasses[$app->status] }}">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border {{ $statusClasses[$app->status] }}">
                                             {{ $statusLabels[$app->status] }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4">
-                                        <a href="{{ route('praktikan.recruitment.show', $app->id) }}" class="inline-flex items-center justify-center h-8 px-4 rounded-xl bg-zinc-100 text-zinc-600 text-[10px] font-black uppercase tracking-widest hover:bg-[#1a4fa0] hover:text-white transition-all shadow-sm">
-                                            Lihat Progress
+                                    <td class="px-6 py-4 text-right">
+                                        <a href="{{ route('praktikan.recruitment.show', $app->id) }}" class="inline-flex items-center justify-center h-8 px-4 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold whitespace-nowrap hover:bg-[#001f3f] hover:text-white transition-all shadow-sm">
+                                            Detail Progress
                                         </a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-12 text-center text-zinc-400 text-[11px] italic">Anda belum memiliki riwayat pendaftaran.</td>
+                                    <td colspan="6" class="px-6 py-10 text-center text-slate-400 text-xs italic">Anda belum memiliki riwayat pendaftaran asisten laboratorium.</td>
                                 </tr>
                             @endforelse
                         </tbody>

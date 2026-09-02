@@ -23,6 +23,8 @@ class Praktikum extends Model
         'status_praktikum',
         'jumlah_modul',
         'ada_tugas_akhir',
+        'nomor_surat_prefix',
+        'bg_sertifikat_template',
     ];
 
     protected $casts = [
@@ -51,5 +53,10 @@ class Praktikum extends Model
     public function jadwals()
     {
         return $this->hasMany(JadwalPraktikum::class, 'praktikum_id');
+    }
+
+    public function certificate()
+    {
+        return $this->hasOne(Certificate::class, 'praktikum_id');
     }
 }

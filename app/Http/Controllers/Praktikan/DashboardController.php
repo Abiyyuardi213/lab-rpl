@@ -32,12 +32,14 @@ class DashboardController extends Controller
         $upcomingSchedules = collect();
         $activePendaftarans = collect();
 
+        $completedPendaftarans = collect();
+
         if ($praktikan) {
             app(PresensiAlfaService::class)->markFinishedSchedules();
 
-            $activePendaftarans = $praktikan->pendaftarans()
+            $allVerifiedPendaftarans = $praktikan->pendaftarans()
                 ->where('status', 'verified')
-                ->with(['praktikum', 'sesi', 'presensis'])
+                ->with(['praktikum', 'sesi', 'presensis', 'penilaianAkhir'])
                 ->withCount('presensis')
                 ->get()
                 ->map(function ($pendaftaran) {
@@ -54,6 +56,16 @@ class DashboardController extends Controller
                     
                     return $pendaftaran;
                 });
+
+            // Praktikum yang masih berjalan/aktif (status_praktikum != finished)
+            $activePendaftarans = $allVerifiedPendaftarans->filter(function ($p) {
+                return $p->praktikum && $p->praktikum->status_praktikum !== 'finished';
+            })->values();
+
+            // Praktikum yang telah selesai/berakhir (status_praktikum == finished)
+            $completedPendaftarans = $allVerifiedPendaftarans->filter(function ($p) {
+                return $p->praktikum && $p->praktikum->status_praktikum === 'finished';
+            })->values();
 
             $pendaftaranIds = $activePendaftarans->pluck('praktikum_id');
 
@@ -174,6 +186,6 @@ class DashboardController extends Controller
             ->get();
         }
 
-        return view('praktikan.dashboard', compact('praktikums', 'upcomingSchedules', 'activePendaftarans', 'penugasans', 'recruitmentSchedules'));
+        return view('praktikan.dashboard', compact('praktikums', 'upcomingSchedules', 'activePendaftarans', 'completedPendaftarans', 'penugasans', 'recruitmentSchedules'));
     }
 }

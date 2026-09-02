@@ -95,23 +95,10 @@
                                     @enderror
                                 </div>
                                 <div class="space-y-2">
-                                    <label class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] ml-1">NPM
-                                        (ID Mahasiswa)</label>
-                                    <input type="text" value="{{ $user->praktikan->npm }}" disabled
+                                    <label class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] ml-1">NPM / Username (Login ID)</label>
+                                    <input type="text" value="{{ $user->praktikan->npm ?? $user->username }}" disabled
                                         class="flex h-10 w-full rounded-md border border-zinc-200 bg-zinc-100 px-3 py-2 text-sm font-bold text-zinc-500 cursor-not-allowed">
-                                    <p class="text-[9px] text-zinc-400 italic">NPM adalah identitas tetap dan tidak dapat
-                                        diubah.</p>
-                                </div>
-                                <div class="space-y-2">
-                                    <label
-                                        class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] ml-1">Username
-                                        (Login ID)</label>
-                                    <input type="text" name="username" value="{{ old('username', $user->username) }}"
-                                        class="flex h-10 w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all">
-                                    @error('username')
-                                        <p class="text-[10px] font-bold text-rose-500 uppercase tracking-wider mt-1">
-                                            {{ $message }}</p>
-                                    @enderror
+                                    <p class="text-[9px] text-zinc-400 italic">NPM / Username digunakan untuk login dan tidak dapat diubah.</p>
                                 </div>
                                 <div class="space-y-2">
                                     <label
@@ -128,21 +115,21 @@
                                     <label class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] ml-1">No.
                                         WhatsApp</label>
                                     <input type="text" name="no_hp"
-                                        value="{{ old('no_hp', $user->praktikan->no_hp) }}" placeholder="e.g., 0812..."
+                                        value="{{ old('no_hp', $user->praktikan?->no_hp) }}" placeholder="e.g., 0812..."
                                         class="flex h-10 w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all">
                                 </div>
                                 <div class="space-y-2">
                                     <label
                                         class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] ml-1">Angkatan</label>
                                     <input type="text" name="angkatan"
-                                        value="{{ old('angkatan', $user->praktikan->angkatan) }}" placeholder="e.g., 2023"
+                                        value="{{ old('angkatan', $user->praktikan?->angkatan) }}" placeholder="e.g., 2023"
                                         class="flex h-10 w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all">
                                 </div>
                                 <div class="sm:col-span-2 space-y-2">
                                     <label
                                         class="text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em] ml-1">Jurusan</label>
                                     <input type="text" name="jurusan"
-                                        value="{{ old('jurusan', $user->praktikan->jurusan) }}"
+                                        value="{{ old('jurusan', $user->praktikan?->jurusan) }}"
                                         placeholder="e.g., Teknik Informatika"
                                         class="flex h-10 w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900/5 transition-all">
                                 </div>

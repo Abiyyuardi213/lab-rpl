@@ -187,14 +187,14 @@
             </div>
         </div>
 
-        <!-- Progress Asistensi Section -->
-        <div id="tour-step-3">
-            <div class="flex items-center gap-3 mb-4">
-                <h2 class="text-xl font-bold text-slate-900 tracking-tight">Progress Asistensi Anda</h2>
-                <span class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md" title="Total praktikum aktif saat ini">{{ isset($activePendaftarans) ? $activePendaftarans->count() : 0 }} Aktif</span>
-            </div>
+        <!-- Progress Asistensi Section (Hanya Tampil Jika Ada Praktikum Aktif) -->
+        @if (isset($activePendaftarans) && $activePendaftarans->isNotEmpty())
+            <div id="tour-step-3">
+                <div class="flex items-center gap-3 mb-4">
+                    <h2 class="text-xl font-bold text-slate-900 tracking-tight">Progress Asistensi Anda</h2>
+                    <span class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md" title="Total praktikum aktif saat ini">{{ $activePendaftarans->count() }} Aktif</span>
+                </div>
 
-            @if (isset($activePendaftarans) && $activePendaftarans->isNotEmpty())
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     @foreach ($activePendaftarans as $ap)
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md">
@@ -278,17 +278,74 @@
                         </div>
                     @endforeach
                 </div>
-            @else
-                <!-- Empty State Progress -->
-                <div class="bg-white rounded-2xl border border-slate-200 border-dashed shadow-sm p-8 md:p-12 flex flex-col items-center justify-center text-center">
-                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-5 border border-slate-100">
-                        <i class="fas fa-tasks text-4xl"></i>
+            </div>
+        @endif
+
+        <!-- Rekap Praktikum yang Telah Diikuti -->
+        @if (isset($completedPendaftarans) && $completedPendaftarans->isNotEmpty())
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-xl font-bold text-slate-900 tracking-tight">Rekap Praktikum yang Telah Diikuti</h2>
+                        <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold rounded-lg">{{ $completedPendaftarans->count() }} Selesai</span>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-800">Belum Ada Progress</h3>
-                    <p class="text-slate-500 mt-2 max-w-md text-sm leading-relaxed">Pantau perkembangan tugas asistensi Anda di sini. Progress akan otomatis muncul setelah pendaftaran praktikum diverifikasi oleh admin.</p>
+                    <a href="{{ route('praktikan.pendaftaran.index') }}" class="text-xs font-bold text-[#001f3f] hover:underline flex items-center gap-1">
+                        Lihat Semua Riwayat <i class="fas fa-arrow-right text-[10px]"></i>
+                    </a>
                 </div>
-            @endif
-        </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    @foreach ($completedPendaftarans as $cp)
+                        @php
+                            $gradStatus = $cp->penilaianAkhir?->status_kelulusan;
+                        @endphp
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between p-5 hover:shadow-md transition-all">
+                            <div class="space-y-3">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div>
+                                        <span class="text-[9px] font-black text-[#001f3f] bg-blue-50 px-2 py-0.5 rounded font-mono">{{ $cp->praktikum->kode_praktikum }}</span>
+                                        <h3 class="text-sm font-bold text-slate-900 mt-1.5 line-clamp-1">{{ $cp->praktikum->nama_praktikum }}</h3>
+                                    </div>
+                                    @if($gradStatus === 'LULUS')
+                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                                            LULUS
+                                        </span>
+                                    @elseif($gradStatus === 'TIDAK LULUS')
+                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
+                                            TIDAK LULUS
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                                            SELESAI
+                                        </span>
+                                    @endif
+                                </div>
+
+                                <div class="space-y-1 text-xs text-slate-500">
+                                    <p class="flex items-center gap-1.5"><i class="far fa-calendar-alt text-slate-400"></i> Periode: <span class="font-semibold text-slate-700">{{ $cp->praktikum->periode_praktikum }}</span></p>
+                                    <p class="flex items-center gap-1.5"><i class="fas fa-chalkboard-teacher text-slate-400"></i> Dosen: <span class="font-semibold text-slate-700 truncate">{{ $cp->dosen_pengampu }}</span></p>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                                <span class="text-[10px] text-slate-400 font-medium italic">Sesi {{ $cp->sesi->nama_sesi }}</span>
+                                @if($gradStatus === 'LULUS')
+                                    <a href="{{ route('praktikan.pendaftaran.sertifikat', $cp->id) }}" target="_blank"
+                                        class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all flex items-center gap-1 shadow-sm">
+                                        <i class="fas fa-file-pdf"></i> Sertifikat
+                                    </a>
+                                @else
+                                    <a href="{{ route('praktikan.pendaftaran.progress', $cp->id) }}"
+                                        class="text-[10px] font-bold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1">
+                                        Detail Progress <i class="fas fa-chevron-right text-[8px]"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
         <!-- Recruitment Schedules (Upcoming Test for Aslab Candidates) -->
         @if(isset($recruitmentSchedules) && $recruitmentSchedules->isNotEmpty())

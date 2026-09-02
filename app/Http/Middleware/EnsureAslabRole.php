@@ -20,7 +20,10 @@ class EnsureAslabRole
             return $next($request);
         }
 
-        Auth::logout();
-        return redirect()->route('impostor');
+        if (Auth::check()) {
+            return redirect()->route('home');
+        }
+
+        return redirect()->route('login.aslab');
     }
 }

@@ -21,12 +21,36 @@ class PendaftaranController extends Controller
                 ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
         }
 
-        $pendaftarans = PendaftaranPraktikum::with(['praktikum', 'sesi'])
+        $pendaftarans = PendaftaranPraktikum::with(['praktikum', 'sesi', 'penilaianAkhir'])
             ->where('praktikan_id', $praktikan->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
         return view('praktikan.pendaftaran.index', compact('pendaftarans'));
+    }
+
+    public function downloadSertifikat($id)
+    {
+        $praktikan = Auth::user()->praktikan;
+        $pendaftaran = PendaftaranPraktikum::with(['praktikum', 'praktikan.user', 'penilaianAkhir'])
+            ->where('praktikan_id', $praktikan->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        if ($pendaftaran->status !== 'verified' || $pendaftaran->praktikum->status_praktikum !== 'finished' || $pendaftaran->penilaianAkhir?->status_kelulusan !== 'LULUS') {
+            return back()->with('error', 'Sertifikat belum tersedia atau Anda belum memenuhi syarat kelulusan.');
+        }
+
+        $setting = \App\Models\LabSetting::getSetting();
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('praktikan.pendaftaran.sertifikat-pdf', compact('pendaftaran', 'setting'))
+            ->setPaper('a4', 'landscape')
+            ->setOption('isRemoteEnabled', true)
+            ->setOption('isHtml5ParserEnabled', true);
+
+        $fileName = 'Sertifikat_' . \Illuminate\Support\Str::slug($pendaftaran->praktikum->nama_praktikum) . '_' . $pendaftaran->praktikan->npm . '.pdf';
+
+        return $pdf->download($fileName);
     }
 
     public function create($praktikum_id)

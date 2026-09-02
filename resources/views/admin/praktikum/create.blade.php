@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <form action="{{ route('admin.praktikum.store') }}" method="POST">
+        <form action="{{ route('admin.praktikum.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Side Kiri: Informasi Dasar -->
@@ -155,6 +155,33 @@
                                             class="absolute inset-0 border-2 border-transparent peer-checked:border-rose-500 rounded-lg pointer-events-none transition-all">
                                         </div>
                                     </label>
+                                </div>
+                            </div>
+
+                            <!-- Section Sertifikat Spesifik Praktikum -->
+                            <div class="pt-4 border-t border-slate-100 space-y-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-7 h-7 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center font-bold text-xs">
+                                        <i class="fas fa-certificate"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-slate-900 text-xs">Pengaturan Sertifikat Praktikum Ini (Opsional)</h3>
+                                        <p class="text-[10px] text-slate-500">Kosongkan jika ingin memakai desain & prefix bawaan laboratorium.</p>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-1">
+                                        <label class="text-xs font-bold text-slate-700">Prefix Kode Surat Praktikum Ini</label>
+                                        <input type="text" name="nomor_surat_prefix" value="{{ old('nomor_surat_prefix') }}" placeholder="e.g. SERT/PSTF/ITATS"
+                                            class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-[#001f3f]">
+                                    </div>
+
+                                    <div class="space-y-1">
+                                        <label class="text-xs font-bold text-slate-700">Upload Desain Template Kustom</label>
+                                        <input type="file" name="bg_sertifikat_template" accept="image/png,image/jpeg"
+                                            class="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                                    </div>
                                 </div>
                             </div>
                         </div>
