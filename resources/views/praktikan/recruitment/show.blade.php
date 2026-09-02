@@ -5,48 +5,64 @@
 @section('content')
     <div class="space-y-8">
         <!-- Header Section -->
-        <div class="flex items-start justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
                 <a href="{{ route('praktikan.recruitment.index') }}"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-400 hover:text-zinc-900 transition-colors shadow-sm">
-                    <i class="fas fa-chevron-left text-xs"></i>
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-colors shadow-sm">
+                    <i class="fas fa-arrow-left text-xs"></i>
                 </a>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-zinc-900">Detail Progress Lamaran</h1>
-                    <p class="text-sm text-zinc-500 mt-1">Pantau perkembangan seleksi asisten laboratorium Anda.</p>
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Detail Progress Lamaran</h1>
+                    <p class="text-sm text-slate-500 mt-1">Pantau perkembangan seleksi asisten laboratorium Anda.</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
-                <a href="{{ route('praktikan.dashboard') }}" class="hover:text-zinc-900 transition-colors">Home</a>
+            <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
+                <a href="{{ route('praktikan.dashboard') }}" class="hover:text-slate-900 transition-colors">Home</a>
                 <span>/</span>
-                <a href="{{ route('praktikan.recruitment.index') }}" class="hover:text-zinc-900 transition-colors">Rekrutmen</a>
+                <a href="{{ route('praktikan.recruitment.index') }}" class="hover:text-slate-900 transition-colors">Rekrutmen</a>
                 <span>/</span>
-                <span class="text-zinc-900 font-semibold">Progress</span>
+                <span class="text-slate-900 font-semibold">Progress</span>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Left Column: Status Timeline -->
             <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white rounded-3xl border border-zinc-200 shadow-sm p-8 relative overflow-hidden">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 relative overflow-hidden">
                     <div class="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
                         <i class="fas fa-tasks text-9xl"></i>
                     </div>
 
-                    <h2 class="text-sm font-black uppercase tracking-[0.2em] text-zinc-400 mb-8 flex items-center gap-2">
-                        <i class="fas fa-map-marker-alt text-[#1a4fa0]"></i>
-                        Status Perjalanan Anda
-                    </h2>
+                    <div class="flex items-center gap-3 mb-8">
+                        <h2 class="text-lg font-bold text-slate-900 tracking-tight">Status Perjalanan Seleksi</h2>
+                        @php
+                            $statusClasses = [
+                                'pending' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                'shortlisted' => 'bg-blue-50 text-blue-700 border-blue-200',
+                                'rejected' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                'accepted' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                            ];
+                            $statusLabels = [
+                                'pending' => 'Menunggu Verifikasi',
+                                'shortlisted' => 'Shortlist (Lolos)',
+                                'rejected' => 'Tidak Lolos',
+                                'accepted' => 'Diterima Resmi',
+                            ];
+                        @endphp
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border {{ $statusClasses[$application->status] }}">
+                            {{ $statusLabels[$application->status] }}
+                        </span>
+                    </div>
 
-                    <div class="relative space-y-12">
+                    <div class="relative space-y-10">
                         <!-- Vertical Line -->
-                        <div class="absolute left-4 top-2 bottom-2 w-0.5 bg-zinc-100"></div>
+                        <div class="absolute left-4 top-2 bottom-2 w-0.5 bg-slate-100"></div>
 
                         @php
                             $steps = [
-                                ['id' => 'pending', 'title' => 'Pendaftaran Terkirim', 'desc' => 'Berkas Anda telah diterima oleh sistem dan sedang menunggu antrean review admin.'],
-                                ['id' => 'shortlisted', 'title' => 'Lolos Administrasi', 'desc' => 'Selamat! Berkas Anda memenuhi kriteria awal dan masuk dalam daftar shortlist.'],
-                                ['id' => 'accepted', 'title' => 'Diterima Sebagai Aslab', 'desc' => 'Selamat bergabung! Anda telah resmi terpilih sebagai bagian dari Asisten Laboratorium RPL.'],
+                                ['id' => 'pending', 'title' => 'Pendaftaran Terkirim', 'desc' => 'Berkas Anda telah diterima oleh sistem dan sedang dalam proses peninjauan oleh tim penguji.'],
+                                ['id' => 'shortlisted', 'title' => 'Lolos Seleksi Berkas (Shortlist)', 'desc' => 'Selamat! Berkas Anda memenuhi kriteria dan berhak mengikuti tahap wawancara / tes koding.'],
+                                ['id' => 'accepted', 'title' => 'Diterima Sebagai Asisten Laboratorium', 'desc' => 'Selamat bergabung! Anda telah resmi terpilih sebagai bagian dari Asisten Laboratorium RPL.'],
                             ];
 
                             $currentStatus = $application->status;
@@ -74,14 +90,14 @@
                                 <!-- Step Circle -->
                                 <div @class([
                                     'absolute left-0 top-0 w-8 h-8 rounded-full border-4 flex items-center justify-center transition-all z-10',
-                                    'bg-emerald-500 border-emerald-100 text-white' => $isCompleted,
-                                    'bg-[#1a4fa0] border-blue-100 text-white animate-pulse' => $isActive,
-                                    'bg-white border-zinc-100 text-zinc-300' => !$isCompleted && !$isActive,
+                                    'bg-emerald-500 border-emerald-100 text-white shadow-sm' => $isCompleted,
+                                    'bg-[#001f3f] border-blue-100 text-white animate-pulse shadow-md' => $isActive,
+                                    'bg-white border-slate-200 text-slate-300' => !$isCompleted && !$isActive,
                                 ])>
                                     @if($isCompleted)
                                         <i class="fas fa-check text-[10px]"></i>
                                     @else
-                                        <span class="text-[10px] font-black">{{ $index + 1 }}</span>
+                                        <span class="text-[10px] font-bold">{{ $index + 1 }}</span>
                                     @endif
                                 </div>
 
@@ -89,15 +105,15 @@
                                     <h3 @class([
                                         'text-base font-bold transition-colors',
                                         'text-emerald-600' => $isCompleted,
-                                        'text-[#1a4fa0]' => $isActive,
-                                        'text-zinc-400' => !$isCompleted && !$isActive,
+                                        'text-[#001f3f]' => $isActive,
+                                        'text-slate-400' => !$isCompleted && !$isActive,
                                     ])>{{ $step['title'] }}</h3>
-                                    <p class="text-sm text-zinc-500 mt-1 leading-relaxed">{{ $step['desc'] }}</p>
+                                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">{{ $step['desc'] }}</p>
                                     
                                     @if($isActive)
-                                        <div class="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#1a4fa0] text-[10px] font-black uppercase tracking-widest border border-blue-100">
-                                            <span class="w-1 h-1 rounded-full bg-[#1a4fa0] animate-ping"></span>
-                                            Sedang Berjalan
+                                        <div class="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#001f3f] text-[10px] font-bold uppercase tracking-wider border border-blue-100">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping"></span>
+                                            Tahap Saat Ini
                                         </div>
                                     @endif
                                 </div>
@@ -106,16 +122,16 @@
 
                         @if($isRejected)
                             <div class="relative pl-12 group">
-                                <div class="absolute left-0 top-0 w-8 h-8 rounded-full bg-rose-500 border-4 border-rose-100 text-white flex items-center justify-center z-10">
+                                <div class="absolute left-0 top-0 w-8 h-8 rounded-full bg-rose-500 border-4 border-rose-100 text-white flex items-center justify-center z-10 shadow-sm">
                                     <i class="fas fa-times text-[10px]"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-base font-bold text-rose-600">Pendaftaran Ditolak</h3>
-                                    <p class="text-sm text-zinc-500 mt-1 leading-relaxed">Mohon maaf, pendaftaran Anda belum dapat dilanjutkan ke tahap berikutnya pada periode ini.</p>
+                                    <h3 class="text-base font-bold text-rose-600">Pendaftaran Tidak Lolos</h3>
+                                    <p class="text-xs text-slate-500 mt-1 leading-relaxed">Mohon maaf, berkas atau kualifikasi Anda belum dapat dilanjutkan ke tahap berikutnya pada periode rekrutmen ini.</p>
                                     
-                                    <div class="mt-4 p-4 rounded-2xl bg-rose-50 border border-rose-100">
-                                        <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-1">Catatan Admin:</p>
-                                        <p class="text-sm text-rose-700 italic font-medium leading-relaxed">"{{ $application->admin_notes ?? 'Tidak ada catatan tambahan.' }}"</p>
+                                    <div class="mt-4 p-4 rounded-xl bg-rose-50 border border-rose-100">
+                                        <p class="text-[10px] font-bold text-rose-600 uppercase tracking-wider mb-1">Catatan Evaluasi Tim Penguji:</p>
+                                        <p class="text-xs text-rose-800 italic font-medium leading-relaxed">"{{ $application->admin_notes ?? 'Tidak ada catatan tambahan.' }}"</p>
                                     </div>
                                 </div>
                             </div>
@@ -124,14 +140,14 @@
                 </div>
 
                 @if($currentStatus === 'accepted')
-                    <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-8 text-white shadow-xl shadow-emerald-500/20 relative overflow-hidden">
+                    <div class="bg-gradient-to-br from-[#001f3f] to-[#003366] rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-8 opacity-10 pointer-events-none rotate-12">
                             <i class="fas fa-award text-9xl"></i>
                         </div>
                         <div class="relative z-10">
-                            <h3 class="text-2xl font-black mb-2">Selamat, Asisten Baru!</h3>
-                            <p class="text-emerald-50 opacity-90 leading-relaxed mb-6">Pendaftaran Anda telah diterima. Sekarang Anda dapat mengakses fitur-fitur khusus Asisten Laboratorium pada menu dashboard.</p>
-                            <a href="{{ route('aslab.dashboard') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-emerald-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-emerald-50 transition-all shadow-lg">
+                            <h3 class="text-xl font-bold mb-2">Selamat, Anda Resmi Menjadi Aslab! 🎉</h3>
+                            <p class="text-blue-100 text-xs sm:text-sm leading-relaxed mb-6">Pendaftaran Anda telah disetujui secara resmi. Anda sekarang memiliki hak akses ke modul & fitur Asisten Laboratorium pada sistem.</p>
+                            <a href="{{ route('aslab.dashboard') }}" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#001f3f] rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-blue-50 transition-all shadow-md">
                                 Masuk ke Dashboard Aslab
                                 <i class="fas fa-arrow-right"></i>
                             </a>
@@ -143,28 +159,28 @@
             <!-- Right Column: Info & Summary -->
             <div class="space-y-6">
                 @if($application->schedules->isNotEmpty())
-                    <div class="bg-white rounded-3xl border border-zinc-200 shadow-sm p-8">
-                        <h2 class="text-sm font-black uppercase tracking-[0.2em] text-[#1a4fa0] mb-6 flex items-center gap-2">
-                            <i class="fas fa-calendar-alt"></i>
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-[#001f3f] mb-4 flex items-center gap-2">
+                            <i class="far fa-calendar-alt text-blue-600"></i>
                             Jadwal Tes Lanjutan
                         </h2>
                         
-                        <div class="space-y-4">
+                        <div class="space-y-3">
                             @foreach($application->schedules as $schedule)
-                                <div class="p-5 rounded-2xl bg-blue-50/50 border border-blue-100 flex items-start gap-4 group">
-                                    <div class="h-14 w-14 rounded-2xl bg-[#1a4fa0] text-white flex flex-col items-center justify-center shadow-lg shadow-blue-900/20">
-                                        <span class="text-[10px] font-black uppercase leading-none">{{ $schedule->date->format('M') }}</span>
-                                        <span class="text-xl font-black leading-none">{{ $schedule->date->format('d') }}</span>
+                                <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-100 flex items-start gap-3.5 group">
+                                    <div class="h-12 w-12 rounded-xl bg-[#001f3f] text-white flex flex-col items-center justify-center shadow-sm shrink-0">
+                                        <span class="text-[8px] font-black uppercase leading-none">{{ $schedule->date->format('M') }}</span>
+                                        <span class="text-base font-black leading-none mt-0.5">{{ $schedule->date->format('d') }}</span>
                                     </div>
-                                    <div class="flex-1">
-                                        <h4 class="font-bold text-zinc-900 leading-tight">{{ $schedule->name }}</h4>
-                                        <div class="flex flex-col gap-y-1 mt-2 text-[11px] font-medium text-zinc-500">
-                                            <span class="flex items-center gap-1.5"><i class="far fa-clock text-blue-500"></i> {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-slate-900 text-xs leading-tight truncate">{{ $schedule->name }}</h4>
+                                        <div class="flex flex-col gap-y-1 mt-2 text-[10px] font-medium text-slate-600">
+                                            <span class="flex items-center gap-1.5"><i class="far fa-clock text-blue-600"></i> {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}</span>
                                             <span class="flex items-center gap-1.5"><i class="fas fa-location-dot text-rose-500"></i> {{ $schedule->location }}</span>
                                         </div>
                                         @if($schedule->notes)
-                                            <div class="mt-4 p-3 rounded-xl bg-white/60 border border-blue-100 text-[11px] text-blue-800 italic leading-relaxed">
-                                                <span class="font-black uppercase text-[9px] not-italic text-blue-400 block mb-1">Instruksi:</span>
+                                            <div class="mt-3 p-2.5 rounded-lg bg-white border border-blue-100 text-[10px] text-blue-900 italic leading-relaxed">
+                                                <span class="font-bold uppercase text-[8px] not-italic text-blue-500 block mb-0.5">Instruksi Peserta:</span>
                                                 {{ $schedule->notes }}
                                             </div>
                                         @endif
@@ -175,61 +191,61 @@
                     </div>
                 @endif
 
-                <div class="bg-white rounded-3xl border border-zinc-200 shadow-sm p-8">
-                    <h2 class="text-sm font-black uppercase tracking-[0.2em] text-zinc-400 mb-6">Ringkasan Lamaran</h2>
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-5">Ringkasan Lamaran</h2>
                     
-                    <div class="space-y-6">
+                    <div class="space-y-5 text-xs">
                         <div>
-                            <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">Periode Rekrutmen</p>
-                            <p class="text-sm font-bold text-zinc-900 leading-tight">{{ $application->period->title }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Periode Rekrutmen</p>
+                            <p class="font-bold text-slate-900 leading-tight">{{ $application->period->title }}</p>
                         </div>
 
                         <div>
-                            <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">Tanggal Submit</p>
-                            <p class="text-sm font-bold text-zinc-900">{{ $application->created_at->translatedFormat('d F Y, H:i') }}</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tanggal Submit</p>
+                            <p class="font-semibold text-slate-800">{{ $application->created_at->translatedFormat('d F Y, H:i') }}</p>
                         </div>
 
                         @if($application->period->whatsapp_link)
-                            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-between group">
+                            <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-between group">
                                 <div class="flex items-center gap-3">
-                                    <div class="h-10 w-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center shadow-md">
-                                        <i class="fab fa-whatsapp text-xl"></i>
+                                    <div class="h-9 w-9 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm">
+                                        <i class="fab fa-whatsapp text-lg"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-[11px] font-black text-emerald-900 uppercase tracking-tight">Grup Koordinasi</h4>
-                                        <p class="text-[10px] text-emerald-600 font-medium leading-none">Klik untuk bergabung</p>
+                                        <h4 class="text-xs font-bold text-emerald-950">Grup Koordinasi</h4>
+                                        <p class="text-[10px] text-emerald-600 font-medium">WhatsApp Peserta</p>
                                     </div>
                                 </div>
-                                <a href="{{ $application->period->whatsapp_link }}" target="_blank" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-emerald-700 transition-all">
+                                <a href="{{ $application->period->whatsapp_link }}" target="_blank" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg font-bold text-[10px] uppercase tracking-wider hover:bg-emerald-700 transition-all shadow-sm">
                                     Join
                                 </a>
                             </div>
                         @endif
 
-                        <div class="pt-4 border-t border-zinc-100">
-                            <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">Dokumen Terlampir</p>
+                        <div class="pt-4 border-t border-slate-100">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">Dokumen Terlampir</p>
                             <div class="flex flex-col gap-2">
-                                <a href="{{ Storage::url($application->cv_path) }}" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors group">
-                                    <div class="flex items-center gap-3">
-                                        <i class="far fa-file-pdf text-rose-500"></i>
-                                        <span class="text-xs font-bold text-zinc-700">Curriculum Vitae</span>
+                                <a href="{{ Storage::url($application->cv_path) }}" target="_blank" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors group">
+                                    <div class="flex items-center gap-2.5">
+                                        <i class="far fa-file-pdf text-rose-500 text-sm"></i>
+                                        <span class="text-xs font-semibold text-slate-700">Curriculum Vitae</span>
                                     </div>
-                                    <i class="fas fa-external-link-alt text-[10px] text-zinc-300 group-hover:text-zinc-500"></i>
+                                    <i class="fas fa-external-link-alt text-[10px] text-slate-300 group-hover:text-slate-600"></i>
                                 </a>
-                                <a href="{{ Storage::url($application->khs_path) }}" target="_blank" class="flex items-center justify-between p-3 rounded-xl bg-zinc-50 border border-zinc-100 hover:bg-zinc-100 transition-colors group">
-                                    <div class="flex items-center gap-3">
-                                        <i class="fas fa-file-invoice text-blue-500"></i>
-                                        <span class="text-xs font-bold text-zinc-700">KHS Terakhir</span>
+                                <a href="{{ Storage::url($application->khs_path) }}" target="_blank" class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors group">
+                                    <div class="flex items-center gap-2.5">
+                                        <i class="fas fa-file-invoice text-blue-500 text-sm"></i>
+                                        <span class="text-xs font-semibold text-slate-700">KHS Terakhir</span>
                                     </div>
-                                    <i class="fas fa-external-link-alt text-[10px] text-zinc-300 group-hover:text-zinc-500"></i>
+                                    <i class="fas fa-external-link-alt text-[10px] text-slate-300 group-hover:text-slate-600"></i>
                                 </a>
                             </div>
                         </div>
 
                         @if($application->admin_notes && !$isRejected)
-                            <div class="p-4 rounded-2xl bg-zinc-50 border border-zinc-100">
-                                <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Catatan Admin:</p>
-                                <p class="text-[11px] text-zinc-600 italic leading-relaxed">"{{ $application->admin_notes }}"</p>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Catatan Admin:</p>
+                                <p class="text-xs text-slate-600 italic leading-relaxed">"{{ $application->admin_notes }}"</p>
                             </div>
                         @endif
                     </div>

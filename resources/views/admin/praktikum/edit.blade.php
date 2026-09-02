@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <form action="{{ route('admin.praktikum.update', $praktikum->id) }}" method="POST">
+        <form action="{{ route('admin.praktikum.update', $praktikum->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -165,6 +165,39 @@
                                         </div>
                                     </label>
                                 </div>
+                            </div>
+                    <!-- Section Sertifikat Spesifik Praktikum -->
+                    <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm space-y-4">
+                        <div class="flex items-center gap-3 pb-3 border-b border-zinc-100">
+                            <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-700 flex items-center justify-center font-bold text-xs">
+                                <i class="fas fa-certificate"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-zinc-900 text-sm">Pengaturan Sertifikat Praktikum Ini</h3>
+                                <p class="text-xs text-zinc-500">Opsional. Kosongkan jika ingin memakai desain & prefix sertifikat global bawaan laboratorium.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-zinc-700">Prefix Kode Surat Praktikum Ini</label>
+                                <input type="text" name="nomor_surat_prefix" value="{{ old('nomor_surat_prefix', $praktikum->nomor_surat_prefix) }}" placeholder="e.g. SERT/PSTF/ITATS"
+                                    class="w-full px-3.5 py-2.5 border border-zinc-200 rounded-xl text-xs font-medium focus:outline-none focus:border-[#001f3f]">
+                                <p class="text-[10px] text-zinc-400 italic">Default jika kosong: LAB-RPL/SERT</p>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="text-xs font-bold text-zinc-700">Upload Desain Template Kustom</label>
+                                <div class="flex items-center gap-3">
+                                    @if($praktikum->bg_sertifikat_template)
+                                        <div class="w-20 h-14 p-1 border border-zinc-200 rounded-xl bg-zinc-50 flex items-center justify-center shrink-0">
+                                            <img src="{{ asset('storage/' . $praktikum->bg_sertifikat_template) }}" class="max-h-full max-w-full object-contain">
+                                        </div>
+                                    @endif
+                                    <input type="file" name="bg_sertifikat_template" accept="image/png,image/jpeg"
+                                        class="text-xs text-zinc-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                                </div>
+                                <p class="text-[10px] text-zinc-400 italic">PNG/JPG Landscape resolution tinggi.</p>
                             </div>
                         </div>
                     </div>

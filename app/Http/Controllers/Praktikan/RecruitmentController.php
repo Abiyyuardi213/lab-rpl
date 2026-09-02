@@ -13,16 +13,14 @@ class RecruitmentController extends Controller
 {
     public function index()
     {
-        $activePeriods = RecruitmentPeriod::where('is_active', true)
-            ->where('end_date', '>=', now())
-            ->get();
+        $allPeriods = RecruitmentPeriod::orderBy('created_at', 'desc')->get();
 
         $myApplications = AslabApplication::with(['period', 'schedules'])
             ->where('user_id', Auth::id())
             ->latest()
             ->get();
 
-        return view('praktikan.recruitment.index', compact('activePeriods', 'myApplications'));
+        return view('praktikan.recruitment.index', compact('allPeriods', 'myApplications'));
     }
 
     public function show($id)

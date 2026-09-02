@@ -193,6 +193,10 @@
                         class="flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all {{ request()->is('administrator/penilaian-akhir*') ? 'text-white font-bold bg-white/15' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
                         <i class="fas fa-award text-[10px] text-blue-300"></i> Penilaian Akhir
                     </a>
+                    <a href="{{ route('admin.certificate.index') }}"
+                        class="flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all {{ request()->is('administrator/certificate*') ? 'text-white font-bold bg-white/15' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
+                        <i class="fas fa-certificate text-[10px] text-blue-300"></i> Manajemen Sertifikat
+                    </a>
                     <a href="{{ route('admin.dosen.index') }}"
                         class="flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all {{ request()->is('administrator/dosen*') ? 'text-white font-bold bg-white/15' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
                         <i class="fas fa-chalkboard-teacher text-[10px] text-blue-300"></i> Master Dosen
@@ -200,6 +204,10 @@
                     <a href="{{ route('admin.kelas.index') }}"
                         class="flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all {{ request()->is('administrator/kelas*') ? 'text-white font-bold bg-white/15' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
                         <i class="fas fa-door-open text-[10px] text-blue-300"></i> Master Kelas
+                    </a>
+                    <a href="{{ route('admin.laboratorium.index') }}"
+                        class="flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all {{ request()->is('administrator/laboratorium*') ? 'text-white font-bold bg-white/15' : 'text-slate-300 hover:text-white hover:bg-white/10' }}">
+                        <i class="fas fa-cog text-[10px] text-blue-300"></i> TTD & Pengaturan Lab
                     </a>
                 </div>
             </div>

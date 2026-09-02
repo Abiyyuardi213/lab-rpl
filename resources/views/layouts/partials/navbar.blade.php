@@ -40,20 +40,30 @@
                     <div class="px-5 py-4 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
                         <p class="text-xs font-black text-zinc-900 uppercase tracking-widest">Notifikasi
                             ({{ $unreadCount }})</p>
+                        @php
+                            $markAllRoute = 'praktikan.notifications.markAllAsRead';
+                            $markReadRoute = 'praktikan.notifications.markAsRead';
+                            if (Auth::user()->role) {
+                                if (Auth::user()->role->name === 'Super Admin' || Auth::user()->role->name === 'Admin') {
+                                    $markAllRoute = 'admin.notifications.markAllAsRead';
+                                    $markReadRoute = 'admin.notifications.markAsRead';
+                                } elseif (Auth::user()->role->name === 'Aslab') {
+                                    $markAllRoute = 'aslab.notifications.markAllAsRead';
+                                    $markReadRoute = 'aslab.notifications.markAsRead';
+                                }
+                            }
+                        @endphp
                         @if ($unreadCount > 0)
-                            <form action="{{ route('notifications.readAll') }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="text-[10px] font-black text-zinc-400 hover:text-zinc-900 uppercase tracking-widest transition-colors">MARK
-                                    READ</button>
-                            </form>
+                            <a href="{{ route($markAllRoute) }}"
+                                class="text-[10px] font-black text-zinc-400 hover:text-zinc-900 uppercase tracking-widest transition-colors">MARK
+                                READ</a>
                         @endif
                     </div>
 
                     <div class="max-h-80 overflow-y-auto p-2 space-y-1">
                         @if ($user)
                             @forelse($user->unreadNotifications as $notification)
-                                <a href="{{ route('notifications.go', $notification->id) }}"
+                                <a href="{{ route($markReadRoute, $notification->id) }}"
                                     class="flex gap-4 p-3 rounded-xl hover:bg-zinc-50 transition-colors group/item relative">
                                     <div
                                         class="h-10 w-10 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400 group-hover/item:bg-white group-hover/item:shadow-sm transition-all flex-shrink-0">

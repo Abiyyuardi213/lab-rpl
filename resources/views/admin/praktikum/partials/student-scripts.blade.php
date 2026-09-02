@@ -173,16 +173,17 @@
         const table = $('#studentTable').DataTable({
             dom: 't<"flex items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
             language: { info: '<span class="text-[10px] font-bold uppercase text-zinc-400">_TOTAL_ Praktikan</span>' },
-            columnDefs: [{ orderable: false, targets: [0, 2, 3] }]
+            columnDefs: [{ orderable: false, targets: [0, 2, 3, 4] }]
         });
 
         $('#studentSearch').on('keyup', function() { table.search(this.value).draw(); });
         $('#filterSesi').on('change', function() { table.column(2).search(this.value).draw(); });
         $('#filterAslab').on('change', function() {
             const val = $(this).val();
-            if (val === 'Belum Ada') table.column(3).search('— Pilih Aslab —').draw();
+            if (val === 'Belum Ada') table.column(3).search('— Belum Ditugaskan —').draw();
             else table.column(3).search(val).draw();
         });
+        $('#filterKelulusan').on('change', function() { table.column(4).search(this.value).draw(); });
 
         // Persistent View Mode
         const mode = localStorage.getItem('praktikumViewMode') || 'table';

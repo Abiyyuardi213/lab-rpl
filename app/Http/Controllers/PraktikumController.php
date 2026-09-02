@@ -44,11 +44,18 @@ class PraktikumController extends Controller
             'daftar_kelas_mk.*' => 'required|string|max:255',
             'jumlah_modul' => 'required|integer|min:0',
             'ada_tugas_akhir' => 'required|boolean',
+            'nomor_surat_prefix' => 'nullable|string|max:100',
+            'bg_sertifikat_template' => 'nullable|image|mimes:png,jpg,jpeg|max:4096',
         ]);
 
         $kode = 'PRK-' . strtoupper(Str::random(6));
         while (Praktikum::where('kode_praktikum', $kode)->exists()) {
             $kode = 'PRK-' . strtoupper(Str::random(6));
+        }
+
+        $bgTemplate = null;
+        if ($request->hasFile('bg_sertifikat_template')) {
+            $bgTemplate = $request->file('bg_sertifikat_template')->store('praktikum/template', 'public');
         }
 
         Praktikum::create([
@@ -61,6 +68,8 @@ class PraktikumController extends Controller
             'daftar_kelas_mk' => $request->daftar_kelas_mk,
             'jumlah_modul' => $request->jumlah_modul,
             'ada_tugas_akhir' => $request->ada_tugas_akhir,
+            'nomor_surat_prefix' => $request->nomor_surat_prefix,
+            'bg_sertifikat_template' => $bgTemplate,
         ]);
 
         return redirect()->route('admin.praktikum.index', ['last_page' => '1'])->with('success', 'Praktikum berhasil ditambahkan.');
@@ -104,7 +113,8 @@ class PraktikumController extends Controller
             'sesis',
             'pendaftarans.praktikan.user',
             'pendaftarans.sesi',
-            'pendaftarans.aslab'
+            'pendaftarans.aslab',
+            'pendaftarans.penilaianAkhir'
         ])->findOrFail($id);
 
         return view('admin.praktikum.students', compact('praktikum'));
@@ -144,9 +154,20 @@ class PraktikumController extends Controller
             'daftar_kelas_mk.*' => 'required|string|max:255',
             'jumlah_modul' => 'required|integer|min:0',
             'ada_tugas_akhir' => 'required|boolean',
+            'nomor_surat_prefix' => 'nullable|string|max:100',
+            'bg_sertifikat_template' => 'nullable|image|mimes:png,jpg,jpeg|max:4096',
         ]);
 
-        $praktikum->update($request->all());
+        $data = $request->except('bg_sertifikat_template');
+
+        if ($request->hasFile('bg_sertifikat_template')) {
+            if ($praktikum->bg_sertifikat_template && \Illuminate\Support\Facades\Storage::disk('public')->exists($praktikum->bg_sertifikat_template)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($praktikum->bg_sertifikat_template);
+            }
+            $data['bg_sertifikat_template'] = $request->file('bg_sertifikat_template')->store('praktikum/template', 'public');
+        }
+
+        $praktikum->update($data);
 
         return redirect()->route('admin.praktikum.index', ['last_page' => '1'])->with('success', 'Praktikum berhasil diperbarui.');
     }
@@ -161,9 +182,29 @@ class PraktikumController extends Controller
 
     public function toggleStatus(Request $request, $id)
     {
-        $praktikum = Praktikum::findOrFail($id);
-        $praktikum->status_praktikum = $request->status;
+        $praktikum = Praktikum::with('pendaftarans.penilaianAkhir', 'pendaftarans.praktikan.user')->findOrFail($id);
+        $oldStatus = $praktikum->status_praktikum;
+        $newStatus = $request->status;
+
+        $praktikum->status_praktikum = $newStatus;
         $praktikum->save();
+
+        // Jika status praktikum diubah ke 'finished' (Telah Berakhir/Selesai)
+        if ($newStatus === 'finished' && $oldStatus !== 'finished') {
+            foreach ($praktikum->pendaftarans as $pendaftaran) {
+                if ($pendaftaran->status === 'verified' && $pendaftaran->praktikan?->user) {
+                    $gradStatus = $pendaftaran->penilaianAkhir?->status_kelulusan;
+                    if ($gradStatus) {
+                        $title = "Pengumuman Kelulusan: " . $praktikum->nama_praktikum;
+                        $msg = $gradStatus === 'LULUS'
+                            ? "Selamat! Praktikum " . $praktikum->nama_praktikum . " telah resmi berakhir dan Anda dinyatakan LULUS."
+                            : "Praktikum " . $praktikum->nama_praktikum . " telah resmi berakhir. Hasil evaluasi menyatakan Anda TIDAK LULUS. Silakan hubungi pengelola laboratorium.";
+                        
+                        $pendaftaran->praktikan->user->notify(new \App\Notifications\BroadcastNotification($title, $msg));
+                    }
+                }
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -204,6 +245,47 @@ class PraktikumController extends Controller
         $pivot->delete();
 
         return back()->with('success', 'Penugasan aslab berhasil dihapus.');
+    }
+
+    public function updateGraduationStatus(Request $request, $pendaftaran_id)
+    {
+        $request->validate([
+            'status_kelulusan' => 'nullable|in:LULUS,TIDAK LULUS',
+        ]);
+
+        $pendaftaran = \App\Models\PendaftaranPraktikum::with(['praktikan.user', 'praktikum'])->findOrFail($pendaftaran_id);
+        
+        $penilaian = \App\Models\PenilaianAkhir::firstOrNew(['pendaftaran_id' => $pendaftaran->id]);
+        $oldStatus = $penilaian->status_kelulusan;
+        $newStatus = $request->status_kelulusan ?: null;
+        
+        $penilaian->status_kelulusan = $newStatus;
+        if ($newStatus === 'TIDAK LULUS') {
+            $penilaian->is_gugur = true;
+        } elseif ($newStatus === 'LULUS') {
+            $penilaian->is_gugur = false;
+        }
+        $penilaian->save();
+
+        // Send Broadcast Notification to Praktikan User if status changed AND praktikum is finished
+        if ($newStatus && $newStatus !== $oldStatus && $pendaftaran->praktikan?->user && $pendaftaran->praktikum->status_praktikum === 'finished') {
+            $title = "Status Kelulusan Praktikum: " . $pendaftaran->praktikum->nama_praktikum;
+            $msg = $newStatus === 'LULUS'
+                ? "Selamat! Anda dinyatakan LULUS pada mata kuliah praktikum " . $pendaftaran->praktikum->nama_praktikum . "."
+                : "Mohon maaf, Anda dinyatakan TIDAK LULUS pada mata kuliah praktikum " . $pendaftaran->praktikum->nama_praktikum . ". Silakan hubungi laboratorium untuk informasi lebih lanjut.";
+            
+            $pendaftaran->praktikan->user->notify(new \App\Notifications\BroadcastNotification($title, $msg));
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Status kelulusan praktikan berhasil diperbarui.',
+                'status_kelulusan' => $penilaian->status_kelulusan
+            ]);
+        }
+
+        return back()->with('success', 'Status kelulusan praktikan berhasil diperbarui.');
     }
 
     public function assignStudentToAslab(Request $request, $pendaftaran_id)

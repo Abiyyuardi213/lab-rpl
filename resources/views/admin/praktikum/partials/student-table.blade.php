@@ -66,6 +66,16 @@
                     <i class="fas fa-user-tie absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 text-[8px] pointer-events-none"></i>
                 </div>
 
+                <div class="relative flex-1 sm:flex-none">
+                    <select id="filterKelulusan" class="appearance-none h-10 w-full sm:min-w-[130px] pl-3 pr-10 border border-zinc-200 rounded-xl bg-white text-[10px] font-black uppercase tracking-widest text-zinc-600 focus:outline-none focus:border-[#001f3f] transition-all cursor-pointer shadow-sm">
+                        <option value="">Kelulusan</option>
+                        <option value="LULUS">Lulus</option>
+                        <option value="TIDAK LULUS">Tidak Lulus</option>
+                        <option value="Belum Ditentukan">Belum Set</option>
+                    </select>
+                    <i class="fas fa-[#001f3f] fa-graduation-cap absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 text-[8px] pointer-events-none"></i>
+                </div>
+
                 <div class="hidden sm:block h-6 w-px bg-zinc-200 mx-1"></div>
 
                 <a href="{{ route('admin.praktikum.download-template', $praktikum->id) }}" title="Download Template Excel"
@@ -136,9 +146,10 @@
             <thead>
                 <tr class="bg-zinc-50/80 border-b border-zinc-100">
                     <th class="w-12 px-4 py-3"><input type="checkbox" id="selectAll" class="w-3.5 h-3.5 rounded border-zinc-300 text-[#001f3f] focus:ring-[#001f3f] cursor-pointer"></th>
-                    <th class="px-4 py-3 text-left text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">Mahasiswa & Status</th>
+                    <th class="px-4 py-3 text-left text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">Mahasiswa & Status Pendaftaran</th>
                     <th class="px-4 py-3 text-left text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">Sesi Praktikum</th>
                     <th class="px-4 py-3 text-left text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">Bimbingan Aslab</th>
+                    <th class="px-4 py-3 text-left text-[10px] font-black text-zinc-400 uppercase tracking-[0.15em]">Status Kelulusan</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-zinc-50">
@@ -194,6 +205,24 @@
                                 @foreach ($praktikum->aslabs as $as)
                                     <option value="{{ $as->id }}" {{ $p->aslab_id == $as->id ? 'selected' : '' }}>{{ $as->user->name }}</option>
                                 @endforeach
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-zinc-300 text-[7px] pointer-events-none group-hover/sel:text-zinc-500"></i>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3.5" data-search="{{ $p->penilaianAkhir?->status_kelulusan ?? 'Belum Ditentukan' }}">
+                        @php
+                            $gradStatus = $p->penilaianAkhir?->status_kelulusan;
+                            $gradClass = match($gradStatus) {
+                                'LULUS' => 'border-emerald-300 bg-emerald-50 text-emerald-800 font-bold',
+                                'TIDAK LULUS' => 'border-rose-300 bg-rose-50 text-rose-800 font-bold',
+                                default => 'border-zinc-200 bg-white text-zinc-600'
+                            };
+                        @endphp
+                        <div class="relative group/sel max-w-[170px]">
+                            <select name="status_kelulusan" onchange="updateAssignment(this, '{{ route('admin.praktikum.pendaftaran.update-graduation-status', $p->id) }}')" data-original-value="{{ $gradStatus }}" class="appearance-none w-full h-8 pl-2.5 pr-7 text-[11px] rounded-lg focus:border-[#001f3f] cursor-pointer outline-none shadow-sm transition-all {{ $gradClass }}">
+                                <option value="" class="bg-white text-zinc-700">— Belum Ditentukan —</option>
+                                <option value="LULUS" class="bg-emerald-50 text-emerald-800 font-bold" {{ $gradStatus === 'LULUS' ? 'selected' : '' }}>LULUS</option>
+                                <option value="TIDAK LULUS" class="bg-rose-50 text-rose-800 font-bold" {{ $gradStatus === 'TIDAK LULUS' ? 'selected' : '' }}>TIDAK LULUS</option>
                             </select>
                             <i class="fas fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-zinc-300 text-[7px] pointer-events-none group-hover/sel:text-zinc-500"></i>
                         </div>

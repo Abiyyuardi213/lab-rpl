@@ -78,6 +78,58 @@
                                 </div>
                             </div>
 
+                            @if($p->status === 'verified')
+                                <div class="pt-3 border-t border-zinc-100">
+                                    <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1.5">Status Kelulusan Praktikum</p>
+                                    @php
+                                        $isFinished = $p->praktikum->status_praktikum === 'finished';
+                                        $grad = $p->penilaianAkhir?->status_kelulusan;
+                                    @endphp
+                                     @if($isFinished && $grad === 'LULUS')
+                                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2.5">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs shadow-sm shrink-0">
+                                                    <i class="fas fa-graduation-cap"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs font-black text-emerald-900 leading-tight">DIBERITAHUKAN LULUS</p>
+                                                    <p class="text-[9px] font-bold text-emerald-600 mt-0.5">Selamat, Anda memenuhi kriteria praktikum</p>
+                                                </div>
+                                            </div>
+                                            <a href="{{ route('praktikan.pendaftaran.sertifikat', $p->id) }}" target="_blank"
+                                                class="w-full py-2 bg-emerald-600 text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider hover:bg-emerald-700 transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                                                <i class="fas fa-file-pdf"></i> Unduh Sertifikat (PDF)
+                                            </a>
+                                        </div>
+                                    @elseif($isFinished && $grad === 'TIDAK LULUS')
+                                        <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-lg bg-rose-500 text-white flex items-center justify-center text-xs shadow-sm">
+                                                    <i class="fas fa-times-circle"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="text-xs font-black text-rose-900 leading-tight">TIDAK LULUS</p>
+                                                    <p class="text-[9px] font-bold text-rose-600 mt-0.5">Silakan koordinasi dengan pengelola lab</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @elseif(!$isFinished)
+                                        <div class="p-2.5 bg-amber-50/60 border border-amber-200/80 rounded-xl flex items-center gap-2">
+                                            <i class="fas fa-spinner fa-spin text-amber-600 text-xs"></i>
+                                            <div>
+                                                <p class="text-[10px] font-bold text-amber-900">Praktikum Masih Berjalan</p>
+                                                <p class="text-[9px] text-amber-700">Pengumuman kelulusan akan diterbitkan saat praktikum berakhir</p>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="p-2.5 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center gap-2">
+                                            <i class="far fa-hourglass text-zinc-400 text-xs"></i>
+                                            <p class="text-[10px] font-bold text-zinc-500">Belum Ada Pengumuman Kelulusan</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+
                             @if ($p->status == 'rejected' && $p->catatan)
                                 <div class="p-3 bg-rose-50 border border-rose-100 rounded-xl">
                                     <p class="text-[9px] font-black text-rose-600 uppercase mb-1">Catatan Penolakan:</p>
