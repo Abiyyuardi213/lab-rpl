@@ -169,7 +169,7 @@ class WelcomeController extends Controller
 
     public function organization()
     {
-        return view('organization');
+        return view('struktur-organisasi');
     }
 
     public function pengumuman()
