@@ -38,6 +38,7 @@ Route::get('/sitemap.xml', function () {
 });
 
 Route::get('/', [WelcomeController::class, 'index'])->name('home');
+Route::get('/live-mode', [WelcomeController::class, 'liveMode'])->name('live-mode.public');
 Route::get('/tentang', [WelcomeController::class, 'about'])->name('about');
 Route::get('/praktikum', [WelcomeController::class, 'praktikum'])->name('praktikum.public');
 Route::get('/aslab', [WelcomeController::class, 'aslab'])->name('aslab.public');

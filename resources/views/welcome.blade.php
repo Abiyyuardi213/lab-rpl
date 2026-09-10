@@ -41,7 +41,10 @@
   ]
 }
 </script>
+<!-- ApexCharts CDN untuk Live Mode Chart -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 @endsection
+
 @section('content')
     {{-- Hero Bento --}}
     <section class="max-w-screen-2xl mx-auto px-6 md:px-10 pt-10 md:pt-16">
@@ -61,28 +64,33 @@
                     Laboratorium yang mengampu praktikum Pemrograman Terstruktur, Struktur Data, dan Basis Data untuk
                     mencetak praktikan yang kompeten dalam pengembangan perangkat lunak di ITATS.
                 </p>
-                <div class="flex flex-wrap items-center gap-4 mt-2">
+                <div class="flex flex-wrap items-center gap-3 mt-2">
+                    <!-- Link Live Mode Switcher (Separate Dark Mode Page) -->
+                    <a href="{{ route('live-mode.public') }}"
+                        class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-extrabold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border-2 border-emerald-500/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 h-12 px-6 py-2 shadow-md shadow-emerald-500/10 gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <i class="fas fa-chart-line text-emerald-600"></i> Live Mode
+                    </a>
+
                     <a href="{{ route('portal-tamu.index') }}"
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border-2 border-slate-200 bg-white text-slate-700 hover:bg-slate-100 h-12 px-8 py-2">
+                        class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border-2 border-slate-200 bg-white text-slate-700 hover:bg-slate-100 h-12 px-6 py-2">
                         <i class="fas fa-clipboard-list mr-2"></i> Portal Tamu
                     </a>
+
                     @guest
                         <a href="{{ route('login.praktikan') }}"
-                            class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-12 px-8 py-2 shadow-lg shadow-[#1a4fa0]/25">
+                            class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-12 px-6 py-2 shadow-lg shadow-[#1a4fa0]/25">
                             <i class="fas fa-sign-in-alt mr-2"></i> Masuk Portal
                         </a>
                     @else
                         <a href="{{ route('dashboard.redirect') }}"
-                            class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-12 px-8 py-2 shadow-lg shadow-[#1a4fa0]/25">
+                            class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[#1a4fa0] text-white hover:bg-[#1a4fa0]/90 h-12 px-6 py-2 shadow-lg shadow-[#1a4fa0]/25">
                             <i class="fas fa-tachometer-alt mr-2"></i> Ke Dashboard
                         </a>
                     @endguest
-                    <a href="#tentang"
-                        class="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all hover:scale-105 hover:bg-slate-100 h-12 px-8 py-2 border-2 border-slate-200 text-slate-700 bg-white">
-                        Pelajari Lebih Lanjut
-                    </a>
                 </div>
             </div>
+
             {{-- Right: Bento Grid Stats & Highlights --}}
             <div class="grid grid-cols-2 gap-4">
                 {{-- Stats Card --}}
@@ -135,8 +143,11 @@
                 </div>
             </div>
         </div>
-        {{-- Hero Visual Image --}}
-        <div class="mt-12 rounded-3xl overflow-hidden border-8 border-white shadow-2xl relative group">
+    </section>
+
+    {{-- Hero Visual Image --}}
+    <section class="max-w-screen-2xl mx-auto px-6 md:px-10">
+        <div class="mt-8 rounded-3xl overflow-hidden border-8 border-white shadow-2xl relative group">
             <div
                 class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 opacity-60 group-hover:opacity-40 transition-opacity">
             </div>
@@ -148,6 +159,7 @@
             </div>
         </div>
     </section>
+
     {{-- Services/Quick Access --}}
     <section id="layanan" class="max-w-screen-2xl mx-auto px-6 md:px-10 mt-20 mb-20">
         <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4 text-center md:text-left">
@@ -212,6 +224,7 @@
             @endforeach
         </div>
     </section>
+
     {{-- Latest Activities --}}
     @if ($latestKegiatans->count() > 0)
         <section class="max-w-screen-2xl mx-auto px-6 md:px-10 py-24 border-t border-slate-100">
@@ -266,6 +279,7 @@
             </div>
         </section>
     @endif
+
     {{-- About Section --}}
     <section id="tentang" class="bg-slate-50 py-20 px-6">
         <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -328,4 +342,6 @@
             </div>
         </div>
     </section>
+
+    {{-- About Section --}}
 @endsection

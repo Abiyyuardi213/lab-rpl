@@ -104,9 +104,12 @@
         Loncat ke konten utama
     </a>
 
+    @php
+        $isLiveMode = request()->routeIs('live-mode.public');
+    @endphp
+
     {{-- Header --}}
-    <header
-        class="sticky top-0 z-50 border-b border-slate-200 bg-white">
+    <header class="sticky top-0 z-50 border-b {{ $isLiveMode ? 'border-slate-800/80 bg-[#07090e]/95 backdrop-blur-md' : 'border-slate-200 bg-white' }}">
         <div class="max-w-screen-2xl mx-auto px-6">
             <div class="flex h-24 items-center justify-between">
                 {{-- Brand --}}
@@ -115,9 +118,9 @@
                         <img src="{{ asset('image/rplmini.png') }}" alt="Logo Lab RPL" width="40" height="40"
                             class="h-10 w-auto object-contain">
                         <div class="leading-tight">
-                            <span class="block text-base font-semibold text-slate-900">Lab. Rekayasa Perangkat
+                            <span class="block text-base font-semibold {{ $isLiveMode ? 'text-white' : 'text-slate-900' }}">Lab. Rekayasa Perangkat
                                 Lunak</span>
-                            <span class="block text-sm text-slate-500">Teknik Informatika ITATS</span>
+                            <span class="block text-sm {{ $isLiveMode ? 'text-slate-400' : 'text-slate-500' }}">Teknik Informatika ITATS</span>
                         </div>
                     </a>
                 </div>
@@ -137,7 +140,7 @@
 
                     @foreach ($navItems as $item)
                         <a href="{{ $item['href'] }}"
-                            class="group relative px-4 py-3 rounded-md text-sm font-semibold transition-colors duration-200 hover:text-slate-950 focus-visible:outline-none {{ ($item['href'] === '/' ? request()->path() === '/' : request()->is(trim($item['href'], '/') . '*')) ? 'text-slate-950' : 'text-slate-600' }}">
+                            class="group relative px-4 py-3 rounded-md text-sm font-semibold transition-colors duration-200 focus-visible:outline-none {{ $isLiveMode ? 'hover:text-white text-slate-300' : 'hover:text-slate-950 text-slate-600' }} {{ ($item['href'] === '/' ? request()->path() === '/' : request()->is(trim($item['href'], '/') . '*')) ? ($isLiveMode ? 'text-white' : 'text-slate-950') : '' }}">
                             {{ $item['label'] }}
                             {{-- Line Animation: Expand from center --}}
                             <span aria-hidden="true"
@@ -148,7 +151,7 @@
 
                 <div class="flex items-center gap-2">
                     <a href="{{ route('portal-tamu.index') }}"
-                        class="hidden sm:inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 h-10 px-5 py-2 shadow-sm shadow-blue-900/5">
+                        class="hidden sm:inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-all hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border {{ $isLiveMode ? 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-sm shadow-blue-900/5' }} h-10 px-5 py-2">
                         Portal Tamu
                     </a>
                     @guest
@@ -186,20 +189,20 @@
         </div>
 
         {{-- Mobile Panel --}}
-        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 bg-white">
+        <div id="mobile-menu" class="hidden md:hidden border-t {{ $isLiveMode ? 'border-slate-800 bg-[#0b0e14] text-white' : 'border-slate-200 bg-white' }}">
             <nav class="max-w-7xl mx-auto px-4 py-2" aria-label="Navigasi mobile">
                 <ul class="flex flex-col py-2">
                     @foreach ($navItems as $item)
                         <li>
                             <a href="{{ $item['href'] }}"
-                                class="block w-full px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary {{ ($item['href'] === '/' ? request()->path() === '/' : request()->is(trim($item['href'], '/') . '*')) ? 'text-primary bg-slate-50' : 'text-slate-700' }}">
+                                class="block w-full px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary {{ ($item['href'] === '/' ? request()->path() === '/' : request()->is(trim($item['href'], '/') . '*')) ? ($isLiveMode ? 'text-emerald-400 bg-slate-800/60' : 'text-primary bg-slate-50') : ($isLiveMode ? 'text-slate-300' : 'text-slate-700') }}">
                                 {{ $item['label'] }}
                             </a>
                         </li>
                     @endforeach
                     <li class="mt-2">
                         <a href="{{ route('portal-tamu.index') }}"
-                            class="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 h-10 px-4 py-2">
+                            class="w-full inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border {{ $isLiveMode ? 'border-slate-700 bg-slate-800 text-white' : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }} h-10 px-4 py-2">
                             Portal Tamu
                         </a>
                     </li>
@@ -229,7 +232,7 @@
     </main>
 
     {{-- Footer --}}
-    <footer class="border-t border-slate-200 bg-white">
+    <footer class="border-t {{ $isLiveMode ? 'border-slate-800 bg-[#07090e] text-slate-300' : 'border-slate-200 bg-white' }}">
         <div class="max-w-7xl mx-auto px-4 py-10">
             <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
@@ -239,42 +242,42 @@
                             height="70" class="rounded-lg">
                     </div>
 
-                    <h3 class="text-sm font-semibold mb-3">Lab. Rekayasa Perangkat Lunak</h3>
-                    <p class="text-sm text-slate-500">
+                    <h3 class="text-sm font-semibold mb-3 {{ $isLiveMode ? 'text-white' : 'text-slate-900' }}">Lab. Rekayasa Perangkat Lunak</h3>
+                    <p class="text-sm {{ $isLiveMode ? 'text-slate-400' : 'text-slate-500' }}">
                         Pusat riset dan pembelajaran Rekayasa Perangkat Lunak - Institut Teknologi Adhi Tama Surabaya.
                         Menciptakan inovasi untuk masa depan.
                     </p>
                 </div>
                 <div>
-                    <h3 class="text-sm font-semibold mb-3">Informasi</h3>
+                    <h3 class="text-sm font-semibold mb-3 {{ $isLiveMode ? 'text-white' : 'text-slate-900' }}">Informasi</h3>
                     <ul class="space-y-2">
-                        <li><a href="/praktikum" class="text-sm hover:underline">Info Praktikum</a>
+                        <li><a href="/praktikum" class="text-sm hover:underline {{ $isLiveMode ? 'text-slate-400 hover:text-white' : '' }}">Info Praktikum</a>
                         </li>
-                        <li><a href="/pengumuman" class="text-sm hover:underline">Pengumuman</a></li>
-                        <li><a href="/kegiatan" class="text-sm hover:underline">Kegiatan Lab</a></li>
-                        <li><a href="/tentang" class="text-sm hover:underline">Tentang Kami</a></li>
+                        <li><a href="/pengumuman" class="text-sm hover:underline {{ $isLiveMode ? 'text-slate-400 hover:text-white' : '' }}">Pengumuman</a></li>
+                        <li><a href="/kegiatan" class="text-sm hover:underline {{ $isLiveMode ? 'text-slate-400 hover:text-white' : '' }}">Kegiatan Lab</a></li>
+                        <li><a href="/tentang" class="text-sm hover:underline {{ $isLiveMode ? 'text-slate-400 hover:text-white' : '' }}">Tentang Kami</a></li>
                     </ul>
                 </div>
                 <div id="kontak">
-                    <h3 class="text-sm font-semibold mb-3">Kontak Lab</h3>
-                    <ul class="space-y-2 text-sm text-slate-500">
+                    <h3 class="text-sm font-semibold mb-3 {{ $isLiveMode ? 'text-white' : 'text-slate-900' }}">Kontak Lab</h3>
+                    <ul class="space-y-2 text-sm {{ $isLiveMode ? 'text-slate-400' : 'text-slate-500' }}">
                         <li>Email: lab.basprog@itats.ac.id</li>
                         <li>Alamat: Lab G2 LCSE, ITATS. Surabaya.</li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-sm font-semibold mb-3">Ikuti Kami</h3>
+                    <h3 class="text-sm font-semibold mb-3 {{ $isLiveMode ? 'text-white' : 'text-slate-900' }}">Ikuti Kami</h3>
                     <div class="flex items-center gap-3">
                         <a href="https://www.instagram.com/hmif_itats/" target="_blank" aria-label="Instagram HMIF"
-                            class="hover:underline text-sm">Instagram</a>
-                        <a href="#" aria-label="LinkedIn HMIF" class="hover:underline text-sm">LinkedIn</a>
-                        <a href="#" aria-label="YouTube HMIF" class="hover:underline text-sm">YouTube</a>
+                            class="hover:underline text-sm {{ $isLiveMode ? 'text-slate-400 hover:text-white' : '' }}">Instagram</a>
+                        <a href="#" aria-label="LinkedIn HMIF" class="hover:underline text-sm {{ $isLiveMode ? 'text-slate-400 hover:text-white' : '' }}">LinkedIn</a>
+                        <a href="#" aria-label="YouTube HMIF" class="hover:underline text-sm {{ $isLiveMode ? 'text-slate-400 hover:text-white' : '' }}">YouTube</a>
                     </div>
                 </div>
             </div>
 
             <div
-                class="mt-8 border-t border-slate-200 pt-6 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+                class="mt-8 border-t {{ $isLiveMode ? 'border-slate-800' : 'border-slate-200' }} pt-6 text-xs {{ $isLiveMode ? 'text-slate-400' : 'text-slate-500' }} flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p>&copy; {{ date('Y') }} Lab. Rekayasa Perangkat Lunak ITATS.</p>
                 <p>Laboratorium Teknik Informatika ITATS.</p>
             </div>
