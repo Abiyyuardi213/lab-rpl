@@ -69,24 +69,21 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-1">
-                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Jumlah
-                                        Modul</label>
-                                    <input type="number" name="jumlah_modul" required min="0" value="0"
-                                        placeholder="e.g., 4"
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Jumlah Modul</label>
+                                    <input type="number" name="jumlah_modul" required min="1" value="3"
+                                        placeholder="e.g., 3"
                                         class="flex h-12 w-full rounded-lg border border-slate-200 bg-slate-50/30 px-4 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] outline-none @error('jumlah_modul') border-rose-500 @enderror">
-                                    <p class="text-[9px] text-slate-400 font-medium italic mt-1">Sistem akan menyesuaikan
-                                        opsi jadwal berdasarkan jumlah modul.</p>
+                                    <p class="text-[9px] text-emerald-600 font-bold italic mt-1">Regulasi Baru: Default 3 Modul + 1 TA (Total 4 Pertemuan).</p>
                                     @error('jumlah_modul')
                                         <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>
                                     @enderror
                                 </div>
                                 <div class="space-y-1">
-                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tugas
-                                        Akhir</label>
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tugas Akhir</label>
                                     <select name="ada_tugas_akhir" required
                                         class="flex h-12 w-full rounded-lg border border-slate-200 bg-slate-50/30 px-4 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-4 focus:ring-[#001f3f]/5 focus:border-[#001f3f] outline-none @error('ada_tugas_akhir') border-rose-500 @enderror">
+                                        <option value="1" selected>Ada Tugas Akhir (Pertemuan 4)</option>
                                         <option value="0">Tidak Ada Tugas Akhir</option>
-                                        <option value="1">Ada Tugas Akhir</option>
                                     </select>
                                     @error('ada_tugas_akhir')
                                         <p class="text-[10px] text-rose-500 font-bold mt-1 uppercase">{{ $message }}</p>

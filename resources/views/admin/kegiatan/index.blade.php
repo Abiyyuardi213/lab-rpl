@@ -129,6 +129,42 @@
 
     @push('styles')
         <style>
+            .dataTables_wrapper .dataTables_info {
+                font-size: 11px;
+                color: #a1a1aa;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                border: 1px solid #e4e4e7 !important;
+                border-radius: 8px !important;
+                padding: 6px 14px !important;
+                font-size: 12px !important;
+                font-weight: 700 !important;
+                margin-left: 6px !important;
+                background: white !important;
+                color: #71717a !important;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+                background: #001f3f !important;
+                border-color: #001f3f !important;
+                color: white !important;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.current) {
+                background: #fafafa !important;
+                border-color: #d4d4d8 !important;
+                color: #001f3f !important;
+            }
+
+            table.dataTable tbody td.dataTables_empty {
+                padding: 0 !important;
+                border: none !important;
+            }
+
             .dataTables_empty {
                 padding: 0 !important;
                 background-color: transparent !important;
@@ -142,6 +178,7 @@
         <script>
             $(document).ready(function() {
                 var table = $('#kegiatanTable').DataTable({
+                    stateSave: true,
                     dom: 't<"flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
                     language: {
                         info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",

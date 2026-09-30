@@ -167,6 +167,7 @@
                 $('#userTable').DataTable().destroy();
             }
             var table = $('#userTable').DataTable({
+                stateSave: true,
                 dom: 't<"flex flex-col sm:flex-row items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
                 language: {
                     info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",

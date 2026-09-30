@@ -53,6 +53,7 @@
                             <th class="px-6 align-middle font-medium text-zinc-500">PERIODE</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-center">KUOTA</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-center">STATUS</th>
+                            <th class="px-6 align-middle font-medium text-zinc-500">TANGGAL DIBUAT</th>
                             <th class="px-6 align-middle font-medium text-zinc-500 text-right">AKSI</th>
                         </tr>
                     </thead>
@@ -101,6 +102,9 @@
                                         <i class="fas fa-circle text-[6px] mr-1.5"></i>
                                         {{ $currentStatus['label'] }}
                                     </span>
+                                </td>
+                                <td class="px-6 py-4 text-zinc-500 text-xs">
+                                    {{ $praktikum->created_at ? $praktikum->created_at->translatedFormat('d M Y, H:i') : '-' }}
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-end gap-1">
@@ -195,7 +199,7 @@
                     },
                     columnDefs: [{
                         orderable: false,
-                        targets: [6]
+                        targets: [7]
                     }]
                 });
 

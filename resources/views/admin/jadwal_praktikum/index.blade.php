@@ -240,16 +240,16 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-2">
                                 <label class="text-xs font-bold text-zinc-700 uppercase tracking-tight">Waktu Mulai</label>
-                                <input type="time" name="waktu_mulai" id="modal_waktu_mulai" required
+                                <input type="time" name="waktu_mulai" id="modal_waktu_mulai" value="08:00" required
                                     class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none font-medium">
                             </div>
                             <div class="space-y-2">
-                                <label class="text-xs font-bold text-zinc-700 uppercase tracking-tight">Waktu
-                                    Selesai</label>
-                                <input type="time" name="waktu_selesai" id="modal_waktu_selesai" required
+                                <label class="text-xs font-bold text-zinc-700 uppercase tracking-tight">Waktu Selesai</label>
+                                <input type="time" name="waktu_selesai" id="modal_waktu_selesai" value="11:20" required
                                     class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none font-medium">
                             </div>
                         </div>
+                        <p class="text-[10px] text-emerald-600 font-bold italic -mt-2">Regulasi Baru: Sesi Praktikum Tunggal Jam 08.00 - 11.20 WIB.</p>
 
                         <div class="flex items-center justify-end gap-3 pt-4 border-t border-zinc-100">
                             <button type="button" onclick="closeModal()"

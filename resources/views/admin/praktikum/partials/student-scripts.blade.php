@@ -172,18 +172,18 @@
     $(document).ready(function() {
         const table = $('#studentTable').DataTable({
             dom: 't<"flex items-center justify-between px-6 py-4 border-t border-zinc-100"ip>',
-            language: { info: '<span class="text-[10px] font-bold uppercase text-zinc-400">_TOTAL_ Praktikan</span>' },
-            columnDefs: [{ orderable: false, targets: [0, 2, 3, 4] }]
+            language: {
+                info: '<span class="text-[10px] font-bold uppercase text-zinc-400">_TOTAL_ Praktikan</span>',
+                emptyTable: "<div class='py-16 flex flex-col items-center justify-center space-y-3'><div class='w-14 h-14 rounded-2xl bg-zinc-100/80 flex items-center justify-center border border-zinc-200/60 shadow-sm'><i class='fas fa-user-slash text-xl text-zinc-400'></i></div><div class='text-center space-y-1'><p class='text-xs font-black text-zinc-800 uppercase tracking-wider'>Belum Ada Praktikan Terdaftar</p><p class='text-[11px] text-zinc-400 font-medium max-w-sm'>Praktikan belum mendaftar atau import CSV mahasiswa untuk menambahkan praktikan ke praktikum ini.</p></div></div>",
+                zeroRecords: "<div class='py-16 flex flex-col items-center justify-center space-y-3'><div class='w-14 h-14 rounded-2xl bg-zinc-100/80 flex items-center justify-center border border-zinc-200/60 shadow-sm'><i class='fas fa-search-minus text-xl text-zinc-400'></i></div><div class='text-center space-y-1'><p class='text-xs font-black text-zinc-800 uppercase tracking-wider'>Praktikan Tidak Ditemukan</p><p class='text-[11px] text-zinc-400 font-medium max-w-sm'>Tidak ada mahasiswa yang cocok dengan pencarian atau filter yang dipilih.</p></div></div>"
+            },
+            columnDefs: [{ orderable: false, targets: [0, 3, 4, 5] }]
         });
 
         $('#studentSearch').on('keyup', function() { table.search(this.value).draw(); });
-        $('#filterSesi').on('change', function() { table.column(2).search(this.value).draw(); });
-        $('#filterAslab').on('change', function() {
-            const val = $(this).val();
-            if (val === 'Belum Ada') table.column(3).search('— Belum Ditugaskan —').draw();
-            else table.column(3).search(val).draw();
-        });
-        $('#filterKelulusan').on('change', function() { table.column(4).search(this.value).draw(); });
+        $('#filterSesi').on('change', function() { table.column(4).search(this.value).draw(); });
+        $('#filterKelulusan').on('change', function() { table.column(5).search(this.value).draw(); });
+        $('#customLength').on('change', function() { table.page.len($(this).val()).draw(); });
 
         // Persistent View Mode
         const mode = localStorage.getItem('praktikumViewMode') || 'table';

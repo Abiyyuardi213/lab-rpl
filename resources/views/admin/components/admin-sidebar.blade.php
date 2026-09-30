@@ -60,14 +60,17 @@
                     class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all {{ request()->is('aslab/dashboard') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                     <i class="fas fa-tachometer-alt w-4 text-center"></i> Dashboard
                 </a>
-                <a href="{{ route('aslab.pendaftaran.index') }}"
-                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all {{ request()->is('aslab/pendaftaran*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
-                    <i class="fas fa-users w-4 text-center"></i> Daftar Bimbingan
-                </a>
-                <a href="{{ route('aslab.tugas.index') }}"
-                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all {{ request()->is('aslab/tugas*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
-                    <i class="fas fa-book w-4 text-center"></i> Tugas Asistensi
-                </a>
+                {{-- [REGULASI BARU: Sembunyikan Bimbingan & Tugas Asistensi 1-on-1] --}}
+                @if(false)
+                    <a href="{{ route('aslab.pendaftaran.index') }}"
+                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all {{ request()->is('aslab/pendaftaran*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                        <i class="fas fa-users w-4 text-center"></i> Daftar Bimbingan
+                    </a>
+                    <a href="{{ route('aslab.tugas.index') }}"
+                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all {{ request()->is('aslab/tugas*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
+                        <i class="fas fa-book w-4 text-center"></i> Tugas Asistensi
+                    </a>
+                @endif
                 <a href="{{ route('aslab.penugasan.index') }}"
                     class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-xs font-bold transition-all {{ request()->is('aslab/penugasan*') ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                     <i class="fas fa-clipboard-list w-4 text-center"></i> Penugasan Sesi
@@ -154,8 +157,10 @@
                     request()->is('administrator/penilaian/praktikum*') ||
                     request()->is('administrator/penilaian/jadwal*') ||
                     request()->is('administrator/penilaian-akhir*') ||
+                    request()->is('administrator/certificate*') ||
                     request()->is('administrator/dosen*') ||
-                    request()->is('administrator/kelas*');
+                    request()->is('administrator/kelas*') ||
+                    request()->is('administrator/laboratorium*');
             @endphp
             <div class="space-y-1">
                 <button type="button" onclick="toggleSubmenu('submenu-akademik', 'arrow-akademik')"
