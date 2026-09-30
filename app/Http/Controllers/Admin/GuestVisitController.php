@@ -20,10 +20,23 @@ class GuestVisitController extends Controller
         $validated = $request->validate([
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'year' => ['nullable', 'string'],
             'q' => ['nullable', 'string', 'max:255'],
         ]);
 
         $query = GuestVisit::query();
+
+        $selectedYear = $request->input('year');
+        if (empty($validated['start_date']) && empty($validated['end_date'])) {
+            if ($selectedYear === 'all') {
+                // Semua tahun
+            } elseif (!empty($selectedYear)) {
+                $query->whereYear('visit_date', $selectedYear);
+            } else {
+                $selectedYear = date('Y');
+                $query->whereYear('visit_date', date('Y'));
+            }
+        }
 
         if (! empty($validated['start_date'])) {
             $query->whereDate('visit_date', '>=', $validated['start_date']);
@@ -56,8 +69,10 @@ class GuestVisitController extends Controller
             $periode = 'Mulai ' . Carbon::parse($validated['start_date'])->translatedFormat('d M Y');
         } elseif (! empty($validated['end_date'])) {
             $periode = 'Sampai ' . Carbon::parse($validated['end_date'])->translatedFormat('d M Y');
+        } elseif ($selectedYear === 'all') {
+            $periode = 'Semua Tahun';
         } else {
-            $periode = 'Semua Data';
+            $periode = 'Tahun ' . ($selectedYear ?: date('Y'));
         }
 
         $pdf = Pdf::loadView('admin.guest-visits.pdf', compact('guestVisits', 'periode'));
@@ -180,10 +195,39 @@ class GuestVisitController extends Controller
         $validated = $request->validate([
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'year' => ['nullable', 'string'],
             'q' => ['nullable', 'string', 'max:255'],
         ]);
 
+        // Kumpulkan daftar tahun yang tersedia dari data database
+        $availableYears = GuestVisit::selectRaw('YEAR(visit_date) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->toArray();
+
+        $currentYear = date('Y');
+        if (!in_array($currentYear, $availableYears)) {
+            array_unshift($availableYears, (int)$currentYear);
+        }
+
         $query = GuestVisit::query();
+
+        // Logika Default Filter Tahun Saat Ini:
+        // Jika tidak ada start_date & end_date & request 'year' bukan 'all',
+        // maka gunakan filter tahun (default = tahun ini)
+        $selectedYear = $request->input('year');
+        if (empty($validated['start_date']) && empty($validated['end_date'])) {
+            if ($selectedYear === 'all') {
+                // Tampilkan semua tahun
+            } elseif (!empty($selectedYear)) {
+                $query->whereYear('visit_date', $selectedYear);
+            } else {
+                // Default: Filter tahun saat ini
+                $selectedYear = $currentYear;
+                $query->whereYear('visit_date', $currentYear);
+            }
+        }
 
         if (! empty($validated['start_date'])) {
             $query->whereDate('visit_date', '>=', $validated['start_date']);
@@ -218,7 +262,7 @@ class GuestVisitController extends Controller
             'completed' => (clone $baseSummaryQuery)->whereNotNull('ended_at')->count(),
         ];
 
-        return compact('guestVisits', 'summary');
+        return compact('guestVisits', 'summary', 'availableYears', 'selectedYear');
     }
 
     private function buildPreviewRows($rows): array

@@ -163,62 +163,93 @@
         document.body.style.overflow = 'hidden';
         
         const content = document.getElementById('logDetailContent');
-        content.innerHTML = '<div class="flex items-center justify-center py-20 text-zinc-400"><i class="fas fa-circle-notch fa-spin text-xl"></i></div>';
+        content.innerHTML = '<div class="flex items-center justify-center py-20 text-zinc-400"><i class="fas fa-circle-notch fa-spin text-2xl text-[#1a4fa0]"></i></div>';
 
-        fetch(`{{ url('admin/logs') }}/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const log = data.log;
-                    let dataHtml = '';
-                    
-                    if (log.data) {
-                        dataHtml = `
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Metadata / Parameters</label>
-                                <div class="rounded-md bg-zinc-950 p-4">
-                                    <pre class="text-[11px] font-mono leading-relaxed text-zinc-300 overflow-x-auto">${JSON.stringify(log.data, null, 4)}</pre>
-                                </div>
-                            </div>
-                        `;
+        fetch(`{{ url('administrator/logs') }}/${id}`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Gagal mengambil data log (' + response.status + ')');
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const log = data.log;
+                let dataHtml = '';
+                
+                if (log.data) {
+                    let formattedData = log.data;
+                    if (typeof log.data === 'string') {
+                        try {
+                            formattedData = JSON.parse(log.data);
+                        } catch(e) {}
                     }
-
-                    content.innerHTML = `
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Pengguna</label>
-                                <p class="text-sm font-bold text-zinc-900">${log.user_name}</p>
-                                <p class="text-[10px] text-zinc-500 uppercase font-medium">${log.role}</p>
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Waktu Kejadian</label>
-                                <p class="text-sm font-bold text-zinc-900">${log.created_at}</p>
-                            </div>
-                        </div>
-
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Aksi / Aktivitas</label>
-                            <p class="text-sm font-bold text-zinc-900">${log.activity}</p>
-                            <p class="text-xs text-zinc-500 leading-relaxed">${log.description || 'Tidak ada deskripsi'}</p>
-                        </div>
-
-                        ${dataHtml}
-
-                        <hr class="border-zinc-100">
-
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="space-y-1">
-                                <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Alamat IP</label>
-                                <p class="text-xs font-mono font-bold text-zinc-600">${log.ip_address}</p>
-                            </div>
-                            <div class="space-y-1 overflow-hidden">
-                                <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">User Agent</label>
-                                <p class="text-[10px] font-medium text-zinc-500 truncate" title="${log.user_agent}">${log.user_agent}</p>
+                    
+                    dataHtml = `
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Metadata / Parameters</label>
+                            <div class="rounded-lg bg-zinc-950 p-4 border border-zinc-800">
+                                <pre class="text-[11px] font-mono leading-relaxed text-emerald-400 overflow-x-auto">${JSON.stringify(formattedData, null, 4)}</pre>
                             </div>
                         </div>
                     `;
                 }
-            });
+
+                content.innerHTML = `
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Pengguna</label>
+                            <p class="text-sm font-bold text-zinc-900">${log.user_name || '-'}</p>
+                            <p class="text-[10px] text-zinc-500 uppercase font-bold">${log.role || '-'}</p>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Waktu Kejadian</label>
+                            <p class="text-sm font-bold text-zinc-900">${log.created_at || '-'}</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Aksi / Aktivitas</label>
+                        <p class="text-sm font-bold text-zinc-900">${log.activity || '-'}</p>
+                        <p class="text-xs text-zinc-500 leading-relaxed">${log.description || 'Tidak ada deskripsi'}</p>
+                    </div>
+
+                    ${dataHtml}
+
+                    <hr class="border-zinc-100">
+
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Alamat IP</label>
+                            <p class="text-xs font-mono font-bold text-zinc-600">${log.ip_address || '-'}</p>
+                        </div>
+                        <div class="space-y-1 overflow-hidden">
+                            <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">User Agent</label>
+                            <p class="text-[10px] font-medium text-zinc-500 truncate" title="${log.user_agent || '-'}">${log.user_agent || '-'}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                throw new Error(data.message || 'Gagal memuat log');
+            }
+        })
+        .catch(err => {
+            console.error('Error loading log detail:', err);
+            content.innerHTML = `
+                <div class="py-12 flex flex-col items-center justify-center text-center space-y-3">
+                    <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center border border-rose-100">
+                        <i class="fas fa-exclamation-triangle text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-black text-zinc-800 uppercase tracking-wider">Gagal Memuat Detail Aktivitas</p>
+                        <p class="text-[11px] text-zinc-400 mt-1">${err.message || 'Terjadi kesalahan pada server.'}</p>
+                    </div>
+                </div>
+            `;
+        });
     }
 
     function closeLogModal() {

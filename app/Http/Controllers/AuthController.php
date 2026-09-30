@@ -213,13 +213,13 @@ class AuthController extends Controller
                 'unique:users,username',
                 'unique:praktikans,npm',
                 'unique:aslabs,npm',
-                'regex:/^\d{2}\.\d{4}\.\d{1}\.\d{5}$/'
+                'regex:/^06\.\d{4}\.\d{1}\.\d{5}$/'
             ],
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
         ], [
-            'npm.regex' => 'Format NPM tidak valid. Contoh: 06.2025.1.01111'
+            'npm.regex' => 'Format NPM tidak valid. NPM harus diawali dengan kode prodi 06 (Contoh: 06.2025.1.01111).'
         ]);
 
         $role = \App\Models\Role::where('name', 'Praktikan')->first();

@@ -241,7 +241,19 @@
 
         <div class="rounded-xl border border-zinc-200 bg-white text-zinc-950 shadow-sm overflow-hidden">
             <div class="p-6 border-b border-zinc-100 bg-zinc-50/30">
-                <form action="{{ route('admin.guest-visits.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <form action="{{ route('admin.guest-visits.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="space-y-1.5">
+                        <label for="year" class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Filter Tahun</label>
+                        <select id="year" name="year" onchange="this.form.submit()"
+                            class="flex h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-bold text-zinc-700 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-zinc-950/5 cursor-pointer">
+                            @foreach ($availableYears as $y)
+                                <option value="{{ $y }}" {{ (string)$selectedYear === (string)$y ? 'selected' : '' }}>
+                                    Tahun {{ $y }} {{ $y == date('Y') ? '(Saat Ini)' : '' }}
+                                </option>
+                            @endforeach
+                            <option value="all" {{ $selectedYear === 'all' ? 'selected' : '' }}>— Semua Tahun —</option>
+                        </select>
+                    </div>
                     <div class="space-y-1.5">
                         <label for="start_date" class="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Dari Tanggal</label>
                         <input type="date" id="start_date" name="start_date" value="{{ request('start_date') }}"
@@ -260,18 +272,18 @@
                                 class="flex h-10 w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 pl-9 text-sm shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-zinc-950/5">
                         </div>
                     </div>
-                    <div class="flex items-end gap-2">
+                    <div class="flex items-end gap-2 sm:col-span-2 md:col-span-1">
                         <button type="submit"
                             class="inline-flex h-10 flex-1 items-center justify-center rounded-xl bg-[#1a4fa0] px-4 py-2 text-sm font-bold text-white shadow hover:bg-[#1a4fa0]/90 transition-colors">
                             <i class="fas fa-filter mr-2 text-xs"></i>
                             Filter
                         </button>
-                        <a href="{{ route('admin.guest-visits.export-pdf', request()->only(['start_date', 'end_date', 'q'])) }}"
+                        <a href="{{ route('admin.guest-visits.export-pdf', request()->only(['year', 'start_date', 'end_date', 'q'])) }}"
                             class="inline-flex h-10 items-center justify-center rounded-xl bg-rose-600 px-4 py-2 text-sm font-bold text-white shadow hover:bg-rose-700 transition-colors">
                             <i class="fas fa-file-pdf mr-2 text-xs"></i>
                             Export PDF
                         </a>
-                        @if (request()->anyFilled(['start_date', 'end_date', 'q']))
+                        @if (request()->anyFilled(['start_date', 'end_date', 'q']) || (request('year') && request('year') !== (string)date('Y')))
                             <a href="{{ route('admin.guest-visits.index') }}"
                                 class="inline-flex h-10 items-center justify-center rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-bold text-zinc-600 hover:bg-zinc-50 transition-colors">
                                 Reset

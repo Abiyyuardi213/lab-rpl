@@ -5,43 +5,22 @@
 @section('content')
     <div class="space-y-4">
 
-        {{-- ── PAGE HEADER ──────────────────────────────────────────────── --}}
-        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-
-            {{-- Left: Breadcrumb + Title --}}
-            <div class="min-w-0">
-                <a href="{{ route('admin.praktikum.index') }}"
-                    class="inline-flex items-center gap-1.5 text-[10px] font-extrabold text-zinc-400 hover:text-[#001f3f] transition-all mb-2 group">
-                    <i class="fas fa-arrow-left text-[8px] group-hover:-translate-x-0.5 transition-transform"></i>
-                    <span class="uppercase tracking-widest">Daftar Praktikum</span>
-                </a>
-                <div class="flex flex-wrap items-center gap-3">
-                    <h1 class="text-xl sm:text-2xl font-black tracking-tight text-zinc-900 leading-none">Manajemen Praktikan</h1>
-                    <div class="flex items-center bg-[#001f3f] text-white px-2.5 py-1 rounded-lg text-[10px] font-black font-mono tracking-widest shadow-lg shadow-[#001f3f]/10">
-                        {{ $praktikum->kode_praktikum }}
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 mt-2">
-                    <div class="flex -space-x-2">
-                        <div class="w-5 h-5 rounded-full bg-zinc-100 flex items-center justify-center border-2 border-white">
-                            <i class="fas fa-flask text-[8px] text-zinc-400"></i>
-                        </div>
-                    </div>
-                    <p class="text-xs text-zinc-500 font-bold tracking-tight truncate max-w-[250px] sm:max-w-md">
-                        {{ $praktikum->nama_praktikum }}
-                    </p>
-                </div>
+        <!-- Header Section -->
+        <div class="flex items-start justify-between">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-zinc-900">Manajemen Praktikan</h1>
+                <p class="text-sm text-zinc-500 mt-1">
+                    Praktikum: <span class="font-bold text-zinc-800">{{ $praktikum->nama_praktikum }}</span> 
+                    <span class="font-mono text-xs px-2 py-0.5 rounded bg-zinc-100 border border-zinc-200 text-zinc-600 ml-1">{{ $praktikum->kode_praktikum }}</span>
+                </p>
             </div>
-
-            {{-- Right: Breadcrumb Trail (Hidden on small mobile) --}}
-            <div class="hidden md:flex items-center gap-2 text-[10px] text-zinc-400 font-bold uppercase tracking-widest pb-1">
-                <a href="{{ route('admin.dashboard') }}" class="hover:text-[#001f3f] transition-colors">Admin</a>
-                <i class="fas fa-chevron-right text-[7px] opacity-30"></i>
-                <a href="{{ route('admin.praktikum.index') }}" class="hover:text-[#001f3f] transition-colors">Praktikum</a>
-                <i class="fas fa-chevron-right text-[7px] opacity-30"></i>
-                <span class="text-zinc-600 font-black">Praktikan</span>
+            <div class="flex items-center gap-2 text-xs font-medium text-zinc-500">
+                <a href="{{ route('admin.dashboard') }}" class="hover:text-zinc-900 transition-colors">Home</a>
+                <span>/</span>
+                <a href="{{ route('admin.praktikum.index') }}" class="hover:text-zinc-900 transition-colors">Praktikum</a>
+                <span>/</span>
+                <span class="text-zinc-900 font-semibold">Praktikan</span>
             </div>
-
         </div>
 
         @include('admin.praktikum.partials.student-table')
