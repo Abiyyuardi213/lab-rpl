@@ -34,7 +34,13 @@ class AslabController extends Controller
         $aslabRole = Role::where('name', 'Aslab')->first();
 
         $request->validate([
-            'npm' => 'required|string|unique:aslabs,npm',
+            'npm' => [
+                'required',
+                'string',
+                'unique:aslabs,npm',
+                'unique:users,username',
+                'unique:praktikans,npm',
+            ],
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
@@ -43,6 +49,8 @@ class AslabController extends Controller
             'angkatan' => 'nullable|string',
             'jabatan' => 'required|string',
             'no_hp' => 'nullable|string',
+        ], [
+            'npm.unique' => 'NPM ini sudah terdaftar pada sistem (User / Aslab / Praktikan).'
         ]);
 
         $user = new User();
@@ -96,7 +104,13 @@ class AslabController extends Controller
         $user = User::findOrFail($id);
 
         $request->validate([
-            'npm' => 'required|string|unique:aslabs,npm,' . ($user->aslab ? $user->aslab->id : 'NULL'),
+            'npm' => [
+                'required',
+                'string',
+                'unique:aslabs,npm,' . ($user->aslab ? $user->aslab->id : 'NULL'),
+                'unique:users,username,' . $id,
+                'unique:praktikans,npm',
+            ],
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
@@ -105,6 +119,8 @@ class AslabController extends Controller
             'angkatan' => 'nullable|string',
             'jabatan' => 'required|string',
             'no_hp' => 'nullable|string',
+        ], [
+            'npm.unique' => 'NPM ini sudah terdaftar pada sistem (User / Aslab / Praktikan).'
         ]);
 
         $userData = [
