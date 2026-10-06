@@ -91,6 +91,20 @@ class UserController extends Controller
 
         $user->save();
 
+        // Jika role diubah menjadi 'Aslab', pastikan data pada tabel `aslabs` dibuat/tersedia
+        $aslabRole = Role::where('name', 'Aslab')->first();
+        if ($aslabRole && (string)$user->role_id === (string)$aslabRole->id) {
+            \App\Models\Aslab::firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'npm' => $user->username,
+                    'slug' => \Illuminate\Support\Str::slug($user->name),
+                    'jabatan' => 'Asisten Laboratorium',
+                    'jurusan' => 'Teknik Informatika',
+                ]
+            );
+        }
+
         return redirect()->route('admin.user.index')->with('success', 'User berhasil diperbarui.');
     }
 
