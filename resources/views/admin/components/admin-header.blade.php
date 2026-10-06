@@ -147,6 +147,24 @@
                             }
                         @endphp
 
+                        @if (Auth::check() && Auth::user()->role && Auth::user()->role->name === 'Aslab')
+                            @php
+                                $currentMode = session('active_mode', 'Aslab');
+                                $isModePraktikan = $currentMode === 'Praktikan';
+                            @endphp
+                            <form action="{{ route('switch-mode') }}" method="POST" class="mb-1">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all {{ $isModePraktikan ? 'bg-amber-50 text-amber-700 hover:bg-amber-100' : 'bg-blue-50 text-blue-700 hover:bg-blue-100' }}">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fas {{ $isModePraktikan ? 'fa-user-graduate' : 'fa-user-ninja' }} w-4 text-center"></i>
+                                        <span>Mode: {{ $isModePraktikan ? 'Praktikan' : 'Aslab' }}</span>
+                                    </div>
+                                    <span class="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-white shadow-xs">Switch</span>
+                                </button>
+                            </form>
+                        @endif
+
                         <a href="{{ route($profileEditRoute) }}"
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-[#001f3f] transition-all">
                             <i class="fas fa-user-circle w-4 text-center text-slate-400"></i> Pengaturan Profil

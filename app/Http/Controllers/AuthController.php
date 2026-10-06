@@ -274,6 +274,34 @@ class AuthController extends Controller
         return response()->json(['exists' => $exists]);
     }
 
+    public function switchMode(Request $request)
+    {
+        if (!Auth::check() || !Auth::user()->role || Auth::user()->role->name !== 'Aslab') {
+            return back()->with('error', 'Akses ditolak.');
+        }
+
+        $user = Auth::user();
+
+        // Pastikan user memiliki record di tabel praktikans
+        if (!$user->praktikan) {
+            \App\Models\Praktikan::firstOrCreate(
+                ['user_id' => $user->id],
+                ['npm' => $user->username]
+            );
+        }
+
+        $currentMode = session('active_mode', 'Aslab');
+        $targetMode = $currentMode === 'Aslab' ? 'Praktikan' : 'Aslab';
+
+        session(['active_mode' => $targetMode]);
+
+        if ($targetMode === 'Praktikan') {
+            return redirect()->route('praktikan.dashboard')->with('success', 'Beralih ke Tampilan Praktikan.');
+        }
+
+        return redirect()->route('aslab.dashboard')->with('success', 'Kembali ke Tampilan Asisten Lab.');
+    }
+
     public function dashboardRedirect()
     {
         if (Auth::check()) {

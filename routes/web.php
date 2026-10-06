@@ -62,6 +62,7 @@ Route::get('/home', [AuthController::class, 'dashboardRedirect'])->name('dashboa
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/switch-mode', [AuthController::class, 'switchMode'])->name('switch-mode');
     Route::post('/leave-impersonation', [\App\Http\Controllers\PraktikanController::class, 'leaveImpersonation'])->name('impersonation.leave');
 
     // Secure Storage Access for Authenticated Users
