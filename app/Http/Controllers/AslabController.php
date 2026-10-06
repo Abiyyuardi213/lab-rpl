@@ -109,7 +109,7 @@ class AslabController extends Controller
                 'string',
                 'unique:aslabs,npm,' . ($user->aslab ? $user->aslab->id : 'NULL'),
                 'unique:users,username,' . $id,
-                'unique:praktikans,npm',
+                'unique:praktikans,npm,' . ($user->praktikan ? $user->praktikan->id : 'NULL'),
             ],
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
