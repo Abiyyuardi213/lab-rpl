@@ -16,8 +16,13 @@ class EnsurePraktikanRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->role && Auth::user()->role->name === 'Praktikan') {
-            return $next($request);
+        if (Auth::check() && Auth::user()->role) {
+            $roleName = Auth::user()->role->name;
+            $activeMode = session('active_mode', $roleName);
+
+            if ($roleName === 'Praktikan' || ($roleName === 'Aslab' && $activeMode === 'Praktikan' && Auth::user()->praktikan)) {
+                return $next($request);
+            }
         }
 
         if (Auth::check()) {
