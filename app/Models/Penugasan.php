@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Penugasan extends Model
 {
@@ -15,6 +14,7 @@ class Penugasan extends Model
         'praktikum_id',
         'sesi_id',
         'jadwal_praktikum_id',
+        'tipe_distribusi',
         'aslab_id',
         'kode_akhir_npm',
         'judul',
@@ -23,6 +23,7 @@ class Penugasan extends Model
     ];
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     public function praktikum()

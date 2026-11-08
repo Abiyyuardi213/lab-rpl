@@ -150,6 +150,7 @@
 
                 // Optimistic Local
                 const std = window.transferStudents.find(s => String(s.id) === String(sid));
+                const oldAid = std ? std.aslab_id : null;
                 if (std) std.aslab_id = realAid;
                 renderTransferPane('left');
                 renderTransferPane('right');
@@ -157,13 +158,38 @@
                 // Server Sync
                 const token = document.querySelector('meta[name="csrf-token"]')?.content;
                 try {
-                    const r = await fetch(`{{ url('admin/praktikum/pendaftaran') }}/${sid}/assign-aslab`, {
+                    const r = await fetch(`{{ url('administrator/praktikum/pendaftaran') }}/${sid}/assign-aslab`, {
                         method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': token 
+                        },
                         body: JSON.stringify({ aslab_id: realAid })
                     });
-                    if (!r.ok) throw new Error('Gagal sync ke server');
-                } catch(e) { console.error(e); }
+                    const res = await r.json().catch(() => ({}));
+                    if (!r.ok) {
+                        throw new Error(res.message || 'Gagal sinkronisasi ke server');
+                    }
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tersimpan',
+                        text: res.message || 'Aslab pembimbing berhasil diperbarui.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500,
+                        background: '#001f3f',
+                        color: '#fff'
+                    });
+                } catch(e) {
+                    console.error('Transfer Failed:', e);
+                    // Rollback jika gagal
+                    if (std) std.aslab_id = oldAid;
+                    renderTransferPane('left');
+                    renderTransferPane('right');
+                    Swal.fire('Gagal Pindahkan Praktikan', e.message || 'Terjadi kesalahan pada server', 'error');
+                }
             }
         });
     };
@@ -177,12 +203,12 @@
                 emptyTable: "<div class='py-16 flex flex-col items-center justify-center space-y-3'><div class='w-14 h-14 rounded-2xl bg-zinc-100/80 flex items-center justify-center border border-zinc-200/60 shadow-sm'><i class='fas fa-user-slash text-xl text-zinc-400'></i></div><div class='text-center space-y-1'><p class='text-xs font-black text-zinc-800 uppercase tracking-wider'>Belum Ada Praktikan Terdaftar</p><p class='text-[11px] text-zinc-400 font-medium max-w-sm'>Praktikan belum mendaftar atau import CSV mahasiswa untuk menambahkan praktikan ke praktikum ini.</p></div></div>",
                 zeroRecords: "<div class='py-16 flex flex-col items-center justify-center space-y-3'><div class='w-14 h-14 rounded-2xl bg-zinc-100/80 flex items-center justify-center border border-zinc-200/60 shadow-sm'><i class='fas fa-search-minus text-xl text-zinc-400'></i></div><div class='text-center space-y-1'><p class='text-xs font-black text-zinc-800 uppercase tracking-wider'>Praktikan Tidak Ditemukan</p><p class='text-[11px] text-zinc-400 font-medium max-w-sm'>Tidak ada mahasiswa yang cocok dengan pencarian atau filter yang dipilih.</p></div></div>"
             },
-            columnDefs: [{ orderable: false, targets: [0, 3, 4, 5] }]
+            columnDefs: [{ orderable: false, targets: [0, 3, 4, 5, 6] }]
         });
 
         $('#studentSearch').on('keyup', function() { table.search(this.value).draw(); });
         $('#filterSesi').on('change', function() { table.column(4).search(this.value).draw(); });
-        $('#filterKelulusan').on('change', function() { table.column(5).search(this.value).draw(); });
+        $('#filterKelulusan').on('change', function() { table.column(6).search(this.value).draw(); });
         $('#customLength').on('change', function() { table.page.len($(this).val()).draw(); });
 
         // Persistent View Mode

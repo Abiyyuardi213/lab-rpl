@@ -51,11 +51,20 @@
                     }
                     $recentNotifs = Auth::check() ? Auth::user()->notifications()->take(5)->get() : collect();
                     $unreadCount = Auth::check() ? Auth::user()->unreadNotifications->count() : 0;
+
+                    $profileEditRoute = 'admin.profile.edit';
+                    if (Auth::check() && Auth::user()->role) {
+                        if (Auth::user()->role->name === 'Praktikan') {
+                            $profileEditRoute = 'praktikan.profile.edit';
+                        } elseif (Auth::user()->role->name === 'Aslab') {
+                            $profileEditRoute = 'aslab.profile.edit';
+                        }
+                    }
                 @endphp
 
                 <!-- Notifications Dropdown (Hover Trigger) -->
-                <div class="relative group">
-                    <button class="relative flex items-center justify-center w-9 h-9 rounded-xl bg-white/80 hover:bg-white border border-slate-200/60 text-slate-600 hover:text-[#001f3f] shadow-sm transition-all">
+                <div class="relative group" id="header-notif-container">
+                    <button id="header-notif-btn" type="button" class="relative flex items-center justify-center w-9 h-9 rounded-xl bg-white/80 hover:bg-white border border-slate-200/60 text-slate-600 hover:text-[#001f3f] shadow-sm transition-all">
                         <i class="fas fa-bell text-xs"></i>
                         @if($unreadCount > 0)
                             <span class="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-sm">
@@ -65,7 +74,7 @@
                     </button>
 
                     <!-- Hover Notification Modal Dropdown -->
-                    <div class="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-16 sm:top-full mt-2 w-auto sm:w-96 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div id="header-notif-dropdown" class="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-16 sm:top-full mt-2 w-auto sm:w-96 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                         <div class="p-3.5 bg-slate-900 text-white flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <i class="fas fa-bell text-xs text-blue-400"></i>
@@ -118,8 +127,8 @@
                 </div>
 
                 <!-- Profile Dropdown -->
-                <div class="relative group">
-                    <button class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/80 hover:bg-white border border-slate-200/60 shadow-sm transition-all">
+                <div class="relative group" id="header-profile-container">
+                    <button id="header-profile-btn" type="button" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/80 hover:bg-white border border-slate-200/60 shadow-sm transition-all">
                         <div class="w-7 h-7 rounded-lg bg-[#001f3f] text-white flex items-center justify-center font-bold text-xs">
                             {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
                         </div>
@@ -130,22 +139,11 @@
                     </button>
 
                     <!-- Profile Dropdown Menu -->
-                    <div class="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-200 p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div id="header-profile-dropdown" class="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-200 p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                         <div class="px-3 py-2 border-b border-slate-100 mb-1">
                             <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->name ?? 'User' }}</p>
                             <p class="text-[10px] text-slate-400 truncate">{{ Auth::user()->email ?? '' }}</p>
                         </div>
-                        
-                        @php
-                            $profileEditRoute = 'admin.profile.edit';
-                            if (Auth::check() && Auth::user()->role) {
-                                if (Auth::user()->role->name === 'Praktikan') {
-                                    $profileEditRoute = 'praktikan.profile.edit';
-                                } elseif (Auth::user()->role->name === 'Aslab') {
-                                    $profileEditRoute = 'aslab.profile.edit';
-                                }
-                            }
-                        @endphp
 
                         @if (Auth::check() && Auth::user()->role && Auth::user()->role->name === 'Aslab')
                             @php
@@ -403,9 +401,55 @@
                     </div>
                 </div>
             @endif
+
+            <!-- Mobile User Profile & Quick Actions -->
+            <div class="mt-4 pt-3 border-t border-white/10 space-y-2">
+                <div class="flex items-center gap-3 px-2 py-1">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 ring-2 ring-white/20">
+                        {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-bold text-white truncate">{{ Auth::user()->name ?? 'User' }}</p>
+                        <p class="text-[10px] text-slate-300 truncate">{{ Auth::user()->email ?? '' }}</p>
+                    </div>
+                </div>
+
+                @if (Auth::check() && Auth::user()->role && Auth::user()->role->name === 'Aslab')
+                    @php
+                        $currentMode = session('active_mode', 'Aslab');
+                        $isModePraktikan = $currentMode === 'Praktikan';
+                    @endphp
+                    <form action="{{ route('switch-mode') }}" method="POST" class="w-full">
+                        @csrf
+                        <button type="submit"
+                            class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all {{ $isModePraktikan ? 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30' : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30' }}">
+                            <div class="flex items-center gap-2">
+                                <i class="fas {{ $isModePraktikan ? 'fa-user-graduate' : 'fa-user-ninja' }} w-4 text-center"></i>
+                                <span>Mode: {{ $isModePraktikan ? 'Praktikan' : 'Aslab' }}</span>
+                            </div>
+                            <span class="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-white/20">Switch</span>
+                        </button>
+                    </form>
+                @endif
+
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <a href="{{ route($profileEditRoute) }}"
+                        class="flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-slate-200 bg-white/10 hover:bg-white/20 transition-all">
+                        <i class="fas fa-user-circle"></i> Profil
+                    </a>
+                    <button type="button" onclick="confirmLogout()"
+                        class="flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-rose-300 bg-rose-500/20 hover:bg-rose-500/30 transition-all">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </header>
+
+<form id="header-logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+    @csrf
+</form>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -460,5 +504,103 @@
                 }
             });
         }
+
+        // Header dropdown toggles (support touch & click)
+        const profileBtn = document.getElementById('header-profile-btn');
+        const profileDropdown = document.getElementById('header-profile-dropdown');
+        const notifBtn = document.getElementById('header-notif-btn');
+        const notifDropdown = document.getElementById('header-notif-dropdown');
+
+        function toggleDropdown(target, other) {
+            if (other) {
+                other.classList.remove('opacity-100', 'visible');
+                other.classList.add('opacity-0', 'invisible');
+            }
+            if (target) {
+                const isHidden = target.classList.contains('invisible') || !target.classList.contains('opacity-100');
+                if (isHidden) {
+                    target.classList.remove('opacity-0', 'invisible');
+                    target.classList.add('opacity-100', 'visible');
+                } else {
+                    target.classList.remove('opacity-100', 'visible');
+                    target.classList.add('opacity-0', 'invisible');
+                }
+            }
+        }
+
+        if (profileBtn && profileDropdown) {
+            profileBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleDropdown(profileDropdown, notifDropdown);
+            });
+        }
+
+        if (notifBtn && notifDropdown) {
+            notifBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleDropdown(notifDropdown, profileDropdown);
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            if (profileDropdown && profileBtn && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+                profileDropdown.classList.remove('opacity-100', 'visible');
+                profileDropdown.classList.add('opacity-0', 'invisible');
+            }
+            if (notifDropdown && notifBtn && !notifDropdown.contains(e.target) && !notifBtn.contains(e.target)) {
+                notifDropdown.classList.remove('opacity-100', 'visible');
+                notifDropdown.classList.add('opacity-0', 'invisible');
+            }
+        });
     });
+
+    window.confirmLogout = function() {
+        const doSubmit = function() {
+            const form = document.getElementById('logout-form') || document.getElementById('header-logout-form');
+            if (form) {
+                form.submit();
+            } else {
+                const dynamicForm = document.createElement('form');
+                dynamicForm.method = 'POST';
+                dynamicForm.action = "{{ route('logout') }}";
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || "{{ csrf_token() }}";
+                csrfInput.value = csrfToken;
+                dynamicForm.appendChild(csrfInput);
+                document.body.appendChild(dynamicForm);
+                dynamicForm.submit();
+            }
+        };
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Konfirmasi Logout',
+                text: 'Apakah Anda yakin ingin mengakhiri sesi ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#001f3f',
+                cancelButtonColor: '#82868b',
+                confirmButtonText: 'Ya, Logout Sekarang',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-xl shadow-xl',
+                    title: 'text-2xl font-bold text-slate-700',
+                    htmlContainer: 'text-slate-500 text-sm mt-2',
+                    confirmButton: 'px-6 py-2.5 rounded-lg font-medium text-sm',
+                    cancelButton: 'px-6 py-2.5 rounded-lg font-medium text-sm'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    doSubmit();
+                }
+            });
+        } else {
+            if (confirm('Apakah Anda yakin ingin mengakhiri sesi ini?')) {
+                doSubmit();
+            }
+        }
+    };
 </script>

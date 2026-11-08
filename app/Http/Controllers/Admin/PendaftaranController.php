@@ -19,12 +19,14 @@ class PendaftaranController extends Controller
         $pendaftarans = $query->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END")
             ->orderBy('created_at', 'desc')
             ->get();
+
         return view('admin.pendaftaran.index', compact('pendaftarans'));
     }
 
     public function show($id)
     {
         $pendaftaran = PendaftaranPraktikum::with(['praktikan.user', 'praktikum', 'sesi'])->findOrFail($id);
+
         return view('admin.pendaftaran.show', compact('pendaftaran'));
     }
 
@@ -42,6 +44,26 @@ class PendaftaranController extends Controller
         ]);
 
         return redirect()->route('admin.pendaftaran.index')->with('success', 'Status pendaftaran berhasil diperbarui.');
+    }
+
+    public function reactivate(Request $request, $id)
+    {
+        $pendaftaran = PendaftaranPraktikum::with('praktikan.user')->findOrFail($id);
+
+        if ($pendaftaran->status !== 'gugur') {
+            return back()->with('error', 'Hanya praktikan berstatus gugur yang dapat dipulihkan.');
+        }
+
+        $request->validate([
+            'alasan' => 'nullable|string|max:500',
+        ]);
+
+        $pendaftaran->update([
+            'status' => 'verified',
+            'catatan' => 'Dipulihkan dari status gugur oleh Admin: '.($request->alasan ?? 'Dispensasi resmi disetujui.'),
+        ]);
+
+        return back()->with('success', "Status praktikan {$pendaftaran->praktikan?->user?->name} berhasil dipulihkan menjadi terverifikasi.");
     }
 
     public function destroy($id)

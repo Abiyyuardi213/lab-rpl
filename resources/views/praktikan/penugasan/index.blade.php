@@ -51,7 +51,8 @@
                         <p class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest leading-none">Sesi Terdaftar</p>
                         <p class="text-xs font-black text-white mt-1.5 uppercase leading-none">
                             {{ $pendaftarans->map(function($p) {
-                                return $p->sesi->nama_sesi . ' (' . substr($p->sesi->jam_mulai, 0, 5) . ' - ' . substr($p->sesi->jam_selesai, 0, 5) . ')';
+                                $room = $p->sesi->ruangan ? ' • ' . $p->sesi->ruangan : '';
+                                return $p->sesi->nama_sesi . ' (' . substr($p->sesi->jam_mulai, 0, 5) . ' - ' . substr($p->sesi->jam_selesai, 0, 5) . ')' . $room;
                             })->unique()->implode(', ') ?: 'Tidak Ada Sesi' }}
                         </p>
                     </div>
@@ -93,6 +94,16 @@
                                 <span class="bg-amber-500/80 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded border border-amber-400/30 uppercase tracking-widest leading-none" title="Sesi">
                                     {{ $p->sesi->nama_sesi ?? 'Umum' }}
                                 </span>
+                                @if($p->sesi?->ruangan)
+                                    <span class="bg-emerald-600/80 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded border border-emerald-400/30 uppercase tracking-widest leading-none" title="Ruangan">
+                                        {{ $p->sesi->ruangan }}
+                                    </span>
+                                @endif
+                                @if($p->tipe_distribusi === 'by_random')
+                                    <span class="bg-purple-600/80 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded border border-purple-400/30 uppercase tracking-widest leading-none" title="Metode Distribusi">
+                                        Acak Terkunci
+                                    </span>
+                                @endif
                             </div>
                             @if ($p->is_accessible)
                                 <span class="bg-emerald-500/20 backdrop-blur-md text-emerald-400 text-[9px] font-black px-2 py-1 rounded border border-emerald-500/30 uppercase tracking-widest leading-none flex items-center gap-1.5">

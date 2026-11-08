@@ -14,7 +14,12 @@ class JadwalPraktikum extends Model
         'waktu_mulai',
         'waktu_selesai',
         'ruangan',
-        'token'
+        'token',
+        'is_susulan',
+    ];
+
+    protected $casts = [
+        'is_susulan' => 'boolean',
     ];
 
     public function praktikum()
@@ -35,5 +40,10 @@ class JadwalPraktikum extends Model
     public function penugasans()
     {
         return $this->hasMany(Penugasan::class, 'jadwal_praktikum_id');
+    }
+
+    public function pesertaSusulans()
+    {
+        return $this->hasMany(PesertaSusulan::class, 'jadwal_id');
     }
 }

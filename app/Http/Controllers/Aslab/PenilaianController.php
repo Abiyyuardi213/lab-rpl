@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Aslab;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\JadwalPraktikum;
-use App\Models\Presensi;
-use App\Models\PenilaianPraktikum;
-use App\Models\TugasAsistensi;
 use App\Models\PendaftaranPraktikum;
+use App\Models\PenilaianAkhir;
+use App\Models\PenilaianPraktikum;
+use App\Models\Presensi;
+use App\Models\TugasAsistensi;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 use App\Traits\HasActivityLog;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PenilaianController extends Controller
 {
@@ -21,7 +21,7 @@ class PenilaianController extends Controller
     public function index()
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return redirect()->back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
@@ -29,7 +29,7 @@ class PenilaianController extends Controller
         $praktikumIds = $aslab->praktikums->pluck('id');
 
         // Get all schedules for these practicums
-        $jadwals = JadwalPraktikum::with(['praktikum', 'sesi', 'presensis' => function($q) {
+        $jadwals = JadwalPraktikum::with(['praktikum', 'sesi', 'presensis' => function ($q) {
             $q->whereIn('status', ['hadir', 'terlambat']);
         }])
             ->whereIn('praktikum_id', $praktikumIds)
@@ -43,18 +43,18 @@ class PenilaianController extends Controller
     public function show(Request $request, $jadwal_id)
     {
         $jadwal = JadwalPraktikum::with(['praktikum', 'sesi'])->findOrFail($jadwal_id);
-        
+
         // Use PendaftaranPraktikum as the primary source to show all students in this practicum
         // Filter by verified status and the practicum id
         $query = PendaftaranPraktikum::with([
-                'praktikan.user', 
-                'tugasAsistensis', 
-                'sesi',
-                'presensis' => function($q) use ($jadwal_id) {
-                    $q->where('jadwal_id', $jadwal_id);
-                },
-                'presensis.penilaian'
-            ])
+            'praktikan.user',
+            'tugasAsistensis',
+            'sesi',
+            'presensis' => function ($q) use ($jadwal_id) {
+                $q->where('jadwal_id', $jadwal_id);
+            },
+            'presensis.penilaian',
+        ])
             ->where('praktikum_id', $jadwal->praktikum_id)
             ->where('status', 'verified');
 
@@ -67,9 +67,9 @@ class PenilaianController extends Controller
         if ($search !== '') {
             $query->whereHas('praktikan', function ($praktikanQuery) use ($search) {
                 $praktikanQuery
-                    ->where('npm', 'like', '%' . $search . '%')
+                    ->where('npm', 'like', '%'.$search.'%')
                     ->orWhereHas('user', function ($userQuery) use ($search) {
-                        $userQuery->where('name', 'like', '%' . $search . '%');
+                        $userQuery->where('name', 'like', '%'.$search.'%');
                     });
             });
         }
@@ -95,8 +95,8 @@ class PenilaianController extends Controller
 
         $user = Auth::user();
         $aslab = $user->aslab;
-        
-        if (!$aslab) {
+
+        if (! $aslab) {
             return back()->with('error', 'Anda bukan aslab yang terdaftar.');
         }
 
@@ -105,7 +105,7 @@ class PenilaianController extends Controller
         $judulModul = $presensi->jadwal->judul_modul;
 
         // Security Check 1: Status must be valid attendance
-        if (!in_array($presensi->status, ['hadir', 'terlambat'], true)) {
+        if (! in_array($presensi->status, ['hadir', 'terlambat'], true)) {
             return back()->with('error', 'Kecurangan terdeteksi: Praktikan belum tercatat hadir.');
         }
 
@@ -127,23 +127,28 @@ class PenilaianController extends Controller
             TugasAsistensi::updateOrCreate(
                 [
                     'pendaftaran_id' => $pendaftaran->id,
-                    'judul' => $judulModul
+                    'judul' => $judulModul,
                 ],
                 [
                     'aslab_id' => $aslab->id,
                     'nilai' => $request->nilai_asistensi,
                     'status' => 'reviewed',
-                    'deskripsi' => 'Penilaian asistensi langsung (Live Assessment)'
+                    'deskripsi' => 'Penilaian asistensi langsung (Live Assessment)',
                 ]
             );
         }
 
+        // Auto-sync PenilaianAkhir if record exists for this registration
+        if ($pendaftaran) {
+            PenilaianAkhir::syncRegistration($pendaftaran);
+        }
+
         $this->logActivity(
             'Penilaian Live Praktikum',
-            'Aslab memberikan nilai praktikum: ' . $request->nilai . ' & asistensi: ' . ($request->nilai_asistensi ?? '0') . ' kepada ' . $presensi->pendaftaran->praktikan->nama,
+            'Aslab memberikan nilai praktikum: '.$request->nilai.' & asistensi: '.($request->nilai_asistensi ?? '0').' kepada '.$presensi->pendaftaran->praktikan->nama,
             ['presensi_id' => $request->presensi_id, 'nilai' => $request->nilai, 'nilai_asistensi' => $request->nilai_asistensi]
         );
 
-        return back()->with('success', 'Nilai berhasil disimpan untuk ' . $presensi->pendaftaran->praktikan->nama);
+        return back()->with('success', 'Nilai berhasil disimpan untuk '.$presensi->pendaftaran->praktikan->nama);
     }
 }

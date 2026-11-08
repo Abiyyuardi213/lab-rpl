@@ -19,7 +19,7 @@ class DashboardController extends Controller
             ->with(['pendaftarans' => function ($query) use ($praktikan) {
                 if ($praktikan) {
                     $query->where('praktikan_id', $praktikan->id)
-                          ->whereIn('status', ['pending', 'verified']);
+                        ->whereIn('status', ['pending', 'verified']);
                 } else {
                     $query->whereRaw('1 = 0'); // Empty result if no praktikan info
                 }
@@ -31,29 +31,44 @@ class DashboardController extends Controller
         // Upcoming schedules for the praktikan
         $upcomingSchedules = collect();
         $activePendaftarans = collect();
-
         $completedPendaftarans = collect();
+        $gugurPendaftarans = collect();
+        $susulanSchedules = collect();
 
         if ($praktikan) {
             app(PresensiAlfaService::class)->markFinishedSchedules();
 
+            $gugurPendaftarans = $praktikan->pendaftarans()
+                ->where('status', 'gugur')
+                ->with('praktikum')
+                ->get();
+
+            $susulanSchedules = \App\Models\PesertaSusulan::with(['jadwal.praktikum'])
+                ->whereHas('pendaftaran', function ($q) use ($praktikan) {
+                    $q->where('praktikan_id', $praktikan->id);
+                })
+                ->where('status', 'terdaftar')
+                ->get()
+                ->pluck('jadwal')
+                ->filter(fn ($j) => $j !== null);
+
             $allVerifiedPendaftarans = $praktikan->pendaftarans()
                 ->where('status', 'verified')
-                ->with(['praktikum', 'sesi', 'presensis', 'penilaianAkhir'])
+                ->with(['praktikum', 'sesi.jadwalPraktikums', 'presensis', 'penilaianAkhir'])
                 ->withCount('presensis')
                 ->get()
                 ->map(function ($pendaftaran) {
                     $praktikum = $pendaftaran->praktikum;
                     $totalModules = $praktikum->jumlah_modul;
                     $hasFinalProject = $praktikum->ada_tugas_akhir;
-                    
+
                     $totalSteps = $totalModules + ($hasFinalProject ? 1 : 0);
                     $completedSteps = $pendaftaran->presensis_count;
-                    
-                    $pendaftaran->progress_percentage = $totalSteps > 0 
-                        ? min(100, round(($completedSteps / $totalSteps) * 100)) 
+
+                    $pendaftaran->progress_percentage = $totalSteps > 0
+                        ? min(100, round(($completedSteps / $totalSteps) * 100))
                         : 0;
-                    
+
                     return $pendaftaran;
                 });
 
@@ -67,18 +82,31 @@ class DashboardController extends Controller
                 return $p->praktikum && $p->praktikum->status_praktikum === 'finished';
             })->values();
 
-            $pendaftaranIds = $activePendaftarans->pluck('praktikum_id');
-
-            $upcomingSchedules = \App\Models\JadwalPraktikum::with(['praktikum', 'presensis' => function ($q) use ($praktikan) {
-                $q->whereHas('pendaftaran', function ($pq) use ($praktikan) {
-                    $pq->where('praktikan_id', $praktikan->id);
-                });
-            }])
-                ->whereIn('praktikum_id', $pendaftaranIds)
-                ->where('tanggal', '>=', now()->subDay()->toDateString())
-                ->orderBy('tanggal', 'asc')
-                ->orderBy('waktu_mulai', 'asc')
-                ->get();
+            $upcomingSchedules = collect();
+            if ($activePendaftarans->isNotEmpty()) {
+                $upcomingSchedules = \App\Models\JadwalPraktikum::with(['praktikum', 'presensis' => function ($q) use ($praktikan) {
+                    $q->whereHas('pendaftaran', function ($pq) use ($praktikan) {
+                        $pq->where('praktikan_id', $praktikan->id);
+                    });
+                }])
+                    ->where(function ($query) use ($activePendaftarans) {
+                        foreach ($activePendaftarans as $p) {
+                            $query->orWhere(function ($q) use ($p) {
+                                $q->where('praktikum_id', $p->praktikum_id);
+                                if ($p->sesi_id) {
+                                    $q->where(function ($sq) use ($p) {
+                                        $sq->where('sesi_id', $p->sesi_id)
+                                            ->orWhereNull('sesi_id');
+                                    });
+                                }
+                            });
+                        }
+                    })
+                    ->where('tanggal', '>=', now()->subDay()->toDateString())
+                    ->orderBy('tanggal', 'asc')
+                    ->orderBy('waktu_mulai', 'asc')
+                    ->get();
+            }
         }
 
         $penugasans = collect();
@@ -87,7 +115,7 @@ class DashboardController extends Controller
             $lastDigit = intval(substr($npm, -1));
             $pendaftarans = \App\Models\PendaftaranPraktikum::with([
                 'praktikum',
-                'sesi',
+                'sesi.jadwalPraktikums',
                 'penugasanOverrides.penugasan.praktikum',
                 'penugasanOverrides.penugasan.sesi',
                 'penugasanOverrides.penugasan.aslab.user',
@@ -96,36 +124,8 @@ class DashboardController extends Controller
                 ->where('status', 'verified')
                 ->get();
 
-            $praktikumIds = $pendaftarans->pluck('praktikum_id')->unique();
-            $allPenugasans = \App\Models\Penugasan::with(['praktikum', 'sesi', 'aslab.user', 'jadwalPraktikum'])
-                ->whereIn('praktikum_id', $praktikumIds)
-                ->get();
-
-            $filteredPenugasans = $allPenugasans->filter(function ($penugasan) use ($pendaftarans, $lastDigit) {
-                $pendaftaran = $pendaftarans->where('sesi_id', $penugasan->sesi_id)
-                    ->where('praktikum_id', $penugasan->praktikum_id)
-                    ->first();
-
-                if (!$pendaftaran) {
-                    return false;
-                }
-
-                $override = $pendaftaran->penugasanOverrides
-                    ->where('jadwal_praktikum_id', $penugasan->jadwal_praktikum_id)
-                    ->first();
-
-                if ($override) {
-                    return $override->penugasan_id === $penugasan->id;
-                }
-
-                $kode = (string) $penugasan->kode_akhir_npm;
-                if ($kode === '*') return true;
-                if ($lastDigit !== null && $kode === $lastDigit) return true;
-
-                return false;
-            });
-
-            $penugasans = $filteredPenugasans
+            $distributionService = app(\App\Services\PenugasanDistributionService::class);
+            $penugasans = $distributionService->resolvePenugasansForStudent($praktikan, $pendaftarans)
                 ->sortByDesc('created_at')
                 ->values();
 
@@ -158,12 +158,12 @@ class DashboardController extends Controller
                     $isWithinTime = env('APP_ENV') !== 'production' && env('PENUGASAN_BYPASS_WAKTU', false) ? true : ($isSameDay && $isWithinTimeRange);
 
                     $isRegistered = $pendaftarans->where('sesi_id', $penugasan->sesi_id)
-                                              ->where('praktikum_id', $penugasan->praktikum_id)
-                                              ->isNotEmpty();
-                    
-                    $hasPresensi = env('APP_ENV') !== 'production' && env('PENUGASAN_BYPASS_PRESENSI', false) ? true : \App\Models\Presensi::whereHas('pendaftaran', function($query) use ($praktikan, $penugasan) {
+                        ->where('praktikum_id', $penugasan->praktikum_id)
+                        ->isNotEmpty();
+
+                    $hasPresensi = env('APP_ENV') !== 'production' && env('PENUGASAN_BYPASS_PRESENSI', false) ? true : \App\Models\Presensi::whereHas('pendaftaran', function ($query) use ($praktikan, $penugasan) {
                         $query->where('praktikan_id', $praktikan->id)
-                              ->where('praktikum_id', $penugasan->praktikum_id);
+                            ->where('praktikum_id', $penugasan->praktikum_id);
                     })->whereIn('status', ['hadir', 'terlambat'])->exists();
 
                     $isAccessible = $isRegistered && $isWithinTime && $hasPresensi;
@@ -180,12 +180,12 @@ class DashboardController extends Controller
             $recruitmentSchedules = \App\Models\RecruitmentSchedule::whereHas('applications', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             })
-            ->where('date', '>=', now()->toDateString())
-            ->orderBy('date', 'asc')
-            ->orderBy('start_time', 'asc')
-            ->get();
+                ->where('date', '>=', now()->toDateString())
+                ->orderBy('date', 'asc')
+                ->orderBy('start_time', 'asc')
+                ->get();
         }
 
-        return view('praktikan.dashboard', compact('praktikums', 'upcomingSchedules', 'activePendaftarans', 'completedPendaftarans', 'penugasans', 'recruitmentSchedules'));
+        return view('praktikan.dashboard', compact('praktikums', 'upcomingSchedules', 'activePendaftarans', 'completedPendaftarans', 'penugasans', 'recruitmentSchedules', 'gugurPendaftarans', 'susulanSchedules'));
     }
 }

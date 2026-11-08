@@ -552,23 +552,29 @@
 </form>
 
 <script>
-    document.getElementById('admin-mobile-button').addEventListener('click', function() {
-        const menu = document.getElementById('admin-mobile-menu');
-        menu.classList.toggle('hidden');
-    });
+    const adminMobBtn = document.getElementById('admin-mobile-button');
+    if (adminMobBtn) {
+        adminMobBtn.addEventListener('click', function() {
+            const menu = document.getElementById('admin-mobile-menu');
+            if (menu) menu.classList.toggle('hidden');
+        });
+    }
 
     // Profile Dropdown Toggle for Mobile
-    document.getElementById('profile-dropdown-button').addEventListener('click', function(e) {
-        e.stopPropagation();
-        const dropdown = document.getElementById('profile-dropdown-menu');
-        dropdown.classList.toggle('hidden');
-    });
+    const profDropBtn = document.getElementById('profile-dropdown-button');
+    if (profDropBtn) {
+        profDropBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('profile-dropdown-menu');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        });
+    }
 
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
         const dropdown = document.getElementById('profile-dropdown-menu');
         const button = document.getElementById('profile-dropdown-button');
-        if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+        if (button && dropdown && !button.contains(e.target) && !dropdown.contains(e.target)) {
             dropdown.classList.add('hidden');
         }
     });

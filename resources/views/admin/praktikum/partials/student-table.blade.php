@@ -51,6 +51,18 @@
                 class="inline-flex h-9 items-center justify-center rounded-md bg-emerald-600 px-3 text-xs font-semibold text-white shadow hover:bg-emerald-700 transition-colors">
                 <i class="fas fa-file-export mr-1.5 text-xs"></i> Export
             </a>
+
+            <!-- Mode Switcher (Tabel / Transfer Kanban) -->
+            <div class="flex items-center gap-0.5 p-0.5 bg-white border border-zinc-200 rounded-lg shadow-sm">
+                <button id="btnModeTable" onclick="switchMode('table')"
+                    class="view-mode-btn">
+                    <i class="fas fa-list text-[9px]"></i> Tabel
+                </button>
+                <button id="btnModeKanban" onclick="switchMode('kanban')"
+                    class="view-mode-btn">
+                    <i class="fas fa-columns text-[9px]"></i> Transfer
+                </button>
+            </div>
         </div>
     </div>
 
@@ -69,6 +81,7 @@
                     <th class="px-6 align-middle font-medium text-zinc-500">NPM</th>
                     <th class="px-6 align-middle font-medium text-zinc-500">STATUS PENDAFTARAN</th>
                     <th class="px-6 align-middle font-medium text-zinc-500">SESI PRAKTIKUM</th>
+                    <th class="px-6 align-middle font-medium text-zinc-500">BIMBINGAN ASLAB</th>
                     <th class="px-6 align-middle font-medium text-zinc-500">STATUS KELULUSAN</th>
                 </tr>
             </thead>
@@ -120,19 +133,17 @@
                             <span class="w-1 h-1 rounded-full bg-sky-400"></span>{{ $p->sesi->hari }}, {{ substr($p->sesi->jam_mulai, 0, 5) }}
                         </p>
                     </td>
-                    @if(false)
-                        <td class="px-4 py-3.5" data-search="{{ $p->aslab ? $p->aslab->user->name : 'Pilih Aslab' }}">
-                            <div class="relative group/sel max-w-[180px]">
-                                <select name="aslab_id" onchange="updateAssignment(this, '{{ route('admin.praktikum.pendaftaran.assign-aslab', $p->id) }}')" data-original-value="{{ $p->aslab_id }}" class="appearance-none w-full h-8 pl-2.5 pr-7 text-[11px] font-semibold text-zinc-700 bg-white border border-zinc-200 rounded-lg focus:border-[#001f3f] cursor-pointer outline-none shadow-sm transition-all">
-                                    <option value="">— Belum Ditugaskan —</option>
-                                    @foreach ($praktikum->aslabs as $as)
-                                        <option value="{{ $as->id }}" {{ $p->aslab_id == $as->id ? 'selected' : '' }}>{{ $as->user->name }}</option>
-                                    @endforeach
-                                </select>
-                                <i class="fas fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-zinc-300 text-[7px] pointer-events-none group-hover/sel:text-zinc-500"></i>
-                            </div>
-                        </td>
-                    @endif
+                    <td class="px-4 py-3.5" data-search="{{ $p->aslab ? $p->aslab->user->name : 'Pilih Aslab' }}">
+                        <div class="relative group/sel max-w-[180px]">
+                            <select name="aslab_id" onchange="updateAssignment(this, '{{ route('admin.praktikum.pendaftaran.assign-aslab', $p->id) }}')" data-original-value="{{ $p->aslab_id }}" class="appearance-none w-full h-8 pl-2.5 pr-7 text-[11px] font-semibold text-zinc-700 bg-white border border-zinc-200 rounded-lg focus:border-[#001f3f] cursor-pointer outline-none shadow-sm transition-all">
+                                <option value="">— Belum Ditugaskan —</option>
+                                @foreach ($praktikum->aslabs as $as)
+                                    <option value="{{ $as->id }}" {{ $p->aslab_id == $as->id ? 'selected' : '' }}>{{ $as->user->name }}</option>
+                                @endforeach
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-zinc-300 text-[7px] pointer-events-none group-hover/sel:text-zinc-500"></i>
+                        </div>
+                    </td>
                     <td class="px-4 py-3.5" data-search="{{ $p->penilaianAkhir?->status_kelulusan ?? 'Belum Ditentukan' }}">
                         @php
                             $gradStatus = $p->penilaianAkhir?->status_kelulusan;

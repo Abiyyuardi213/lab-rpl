@@ -63,12 +63,18 @@
                                     <p class="text-xs font-bold text-zinc-700 capitalize">{{ $p->sesi->hari }}</p>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 gap-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div class="space-y-1">
                                     <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Waktu</p>
                                     <p class="text-xs font-bold text-zinc-700">{{ substr($p->sesi->jam_mulai, 0, 5) }} -
                                         {{ substr($p->sesi->jam_selesai, 0, 5) }} WIB</p>
                                 </div>
+                                <div class="space-y-1">
+                                    <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Ruangan</p>
+                                    <p class="text-xs font-bold text-emerald-700">{{ $p->sesi->ruangan ?? 'Lab. Komputer' }}</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-4">
                                 <div class="space-y-1 pt-2 border-t border-zinc-50">
                                     <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Dosen & Kelas
                                     </p>

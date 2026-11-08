@@ -79,7 +79,7 @@
                 <i class="fas fa-print"></i>
                 Cetak Langsung
             </button>
-            <a href="{{ Auth::user()->role->name === 'Admin' ? route('admin.praktikum.show', $jadwal->praktikum_id) : route('aslab.dashboard') }}" class="w-full h-12 bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-100 transition-all flex items-center justify-center gap-3 translate-y-0 active:translate-y-1">
+            <a href="{{ in_array(Auth::user()->role->name, ['Super Admin', 'Admin']) ? route('admin.praktikum.show', $jadwal->praktikum_id) : route('aslab.dashboard') }}" class="w-full h-12 bg-white border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-100 transition-all flex items-center justify-center gap-3 translate-y-0 active:translate-y-1">
                 <i class="fas fa-arrow-left"></i>
                 Kembali
             </a>
@@ -111,7 +111,9 @@
                     <div class="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                         <div>
                             <h4 class="text-xl font-black text-slate-900 uppercase tracking-tight">Input Manual</h4>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pilih praktikan untuk presensi</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                Pilih praktikan untuk presensi {{ $jadwal->sesi ? '('.$jadwal->sesi->nama_sesi.')' : '' }}
+                            </p>
                         </div>
                         <button onclick="closeManualModal()" class="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all">
                             <i class="fas fa-times"></i>
@@ -138,7 +140,19 @@
                                         </div>
                                         <div>
                                             <p class="text-sm font-black text-slate-900 uppercase tracking-tight">{{ $pendaftaran->praktikan->user->name }}</p>
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $pendaftaran->praktikan->npm }}</p>
+                                            <div class="flex items-center gap-2 mt-0.5">
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{{ $pendaftaran->praktikan->npm }}</span>
+                                                @if($pendaftaran->sesi)
+                                                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase tracking-wider">
+                                                        {{ $pendaftaran->sesi->nama_sesi }}
+                                                    </span>
+                                                @endif
+                                                @if($pendaftaran->asal_kelas_mata_kuliah)
+                                                    <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[9px] font-bold uppercase tracking-wider">
+                                                        Kelas {{ $pendaftaran->asal_kelas_mata_kuliah }}
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -152,7 +166,9 @@
                                 </div>
                             @empty
                                 <div class="py-12 text-center">
-                                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest text-[10px]">Semua praktikan sudah presensi</p>
+                                    <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest text-[10px]">
+                                        Semua praktikan {{ $jadwal->sesi ? 'sesi '.$jadwal->sesi->nama_sesi : '' }} sudah presensi
+                                    </p>
                                 </div>
                             @endforelse
                         </div>

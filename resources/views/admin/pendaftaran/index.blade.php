@@ -61,7 +61,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-100">
-                        @forelse($pendaftarans as $index => $p)
+                        @foreach($pendaftarans as $index => $p)
                             <tr class="hover:bg-zinc-50/30 transition-colors">
                                 <td class="px-6 py-4 text-center text-zinc-500 font-medium">{{ $index + 1 }}</td>
                                 <td class="px-6 py-4">
@@ -103,6 +103,10 @@
                                                 'label' => 'Rejected',
                                                 'class' => 'bg-rose-50 text-rose-700 border-rose-100',
                                             ],
+                                            'gugur' => [
+                                                'label' => 'Gugur (2x Alfa)',
+                                                'class' => 'bg-rose-100 text-rose-800 border-rose-300 font-extrabold',
+                                            ],
                                         ];
                                         $st = $statusConfig[$p->status] ?? [
                                             'label' => $p->status,
@@ -121,6 +125,15 @@
                                             title="Detail Pendaftaran">
                                             <i class="fas fa-eye text-xs"></i>
                                         </a>
+
+                                        @if ($p->status === 'gugur')
+                                            <button onclick="confirmReactivate('{{ $p->id }}', '{{ $p->praktikan->user->name }}')"
+                                                class="h-9 px-2.5 inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white transition-all shadow-sm active:scale-95 text-xs font-bold whitespace-nowrap"
+                                                title="Pulihkan dari Status Gugur (Dispensasi)">
+                                                <i class="fas fa-undo-alt text-xs"></i>
+                                                <span>Pulihkan</span>
+                                            </button>
+                                        @endif
 
                                         @if ($p->status === 'pending')
                                             <button onclick="updateStatus('{{ $p->id }}', 'verified')"
@@ -145,16 +158,7 @@
                                     </div>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-12 text-center">
-                                    <div class="flex flex-col items-center gap-2 text-zinc-400 italic">
-                                        <i class="fas fa-inbox text-3xl opacity-20"></i>
-                                        <span>Tidak ada data pendaftaran</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -362,6 +366,57 @@
                     methodInput.name = '_method';
                     methodInput.value = 'DELETE';
                     form.appendChild(methodInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        function confirmReactivate(id, name) {
+            Swal.fire({
+                title: 'Pulihkan Praktikan?',
+                text: "Status praktikan " + name + " akan dikembalikan menjadi 'verified' (terverifikasi aktif kembali).",
+                input: 'text',
+                inputPlaceholder: 'Tuliskan alasan dispensasi resmi (opsional)...',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d97706',
+                cancelButtonColor: '#f4f4f5',
+                confirmButtonText: 'Ya, Pulihkan!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-[1.5rem]',
+                    confirmButton: 'px-6 py-2.5 rounded-xl font-bold text-xs',
+                    cancelButton: 'px-6 py-2.5 rounded-xl font-bold text-xs text-zinc-600'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = "{{ route('admin.pendaftaran.reactivate', ':id') }}".replace(':id', id);
+
+                    const csrfToken = '{{ csrf_token() }}';
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = csrfToken;
+                    form.appendChild(csrfInput);
+
+                    const methodInput = document.createElement('input');
+                    methodInput.type = 'hidden';
+                    methodInput.name = '_method';
+                    methodInput.value = 'PATCH';
+                    form.appendChild(methodInput);
+
+                    if (result.value) {
+                        const alasanInput = document.createElement('input');
+                        alasanInput.type = 'hidden';
+                        alasanInput.name = 'alasan';
+                        alasanInput.value = result.value;
+                        form.appendChild(alasanInput);
+                    }
 
                     document.body.appendChild(form);
                     form.submit();

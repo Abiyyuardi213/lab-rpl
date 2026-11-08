@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Praktikum;
-use App\Models\PendaftaranPraktikum;
-use App\Models\PenilaianAkhir;
-use App\Models\Presensi;
-use App\Models\PenilaianPraktikum;
-use App\Models\TugasAsistensi;
-use App\Models\Aslab;
 use App\Exports\PenilaianAkhirExport;
 use App\Exports\PenilaianAkhirTemplate;
+use App\Http\Controllers\Controller;
 use App\Imports\PenilaianAkhirImport;
+use App\Models\Aslab;
+use App\Models\PendaftaranPraktikum;
+use App\Models\PenilaianAkhir;
+use App\Models\PenilaianPraktikum;
+use App\Models\Praktikum;
+use App\Models\Presensi;
+use App\Models\TugasAsistensi;
 use App\Traits\HasActivityLog;
+use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class PenilaianAkhirController extends Controller
@@ -54,7 +54,7 @@ class PenilaianAkhirController extends Controller
             'aslab.user',
             'penilaianAkhir',
             'presensis.penilaian',
-            'tugasAsistensis'
+            'tugasAsistensis',
         ])
             ->where('praktikum_id', $praktikum_id)
             ->where('status', 'verified');
@@ -63,11 +63,11 @@ class PenilaianAkhirController extends Controller
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->whereHas('praktikan', function ($pq) use ($search) {
-                    $pq->where('npm', 'like', '%' . $search . '%')
-                      ->orWhereHas('user', function ($u) use ($search) {
-                          $u->where('name', 'like', '%' . $search . '%');
-                      });
-                })->orWhere('dosen_pengampu', 'like', '%' . $search . '%');
+                    $pq->where('npm', 'like', '%'.$search.'%')
+                        ->orWhereHas('user', function ($u) use ($search) {
+                            $u->where('name', 'like', '%'.$search.'%');
+                        });
+                })->orWhere('dosen_pengampu', 'like', '%'.$search.'%');
             });
         }
 
@@ -107,7 +107,7 @@ class PenilaianAkhirController extends Controller
             ->pluck('dosen_pengampu')
             ->toArray();
 
-        if (!empty($praktikum->daftar_dosen) && is_array($praktikum->daftar_dosen)) {
+        if (! empty($praktikum->daftar_dosen) && is_array($praktikum->daftar_dosen)) {
             $dosensList = array_values(array_unique(array_merge($praktikum->daftar_dosen, $dosensList)));
         }
 
@@ -123,91 +123,59 @@ class PenilaianAkhirController extends Controller
             $astScores = [];
 
             for ($i = 1; $i <= $praktikum->jumlah_modul; $i++) {
-                $targetTitle = "Modul " . $i;
+                $targetTitle = 'Modul '.$i;
 
                 // 1. Practical Score (Prak)
                 $pres = $pendaftaran->presensis->first(function ($p) use ($targetTitle, $i) {
-                    if (!$p->jadwal) return false;
+                    if (! $p->jadwal) {
+                        return false;
+                    }
                     $jTitle = $p->jadwal->judul_modul;
-                    return strcasecmp($jTitle, $targetTitle) === 0 
+
+                    return strcasecmp($jTitle, $targetTitle) === 0
                         || str_contains(strtolower($jTitle), strtolower($targetTitle))
-                        || str_contains(strtolower($jTitle), "modul " . $i);
+                        || str_contains(strtolower($jTitle), 'modul '.$i);
                 });
                 $prakScores[$i] = ($pres && $pres->penilaian) ? $pres->penilaian->nilai : 0;
 
                 // 2. Assistance Score (Ast)
                 $tugas = $pendaftaran->tugasAsistensis->first(function ($t) use ($targetTitle, $i) {
                     $tTitle = $t->judul;
-                    return strcasecmp($tTitle, $targetTitle) === 0 
+
+                    return strcasecmp($tTitle, $targetTitle) === 0
                         || str_contains(strtolower($tTitle), strtolower($targetTitle))
-                        || str_contains(strtolower($tTitle), "modul " . $i);
+                        || str_contains(strtolower($tTitle), 'modul '.$i);
                 });
                 $astScores[$i] = $tugas ? ($tugas->nilai ?? 0) : 0;
             }
 
             // Auto-detect Tugas Akhir score from presensis if a schedule exists with title containing Tugas Akhir / TA / Akhir
             $taPresensi = $pendaftaran->presensis->first(function ($p) {
-                if (!$p->jadwal) return false;
+                if (! $p->jadwal) {
+                    return false;
+                }
                 $jTitle = strtolower($p->jadwal->judul_modul);
+
                 return str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir');
             });
             $autoTaScore = ($taPresensi && $taPresensi->penilaian) ? $taPresensi->penilaian->nilai : 0;
 
-            if ($pendaftaran->penilaianAkhir) {
-                $gData = $pendaftaran->penilaianAkhir->toArray();
+            $syncResult = PenilaianAkhir::syncRegistration($pendaftaran, $schedules);
 
-                // If DB value for nilai_tugas_akhir is 0/null, fallback to auto-detected TA score from presensi
-                if ((empty($gData['nilai_tugas_akhir']) || $gData['nilai_tugas_akhir'] == 0) && $autoTaScore > 0) {
-                    $gData['nilai_tugas_akhir'] = $autoTaScore;
-                    $recalculated = PenilaianAkhir::calculateGrades(
-                        $pendaftaran,
-                        $gData['nilai_dosen'] ?? [],
-                        $gData['nilai_laporan'] ?? 0,
-                        $autoTaScore,
-                        $gData['is_gugur'] ?? false,
-                        $gData['alasan_gugur'] ?? null,
-                        $schedules
-                    );
-                    $gData = array_merge($gData, $recalculated);
-                }
-
-                $grades[] = [
-                    'pendaftaran' => $pendaftaran,
-                    'grades' => $gData,
-                    'is_db' => true,
-                    'prak_scores' => $prakScores,
-                    'ast_scores' => $astScores,
-                ];
-            } else {
-                // Dynamically calculate grades with default zeros
-                $nilaiDosen = [];
-                $nilaiLaporan = 0;
-                $nilaiTugasAkhir = $autoTaScore;
-
-                $calculated = PenilaianAkhir::calculateGrades(
-                    $pendaftaran,
-                    $nilaiDosen,
-                    $nilaiLaporan,
-                    $nilaiTugasAkhir,
-                    false,
-                    null,
-                    $schedules
-                );
-
-                $grades[] = [
-                    'pendaftaran' => $pendaftaran,
-                    'grades' => $calculated,
-                    'is_db' => false,
-                    'prak_scores' => $prakScores,
-                    'ast_scores' => $astScores,
-                ];
-            }
+            $grades[] = [
+                'pendaftaran' => $pendaftaran,
+                'grades' => $syncResult['data'],
+                'is_db' => $syncResult['is_db'],
+                'prak_scores' => $prakScores,
+                'ast_scores' => $astScores,
+            ];
         }
 
         // Sort by user name alphabetically
         usort($grades, function ($a, $b) {
             $nameA = $a['pendaftaran']->praktikan->user->name ?? '';
             $nameB = $b['pendaftaran']->praktikan->user->name ?? '';
+
             return strcasecmp($nameA, $nameB);
         });
 
@@ -229,7 +197,7 @@ class PenilaianAkhirController extends Controller
 
         $this->logActivity(
             'Import Penilaian Akhir',
-            'Admin mengimport nilai akhir praktikum: ' . $praktikum->nama_praktikum,
+            'Admin mengimport nilai akhir praktikum: '.$praktikum->nama_praktikum,
             ['praktikum_id' => $praktikum_id]
         );
 
@@ -245,7 +213,7 @@ class PenilaianAkhirController extends Controller
 
         return Excel::download(
             new PenilaianAkhirTemplate($praktikum),
-            'template-penilaian-akhir-' . $praktikum->kode_praktikum . '.xlsx'
+            'template-penilaian-akhir-'.$praktikum->kode_praktikum.'.xlsx'
         );
     }
 
@@ -267,11 +235,11 @@ class PenilaianAkhirController extends Controller
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
                 $q->whereHas('praktikan', function ($pq) use ($search) {
-                    $pq->where('npm', 'like', '%' . $search . '%')
-                      ->orWhereHas('user', function ($u) use ($search) {
-                          $u->where('name', 'like', '%' . $search . '%');
-                      });
-                })->orWhere('dosen_pengampu', 'like', '%' . $search . '%');
+                    $pq->where('npm', 'like', '%'.$search.'%')
+                        ->orWhereHas('user', function ($u) use ($search) {
+                            $u->where('name', 'like', '%'.$search.'%');
+                        });
+                })->orWhere('dosen_pengampu', 'like', '%'.$search.'%');
             });
         }
 
@@ -298,65 +266,39 @@ class PenilaianAkhirController extends Controller
         $grades = [];
         foreach ($pendaftarans as $pendaftaran) {
             $taPres = $pendaftaran->presensis->first(function ($p) {
-                if (!$p->jadwal) return false;
+                if (! $p->jadwal) {
+                    return false;
+                }
                 $jTitle = strtolower($p->jadwal->judul_modul);
+
                 return str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir');
             });
             $autoTaScore = ($taPres && $taPres->penilaian) ? $taPres->penilaian->nilai : 0;
 
-            if ($pendaftaran->penilaianAkhir) {
-                $gData = $pendaftaran->penilaianAkhir->toArray();
-                if ((empty($gData['nilai_tugas_akhir']) || $gData['nilai_tugas_akhir'] == 0) && $autoTaScore > 0) {
-                    $gData['nilai_tugas_akhir'] = $autoTaScore;
-                    $recalculated = PenilaianAkhir::calculateGrades(
-                        $pendaftaran,
-                        $gData['nilai_dosen'] ?? [],
-                        $gData['nilai_laporan'] ?? 0,
-                        $autoTaScore,
-                        $gData['is_gugur'] ?? false,
-                        $gData['alasan_gugur'] ?? null
-                    );
-                    $gData = array_merge($gData, $recalculated);
-                }
-                $grades[] = [
-                    'pendaftaran' => $pendaftaran,
-                    'grades' => $gData,
-                ];
-            } else {
-                $nilaiDosen = [];
-                $nilaiLaporan = 0;
-                $nilaiTugasAkhir = $autoTaScore;
+            $syncResult = PenilaianAkhir::syncRegistration($pendaftaran);
 
-                $calculated = PenilaianAkhir::calculateGrades(
-                    $pendaftaran,
-                    $nilaiDosen,
-                    $nilaiLaporan,
-                    $nilaiTugasAkhir,
-                    false
-                );
-
-                $grades[] = [
-                    'pendaftaran' => $pendaftaran,
-                    'grades' => $calculated,
-                ];
-            }
+            $grades[] = [
+                'pendaftaran' => $pendaftaran,
+                'grades' => $syncResult['data'],
+            ];
         }
 
         usort($grades, function ($a, $b) {
             $nameA = $a['pendaftaran']->praktikan->user->name ?? '';
             $nameB = $b['pendaftaran']->praktikan->user->name ?? '';
+
             return strcasecmp($nameA, $nameB);
         });
 
         $this->logActivity(
             'Export Penilaian Akhir',
-            'Admin mengexport matriks penilaian akhir praktikum: ' . $praktikum->nama_praktikum,
+            'Admin mengexport matriks penilaian akhir praktikum: '.$praktikum->nama_praktikum,
             ['praktikum_id' => $praktikum_id]
         );
 
         return Excel::download(
             new PenilaianAkhirExport($praktikum, $grades),
-            'matriks-penilaian-akhir-' . $praktikum->kode_praktikum . '.xlsx'
+            'matriks-penilaian-akhir-'.$praktikum->kode_praktikum.'.xlsx'
         );
     }
 
@@ -391,17 +333,17 @@ class PenilaianAkhirController extends Controller
         $nilaiDosenInput = $request->input('nilai_dosen', []);
         $nilaiLaporan = $request->input('nilai_laporan', 0);
         $nilaiTugasAkhir = $request->input('nilai_tugas_akhir', 0);
-        $isGugur = (bool)$request->input('is_gugur', false);
+        $isGugur = (bool) $request->input('is_gugur', false);
         $alasanGugur = $request->input('alasan_gugur');
 
         $nilaiDosen = [];
         for ($i = 1; $i <= $praktikum->jumlah_modul; $i++) {
             if (isset($nilaiDosenInput[$i])) {
-                $nilaiDosen[$i] = (int)$nilaiDosenInput[$i];
-            } elseif (isset($nilaiDosenInput[(string)$i])) {
-                $nilaiDosen[$i] = (int)$nilaiDosenInput[(string)$i];
-            } elseif (isset($nilaiDosenInput['Modul ' . $i])) {
-                $nilaiDosen[$i] = (int)$nilaiDosenInput['Modul ' . $i];
+                $nilaiDosen[$i] = (int) $nilaiDosenInput[$i];
+            } elseif (isset($nilaiDosenInput[(string) $i])) {
+                $nilaiDosen[$i] = (int) $nilaiDosenInput[(string) $i];
+            } elseif (isset($nilaiDosenInput['Modul '.$i])) {
+                $nilaiDosen[$i] = (int) $nilaiDosenInput['Modul '.$i];
             } else {
                 $nilaiDosen[$i] = 0;
             }
@@ -411,18 +353,21 @@ class PenilaianAkhirController extends Controller
 
         // 1. Update Presensi & PenilaianPraktikum (Nilai Prak)
         foreach ($nilaiPraktikum as $modulIndex => $val) {
-            $modulNum = (int)$modulIndex;
-            if ($modulNum < 1 || $modulNum > $praktikum->jumlah_modul) continue;
+            $modulNum = (int) $modulIndex;
+            if ($modulNum < 1 || $modulNum > $praktikum->jumlah_modul) {
+                continue;
+            }
 
-            $targetTitle = "Modul " . $modulNum;
+            $targetTitle = 'Modul '.$modulNum;
             $sched = $schedules->first(function ($s) use ($targetTitle, $modulNum, $pendaftaran) {
-                $match = strcasecmp($s->judul_modul, $targetTitle) === 0 || str_contains(strtolower($s->judul_modul), "modul " . $modulNum);
+                $match = strcasecmp($s->judul_modul, $targetTitle) === 0 || str_contains(strtolower($s->judul_modul), 'modul '.$modulNum);
                 if ($pendaftaran->sesi_id) {
                     return $match && $s->sesi_id == $pendaftaran->sesi_id;
                 }
+
                 return $match;
             }) ?? $schedules->first(function ($s) use ($targetTitle, $modulNum) {
-                return strcasecmp($s->judul_modul, $targetTitle) === 0 || str_contains(strtolower($s->judul_modul), "modul " . $modulNum);
+                return strcasecmp($s->judul_modul, $targetTitle) === 0 || str_contains(strtolower($s->judul_modul), 'modul '.$modulNum);
             });
 
             if ($sched) {
@@ -440,7 +385,7 @@ class PenilaianAkhirController extends Controller
                     ['presensi_id' => $presensi->id],
                     [
                         'aslab_id' => $aslabId,
-                        'nilai' => (int)$val,
+                        'nilai' => (int) $val,
                     ]
                 );
             }
@@ -448,14 +393,16 @@ class PenilaianAkhirController extends Controller
 
         // 2. Update TugasAsistensi (Nilai Ast)
         foreach ($nilaiAsistensi as $modulIndex => $val) {
-            $modulNum = (int)$modulIndex;
-            if ($modulNum < 1 || $modulNum > $praktikum->jumlah_modul) continue;
+            $modulNum = (int) $modulIndex;
+            if ($modulNum < 1 || $modulNum > $praktikum->jumlah_modul) {
+                continue;
+            }
 
-            $targetTitle = "Modul " . $modulNum;
+            $targetTitle = 'Modul '.$modulNum;
 
             // Check if student already has a tugas_asistensi matching "Modul X"
             $existingTugas = $pendaftaran->tugasAsistensis->first(function ($t) use ($targetTitle, $modulNum) {
-                return strcasecmp($t->judul, $targetTitle) === 0 || str_contains(strtolower($t->judul), "modul " . $modulNum);
+                return strcasecmp($t->judul, $targetTitle) === 0 || str_contains(strtolower($t->judul), 'modul '.$modulNum);
             });
 
             $judulModul = $existingTugas ? $existingTugas->judul : $targetTitle;
@@ -467,7 +414,7 @@ class PenilaianAkhirController extends Controller
                 ],
                 [
                     'aslab_id' => $aslabId,
-                    'nilai' => (int)$val,
+                    'nilai' => (int) $val,
                     'status' => 'reviewed',
                 ]
             );
@@ -476,6 +423,7 @@ class PenilaianAkhirController extends Controller
         // 3. Sync Tugas Akhir to Presensi & PenilaianPraktikum if a TA schedule exists
         $taSched = $schedules->first(function ($s) {
             $jTitle = strtolower($s->judul_modul);
+
             return str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir');
         });
         if ($taSched && $nilaiTugasAkhir !== null) {
@@ -493,7 +441,7 @@ class PenilaianAkhirController extends Controller
                 ['presensi_id' => $presensiTA->id],
                 [
                     'aslab_id' => $aslabId,
-                    'nilai' => (int)$nilaiTugasAkhir,
+                    'nilai' => (int) $nilaiTugasAkhir,
                 ]
             );
         }
@@ -519,7 +467,7 @@ class PenilaianAkhirController extends Controller
 
         $this->logActivity(
             'Update Penilaian Akhir',
-            'Admin memperbarui nilai akhir praktikan: ' . ($pendaftaran->praktikan->user->name ?? ''),
+            'Admin memperbarui nilai akhir praktikan: '.($pendaftaran->praktikan->user->name ?? ''),
             ['penilaian_akhir_id' => $penilaianAkhir->id]
         );
 
@@ -537,7 +485,7 @@ class PenilaianAkhirController extends Controller
 
         $this->logActivity(
             'Delete/Reset Penilaian Akhir',
-            'Admin menghapus/reset override nilai akhir praktikan: ' . ($pendaftaran->praktikan->user->name ?? ''),
+            'Admin menghapus/reset override nilai akhir praktikan: '.($pendaftaran->praktikan->user->name ?? ''),
             ['pendaftaran_id' => $pendaftaran_id]
         );
 

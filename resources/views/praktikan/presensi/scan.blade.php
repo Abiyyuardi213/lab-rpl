@@ -103,9 +103,15 @@
         
         let html5QrCode = new Html5Qrcode("reader");
 
+        let isProcessing = false;
         const onScanSuccess = (decodedText) => {
+            if (isProcessing) return;
+            isProcessing = true;
+
             // Decoded text expected to be the URL: http://.../praktikan/presensi/scan-jadwal/{token}
-            html5QrCode.stop();
+            try {
+                html5QrCode.stop();
+            } catch (e) {}
             loadingModal.classList.remove('hidden');
             
             // Redirect to the scanned URL

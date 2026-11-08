@@ -120,11 +120,14 @@ Route::middleware('auth')->group(function () {
         Route::post('praktikum/{praktikum_id}/jadwal', [\App\Http\Controllers\PraktikumController::class, 'storeJadwal'])->name('praktikum.jadwal.store');
         Route::delete('praktikum/jadwal/{id}', [\App\Http\Controllers\PraktikumController::class, 'destroyJadwal'])->name('praktikum.jadwal.destroy');
         Route::resource('jadwal-praktikum', \App\Http\Controllers\JadwalPraktikumController::class)->except(['create', 'edit', 'show']);
+        Route::post('jadwal-praktikum/{id}/peserta-susulan', [\App\Http\Controllers\JadwalPraktikumController::class, 'storePesertaSusulan'])->name('jadwal-praktikum.peserta-susulan.store');
+        Route::delete('jadwal-praktikum/{id}/peserta-susulan/{peserta_id}', [\App\Http\Controllers\JadwalPraktikumController::class, 'destroyPesertaSusulan'])->name('jadwal-praktikum.peserta-susulan.destroy');
 
         // Pendaftaran Management (Admin)
         Route::get('/pendaftaran', [\App\Http\Controllers\Admin\PendaftaranController::class, 'index'])->name('pendaftaran.index');
         Route::get('/pendaftaran/{id}', [\App\Http\Controllers\Admin\PendaftaranController::class, 'show'])->name('pendaftaran.show');
         Route::patch('/pendaftaran/{id}/status', [\App\Http\Controllers\Admin\PendaftaranController::class, 'updateStatus'])->name('pendaftaran.update-status');
+        Route::patch('/pendaftaran/{id}/reactivate', [\App\Http\Controllers\Admin\PendaftaranController::class, 'reactivate'])->name('pendaftaran.reactivate');
         Route::delete('/pendaftaran/{id}', [\App\Http\Controllers\Admin\PendaftaranController::class, 'destroy'])->name('pendaftaran.destroy');
 
         // Profile Management (Admin)

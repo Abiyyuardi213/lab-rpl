@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Presensi extends Model
 {
@@ -16,9 +15,15 @@ class Presensi extends Model
         'pendaftaran_id',
         'jam_masuk',
         'status',
+        'is_susulan',
+    ];
+
+    protected $casts = [
+        'is_susulan' => 'boolean',
     ];
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     public function jadwal()

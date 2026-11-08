@@ -26,6 +26,62 @@
             </div>
         </div>
 
+        @if(isset($gugurPendaftarans) && $gugurPendaftarans->isNotEmpty())
+            <div class="space-y-3">
+                @foreach($gugurPendaftarans as $gp)
+                    <div class="p-5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                <i class="fas fa-user-slash text-base"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-base text-rose-950 uppercase tracking-tight">Status Diskualifikasi: GUGUR</h3>
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-rose-600 text-white">2x Alfa Berturut-turut</span>
+                                </div>
+                                <p class="text-xs text-rose-700 mt-1 leading-relaxed">
+                                    Anda dinyatakan <strong>GUGUR</strong> pada mata praktikum <strong>{{ $gp->praktikum->nama_praktikum }}</strong> karena tidak menghadiri 2 pertemuan berturut-turut. Seluruh akses kegiatan modul praktikum ini telah dinonaktifkan. Anda dapat mendaftar ulang pada periode semester berikutnya.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+        @if(isset($susulanSchedules) && $susulanSchedules->isNotEmpty())
+            <div class="space-y-3">
+                @foreach($susulanSchedules as $js)
+                    <div class="p-5 rounded-2xl bg-purple-50 border border-purple-200 text-purple-900 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-purple-700 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                <i class="fas fa-calendar-check text-base"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h3 class="font-bold text-base text-purple-950 uppercase tracking-tight">{{ $js->judul_modul }}</h3>
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-purple-200 text-purple-800 border border-purple-300">Jadwal Susulan</span>
+                                </div>
+                                <p class="text-xs text-purple-700 mt-1">
+                                    {{ $js->praktikum->nama_praktikum }} • 
+                                    <strong>{{ \Carbon\Carbon::parse($js->tanggal)->translatedFormat('l, d F Y') }}</strong> • 
+                                    {{ substr($js->waktu_mulai, 0, 5) }} - {{ substr($js->waktu_selesai, 0, 5) }} WIB • 
+                                    Ruang: {{ $js->ruangan ?? 'Lab Komputer' }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="shrink-0">
+                            <a href="{{ route('praktikan.presensi.scan-view') }}" 
+                               class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-700 text-white text-xs font-bold shadow hover:bg-purple-800 transition-colors">
+                                <i class="fas fa-qrcode"></i>
+                                <span>Scan QR Susulan</span>
+                            </a>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
         @if($isFirstTimer)
             @if(!$hasPendaftaran)
                 <!-- Phase 1: Onboarding Banner (Belum Daftar) -->
@@ -424,8 +480,8 @@
                                 $studentSesi = $studentPendaftaran ? $studentPendaftaran->sesi : null;
                                 $bypassWaktu = app()->environment('local') && filter_var(env('PENUGASAN_BYPASS_WAKTU', false), FILTER_VALIDATE_BOOLEAN);
 
-                                $waktuMulai = (!$bypassWaktu && $studentSesi) ? $studentSesi->jam_mulai : $jadwal->waktu_mulai;
-                                $waktuSelesai = (!$bypassWaktu && $studentSesi) ? $studentSesi->jam_selesai : $jadwal->waktu_selesai;
+                                $waktuMulai = $jadwal->waktu_mulai ?: ($studentSesi ? $studentSesi->jam_mulai : '00:00:00');
+                                $waktuSelesai = $jadwal->waktu_selesai ?: ($studentSesi ? $studentSesi->jam_selesai : '23:59:59');
 
                                 $start = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $waktuMulai);
                                 $end = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $waktuSelesai);
@@ -513,7 +569,7 @@
                                         <div class="w-6 h-6 rounded bg-slate-50 flex items-center justify-center text-slate-400">
                                             <i class="fas fa-location-dot"></i>
                                         </div>
-                                        <span class="font-medium text-slate-700">{{ $jadwal->ruangan ?? 'Lab. Komputer' }}</span>
+                                        <span class="font-medium text-slate-700">{{ $jadwal->ruangan ?? ($studentSesi?->ruangan ?? 'Lab. Komputer') }}</span>
                                     </div>
                                 </div>
 
