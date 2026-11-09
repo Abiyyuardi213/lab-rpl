@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class SesiPraktikum extends Model
 {
@@ -21,6 +20,7 @@ class SesiPraktikum extends Model
     ];
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     public function praktikum()
@@ -41,5 +41,10 @@ class SesiPraktikum extends Model
     public function jadwalPraktikums()
     {
         return $this->hasMany(JadwalPraktikum::class, 'sesi_id');
+    }
+
+    public function getRuanganAttribute()
+    {
+        return $this->jadwalPraktikums->pluck('ruangan')->filter()->unique()->implode(', ') ?: null;
     }
 }

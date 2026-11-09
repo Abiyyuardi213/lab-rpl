@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Praktikan;
 
 use App\Http\Controllers\Controller;
-use App\Models\Praktikum;
 use App\Models\PendaftaranPraktikum;
+use App\Models\Praktikum;
 use App\Models\SesiPraktikum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,12 +16,12 @@ class PendaftaranController extends Controller
     {
         $praktikan = Auth::user()->praktikan;
 
-        if (!$praktikan) {
+        if (! $praktikan) {
             return redirect()->route('praktikan.dashboard')
                 ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
         }
 
-        $pendaftarans = PendaftaranPraktikum::with(['praktikum', 'sesi', 'penilaianAkhir'])
+        $pendaftarans = PendaftaranPraktikum::with(['praktikum', 'sesi.jadwalPraktikums', 'penilaianAkhir'])
             ->where('praktikan_id', $praktikan->id)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -48,18 +48,18 @@ class PendaftaranController extends Controller
             ->setOption('isRemoteEnabled', true)
             ->setOption('isHtml5ParserEnabled', true);
 
-        $fileName = 'Sertifikat_' . \Illuminate\Support\Str::slug($pendaftaran->praktikum->nama_praktikum) . '_' . $pendaftaran->praktikan->npm . '.pdf';
+        $fileName = 'Sertifikat_'.\Illuminate\Support\Str::slug($pendaftaran->praktikum->nama_praktikum).'_'.$pendaftaran->praktikan->npm.'.pdf';
 
         return $pdf->download($fileName);
     }
 
     public function create($praktikum_id)
     {
-        $praktikum = Praktikum::with('sesis')->findOrFail($praktikum_id);
+        $praktikum = Praktikum::with(['sesis.jadwalPraktikums'])->findOrFail($praktikum_id);
 
         $praktikan = Auth::user()->praktikan;
 
-        if (!$praktikan) {
+        if (! $praktikan) {
             return redirect()->route('praktikan.dashboard')
                 ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
         }
@@ -100,7 +100,7 @@ class PendaftaranController extends Controller
         // Pastikan tidak ada pendaftaran ganda yang aktif (pending atau verified)
         $praktikan = Auth::user()->praktikan;
 
-        if (!$praktikan) {
+        if (! $praktikan) {
             return redirect()->route('praktikan.dashboard')
                 ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
         }
@@ -170,7 +170,7 @@ class PendaftaranController extends Controller
     {
         $praktikan = Auth::user()->praktikan;
 
-        if (!$praktikan) {
+        if (! $praktikan) {
             return redirect()->route('praktikan.dashboard')
                 ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
         }
@@ -189,7 +189,7 @@ class PendaftaranController extends Controller
     {
         $praktikan = Auth::user()->praktikan;
 
-        if (!$praktikan) {
+        if (! $praktikan) {
             return redirect()->route('praktikan.dashboard')
                 ->with('error', 'Profil praktikan tidak ditemukan. Hubungi admin.');
         }
@@ -212,8 +212,8 @@ class PendaftaranController extends Controller
         }
 
         // Cek deadline (untuk yang belum reviewed pun)
-        if (!$isReviewed && $tugas->due_date && now()->greaterThan($tugas->due_date->endOfDay())) {
-            return back()->with('error', 'Gagal mengunggah. Batas waktu pengumpulan tugas (' . $tugas->due_date->format('d M Y') . ') telah berakhir.');
+        if (! $isReviewed && $tugas->due_date && now()->greaterThan($tugas->due_date->endOfDay())) {
+            return back()->with('error', 'Gagal mengunggah. Batas waktu pengumpulan tugas ('.$tugas->due_date->format('d M Y').') telah berakhir.');
         }
 
         $request->validate([
@@ -222,7 +222,7 @@ class PendaftaranController extends Controller
 
         if ($request->hasFile('file_mahasiswa')) {
             if ($tugas->file_mahasiswa) {
-                Storage::delete('public/' . $tugas->file_mahasiswa);
+                Storage::delete('public/'.$tugas->file_mahasiswa);
             }
             $tugas->file_mahasiswa = $request->file('file_mahasiswa')->store('tugas/mahasiswa', 'public');
             $tugas->status = 'submitted';
@@ -243,7 +243,7 @@ class PendaftaranController extends Controller
     {
         $praktikan = Auth::user()->praktikan;
 
-        if (!$praktikan) {
+        if (! $praktikan) {
             return redirect()->route('praktikan.dashboard')->with('error', 'Profil praktikan tidak ditemukan.');
         }
 

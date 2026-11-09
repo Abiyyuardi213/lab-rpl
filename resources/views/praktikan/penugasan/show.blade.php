@@ -11,7 +11,14 @@
                     <i class="fas fa-arrow-left text-[8px] group-hover:-translate-x-1 transition-transform"></i> Kembali ke Daftar Soal
                 </a>
                 <h1 class="text-2xl font-bold tracking-tight text-zinc-900 uppercase">{{ $penugasan->judul }}</h1>
-                <p class="text-sm text-zinc-500 mt-1 italic">{{ $penugasan->praktikum->nama_praktikum }} - {{ $penugasan->sesi->nama_sesi }}</p>
+                <p class="text-sm text-zinc-500 mt-1 italic">
+                    {{ $penugasan->praktikum->nama_praktikum }} - {{ $penugasan->sesi->nama_sesi }}
+                    @if($penugasan->tipe_distribusi === 'by_random')
+                        <span class="inline-flex items-center ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 uppercase tracking-widest not-italic">
+                            Paket Acak Terkunci
+                        </span>
+                    @endif
+                </p>
             </div>
             <div class="flex items-center gap-2 text-xs font-medium text-zinc-500 pt-6">
                 <a href="{{ route('praktikan.dashboard') }}" class="hover:text-zinc-900 transition-colors">Home</a>

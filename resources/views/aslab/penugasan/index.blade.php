@@ -67,9 +67,19 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-900 font-black text-xs border border-zinc-200">
-                                        {{ $p->kode_akhir_npm }}
-                                    </span>
+                                    @if ($p->tipe_distribusi === 'by_sesi' || $p->kode_akhir_npm === '*')
+                                        <span class="inline-flex items-center justify-center px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 font-black text-[9px] border border-emerald-200 uppercase tracking-wider">
+                                            By Sesi
+                                        </span>
+                                    @elseif ($p->tipe_distribusi === 'by_random' || $p->kode_akhir_npm === 'random')
+                                        <span class="inline-flex items-center justify-center px-2 py-1 rounded-full bg-purple-50 text-purple-700 font-black text-[9px] border border-purple-200 uppercase tracking-wider">
+                                            By Random
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-900 font-black text-xs border border-zinc-200">
+                                            {{ $p->kode_akhir_npm }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
@@ -103,6 +113,7 @@
                                         @if ($p->aslab_id === Auth::user()->aslab->id)
                                             <button onclick="openEditModal(this)"
                                                 data-id="{{ $p->id }}"
+                                                data-tipe-distribusi="{{ $p->tipe_distribusi }}"
                                                 data-kode-npm="{{ $p->kode_akhir_npm }}"
                                                 data-judul="{{ $p->judul }}"
                                                 data-deskripsi="{{ $p->deskripsi }}"
@@ -170,8 +181,17 @@
                     </select>
                 </div>
                 <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Metode Distribusi</label>
+                    <select name="tipe_distribusi" id="aslab_tipe_distribusi" required onchange="toggleDistribusiMode(this.value, 'aslab_kode_npm_container', 'aslab_kode_npm_input')"
+                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                        <option value="by_npm">By NPM (Digit NPM 0-9)</option>
+                        <option value="by_sesi">By Sesi (Seragam untuk Seluruh Mahasiswa Sesi)</option>
+                        <option value="by_random">By Random Pool (Acak Terkunci)</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5" id="aslab_kode_npm_container">
                     <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode NPM</label>
-                    <select name="kode_akhir_npm" required
+                    <select name="kode_akhir_npm" id="aslab_kode_npm_input" required
                         class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
                         @foreach ($digitNpms as $digitNpm)
                             <option value="{{ $digitNpm->digit }}">{{ $digitNpm->label }} (Kode: {{ $digitNpm->digit }})</option>
@@ -227,6 +247,15 @@
                 @csrf
                 @method('PUT')
                 <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Metode Distribusi</label>
+                    <select name="tipe_distribusi" id="edit-tipe-distribusi" required onchange="toggleDistribusiMode(this.value, 'edit_kode_npm_container', 'edit-kode-npm')"
+                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 outline-none">
+                        <option value="by_npm">By NPM (Digit NPM 0-9)</option>
+                        <option value="by_sesi">By Sesi (Seragam untuk Seluruh Mahasiswa Sesi)</option>
+                        <option value="by_random">By Random Pool (Acak Terkunci)</option>
+                    </select>
+                </div>
+                <div class="space-y-1.5" id="edit_kode_npm_container">
                     <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode NPM</label>
                     <select name="kode_akhir_npm" id="edit-kode-npm" required
                         class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 outline-none">
@@ -346,14 +375,30 @@
             }
         });
 
+        function toggleDistribusiMode(val, containerId, inputId) {
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            if (!container) return;
+            if (val === 'by_sesi' || val === 'by_random') {
+                container.classList.add('hidden');
+                if (input) input.removeAttribute('required');
+            } else {
+                container.classList.remove('hidden');
+                if (input) input.setAttribute('required', 'required');
+            }
+        }
+
         function openEditModal(button) {
             const id = button.getAttribute('data-id');
             const kodeNpm = button.getAttribute('data-kode-npm');
+            const tipeDistribusi = button.getAttribute('data-tipe-distribusi') || (kodeNpm === '*' ? 'by_sesi' : (kodeNpm === 'random' ? 'by_random' : 'by_npm'));
             const judul = button.getAttribute('data-judul');
             const deskripsi = button.getAttribute('data-deskripsi');
 
             const form = document.getElementById('form-edit-penugasan');
             form.action = `/aslab/penugasan/${id}`;
+            document.getElementById('edit-tipe-distribusi').value = tipeDistribusi;
+            toggleDistribusiMode(tipeDistribusi, 'edit_kode_npm_container', 'edit-kode-npm');
             document.getElementById('edit-kode-npm').value = kodeNpm;
             document.getElementById('edit-judul').value = judul;
             document.getElementById('edit-deskripsi').value = deskripsi;

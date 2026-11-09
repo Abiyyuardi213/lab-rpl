@@ -207,9 +207,19 @@
                             <tr class="hover:bg-zinc-50/50 transition-colors">
                                 <td class="px-6 py-4 text-center text-zinc-500 font-medium">{{ $index + 1 }}</td>
                                 <td class="px-6 py-4">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-900 font-black text-xs border border-zinc-200">
-                                        {{ $p->kode_akhir_npm }}
-                                    </span>
+                                    @if ($p->tipe_distribusi === 'by_sesi' || $p->kode_akhir_npm === '*')
+                                        <span class="inline-flex items-center justify-center px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 font-black text-[9px] border border-emerald-200 uppercase tracking-wider">
+                                            By Sesi
+                                        </span>
+                                    @elseif ($p->tipe_distribusi === 'by_random' || $p->kode_akhir_npm === 'random')
+                                        <span class="inline-flex items-center justify-center px-2 py-1 rounded-full bg-purple-50 text-purple-700 font-black text-[9px] border border-purple-200 uppercase tracking-wider">
+                                            By Random
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-900 font-black text-xs border border-zinc-200">
+                                            {{ $p->kode_akhir_npm }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col max-w-xs">
@@ -230,6 +240,7 @@
                                             data-praktikum-id="{{ $p->praktikum_id }}"
                                             data-sesi-id="{{ $p->sesi_id }}"
                                             data-jadwal-id="{{ $p->jadwal_praktikum_id }}"
+                                            data-tipe-distribusi="{{ $p->tipe_distribusi }}"
                                             data-kode-npm="{{ $p->kode_akhir_npm }}"
                                             data-judul="{{ $p->judul }}"
                                             data-deskripsi="{{ $p->deskripsi }}"
@@ -271,21 +282,8 @@
                 </button>
             </div>
 
-            <!-- Tabs Modal -->
-            <div class="flex border-b border-zinc-100 bg-zinc-50/30 shrink-0">
-                <button type="button" onclick="switchPenugasanTab('single')" id="penugasan-tab-single" 
-                    class="flex-1 px-4 py-3 text-[10px] font-bold uppercase tracking-widest border-b-2 border-[#001f3f] text-[#001f3f] transition-all">
-                    Input Tunggal
-                </button>
-                <button type="button" onclick="switchPenugasanTab('batch')" id="penugasan-tab-batch" 
-                    class="flex-1 px-4 py-3 text-[10px] font-bold uppercase tracking-widest border-b-2 border-transparent text-zinc-400 hover:text-zinc-600 transition-all">
-                    Batch Upload (0-9 NPM)
-                </button>
-            </div>
-
-            <!-- Form Single -->
-            <div id="penugasan-form-single">
-                <form action="{{ route('admin.penugasan.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar overscroll-contain" style="max-height: calc(90vh - 120px);">
+            <!-- Form Penugasan Dinamis -->
+            <form id="form-tambah-penugasan" action="{{ route('admin.penugasan.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar overscroll-contain" style="max-height: calc(90vh - 80px);">
                 @csrf
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1.5">
@@ -317,8 +315,33 @@
                 </div>
 
                 <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Metode Distribusi</label>
+                    <select name="tipe_distribusi" id="tipe_distribusi" required onchange="toggleDistribusiMode(this.value, 'single_kode_npm_container', 'single_kode_npm_input')"
+                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
+                        <option value="by_npm">By NPM (Digit NPM 0-9)</option>
+                        <option value="by_sesi">By Sesi (Seragam untuk Seluruh Mahasiswa Sesi)</option>
+                        <option value="by_random">By Random Pool (Acak Terkunci)</option>
+                    </select>
+                </div>
+
+                <!-- Opsi Mode NPM: Muncul hanya saat By NPM dipilih -->
+                <div id="npm_mode_container" class="space-y-2 p-3 rounded-xl border border-zinc-200 bg-zinc-50/50">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Opsi Upload Soal NPM</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center gap-2 p-2.5 rounded-lg border border-zinc-200 bg-white cursor-pointer hover:border-[#001f3f] transition-all has-[:checked]:border-[#001f3f] has-[:checked]:bg-[#001f3f]/5">
+                            <input type="radio" name="npm_upload_mode" value="single" checked onchange="toggleNpmUploadMode('single')" class="text-[#001f3f] focus:ring-[#001f3f]">
+                            <span class="text-xs font-semibold text-zinc-700">Satu Digit NPM</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2.5 rounded-lg border border-zinc-200 bg-white cursor-pointer hover:border-[#001f3f] transition-all has-[:checked]:border-[#001f3f] has-[:checked]:bg-[#001f3f]/5">
+                            <input type="radio" name="npm_upload_mode" value="batch" onchange="toggleNpmUploadMode('batch')" class="text-[#001f3f] focus:ring-[#001f3f]">
+                            <span class="text-xs font-semibold text-zinc-700">Batch Upload (0 - 9)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5" id="single_kode_npm_container">
                     <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode NPM</label>
-                    <select name="kode_akhir_npm" required
+                    <select name="kode_akhir_npm" id="single_kode_npm_input" required
                         class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
                         @foreach ($digitNpms as $digitNpm)
                             <option value="{{ $digitNpm->digit }}">{{ $digitNpm->label }} (Kode: {{ $digitNpm->digit }})</option>
@@ -338,109 +361,51 @@
                         class="flex w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"></textarea>
                 </div>
 
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">File Soal (Opsional)</label>
+                <!-- Input File Tunggal (Single) / Multi-file (By Random) -->
+                <div class="space-y-1.5" id="single_file_container">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1" id="single_file_label">File Soal (Opsional)</label>
                     <div class="relative group border-2 border-dashed border-zinc-200 rounded-xl p-5 transition-all hover:border-[#001f3f] hover:bg-zinc-50/50 flex flex-col items-center justify-center gap-3 cursor-pointer bg-zinc-50/50">
-                        <input type="file" name="file_soal" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
+                        <input type="file" name="file_soal" id="single_file_input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20" onchange="handleFileSelect(this)">
                         <i class="fas fa-file-upload text-xl text-zinc-400"></i>
-                        <p class="text-[10px] text-zinc-400">Seret & Lepas atau Klik untuk pilih file</p>
+                        <p class="text-[10px] text-zinc-400 text-center" id="single_file_help">Seret & Lepas atau Klik untuk pilih file</p>
+                        <div id="file_preview_list" class="hidden w-full text-center text-xs font-semibold text-zinc-700"></div>
                     </div>
                 </div>
 
-                <div class="pt-4 flex items-center justify-end gap-3">
+                <!-- Batch Files Upload (0 - 9) -->
+                <div id="batch_files_container" class="hidden space-y-4 border-t border-zinc-100 pt-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Upload File per Digit NPM (0-9)</h4>
+                        <span class="text-[10px] text-amber-600 font-medium">Hanya baris dengan file yang akan diproses</span>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3">
+                        @foreach($digitNpms as $digit)
+                            <div class="flex items-center gap-4 p-3 rounded-xl border border-zinc-100 bg-zinc-50/30 hover:bg-zinc-50 transition-colors">
+                                <div class="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center shrink-0 shadow-sm">
+                                    <span class="font-black text-zinc-900 text-sm">{{ $digit->digit }}</span>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-[10px] font-bold text-zinc-500 uppercase mb-1">{{ $digit->label }}</p>
+                                    <input type="hidden" name="assignments[{{ $loop->index }}][kode_akhir_npm]" value="{{ $digit->digit }}" class="batch-assignment-input" disabled>
+                                    <input type="file" name="assignments[{{ $loop->index }}][file_soal]" 
+                                        class="batch-assignment-input block w-full text-[10px] text-zinc-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 transition-all cursor-pointer" disabled>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-end gap-3 sticky bottom-0 bg-white pb-2">
                     <button type="button" onclick="document.getElementById('modal-penugasan').classList.add('hidden')"
                         class="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-600 transition-all hover:bg-zinc-50">
                         BATAL
                     </button>
-                    <button type="submit"
+                    <button type="submit" id="btn-submit-penugasan"
                         class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-6 text-xs font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a]">
                         SIMPAN SOAL
                     </button>
                 </div>
-                </form>
-            </div>
-
-            <!-- Form Batch -->
-            <div id="penugasan-form-batch" class="hidden flex-1 overflow-hidden flex flex-col">
-                <form action="{{ route('admin.penugasan.bulk-store') }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar overscroll-contain">
-                    @csrf
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Praktikum</label>
-                            <select name="praktikum_id" id="batch_praktikum_id" required onchange="filterSessions(this.value, 'batch_sesi_id', 'batch_jadwal_praktikum_id')"
-                                class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
-                                <option value="">Pilih Praktikum</option>
-                                @foreach ($praktikums as $p)
-                                    <option value="{{ $p->id }}">{{ $p->nama_praktikum }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Sesi</label>
-                            <select name="sesi_id" id="batch_sesi_id" required onchange="filterJadwals(this.value, 'batch_jadwal_praktikum_id')"
-                                class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
-                                <option value="">Pilih Sesi</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Jadwal Praktikum (Opsional)</label>
-                        <select name="jadwal_praktikum_id" id="batch_jadwal_praktikum_id"
-                            class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
-                            <option value="">Umum (Tanpa Jadwal)</option>
-                        </select>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-1 gap-4">
-                            <div class="space-y-1.5">
-                                <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Judul Soal (Berlaku untuk semua)</label>
-                                <input type="text" name="judul_umum" required placeholder="Contoh: Soal Praktikum 1"
-                                    class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none">
-                            </div>
-                            <div class="space-y-1.5">
-                                <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Instruksi (Berlaku untuk semua)</label>
-                                <textarea name="deskripsi_umum" rows="2" required placeholder="Tuliskan instruksi di sini..."
-                                    class="flex w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-2 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-[#001f3f]/10 focus:border-[#001f3f] outline-none"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="border-t border-zinc-100 pt-4">
-                            <div class="flex items-center justify-between mb-4">
-                                <h4 class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Upload File per Digit NPM</h4>
-                                <span class="text-[10px] text-amber-600 font-medium">Hanya baris dengan file yang akan diproses</span>
-                            </div>
-                            <div class="grid grid-cols-1 gap-3">
-                                @foreach($digitNpms as $digit)
-                                    <div class="flex items-center gap-4 p-3 rounded-xl border border-zinc-100 bg-zinc-50/30 hover:bg-zinc-50 transition-colors">
-                                        <div class="w-10 h-10 rounded-full bg-white border border-zinc-200 flex items-center justify-center shrink-0 shadow-sm">
-                                            <span class="font-black text-zinc-900 text-sm">{{ $digit->digit }}</span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="text-[10px] font-bold text-zinc-500 uppercase mb-1">{{ $digit->label }}</p>
-                                            <input type="hidden" name="assignments[{{ $loop->index }}][kode_akhir_npm]" value="{{ $digit->digit }}">
-                                            <input type="file" name="assignments[{{ $loop->index }}][file_soal]" 
-                                                class="block w-full text-[10px] text-zinc-500 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200 transition-all cursor-pointer">
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 flex items-center justify-end gap-3 sticky bottom-0 bg-white pb-2">
-                        <button type="button" onclick="document.getElementById('modal-penugasan').classList.add('hidden')"
-                            class="inline-flex h-9 items-center justify-center rounded-md border border-zinc-200 bg-white px-4 text-xs font-bold text-zinc-600 transition-all hover:bg-zinc-50">
-                            BATAL
-                        </button>
-                        <button type="submit"
-                            class="inline-flex h-9 items-center justify-center rounded-md bg-[#001f3f] px-6 text-xs font-bold text-white shadow-lg shadow-[#001f3f]/20 transition-all hover:bg-[#002d5a]">
-                            UPLOAD BATCH (0-9)
-                        </button>
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -477,6 +442,16 @@
                 </div>
 
                 <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Metode Distribusi</label>
+                    <select name="tipe_distribusi" id="edit-tipe-distribusi" required onchange="toggleDistribusiMode(this.value, 'edit_kode_npm_container', 'edit-kode-npm')"
+                        class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 outline-none">
+                        <option value="by_npm">By NPM (Digit NPM 0-9)</option>
+                        <option value="by_sesi">By Sesi (Seragam untuk Seluruh Mahasiswa Sesi)</option>
+                        <option value="by_random">By Random Pool (Acak Terkunci)</option>
+                    </select>
+                </div>
+
+                <div class="space-y-1.5" id="edit_kode_npm_container">
                     <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest pl-1">Kode NPM</label>
                     <select name="kode_akhir_npm" id="edit-kode-npm" required
                         class="flex h-10 w-full rounded-lg border border-zinc-200 bg-zinc-50/50 px-3 py-1 text-sm shadow-sm transition-all focus:bg-white focus:ring-2 focus:ring-amber-500/10 focus:border-amber-500 outline-none">
@@ -564,26 +539,46 @@
             }
         }
 
-        function switchPenugasanTab(tab) {
-            const singleTab = document.getElementById('penugasan-tab-single');
-            const batchTab = document.getElementById('penugasan-tab-batch');
-            const singleForm = document.getElementById('penugasan-form-single');
-            const batchForm = document.getElementById('penugasan-form-batch');
+        function toggleNpmUploadMode(mode) {
+            const singleContainer = document.getElementById('single_kode_npm_container');
+            const singleNpmInput = document.getElementById('single_kode_npm_input');
+            const singleFileContainer = document.getElementById('single_file_container');
+            const singleFileInput = document.getElementById('single_file_input');
+            const batchContainer = document.getElementById('batch_files_container');
+            const batchInputs = document.querySelectorAll('#form-tambah-penugasan .batch-assignment-input');
+            const form = document.getElementById('form-tambah-penugasan');
+            const submitBtn = document.getElementById('btn-submit-penugasan');
+            const storeUrl = "{{ route('admin.penugasan.store') }}";
+            const bulkStoreUrl = "{{ route('admin.penugasan.bulk-store') }}";
 
-            if (tab === 'single') {
-                singleTab.classList.add('border-[#001f3f]', 'text-[#001f3f]');
-                singleTab.classList.remove('border-transparent', 'text-zinc-400');
-                batchTab.classList.remove('border-[#001f3f]', 'text-[#001f3f]');
-                batchTab.classList.add('border-transparent', 'text-zinc-400');
-                singleForm.classList.remove('hidden');
-                batchForm.classList.add('hidden');
+            if (mode === 'batch') {
+                if (form) form.action = bulkStoreUrl;
+                if (singleContainer) singleContainer.classList.add('hidden');
+                if (singleNpmInput) {
+                    singleNpmInput.removeAttribute('required');
+                    singleNpmInput.disabled = true;
+                }
+                if (singleFileContainer) singleFileContainer.classList.add('hidden');
+                if (singleFileInput) singleFileInput.disabled = true;
+
+                if (batchContainer) batchContainer.classList.remove('hidden');
+                batchInputs.forEach(input => input.disabled = false);
+
+                if (submitBtn) submitBtn.textContent = 'UPLOAD BATCH (0-9)';
             } else {
-                batchTab.classList.add('border-[#001f3f]', 'text-[#001f3f]');
-                batchTab.classList.remove('border-transparent', 'text-zinc-400');
-                singleTab.classList.remove('border-[#001f3f]', 'text-[#001f3f]');
-                singleTab.classList.add('border-transparent', 'text-zinc-400');
-                batchForm.classList.remove('hidden');
-                singleForm.classList.add('hidden');
+                if (form) form.action = storeUrl;
+                if (singleContainer) singleContainer.classList.remove('hidden');
+                if (singleNpmInput) {
+                    singleNpmInput.setAttribute('required', 'required');
+                    singleNpmInput.disabled = false;
+                }
+                if (singleFileContainer) singleFileContainer.classList.remove('hidden');
+                if (singleFileInput) singleFileInput.disabled = false;
+
+                if (batchContainer) batchContainer.classList.add('hidden');
+                batchInputs.forEach(input => input.disabled = true);
+
+                if (submitBtn) submitBtn.textContent = 'SIMPAN SOAL';
             }
         }
 
@@ -623,18 +618,130 @@
             }
         }
 
+        function handleFileSelect(input) {
+            const preview = document.getElementById('file_preview_list');
+            const helpText = document.getElementById('single_file_help');
+            
+            if (!input.files || input.files.length === 0) {
+                if (preview) { preview.classList.add('hidden'); preview.innerHTML = ''; }
+                return;
+            }
+
+            if (input.files.length > 10) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Batas File Terlampaui',
+                    text: 'Maksimal 10 file yang dapat diunggah sekaligus. Silakan pilih kembali.',
+                    confirmButtonColor: '#001f3f'
+                });
+                input.value = '';
+                if (preview) { preview.classList.add('hidden'); preview.innerHTML = ''; }
+                if (helpText) helpText.textContent = 'Pilih hingga maksimal 10 file sekaligus (Paket 1, 2, dst.)';
+                return;
+            }
+
+            if (input.files.length > 1) {
+                let fileNames = Array.from(input.files).map((f, i) => `<span class="inline-block bg-white border border-zinc-200 rounded px-2 py-0.5 text-[10px] text-zinc-700 font-medium">Paket ${i+1}: ${f.name}</span>`).join('');
+                if (preview) {
+                    preview.classList.remove('hidden');
+                    preview.innerHTML = `<div class="mt-2 text-left"><p class="text-[10px] font-bold text-zinc-500 mb-1">${input.files.length} file dipilih:</p><div class="flex flex-wrap gap-1">${fileNames}</div></div>`;
+                }
+                if (helpText) helpText.textContent = `${input.files.length} file dipilih`;
+            } else {
+                if (preview) { preview.classList.add('hidden'); preview.innerHTML = ''; }
+                if (helpText) helpText.textContent = input.files[0].name;
+            }
+        }
+
+        function toggleDistribusiMode(val, containerId, inputId) {
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            const npmModeContainer = document.getElementById('npm_mode_container');
+
+            // Jika dipanggil dari form tambah penugasan
+            if (npmModeContainer && containerId === 'single_kode_npm_container') {
+                const fileInput = document.getElementById('single_file_input');
+                const fileLabel = document.getElementById('single_file_label');
+                const fileHelp = document.getElementById('single_file_help');
+                const filePreview = document.getElementById('file_preview_list');
+
+                if (val === 'by_npm') {
+                    npmModeContainer.classList.remove('hidden');
+                    const selectedMode = document.querySelector('input[name="npm_upload_mode"]:checked')?.value || 'single';
+                    toggleNpmUploadMode(selectedMode);
+                    if (fileInput) {
+                        fileInput.removeAttribute('multiple');
+                        fileInput.name = 'file_soal';
+                    }
+                    if (fileLabel) fileLabel.textContent = 'File Soal (Opsional)';
+                    if (fileHelp) fileHelp.textContent = 'Seret & Lepas atau Klik untuk pilih file';
+                    if (filePreview) { filePreview.classList.add('hidden'); filePreview.innerHTML = ''; }
+                } else if (val === 'by_random') {
+                    npmModeContainer.classList.add('hidden');
+                    toggleNpmUploadMode('single');
+                    if (container) container.classList.add('hidden');
+                    if (input) {
+                        input.removeAttribute('required');
+                        input.disabled = true;
+                    }
+                    if (fileInput) {
+                        fileInput.setAttribute('multiple', 'multiple');
+                        fileInput.name = 'files_random[]';
+                    }
+                    if (fileLabel) fileLabel.textContent = 'Upload File Soal Acak (Maksimal 10 File)';
+                    if (fileHelp) fileHelp.textContent = 'Pilih hingga maksimal 10 file sekaligus (Paket 1, 2, dst.)';
+                } else {
+                    // by_sesi
+                    npmModeContainer.classList.add('hidden');
+                    toggleNpmUploadMode('single');
+                    if (container) container.classList.add('hidden');
+                    if (input) {
+                        input.removeAttribute('required');
+                        input.disabled = true;
+                    }
+                    if (fileInput) {
+                        fileInput.removeAttribute('multiple');
+                        fileInput.name = 'file_soal';
+                    }
+                    if (fileLabel) fileLabel.textContent = 'File Soal (Opsional)';
+                    if (fileHelp) fileHelp.textContent = 'Seret & Lepas atau Klik untuk pilih file';
+                    if (filePreview) { filePreview.classList.add('hidden'); filePreview.innerHTML = ''; }
+                }
+                return;
+            }
+
+            // Untuk form edit atau fallback
+            if (!container) return;
+            if (val === 'by_sesi' || val === 'by_random') {
+                container.classList.add('hidden');
+                if (input) {
+                    input.removeAttribute('required');
+                    input.disabled = true;
+                }
+            } else {
+                container.classList.remove('hidden');
+                if (input) {
+                    input.setAttribute('required', 'required');
+                    input.disabled = false;
+                }
+            }
+        }
+
         function openEditModal(button) {
             const id = button.getAttribute('data-id');
             const praktikumId = button.getAttribute('data-praktikum-id');
             const sesiId = button.getAttribute('data-sesi-id');
             const jadwalId = button.getAttribute('data-jadwal-id');
             const kodeNpm = button.getAttribute('data-kode-npm');
+            const tipeDistribusi = button.getAttribute('data-tipe-distribusi') || (kodeNpm === '*' ? 'by_sesi' : (kodeNpm === 'random' ? 'by_random' : 'by_npm'));
             const judul = button.getAttribute('data-judul');
             const deskripsi = button.getAttribute('data-deskripsi');
 
             const form = document.getElementById('form-edit-penugasan');
             form.action = `/administrator/penugasan/${id}`;
             document.getElementById('edit-jadwal-praktikum').value = jadwalId || '';
+            document.getElementById('edit-tipe-distribusi').value = tipeDistribusi;
+            toggleDistribusiMode(tipeDistribusi, 'edit_kode_npm_container', 'edit-kode-npm');
             document.getElementById('edit-kode-npm').value = kodeNpm;
             document.getElementById('edit-judul').value = judul;
             document.getElementById('edit-deskripsi').value = deskripsi;

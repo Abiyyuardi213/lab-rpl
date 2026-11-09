@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Aslab;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\DigitNpm;
 use App\Models\Penugasan;
-use App\Models\Praktikum;
-use App\Models\SesiPraktikum;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -17,7 +15,7 @@ class PenugasanController extends Controller
     public function index()
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return redirect()->back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
@@ -27,7 +25,7 @@ class PenugasanController extends Controller
             ->whereIn('praktikum_id', $praktikumIds)
             ->where(function ($query) use ($aslab) {
                 $query->where('aslab_id', $aslab->id)
-                      ->orWhereNull('aslab_id');
+                    ->orWhereNull('aslab_id');
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -41,18 +39,28 @@ class PenugasanController extends Controller
     public function store(Request $request)
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
-        $request->validate([
+        $tipeDistribusi = $request->input('tipe_distribusi', 'by_npm');
+
+        $rules = [
             'praktikum_id' => 'required|exists:praktikums,id',
             'sesi_id' => 'required|exists:sesi_praktikums,id',
-            'kode_akhir_npm' => ['required', 'string', 'max:20', Rule::exists('digit_npms', 'digit')->where('is_active', true)],
+            'tipe_distribusi' => 'nullable|in:by_npm,by_sesi,by_random',
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required',
             'file_soal' => 'nullable|file|mimes:pdf,doc,docx,zip,rar|max:5120',
-        ]);
+        ];
+
+        if ($tipeDistribusi === 'by_npm') {
+            $rules['kode_akhir_npm'] = ['required', 'string', 'max:20', Rule::exists('digit_npms', 'digit')->where('is_active', true)];
+        } else {
+            $rules['kode_akhir_npm'] = ['nullable', 'string', 'max:20'];
+        }
+
+        $request->validate($rules);
 
         $filePath = null;
         if ($request->hasFile('file_soal')) {
@@ -63,7 +71,8 @@ class PenugasanController extends Controller
             'praktikum_id' => $request->praktikum_id,
             'sesi_id' => $request->sesi_id,
             'aslab_id' => $aslab->id,
-            'kode_akhir_npm' => $request->kode_akhir_npm,
+            'tipe_distribusi' => $tipeDistribusi,
+            'kode_akhir_npm' => $tipeDistribusi === 'by_sesi' ? '*' : ($request->filled('kode_akhir_npm') ? $request->kode_akhir_npm : ($tipeDistribusi === 'by_random' ? 'random' : null)),
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
             'file_soal' => $filePath,
@@ -75,7 +84,7 @@ class PenugasanController extends Controller
     public function update(Request $request, $id)
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
@@ -84,14 +93,26 @@ class PenugasanController extends Controller
             abort(403);
         }
 
-        $request->validate([
-            'kode_akhir_npm' => ['required', 'string', 'max:20', Rule::exists('digit_npms', 'digit')->where('is_active', true)],
+        $tipeDistribusi = $request->input('tipe_distribusi', $penugasan->tipe_distribusi ?? 'by_npm');
+
+        $rules = [
+            'tipe_distribusi' => 'nullable|in:by_npm,by_sesi,by_random',
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required',
             'file_soal' => 'nullable|file|mimes:pdf,doc,docx,zip,rar|max:5120',
-        ]);
+        ];
 
-        $data = $request->only(['kode_akhir_npm', 'judul', 'deskripsi']);
+        if ($tipeDistribusi === 'by_npm') {
+            $rules['kode_akhir_npm'] = ['required', 'string', 'max:20', Rule::exists('digit_npms', 'digit')->where('is_active', true)];
+        } else {
+            $rules['kode_akhir_npm'] = ['nullable', 'string', 'max:20'];
+        }
+
+        $request->validate($rules);
+
+        $data = $request->only(['judul', 'deskripsi']);
+        $data['tipe_distribusi'] = $tipeDistribusi;
+        $data['kode_akhir_npm'] = $tipeDistribusi === 'by_sesi' ? '*' : ($tipeDistribusi === 'by_random' ? 'random' : ($request->filled('kode_akhir_npm') ? $request->kode_akhir_npm : $penugasan->kode_akhir_npm));
 
         if ($request->hasFile('file_soal')) {
             if ($penugasan->file_soal) {
@@ -108,7 +129,7 @@ class PenugasanController extends Controller
     public function destroy($id)
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return back()->with('error', 'Data aslab tidak ditemukan.');
         }
 

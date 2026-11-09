@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Traits\HasActivityLog;
-use Illuminate\Http\Request;
 use App\Models\JadwalPraktikum;
 use App\Models\PendaftaranPraktikum;
-use App\Models\TugasAsistensi;
+use App\Models\PesertaSusulan;
 use App\Models\Presensi;
+use App\Models\TugasAsistensi;
 use App\Services\PresensiAlfaService;
+use App\Traits\HasActivityLog;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -23,7 +25,7 @@ class PresensiController extends Controller
         $user = Auth::user();
         $praktikan = $user->praktikan;
 
-        if (!$praktikan) {
+        if (! $praktikan) {
             return back()->with('error', 'Hanya praktikan yang dapat generate QR.');
         }
 
@@ -35,13 +37,19 @@ class PresensiController extends Controller
             ->where('status', 'verified')
             ->first();
 
-        if (!$pendaftaran) {
+        if (! $pendaftaran) {
             return back()->with('error', 'Anda tidak terdaftar di praktikum ini atau pendaftaran belum terverifikasi.');
         }
 
-        // Check already present
-        $alreadyPresent = Presensi::where('jadwal_id', $jadwal->id)
-            ->where('pendaftaran_id', $pendaftaran->id)
+        // Check already present for this schedule or same module
+        $alreadyPresent = Presensi::where('pendaftaran_id', $pendaftaran->id)
+            ->where(function ($query) use ($jadwal) {
+                $query->where('jadwal_id', $jadwal->id)
+                    ->orWhereHas('jadwal', function ($q) use ($jadwal) {
+                        $q->where('praktikum_id', $jadwal->praktikum_id)
+                            ->where('judul_modul', $jadwal->judul_modul);
+                    });
+            })
             ->exists();
 
         if ($alreadyPresent) {
@@ -62,32 +70,36 @@ class PresensiController extends Controller
             foreach ($unfinishedTasks as $task) {
                 $taskModulNumber = $this->parseModulNumber($task->judul);
                 if ($taskModulNumber < $modulNumber) {
-                    return back()->with('error', 'Anda belum menyelesaikan asistensi untuk modul sebelumnya (' . $task->judul . '). Silakan selesaikan asistensi terlebih dahulu.');
+                    return back()->with('error', 'Anda belum menyelesaikan asistensi untuk modul sebelumnya ('.$task->judul.'). Silakan selesaikan asistensi terlebih dahulu.');
                 }
             }
         }
 
-        if ($this->shouldBypassBarcodeForTesting()) {
-            if ($jadwal->sesi_id && $pendaftaran->sesi_id !== $jadwal->sesi_id) {
-                return back()->with('error', 'Sesi Anda tidak sesuai dengan jadwal ini. Silakan presensi di sesi Anda masing-masing.');
-            }
+        if ($jadwal->sesi_id && $pendaftaran->sesi_id !== $jadwal->sesi_id) {
+            return back()->with('error', 'Sesi Anda tidak sesuai dengan jadwal ini. Silakan presensi di sesi Anda masing-masing.');
+        }
 
+        if ($this->shouldBypassBarcodeForTesting()) {
             $status = $this->resolvePresensiStatus($jadwal);
 
-            Presensi::create([
-                'jadwal_id' => $jadwal->id,
-                'pendaftaran_id' => $pendaftaran->id,
-                'jam_masuk' => now(),
-                'status' => $status,
-            ]);
+            Presensi::firstOrCreate(
+                [
+                    'jadwal_id' => $jadwal->id,
+                    'pendaftaran_id' => $pendaftaran->id,
+                ],
+                [
+                    'jam_masuk' => now(),
+                    'status' => $status,
+                ]
+            );
 
             return redirect()->route('praktikan.dashboard')
-                ->with('success', 'Presensi testing berhasil: ' . $jadwal->judul_modul . ' (' . ucfirst($status) . ')');
+                ->with('success', 'Presensi testing berhasil: '.$jadwal->judul_modul.' ('.ucfirst($status).')');
         }
 
         // Generate a short, unique token for the QR code
         $token = Str::random(32);
-        
+
         // Store the attendance data in cache for 30 minutes
         Cache::put("presensi_token_{$token}", [
             'pendaftaran_id' => $pendaftaran->id,
@@ -96,7 +108,7 @@ class PresensiController extends Controller
         ], now()->addMinutes(30));
 
         // Use a full URL for the QR code so it's informative when scanned by generic apps
-        $qrUrl = route('home') . '/p/' . $token;
+        $qrUrl = route('home').'/p/'.$token;
 
         // Generate the SVG QR code using the new library
         // We use a lower correction level (L) and larger size to make it scan faster
@@ -112,7 +124,7 @@ class PresensiController extends Controller
     public function scan(Request $request)
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return redirect()->back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
@@ -121,7 +133,7 @@ class PresensiController extends Controller
 
         // Get schedules for today related to these practicums
         $today = now()->toDateString();
-        
+
         // Active schedules: Tanggal hari ini
         $schedules = JadwalPraktikum::with(['praktikum', 'presensis.pendaftaran.praktikan.user'])
             ->whereIn('praktikum_id', $praktikumIds)
@@ -130,12 +142,12 @@ class PresensiController extends Controller
             ->get();
 
         // Separate active and finished (based on current time)
-        $activeSchedules = $schedules->filter(function($j) {
-            return now()->lt(\Carbon\Carbon::parse($j->tanggal . ' ' . $j->waktu_selesai));
+        $activeSchedules = $schedules->filter(function ($j) {
+            return now()->lt(\Carbon\Carbon::parse($j->tanggal.' '.$j->waktu_selesai));
         });
 
-        $finishedSchedules = $schedules->filter(function($j) {
-            return now()->gt(\Carbon\Carbon::parse($j->tanggal . ' ' . $j->waktu_selesai));
+        $finishedSchedules = $schedules->filter(function ($j) {
+            return now()->gt(\Carbon\Carbon::parse($j->tanggal.' '.$j->waktu_selesai));
         });
 
         return view('aslab.presensi.scan', compact('activeSchedules', 'finishedSchedules'));
@@ -144,7 +156,7 @@ class PresensiController extends Controller
     public function checkIn(Request $request)
     {
         $request->validate([
-            'token' => 'required'
+            'token' => 'required',
         ]);
 
         try {
@@ -158,8 +170,8 @@ class PresensiController extends Controller
 
             // Retrieve data from cache
             $data = Cache::get("presensi_token_{$token}");
-            
-            if (!$data) {
+
+            if (! $data) {
                 // Try fallback to encrypted token for backward compatibility during transition if needed
                 // But since we are changing it now, we can just return error
                 try {
@@ -179,43 +191,92 @@ class PresensiController extends Controller
         $pendaftaran = PendaftaranPraktikum::with('sesi')->findOrFail($data['pendaftaran_id']);
         $jadwal = JadwalPraktikum::findOrFail($data['jadwal_id']);
 
-        // Final validation 
-        $alreadyPresent = Presensi::where('jadwal_id', $jadwal->id)
-            ->where('pendaftaran_id', $pendaftaran->id)
+        if ($pendaftaran->status === 'gugur') {
+            Cache::forget("presensi_token_{$token}");
+
+            return response()->json(['success' => false, 'message' => 'Anda telah dinyatakan gugur dalam praktikum ini.'], 403);
+        }
+
+        // Final validation: check same schedule or same module in this practicum
+        $alreadyPresent = Presensi::where('pendaftaran_id', $pendaftaran->id)
+            ->where(function ($query) use ($jadwal) {
+                $query->where('jadwal_id', $jadwal->id)
+                    ->orWhereHas('jadwal', function ($q) use ($jadwal) {
+                        $q->where('praktikum_id', $jadwal->praktikum_id)
+                            ->where('judul_modul', $jadwal->judul_modul);
+                    });
+            })
             ->exists();
 
         if ($alreadyPresent) {
+            Cache::forget("presensi_token_{$token}");
+
             return response()->json(['success' => false, 'message' => 'Praktikan sudah melakukan presensi.'], 400);
         }
 
-        // --- Enforcement: Session Match ---
-        if ($jadwal->sesi_id && $pendaftaran->sesi_id !== $jadwal->sesi_id) {
+        // --- Enforcement: Session Match & Susulan Check ---
+        if ($jadwal->is_susulan) {
+            $pesertaSusulan = PesertaSusulan::where('jadwal_id', $jadwal->id)
+                ->where('pendaftaran_id', $pendaftaran->id)
+                ->first();
+
+            if (! $pesertaSusulan) {
+                Cache::forget("presensi_token_{$token}");
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak terdaftar sebagai peserta pada jadwal susulan ini.',
+                ], 400);
+            }
+        } elseif ($jadwal->sesi_id && $pendaftaran->sesi_id !== $jadwal->sesi_id) {
             return response()->json([
-                'success' => false, 
-                'message' => 'Sesi Anda (' . ($pendaftaran->sesi->nama_sesi ?? 'N/A') . ') tidak sesuai dengan jadwal ini.'
+                'success' => false,
+                'message' => 'Sesi Anda ('.($pendaftaran->sesi->nama_sesi ?? 'N/A').') tidak sesuai dengan jadwal ini.',
             ], 400);
         }
 
         // Check-in logic
         $status = $this->resolvePresensiStatus($jadwal);
 
-        Presensi::create([
-            'jadwal_id' => $jadwal->id,
-            'pendaftaran_id' => $pendaftaran->id,
-            'jam_masuk' => now(),
-            'status' => $status
-        ]);
+        $presensi = DB::transaction(function () use ($jadwal, $pendaftaran, $status) {
+            $created = Presensi::firstOrCreate(
+                [
+                    'jadwal_id' => $jadwal->id,
+                    'pendaftaran_id' => $pendaftaran->id,
+                ],
+                [
+                    'jam_masuk' => now(),
+                    'status' => $status,
+                    'is_susulan' => (bool) $jadwal->is_susulan,
+                ]
+            );
 
-        $sesiInfo = $pendaftaran->sesi ? 
-            "{$pendaftaran->sesi->nama_sesi} ({$pendaftaran->sesi->hari}, {$pendaftaran->sesi->jam_mulai}-{$pendaftaran->sesi->jam_selesai})" : 
-            "Tidak Terdaftar Sesi";
+            if ($jadwal->is_susulan) {
+                PesertaSusulan::where('jadwal_id', $jadwal->id)
+                    ->where('pendaftaran_id', $pendaftaran->id)
+                    ->update(['status' => 'hadir']);
+            }
+
+            return $created;
+        });
+
+        // Invalidate single-use token from cache immediately after successful check-in
+        Cache::forget("presensi_token_{$token}");
+
+        if (! $presensi->wasRecentlyCreated) {
+            return response()->json(['success' => false, 'message' => 'Praktikan sudah melakukan presensi.'], 400);
+        }
+
+        $sesiInfo = $pendaftaran->sesi ?
+            "{$pendaftaran->sesi->nama_sesi} ({$pendaftaran->sesi->hari}, {$pendaftaran->sesi->jam_mulai}-{$pendaftaran->sesi->jam_selesai})" :
+            'Tidak Terdaftar Sesi';
 
         return response()->json([
             'success' => true,
-            'message' => 'Presensi berhasil: ' . $pendaftaran->praktikan->user->name,
+            'message' => 'Presensi berhasil: '.$pendaftaran->praktikan->user->name,
             'nama' => $pendaftaran->praktikan->user->name,
             'sesi' => $sesiInfo,
-            'status' => $status
+            'status' => $status,
         ]);
     }
 
@@ -224,7 +285,7 @@ class PresensiController extends Controller
         $user = Auth::user();
         $praktikan = $user->praktikan;
 
-        if (!$praktikan) {
+        if (! $praktikan) {
             return response()->json(['present' => false]);
         }
 
@@ -235,7 +296,7 @@ class PresensiController extends Controller
             ->where('status', 'verified')
             ->first();
 
-        if (!$pendaftaran) {
+        if (! $pendaftaran) {
             return response()->json(['present' => false]);
         }
 
@@ -251,7 +312,7 @@ class PresensiController extends Controller
         $request->validate([
             'jadwal_id' => 'required|exists:jadwal_praktikums,id',
             'pendaftaran_id' => 'required|exists:pendaftaran_praktikums,id',
-            'status' => 'required|in:hadir,terlambat'
+            'status' => 'required|in:hadir,terlambat',
         ]);
 
         $user = Auth::user();
@@ -261,38 +322,92 @@ class PresensiController extends Controller
         if ($user->role->name === 'Aslab') {
             $aslab = $user->aslab;
             $isAssigned = $aslab->praktikums()->where('praktikum_id', $jadwal->praktikum_id)->exists();
-            if (!$isAssigned) {
+            if (! $isAssigned) {
                 return response()->json(['success' => false, 'message' => 'Anda tidak ditugaskan di praktikum ini.'], 403);
             }
-        } elseif ($user->role->name !== 'Admin') {
+        } elseif (! in_array($user->role->name, ['Admin', 'Super Admin'])) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
-        // Check already present
-        $alreadyPresent = Presensi::where('jadwal_id', $jadwal->id)
-            ->where('pendaftaran_id', $request->pendaftaran_id)
+        $pendaftaran = PendaftaranPraktikum::with('sesi')->findOrFail($request->pendaftaran_id);
+
+        if ($pendaftaran->praktikum_id !== $jadwal->praktikum_id) {
+            return response()->json(['success' => false, 'message' => 'Praktikan tidak terdaftar di praktikum ini.'], 400);
+        }
+
+        if ($pendaftaran->status === 'gugur') {
+            return response()->json(['success' => false, 'message' => 'Praktikan telah dinyatakan gugur dalam praktikum ini.'], 403);
+        }
+
+        // Enforcement: Session Match & Susulan Check
+        if ($jadwal->is_susulan) {
+            $pesertaSusulan = PesertaSusulan::where('jadwal_id', $jadwal->id)
+                ->where('pendaftaran_id', $pendaftaran->id)
+                ->first();
+
+            if (! $pesertaSusulan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Praktikan tidak terdaftar sebagai peserta pada jadwal susulan ini.',
+                ], 400);
+            }
+        } elseif ($jadwal->sesi_id && $pendaftaran->sesi_id !== $jadwal->sesi_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesi praktikan ('.($pendaftaran->sesi->nama_sesi ?? 'N/A').') tidak sesuai dengan jadwal ini.',
+            ], 400);
+        }
+
+        // Check already present for this schedule or same module
+        $alreadyPresent = Presensi::where('pendaftaran_id', $request->pendaftaran_id)
+            ->where(function ($query) use ($jadwal) {
+                $query->where('jadwal_id', $jadwal->id)
+                    ->orWhereHas('jadwal', function ($q) use ($jadwal) {
+                        $q->where('praktikum_id', $jadwal->praktikum_id)
+                            ->where('judul_modul', $jadwal->judul_modul);
+                    });
+            })
             ->exists();
 
         if ($alreadyPresent) {
+            return response()->json(['success' => false, 'message' => 'Praktikan sudah melakukan presensi untuk modul ini.'], 400);
+        }
+
+        $presensi = DB::transaction(function () use ($jadwal, $request) {
+            $created = Presensi::firstOrCreate(
+                [
+                    'jadwal_id' => $jadwal->id,
+                    'pendaftaran_id' => $request->pendaftaran_id,
+                ],
+                [
+                    'jam_masuk' => now(),
+                    'status' => $request->status,
+                    'is_susulan' => (bool) $jadwal->is_susulan,
+                ]
+            );
+
+            if ($jadwal->is_susulan) {
+                PesertaSusulan::where('jadwal_id', $jadwal->id)
+                    ->where('pendaftaran_id', $request->pendaftaran_id)
+                    ->update(['status' => 'hadir']);
+            }
+
+            return $created;
+        });
+
+        if (! $presensi->wasRecentlyCreated) {
             return response()->json(['success' => false, 'message' => 'Praktikan sudah melakukan presensi.'], 400);
         }
 
-        $presensi = Presensi::create([
-            'jadwal_id' => $jadwal->id,
-            'pendaftaran_id' => $request->pendaftaran_id,
-            'jam_masuk' => now(),
-            'status' => $request->status
-        ]);
-
         $this->logActivity(
-            'Manual Attendance', 
-            "Recorded manual attendance for student in " . $jadwal->judul_modul,
+            'Manual Attendance',
+            'Recorded manual attendance for student in '.$jadwal->judul_modul,
             ['pendaftaran_id' => $request->pendaftaran_id, 'status' => $request->status]
         );
 
         return response()->json([
             'success' => true,
-            'message' => 'Presensi manual berhasil dicatat.'
+            'message' => 'Presensi manual berhasil dicatat.',
         ]);
     }
 
@@ -305,47 +420,47 @@ class PresensiController extends Controller
         if ($user->role->name === 'Aslab') {
             $aslab = $user->aslab;
             $isAssigned = $aslab->praktikums()->where('praktikum_id', $presensi->jadwal->praktikum_id)->exists();
-            if (!$isAssigned) {
+            if (! $isAssigned) {
                 return response()->json(['success' => false, 'message' => 'Anda tidak ditugaskan di praktikum ini.'], 403);
             }
-        } elseif ($user->role->name !== 'Admin') {
+        } elseif (! in_array($user->role->name, ['Admin', 'Super Admin'])) {
             return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
         }
 
         $presensi->delete();
 
         $this->logActivity(
-            'Cancel Attendance', 
-            "Cancelled attendance for a student in " . $presensi->jadwal->judul_modul,
+            'Cancel Attendance',
+            'Cancelled attendance for a student in '.$presensi->jadwal->judul_modul,
             ['presensi_id' => $id, 'jadwal_id' => $presensi->jadwal_id]
         );
 
         return response()->json([
             'success' => true,
-            'message' => 'Presensi berhasil dibatalkan.'
+            'message' => 'Presensi berhasil dibatalkan.',
         ]);
     }
 
     public function generateJadwalQR($jadwal_id)
     {
         $user = Auth::user();
-        
-        $jadwal = JadwalPraktikum::with(['praktikum', 'presensis.pendaftaran.praktikan.user'])->findOrFail($jadwal_id);
+
+        $jadwal = JadwalPraktikum::with(['praktikum', 'sesi', 'presensis.pendaftaran.praktikan.user'])->findOrFail($jadwal_id);
         app(PresensiAlfaService::class)->markSchedule($jadwal);
-        $jadwal->load(['praktikum', 'presensis.pendaftaran.praktikan.user']);
-        
+        $jadwal->load(['praktikum', 'sesi', 'presensis.pendaftaran.praktikan.user']);
+
         // Authorization check
         if ($user->role->name === 'Aslab') {
             $aslab = $user->aslab;
             $isAssigned = $aslab->praktikums()->where('praktikum_id', $jadwal->praktikum_id)->exists();
-            if (!$isAssigned) {
+            if (! $isAssigned) {
                 return back()->with('error', 'Anda tidak ditugaskan di praktikum ini.');
             }
-        } elseif ($user->role->name !== 'Admin') {
+        } elseif (! in_array($user->role->name, ['Admin', 'Super Admin'])) {
             return back()->with('error', 'Akses ditolak.');
         }
 
-        if (!$jadwal->token) {
+        if (! $jadwal->token) {
             $jadwal->token = (string) Str::random(32);
             $jadwal->save();
         }
@@ -359,14 +474,24 @@ class PresensiController extends Controller
             ->errorCorrection('H')
             ->generate($qrUrl);
 
-        $presentPendaftaranIds = $jadwal->presensis->pluck('pendaftaran_id');
-        
-        $notPresentStudents = PendaftaranPraktikum::with('praktikan.user')
+        $presentPendaftaranIds = Presensi::where('jadwal_id', $jadwal->id)
+            ->orWhere(function ($query) use ($jadwal) {
+                $query->whereHas('jadwal', function ($q) use ($jadwal) {
+                    $q->where('praktikum_id', $jadwal->praktikum_id)
+                        ->where('judul_modul', $jadwal->judul_modul);
+                });
+            })
+            ->pluck('pendaftaran_id');
+
+        $notPresentStudents = PendaftaranPraktikum::with(['praktikan.user', 'sesi'])
             ->where('praktikum_id', $jadwal->praktikum_id)
             ->where('status', 'verified')
+            ->when($jadwal->sesi_id, function ($query, $sesiId) {
+                $query->where('sesi_id', $sesiId);
+            })
             ->whereNotIn('id', $presentPendaftaranIds)
             ->get()
-            ->sortBy(function($p) {
+            ->sortBy(function ($p) {
                 return $p->praktikan->user->name;
             });
 
@@ -376,41 +501,53 @@ class PresensiController extends Controller
     public function downloadJadwalPDF($jadwal_id)
     {
         $jadwal = JadwalPraktikum::with('praktikum')->findOrFail($jadwal_id);
-        
-        if (!$jadwal->token) {
+        $user = Auth::user();
+
+        // Authorization check
+        if ($user->role->name === 'Aslab') {
+            $aslab = $user->aslab;
+            $isAssigned = $aslab->praktikums()->where('praktikum_id', $jadwal->praktikum_id)->exists();
+            if (! $isAssigned) {
+                return back()->with('error', 'Anda tidak ditugaskan di praktikum ini.');
+            }
+        } elseif (! in_array($user->role->name, ['Admin', 'Super Admin'])) {
+            return back()->with('error', 'Akses ditolak.');
+        }
+
+        if (! $jadwal->token) {
             $jadwal->token = (string) Str::random(32);
             $jadwal->save();
         }
 
         $qrUrl = route('presensi.scan-landing', $jadwal->token);
-        
+
         // Generate SVG QR code for the PDF
         $qrCode = base64_encode(QrCode::size(300)->margin(2)->generate($qrUrl));
 
         // Load logos and convert to base64
         $itatsLogoPath = public_path('image/logo-itats-biru.jpg');
         $rplLogoPath = public_path('image/rplmini.png');
-        
-        $itatsLogo = "";
-        $rplLogo = "";
-        
+
+        $itatsLogo = '';
+        $rplLogo = '';
+
         if (file_exists($itatsLogoPath)) {
             $itatsLogo = base64_encode(file_get_contents($itatsLogoPath));
         }
-        
+
         if (file_exists($rplLogoPath)) {
             $rplLogo = base64_encode(file_get_contents($rplLogoPath));
         }
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('aslab.presensi.jadwal-pdf', compact('qrCode', 'jadwal', 'itatsLogo', 'rplLogo'));
-        
+
         return $pdf->download("QR-Presensi-{$jadwal->judul_modul}.pdf");
     }
 
     public function scanLanding($token)
     {
         $jadwal = JadwalPraktikum::with('praktikum')->where('token', $token)->firstOrFail();
-        
+
         // If already logged in, we can proceed to scanJadwal automatically or show a nice landing
         if (Auth::check() && Auth::user()->praktikan) {
             return redirect()->route('praktikan.presensi.scan-jadwal', $token);
@@ -422,7 +559,7 @@ class PresensiController extends Controller
     public function showScanner()
     {
         $user = Auth::user();
-        if (!$user->praktikan) {
+        if (! $user->praktikan) {
             return redirect()->route('login')->with('error', 'Hanya praktikan yang dapat mengakses pemindai.');
         }
 
@@ -432,7 +569,7 @@ class PresensiController extends Controller
     public function scanJadwal(Request $request, $token)
     {
         $user = Auth::user();
-        if (!$user->praktikan) {
+        if (! $user->praktikan) {
             return redirect()->route('login')->with('error', 'Silakan login sebagai praktikan.');
         }
 
@@ -442,24 +579,45 @@ class PresensiController extends Controller
         // Check if student is enrolled in this praktikum
         $pendaftaran = PendaftaranPraktikum::where('praktikan_id', $praktikan->id)
             ->where('praktikum_id', $jadwal->praktikum_id)
-            ->where('status', 'verified')
             ->first();
 
-        if (!$pendaftaran) {
-             return redirect()->route('praktikan.dashboard')->with('error', 'Anda tidak terdaftar di praktikum ini.');
+        if (! $pendaftaran) {
+            return redirect()->route('praktikan.dashboard')->with('error', 'Anda tidak terdaftar di praktikum ini.');
         }
 
-        // Check already present
-        $alreadyPresent = Presensi::where('jadwal_id', $jadwal->id)
-            ->where('pendaftaran_id', $pendaftaran->id)
+        if ($pendaftaran->status === 'gugur') {
+            return redirect()->route('praktikan.dashboard')->with('error', 'Anda telah dinyatakan gugur dalam praktikum ini.');
+        }
+
+        if ($pendaftaran->status !== 'verified') {
+            return redirect()->route('praktikan.dashboard')->with('error', 'Status pendaftaran Anda belum terverifikasi.');
+        }
+
+        // Check already present for this schedule or same module
+        $alreadyPresent = Presensi::where('pendaftaran_id', $pendaftaran->id)
+            ->where(function ($query) use ($jadwal) {
+                $query->where('jadwal_id', $jadwal->id)
+                    ->orWhereHas('jadwal', function ($q) use ($jadwal) {
+                        $q->where('praktikum_id', $jadwal->praktikum_id)
+                            ->where('judul_modul', $jadwal->judul_modul);
+                    });
+            })
             ->exists();
 
         if ($alreadyPresent) {
-            return redirect()->route('praktikan.dashboard')->with('info', 'Anda sudah melakukan presensi.');
+            return redirect()->route('praktikan.dashboard')->with('info', 'Anda sudah melakukan presensi untuk modul ini.');
         }
 
-        // --- Enforcement: Session Match ---
-        if ($jadwal->sesi_id && $pendaftaran->sesi_id !== $jadwal->sesi_id) {
+        // --- Enforcement: Session Match & Susulan Check ---
+        if ($jadwal->is_susulan) {
+            $pesertaSusulan = PesertaSusulan::where('jadwal_id', $jadwal->id)
+                ->where('pendaftaran_id', $pendaftaran->id)
+                ->first();
+
+            if (! $pesertaSusulan) {
+                return redirect()->route('praktikan.dashboard')->with('error', 'Anda tidak terdaftar sebagai peserta pada jadwal susulan ini.');
+            }
+        } elseif ($jadwal->sesi_id && $pendaftaran->sesi_id !== $jadwal->sesi_id) {
             return redirect()->route('praktikan.dashboard')->with('error', 'Sesi Anda tidak sesuai dengan jadwal ini. Silakan presensi di sesi Anda masing-masing.');
         }
 
@@ -473,7 +631,7 @@ class PresensiController extends Controller
 
             foreach ($unfinishedTasks as $task) {
                 if ($this->parseModulNumber($task->judul) < $modulNumber) {
-                     return redirect()->route('praktikan.dashboard')->with('error', 'Anda belum menyelesaikan asistensi untuk modul sebelumnya (' . $task->judul . '). Silakan selesaikan asistensi terlebih dahulu.');
+                    return redirect()->route('praktikan.dashboard')->with('error', 'Anda belum menyelesaikan asistensi untuk modul sebelumnya ('.$task->judul.'). Silakan selesaikan asistensi terlebih dahulu.');
                 }
             }
         }
@@ -481,33 +639,52 @@ class PresensiController extends Controller
         // Check-in logic
         $status = $this->resolvePresensiStatus($jadwal);
 
-        Presensi::create([
-            'jadwal_id' => $jadwal->id,
-            'pendaftaran_id' => $pendaftaran->id,
-            'jam_masuk' => now(),
-            'status' => $status
-        ]);
+        $presensi = DB::transaction(function () use ($jadwal, $pendaftaran, $status) {
+            $created = Presensi::firstOrCreate(
+                [
+                    'jadwal_id' => $jadwal->id,
+                    'pendaftaran_id' => $pendaftaran->id,
+                ],
+                [
+                    'jam_masuk' => now(),
+                    'status' => $status,
+                    'is_susulan' => (bool) $jadwal->is_susulan,
+                ]
+            );
 
-        return redirect()->route('praktikan.dashboard')->with('success', 'Presensi Berhasil: ' . $jadwal->judul_modul);
+            if ($jadwal->is_susulan) {
+                PesertaSusulan::where('jadwal_id', $jadwal->id)
+                    ->where('pendaftaran_id', $pendaftaran->id)
+                    ->update(['status' => 'hadir']);
+            }
+
+            return $created;
+        });
+
+        if (! $presensi->wasRecentlyCreated) {
+            return redirect()->route('praktikan.dashboard')->with('info', 'Anda sudah melakukan presensi.');
+        }
+
+        return redirect()->route('praktikan.dashboard')->with('success', 'Presensi Berhasil: '.$jadwal->judul_modul);
     }
 
     public function publicVerify($token)
     {
         $data = Cache::get("presensi_token_{$token}");
 
-        if (!$data) {
+        if (! $data) {
             return view('presensi.public-verify', [
                 'status' => 'expired',
-                'message' => 'QR Code ini sudah tidak berlaku atau sudah kadaluarsa.'
+                'message' => 'QR Code ini sudah tidak berlaku atau sudah kadaluarsa.',
             ]);
         }
 
         $pendaftaran = PendaftaranPraktikum::with(['praktikan.user', 'praktikum'])->find($data['pendaftaran_id']);
 
-        if (!$pendaftaran || !$pendaftaran->praktikan || !$pendaftaran->praktikan->user) {
+        if (! $pendaftaran || ! $pendaftaran->praktikan || ! $pendaftaran->praktikan->user) {
             return view('presensi.public-verify', [
                 'status' => 'expired',
-                'message' => 'Data pendaftaran tidak ditemukan atau sudah dihapus.'
+                'message' => 'Data pendaftaran tidak ditemukan atau sudah dihapus.',
             ]);
         }
 
@@ -515,7 +692,7 @@ class PresensiController extends Controller
             'status' => 'valid',
             'message' => 'QR Code Valid',
             'nama' => $pendaftaran->praktikan->user->name,
-            'praktikum' => $pendaftaran->praktikum->nama_praktikum
+            'praktikum' => $pendaftaran->praktikum->nama_praktikum,
         ]);
     }
 
@@ -523,8 +700,9 @@ class PresensiController extends Controller
     {
         // Extract number from "Modul X"
         if (preg_match('/Modul\s+(\d+)/i', $judul, $matches)) {
-            return (int)$matches[1];
+            return (int) $matches[1];
         }
+
         return 1; // Default
     }
 
@@ -536,7 +714,7 @@ class PresensiController extends Controller
 
     private function resolvePresensiStatus(JadwalPraktikum $jadwal): string
     {
-        $waktuMulai = \Carbon\Carbon::parse($jadwal->tanggal . ' ' . $jadwal->waktu_mulai);
+        $waktuMulai = \Carbon\Carbon::parse($jadwal->tanggal.' '.$jadwal->waktu_mulai);
 
         return now()->gt($waktuMulai->addMinutes(15)) ? 'terlambat' : 'hadir';
     }

@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class PendaftaranPraktikum extends Model
 {
@@ -30,6 +29,7 @@ class PendaftaranPraktikum extends Model
     ];
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     public function praktikan()
@@ -80,5 +80,10 @@ class PendaftaranPraktikum extends Model
     public function penilaianAkhir()
     {
         return $this->hasOne(PenilaianAkhir::class, 'pendaftaran_id');
+    }
+
+    public function pesertaSusulans()
+    {
+        return $this->hasMany(PesertaSusulan::class, 'pendaftaran_id');
     }
 }

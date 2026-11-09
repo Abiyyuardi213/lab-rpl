@@ -264,8 +264,29 @@
                     });
                 });
 
+                let isScanningActive = false;
+                let lastScannedText = '';
+                let lastScannedTime = 0;
+
                 function onScanSuccess(decodedText) {
-                    if (processingModal.classList.contains('flex')) return;
+                    const now = Date.now();
+                    // Debounce: prevent same QR code from being scanned within 5 seconds
+                    if (decodedText === lastScannedText && (now - lastScannedTime < 5000)) {
+                        return;
+                    }
+                    if (isScanningActive) {
+                        return;
+                    }
+
+                    isScanningActive = true;
+                    lastScannedText = decodedText;
+                    lastScannedTime = now;
+
+                    // Immediately pause video decoding to avoid capturing duplicate frames
+                    try {
+                        html5QrCode.pause(true);
+                    } catch (e) {}
+
                     processingModal.classList.remove('hidden');
                     processingModal.classList.add('flex');
 
@@ -314,6 +335,14 @@
                         <p class="font-black text-slate-900 uppercase tracking-tight text-xl mb-2">Memvalidasi QR...</p>
                         <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Sistem Lab RPL ITATS</p>
                     `;
+
+                    // Resume scanner safely after modal closes
+                    setTimeout(() => {
+                        try {
+                            html5QrCode.resume();
+                        } catch (e) {}
+                        isScanningActive = false;
+                    }, 500);
                 }
             });
         </script>

@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class PenilaianAkhir extends Model
 {
     use HasFactory, HasUuids;
 
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -53,7 +54,7 @@ class PenilaianAkhir extends Model
         $adaTugasAkhir = $praktikum->ada_tugas_akhir;
 
         $presensis = $pendaftaran->relationLoaded('presensis') ? $pendaftaran->presensis : $pendaftaran->presensis()->with(['jadwal', 'penilaian'])->get();
-        if (!$schedules) {
+        if (! $schedules) {
             $schedules = JadwalPraktikum::where('praktikum_id', $praktikum->id)
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('waktu_mulai', 'asc')
@@ -62,8 +63,11 @@ class PenilaianAkhir extends Model
 
         // Auto-detect Tugas Akhir score from presensis if $nilaiTugasAkhir is null or 0
         $taPresensi = $presensis->first(function ($p) {
-            if (!$p->jadwal) return false;
+            if (! $p->jadwal) {
+                return false;
+            }
             $jTitle = strtolower($p->jadwal->judul_modul);
+
             return str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir');
         });
 
@@ -77,13 +81,16 @@ class PenilaianAkhir extends Model
 
         $prakScores = [];
         for ($i = 1; $i <= $jumlahModul; $i++) {
-            $targetTitle = "Modul " . $i;
+            $targetTitle = 'Modul '.$i;
             $presensi = $presensis->first(function ($p) use ($targetTitle, $i) {
-                if (!$p->jadwal) return false;
+                if (! $p->jadwal) {
+                    return false;
+                }
                 $jTitle = $p->jadwal->judul_modul;
-                return strcasecmp($jTitle, $targetTitle) === 0 
+
+                return strcasecmp($jTitle, $targetTitle) === 0
                     || str_contains(strtolower($jTitle), strtolower($targetTitle))
-                    || str_contains(strtolower($jTitle), "modul " . $i);
+                    || str_contains(strtolower($jTitle), 'modul '.$i);
             });
             $prakScores[$i] = ($presensi && $presensi->penilaian) ? $presensi->penilaian->nilai : 0;
         }
@@ -91,12 +98,13 @@ class PenilaianAkhir extends Model
         $tugasList = $pendaftaran->relationLoaded('tugasAsistensis') ? $pendaftaran->tugasAsistensis : $pendaftaran->tugasAsistensis()->get();
         $astScores = [];
         for ($i = 1; $i <= $jumlahModul; $i++) {
-            $targetTitle = "Modul " . $i;
+            $targetTitle = 'Modul '.$i;
             $tugas = $tugasList->first(function ($t) use ($targetTitle, $i) {
                 $tTitle = $t->judul;
-                return strcasecmp($tTitle, $targetTitle) === 0 
+
+                return strcasecmp($tTitle, $targetTitle) === 0
                     || str_contains(strtolower($tTitle), strtolower($targetTitle))
-                    || str_contains(strtolower($tTitle), "modul " . $i);
+                    || str_contains(strtolower($tTitle), 'modul '.$i);
             });
             $astScores[$i] = $tugas ? ($tugas->nilai ?? 0) : 0;
         }
@@ -105,10 +113,10 @@ class PenilaianAkhir extends Model
         for ($i = 1; $i <= $jumlahModul; $i++) {
             if (isset($nilaiDosen[$i])) {
                 $val = $nilaiDosen[$i];
-            } elseif (isset($nilaiDosen[(string)$i])) {
-                $val = $nilaiDosen[(string)$i];
-            } elseif (isset($nilaiDosen['Modul ' . $i])) {
-                $val = $nilaiDosen['Modul ' . $i];
+            } elseif (isset($nilaiDosen[(string) $i])) {
+                $val = $nilaiDosen[(string) $i];
+            } elseif (isset($nilaiDosen['Modul '.$i])) {
+                $val = $nilaiDosen['Modul '.$i];
             } else {
                 $val = 0;
             }
@@ -170,6 +178,96 @@ class PenilaianAkhir extends Model
             'status_kelulusan' => $isGugur ? 'TIDAK LULUS' : $statusKelulusan,
             'is_gugur' => $isGugur,
             'alasan_gugur' => $alasanGugur,
+        ];
+    }
+
+    /**
+     * Synchronize and recalculate final grades for a given registration.
+     * If a PenilaianAkhir record already exists in the database, recalculates
+     * derived totals using the latest live module scores and silently persists any updates.
+     */
+    public static function syncRegistration(PendaftaranPraktikum $pendaftaran, $schedules = null): array
+    {
+        $penilaianAkhir = $pendaftaran->relationLoaded('penilaianAkhir')
+            ? $pendaftaran->penilaianAkhir
+            : $pendaftaran->penilaianAkhir()->first();
+
+        $presensis = $pendaftaran->relationLoaded('presensis')
+            ? $pendaftaran->presensis
+            : $pendaftaran->presensis()->with(['jadwal', 'penilaian'])->get();
+
+        // Auto-detect Tugas Akhir score from presensis if available
+        $taPresensi = $presensis->first(function ($p) {
+            if (! $p->jadwal) {
+                return false;
+            }
+            $jTitle = strtolower($p->jadwal->judul_modul);
+
+            return str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir');
+        });
+        $autoTaScore = ($taPresensi && $taPresensi->penilaian) ? $taPresensi->penilaian->nilai : 0;
+
+        if ($penilaianAkhir) {
+            $nilaiDosen = $penilaianAkhir->nilai_dosen ?? [];
+            $nilaiLaporan = $penilaianAkhir->nilai_laporan ?? 0;
+            $nilaiTugasAkhir = (! empty($penilaianAkhir->nilai_tugas_akhir) && $penilaianAkhir->nilai_tugas_akhir > 0)
+                ? $penilaianAkhir->nilai_tugas_akhir
+                : $autoTaScore;
+            $isGugur = (bool) ($penilaianAkhir->is_gugur ?? false);
+            $alasanGugur = $penilaianAkhir->alasan_gugur ?? null;
+
+            $calculated = self::calculateGrades(
+                $pendaftaran,
+                $nilaiDosen,
+                $nilaiLaporan,
+                $nilaiTugasAkhir,
+                $isGugur,
+                $alasanGugur,
+                $schedules
+            );
+
+            // Compare derived fields: if any differ from DB, perform silent self-healing update
+            $needsUpdate = false;
+            $checkFields = [
+                'total_praktikum',
+                'total_asistensi',
+                'total_praktikum_asistensi',
+                'total_dosen',
+                'nilai_akhir',
+                'nilai_huruf',
+                'status_kelulusan',
+                'nilai_tugas_akhir',
+            ];
+            foreach ($checkFields as $field) {
+                if ($penilaianAkhir->{$field} != $calculated[$field]) {
+                    $needsUpdate = true;
+                    break;
+                }
+            }
+
+            if ($needsUpdate) {
+                $penilaianAkhir->update($calculated);
+            }
+
+            return [
+                'data' => array_merge($penilaianAkhir->toArray(), $calculated),
+                'is_db' => true,
+            ];
+        }
+
+        $calculated = self::calculateGrades(
+            $pendaftaran,
+            [],
+            0,
+            $autoTaScore,
+            false,
+            null,
+            $schedules
+        );
+
+        return [
+            'data' => $calculated,
+            'is_db' => false,
         ];
     }
 }

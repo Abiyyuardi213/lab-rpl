@@ -134,6 +134,12 @@
                                             <span>{{ $sesi->hari }}, {{ substr($sesi->jam_mulai, 0, 5) }} -
                                                 {{ substr($sesi->jam_selesai, 0, 5) }} WIB</span>
                                         </div>
+                                        @if($sesi->ruangan)
+                                            <div class="flex items-center gap-1.5 text-[10px] font-medium text-emerald-600">
+                                                <i class="fas fa-map-marker-alt text-[9px]"></i>
+                                                <span>Ruangan: {{ $sesi->ruangan }}</span>
+                                            </div>
+                                        @endif
                                     </div>
                                     <div class="mt-2 flex items-center justify-between">
                                         <span

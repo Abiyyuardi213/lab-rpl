@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Aslab;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-use App\Models\TugasAsistensi;
 use App\Models\PendaftaranPraktikum;
+use App\Models\PenilaianAkhir;
+use App\Models\TugasAsistensi;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TugasController extends Controller
@@ -14,28 +14,30 @@ class TugasController extends Controller
     public function index()
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return redirect()->back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
         $aslabId = $aslab->id;
-        
+
         // Group by assignment details
         $allTugas = TugasAsistensi::with(['pendaftaran.praktikum'])
             ->where('aslab_id', $aslabId)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $tugas = $allTugas->groupBy(function($item) {
+        $tugas = $allTugas->groupBy(function ($item) {
             // Using a unique key for grouping: judul, due_date, and deskripsi
             $date = $item->due_date ? $item->due_date->format('Y-m-d') : 'no-date';
-            return $item->judul . '|' . $date . '|' . $item->deskripsi;
-        })->map(function($group) {
+
+            return $item->judul.'|'.$date.'|'.$item->deskripsi;
+        })->map(function ($group) {
             $representative = $group->first();
             $representative->total_mahasiswa = $group->count();
             $representative->total_reviewed = $group->where('status', 'reviewed')->count();
             $representative->total_submitted = $group->where('status', 'submitted')->count();
             $representative->total_pending = $group->where('status', 'pending')->count();
+
             return $representative;
         })->values();
 
@@ -54,10 +56,10 @@ class TugasController extends Controller
     public function show($id)
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return redirect()->back()->with('error', 'Data aslab tidak ditemukan.');
         }
-        
+
         $representative = TugasAsistensi::findOrFail($id);
         if ($representative->aslab_id !== $aslab->id) {
             abort(403);
@@ -67,7 +69,7 @@ class TugasController extends Controller
             ->where('aslab_id', $aslab->id)
             ->where('judul', $representative->judul)
             ->where('deskripsi', $representative->deskripsi)
-            ->where(function($query) use ($representative) {
+            ->where(function ($query) use ($representative) {
                 if ($representative->due_date) {
                     $query->whereDate('due_date', $representative->due_date);
                 } else {
@@ -85,7 +87,7 @@ class TugasController extends Controller
     public function storeDirect(Request $request)
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
@@ -107,16 +109,16 @@ class TugasController extends Controller
             'nilai' => $request->nilai,
             'catatan_aslab' => $request->catatan_aslab,
             'status' => 'reviewed',
-            'deskripsi' => 'Penilaian asistensi langsung (Tanpa Tugas)'
+            'deskripsi' => 'Penilaian asistensi langsung (Tanpa Tugas)',
         ]);
 
-        return back()->with('success', 'Nilai asistensi berhasil diberikan kepada ' . $student->praktikan->user->name);
+        return back()->with('success', 'Nilai asistensi berhasil diberikan kepada '.$student->praktikan->user->name);
     }
 
     public function store(Request $request)
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
@@ -145,8 +147,8 @@ class TugasController extends Controller
         foreach ($students as $student) {
             // Gunakan firstOrCreate untuk mencegah duplikat jika aslab double-submit
             // Kunci unik: kombinasi pendaftaran_id + judul + deskripsi + due_date
-            $dueDateFormatted = $request->due_date 
-                ? \Carbon\Carbon::parse($request->due_date)->toDateString() 
+            $dueDateFormatted = $request->due_date
+                ? \Carbon\Carbon::parse($request->due_date)->toDateString()
                 : null;
 
             $existingTugas = TugasAsistensi::where('pendaftaran_id', $student->id)
@@ -156,7 +158,7 @@ class TugasController extends Controller
                 ->whereDate('due_date', $dueDateFormatted ?? '1970-01-01')
                 ->first();
 
-            if (!$existingTugas) {
+            if (! $existingTugas) {
                 TugasAsistensi::create([
                     'pendaftaran_id' => $student->id,
                     'aslab_id' => $aslab->id,
@@ -164,18 +166,18 @@ class TugasController extends Controller
                     'deskripsi' => $request->deskripsi,
                     'file_tugas' => $filePath,
                     'due_date' => $request->due_date,
-                    'status' => 'pending'
+                    'status' => 'pending',
                 ]);
             }
         }
 
-        return back()->with('success', 'Tugas asistensi berhasil diberikan kepada ' . $students->count() . ' mahasiswa.');
+        return back()->with('success', 'Tugas asistensi berhasil diberikan kepada '.$students->count().' mahasiswa.');
     }
 
     public function update(Request $request, $id)
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
@@ -194,7 +196,7 @@ class TugasController extends Controller
             ]);
 
             $updateData = $request->only(['judul', 'deskripsi', 'due_date']);
-            
+
             if ($request->hasFile('file_tugas')) {
                 $updateData['file_tugas'] = $request->file('file_tugas')->store('tugas_soal', 'public');
             }
@@ -203,7 +205,7 @@ class TugasController extends Controller
             TugasAsistensi::where('aslab_id', $aslab->id)
                 ->where('judul', $representative->judul)
                 ->where('deskripsi', $representative->deskripsi)
-                ->where(function($query) use ($representative) {
+                ->where(function ($query) use ($representative) {
                     if ($representative->due_date) {
                         $query->whereDate('due_date', $representative->due_date);
                     } else {
@@ -231,13 +233,18 @@ class TugasController extends Controller
 
         $representative->update($data);
 
+        // Auto-sync PenilaianAkhir if record exists for this registration
+        if ($representative->pendaftaran) {
+            PenilaianAkhir::syncRegistration($representative->pendaftaran);
+        }
+
         return back()->with('success', 'Tugas berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
         $aslab = Auth::user()->aslab;
-        if (!$aslab) {
+        if (! $aslab) {
             return back()->with('error', 'Data aslab tidak ditemukan.');
         }
 
@@ -250,7 +257,7 @@ class TugasController extends Controller
         TugasAsistensi::where('aslab_id', $aslab->id)
             ->where('judul', $representative->judul)
             ->where('deskripsi', $representative->deskripsi)
-            ->where(function($query) use ($representative) {
+            ->where(function ($query) use ($representative) {
                 if ($representative->due_date) {
                     $query->whereDate('due_date', $representative->due_date);
                 } else {
