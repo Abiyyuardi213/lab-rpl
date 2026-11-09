@@ -14,6 +14,7 @@ use App\Models\Praktikum;
 use App\Models\Presensi;
 use App\Models\TugasAsistensi;
 use App\Traits\HasActivityLog;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -371,6 +372,10 @@ class PenilaianAkhirController extends Controller
             });
 
             if ($sched) {
+                $jamMasuk = ($sched->tanggal && $sched->waktu_mulai)
+                    ? Carbon::parse($sched->tanggal.' '.$sched->waktu_mulai)
+                    : now();
+
                 $presensi = Presensi::firstOrCreate(
                     [
                         'pendaftaran_id' => $pendaftaran->id,
@@ -378,6 +383,7 @@ class PenilaianAkhirController extends Controller
                     ],
                     [
                         'status' => 'hadir',
+                        'jam_masuk' => $jamMasuk,
                     ]
                 );
 
@@ -427,6 +433,10 @@ class PenilaianAkhirController extends Controller
             return str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir');
         });
         if ($taSched && $nilaiTugasAkhir !== null) {
+            $taJamMasuk = ($taSched->tanggal && $taSched->waktu_mulai)
+                ? Carbon::parse($taSched->tanggal.' '.$taSched->waktu_mulai)
+                : now();
+
             $presensiTA = Presensi::firstOrCreate(
                 [
                     'pendaftaran_id' => $pendaftaran->id,
@@ -434,6 +444,7 @@ class PenilaianAkhirController extends Controller
                 ],
                 [
                     'status' => 'hadir',
+                    'jam_masuk' => $taJamMasuk,
                 ]
             );
 
