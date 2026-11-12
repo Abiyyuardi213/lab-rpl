@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranPraktikum;
+use App\Traits\HasActivityLog;
 use Illuminate\Http\Request;
 
 class PendaftaranController extends Controller
 {
+    use HasActivityLog;
+
     public function index(Request $request)
     {
         $query = PendaftaranPraktikum::with(['praktikan.user', 'praktikum', 'sesi']);
@@ -58,10 +61,18 @@ class PendaftaranController extends Controller
             'alasan' => 'nullable|string|max:500',
         ]);
 
+        $alasan = $request->alasan ?? 'Dispensasi resmi disetujui.';
+
         $pendaftaran->update([
             'status' => 'verified',
-            'catatan' => 'Dipulihkan dari status gugur oleh Admin: '.($request->alasan ?? 'Dispensasi resmi disetujui.'),
+            'catatan' => 'Dipulihkan dari status gugur oleh Admin: '.$alasan,
         ]);
+
+        $this->logActivity(
+            'Pulihkan Praktikan',
+            "Memulihkan praktikan {$pendaftaran->praktikan?->user?->name} dari status gugur: {$alasan}",
+            ['pendaftaran_id' => $pendaftaran->id, 'praktikum_id' => $pendaftaran->praktikum_id]
+        );
 
         return back()->with('success', "Status praktikan {$pendaftaran->praktikan?->user?->name} berhasil dipulihkan menjadi terverifikasi.");
     }

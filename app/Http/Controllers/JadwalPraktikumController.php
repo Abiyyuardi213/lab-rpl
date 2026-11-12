@@ -138,30 +138,35 @@ class JadwalPraktikumController extends Controller
     public function update(Request $request, $id)
     {
         $jadwal = JadwalPraktikum::findOrFail($id);
+        $isSusulan = $request->boolean('is_susulan');
 
         $request->validate([
             'praktikum_id' => 'required|exists:praktikums,id',
-            'sesi_id' => 'required|exists:sesi_praktikums,id',
+            'sesi_id' => $isSusulan ? 'nullable|exists:sesi_praktikums,id' : 'required|exists:sesi_praktikums,id',
             'judul_modul' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'waktu_mulai' => 'required',
             'waktu_selesai' => 'required',
             'ruangan' => 'nullable|string|max:255',
+            'is_susulan' => 'nullable|boolean',
         ]);
 
         if ($request->waktu_selesai <= $request->waktu_mulai) {
             return back()->withErrors(['waktu_selesai' => 'Waktu selesai harus setelah waktu mulai.'])->withInput();
         }
 
-        $jadwal->update($request->only([
+        $data = $request->only([
             'praktikum_id',
-            'sesi_id',
             'judul_modul',
             'tanggal',
             'waktu_mulai',
             'waktu_selesai',
             'ruangan',
-        ]));
+        ]);
+        $data['is_susulan'] = $isSusulan;
+        $data['sesi_id'] = $isSusulan ? ($request->input('sesi_id') ?: null) : $request->input('sesi_id');
+
+        $jadwal->update($data);
 
         $jTitle = strtolower($request->judul_modul);
         if (str_contains($jTitle, 'tugas akhir') || str_contains($jTitle, 'ta ') || str_contains($jTitle, 'akhir')) {

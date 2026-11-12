@@ -36,7 +36,8 @@ class DashboardController extends Controller
         $susulanSchedules = collect();
 
         if ($praktikan) {
-            app(PresensiAlfaService::class)->markFinishedSchedules();
+            // Evaluasi hanya milik praktikan yang sedang login agar tidak memicu mutasi status mahasiswa lain
+            app(PresensiAlfaService::class)->markFinishedSchedules(null, $praktikan->id);
 
             $gugurPendaftarans = $praktikan->pendaftarans()
                 ->where('status', 'gugur')
