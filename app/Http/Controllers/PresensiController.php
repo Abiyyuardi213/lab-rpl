@@ -7,7 +7,6 @@ use App\Models\PendaftaranPraktikum;
 use App\Models\PesertaSusulan;
 use App\Models\Presensi;
 use App\Models\TugasAsistensi;
-use App\Services\PresensiAlfaService;
 use App\Traits\HasActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -358,8 +357,9 @@ class PresensiController extends Controller
             ], 400);
         }
 
-        // Check already present for this schedule or same module
+        // Check already present (hadir/terlambat) for this schedule or same module; alfa boleh ditimpa manual
         $alreadyPresent = Presensi::where('pendaftaran_id', $request->pendaftaran_id)
+            ->whereIn('status', ['hadir', 'terlambat'])
             ->where(function ($query) use ($jadwal) {
                 $query->where('jadwal_id', $jadwal->id)
                     ->orWhereHas('jadwal', function ($q) use ($jadwal) {
@@ -374,17 +374,31 @@ class PresensiController extends Controller
         }
 
         $presensi = DB::transaction(function () use ($jadwal, $request) {
-            $created = Presensi::firstOrCreate(
-                [
+            $existing = Presensi::where('jadwal_id', $jadwal->id)
+                ->where('pendaftaran_id', $request->pendaftaran_id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($existing && in_array($existing->status, ['hadir', 'terlambat'], true)) {
+                return null;
+            }
+
+            $attributes = [
+                'jam_masuk' => now(),
+                'status' => $request->status,
+                'is_susulan' => (bool) $jadwal->is_susulan,
+            ];
+
+            if ($existing) {
+                $existing->update($attributes);
+                $saved = $existing;
+            } else {
+                $saved = Presensi::create([
                     'jadwal_id' => $jadwal->id,
                     'pendaftaran_id' => $request->pendaftaran_id,
-                ],
-                [
-                    'jam_masuk' => now(),
-                    'status' => $request->status,
-                    'is_susulan' => (bool) $jadwal->is_susulan,
-                ]
-            );
+                    ...$attributes,
+                ]);
+            }
 
             if ($jadwal->is_susulan) {
                 PesertaSusulan::where('jadwal_id', $jadwal->id)
@@ -392,10 +406,10 @@ class PresensiController extends Controller
                     ->update(['status' => 'hadir']);
             }
 
-            return $created;
+            return $saved;
         });
 
-        if (! $presensi->wasRecentlyCreated) {
+        if (! $presensi) {
             return response()->json(['success' => false, 'message' => 'Praktikan sudah melakukan presensi.'], 400);
         }
 
@@ -446,8 +460,6 @@ class PresensiController extends Controller
         $user = Auth::user();
 
         $jadwal = JadwalPraktikum::with(['praktikum', 'sesi', 'presensis.pendaftaran.praktikan.user'])->findOrFail($jadwal_id);
-        app(PresensiAlfaService::class)->markSchedule($jadwal);
-        $jadwal->load(['praktikum', 'sesi', 'presensis.pendaftaran.praktikan.user']);
 
         // Authorization check
         if ($user->role->name === 'Aslab') {
@@ -474,14 +486,20 @@ class PresensiController extends Controller
             ->errorCorrection('H')
             ->generate($qrUrl);
 
-        $presentPendaftaranIds = Presensi::where('jadwal_id', $jadwal->id)
-            ->orWhere(function ($query) use ($jadwal) {
-                $query->whereHas('jadwal', function ($q) use ($jadwal) {
-                    $q->where('praktikum_id', $jadwal->praktikum_id)
-                        ->where('judul_modul', $jadwal->judul_modul);
-                });
+        $presentPendaftaranIds = Presensi::whereIn('status', ['hadir', 'terlambat'])
+            ->where(function ($query) use ($jadwal) {
+                $query->where('jadwal_id', $jadwal->id)
+                    ->orWhereHas('jadwal', function ($q) use ($jadwal) {
+                        $q->where('praktikum_id', $jadwal->praktikum_id)
+                            ->where('judul_modul', $jadwal->judul_modul);
+                    });
             })
             ->pluck('pendaftaran_id');
+
+        $alfaPendaftaranIds = $jadwal->presensis
+            ->where('status', 'alfa')
+            ->pluck('pendaftaran_id')
+            ->all();
 
         $notPresentStudents = PendaftaranPraktikum::with(['praktikan.user', 'sesi'])
             ->where('praktikum_id', $jadwal->praktikum_id)
@@ -495,7 +513,7 @@ class PresensiController extends Controller
                 return $p->praktikan->user->name;
             });
 
-        return view('aslab.presensi.jadwal-qr', compact('qrCode', 'qrUrl', 'jadwal', 'notPresentStudents'));
+        return view('aslab.presensi.jadwal-qr', compact('qrCode', 'qrUrl', 'jadwal', 'notPresentStudents', 'alfaPendaftaranIds'));
     }
 
     public function downloadJadwalPDF($jadwal_id)

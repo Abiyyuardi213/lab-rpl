@@ -507,7 +507,8 @@
             $('#btnSubmitModal').text('Perbarui Jadwal');
             $('#formMethod').val('PATCH');
             $('#jadwalForm').attr('action', `/administrator/jadwal-praktikum/${jadwal.id}`);
-            $('#susulanToggleContainer').addClass('hidden');
+            $('#susulanToggleContainer').removeClass('hidden');
+            $('#is_susulan_checkbox').prop('checked', Boolean(jadwal.is_susulan));
 
             $('#labelModalRuangan').text('Ruangan / Tempat');
             $('#btnApplyRoom').addClass('hidden');
@@ -527,6 +528,7 @@
             $('#modal_edit_tanggal').val(jadwal.tanggal);
             $('#modal_edit_waktu_mulai').val(jadwal.waktu_mulai ? jadwal.waktu_mulai.substring(0, 5) : '08:00');
             $('#modal_edit_waktu_selesai').val(jadwal.waktu_selesai ? jadwal.waktu_selesai.substring(0, 5) : '10:00');
+            toggleSusulanMode(document.getElementById('is_susulan_checkbox'));
 
             $('#jadwalModal').removeClass('hidden');
         }
@@ -716,22 +718,27 @@
 
         function toggleSusulanMode(chk) {
             const isChecked = $(chk).is(':checked');
+            const isEdit = $('#formMethod').val() === 'PATCH';
             if (isChecked) {
                 $('#multiSessionSection').addClass('hidden');
                 $('#singleSessionSection').removeClass('hidden');
                 $('#modal_edit_sesi_id').closest('.space-y-1.5').addClass('hidden');
                 $('#modal_edit_sesi_id').prop('required', false);
+                if (isEdit) {
+                    $('#modal_edit_sesi_id').val('');
+                }
                 enableMultiSessionInputs(false);
-                $('#btnSubmitModal').text('SIMPAN JADWAL SUSULAN');
+                $('#btnSubmitModal').text(isEdit ? 'Perbarui Jadwal Susulan' : 'SIMPAN JADWAL SUSULAN');
             } else {
                 $('#modal_edit_sesi_id').closest('.space-y-1.5').removeClass('hidden');
                 $('#modal_edit_sesi_id').prop('required', true);
-                const isEdit = $('#formMethod').val() === 'PATCH';
                 if (!isEdit) {
                     $('#multiSessionSection').removeClass('hidden');
                     $('#singleSessionSection').addClass('hidden');
                     enableMultiSessionInputs(true);
                     $('#btnSubmitModal').text('Simpan Jadwal Multi-Sesi');
+                } else {
+                    $('#btnSubmitModal').text('Perbarui Jadwal');
                 }
             }
         }

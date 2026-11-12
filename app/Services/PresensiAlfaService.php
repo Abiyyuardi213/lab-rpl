@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ActivityLog;
 use App\Models\JadwalPraktikum;
 use App\Models\PendaftaranPraktikum;
 use App\Models\Presensi;
@@ -12,26 +13,31 @@ class PresensiAlfaService
 {
     use HasActivityLog;
 
-    public function markFinishedSchedules(?int $praktikumId = null): void
+    public function markFinishedSchedules(?int $praktikumId = null, string|int|null $praktikanId = null): void
     {
         $now = now();
 
         $query = JadwalPraktikum::query()
+            ->where('is_susulan', false)
             ->whereRaw("CONCAT(tanggal, ' ', waktu_selesai) < ?", [$now->format('Y-m-d H:i:s')]);
 
         if ($praktikumId) {
             $query->where('praktikum_id', $praktikumId);
         }
 
-        $query->chunkById(50, function ($jadwals) {
+        $query->chunkById(50, function ($jadwals) use ($praktikanId) {
             foreach ($jadwals as $jadwal) {
-                $this->markSchedule($jadwal);
+                $this->markSchedule($jadwal, $praktikanId);
             }
         });
     }
 
-    public function markSchedule(JadwalPraktikum $jadwal): void
+    public function markSchedule(JadwalPraktikum $jadwal, string|int|null $praktikanId = null): void
     {
+        if ($jadwal->is_susulan) {
+            return;
+        }
+
         $finishedAt = Carbon::parse($jadwal->tanggal.' '.$jadwal->waktu_selesai);
 
         if ($finishedAt->greaterThanOrEqualTo(now())) {
@@ -50,6 +56,10 @@ class PresensiAlfaService
         $pendaftaranQuery = PendaftaranPraktikum::where('praktikum_id', $jadwal->praktikum_id)
             ->where('status', 'verified')
             ->whereNotIn('id', $presentPendaftaranIds);
+
+        if ($praktikanId) {
+            $pendaftaranQuery->where('praktikan_id', $praktikanId);
+        }
 
         if ($jadwal->sesi_id) {
             $pendaftaranQuery->where('sesi_id', $jadwal->sesi_id);
@@ -79,7 +89,12 @@ class PresensiAlfaService
             return;
         }
 
-        $finishedRegularSchedules = JadwalPraktikum::where('praktikum_id', $pendaftaran->praktikum_id)
+        $lastReactivatedAt = ActivityLog::where('activity', 'Pulihkan Praktikan')
+            ->where('data->pendaftaran_id', $pendaftaran->id)
+            ->latest('id')
+            ->first()?->created_at;
+
+        $finishedRegularSchedulesQuery = JadwalPraktikum::where('praktikum_id', $pendaftaran->praktikum_id)
             ->where('is_susulan', false)
             ->where(function ($q) use ($pendaftaran) {
                 $q->where('sesi_id', $pendaftaran->sesi_id)
@@ -87,7 +102,17 @@ class PresensiAlfaService
             })
             ->whereRaw("CONCAT(tanggal, ' ', waktu_selesai) <= ?", [
                 $currentJadwal->tanggal.' '.$currentJadwal->waktu_selesai,
-            ])
+            ]);
+
+        if ($lastReactivatedAt) {
+            // Reset sejarah alfa lama sebelum Admin memulihkan praktikan agar tidak langsung gugur ulang
+            $finishedRegularSchedulesQuery->whereRaw(
+                "CONCAT(tanggal, ' ', waktu_selesai) > ?",
+                [$lastReactivatedAt->format('Y-m-d H:i:s')]
+            );
+        }
+
+        $finishedRegularSchedules = $finishedRegularSchedulesQuery
             ->orderBy('tanggal', 'asc')
             ->orderBy('waktu_mulai', 'asc')
             ->get();

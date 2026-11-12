@@ -245,4 +245,155 @@ class PraktikanGugurConsecutiveAlfaTest extends TestCase
         $student->refresh();
         $this->assertEquals('verified', $student->status, 'Student should remain verified because Modul 1 was resolved via susulan');
     }
+
+    public function test_reactivated_student_does_not_revert_to_gugur_on_old_alfas_and_gugur_again_after_two_new_consecutive_alfas(): void
+    {
+        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        $admin = User::factory()->create([
+            'role_id' => $adminRole->id,
+            'username' => 'admin_'.uniqid(),
+        ]);
+
+        $praktikum = $this->createPraktikum();
+        $sesi = SesiPraktikum::create([
+            'praktikum_id' => $praktikum->id,
+            'nama_sesi' => 'Sesi 1',
+            'hari' => 'Senin',
+            'jam_mulai' => '08:00:00',
+            'jam_selesai' => '10:00:00',
+            'kuota' => 30,
+        ]);
+
+        $student = $this->createStudent($praktikum, $sesi, 'Dina');
+
+        $jadwal1 = JadwalPraktikum::create([
+            'praktikum_id' => $praktikum->id,
+            'sesi_id' => $sesi->id,
+            'judul_modul' => 'Modul 1 Lama',
+            'tanggal' => Carbon::now()->subDays(10)->toDateString(),
+            'waktu_mulai' => '08:00:00',
+            'waktu_selesai' => '10:00:00',
+            'ruangan' => 'Lab RPL 1',
+            'is_susulan' => false,
+        ]);
+
+        $jadwal2 = JadwalPraktikum::create([
+            'praktikum_id' => $praktikum->id,
+            'sesi_id' => $sesi->id,
+            'judul_modul' => 'Modul 2 Lama',
+            'tanggal' => Carbon::now()->subDays(5)->toDateString(),
+            'waktu_mulai' => '08:00:00',
+            'waktu_selesai' => '10:00:00',
+            'ruangan' => 'Lab RPL 1',
+            'is_susulan' => false,
+        ]);
+
+        $service = app(PresensiAlfaService::class);
+        $service->markSchedule($jadwal1);
+        $service->markSchedule($jadwal2);
+        $this->assertEquals('gugur', $student->fresh()->status);
+
+        Carbon::setTestNow(Carbon::now()->subDays(3));
+        try {
+            $reactivateResponse = $this->actingAs($admin)->patch(route('admin.pendaftaran.reactivate', $student->id), [
+                'alasan' => 'Dispensasi resmi',
+            ]);
+            $reactivateResponse->assertSessionHas('success');
+            $this->assertEquals('verified', $student->fresh()->status);
+
+            // Re-evaluasi jadwal lama tidak boleh menggugurkan ulang
+            $service->markSchedule($jadwal2);
+            $this->assertEquals('verified', $student->fresh()->status);
+
+            // 1x alfa setelah Pulihkan tetap verified
+            $jadwal3 = JadwalPraktikum::create([
+                'praktikum_id' => $praktikum->id,
+                'sesi_id' => $sesi->id,
+                'judul_modul' => 'Modul 3 Baru',
+                'tanggal' => Carbon::now()->addDay()->toDateString(),
+                'waktu_mulai' => '08:00:00',
+                'waktu_selesai' => '10:00:00',
+                'ruangan' => 'Lab RPL 1',
+                'is_susulan' => false,
+            ]);
+
+            $jadwal4 = JadwalPraktikum::create([
+                'praktikum_id' => $praktikum->id,
+                'sesi_id' => $sesi->id,
+                'judul_modul' => 'Modul 4 Baru',
+                'tanggal' => Carbon::now()->addDays(2)->toDateString(),
+                'waktu_mulai' => '08:00:00',
+                'waktu_selesai' => '10:00:00',
+                'ruangan' => 'Lab RPL 1',
+                'is_susulan' => false,
+            ]);
+
+            Carbon::setTestNow(Carbon::now()->addDays(3));
+            $service->markSchedule($jadwal3);
+            $this->assertEquals('verified', $student->fresh()->status, '1st alfa after reactivate should stay verified');
+
+            $service->markSchedule($jadwal4);
+            $this->assertEquals('gugur', $student->fresh()->status, '2nd consecutive alfa after reactivate must mark gugur again');
+        } finally {
+            Carbon::setTestNow();
+        }
+    }
+
+    public function test_susulan_schedule_does_not_mark_class_alfa_and_dashboard_only_marks_logged_in_student(): void
+    {
+        $praktikum = $this->createPraktikum();
+        $sesi = SesiPraktikum::create([
+            'praktikum_id' => $praktikum->id,
+            'nama_sesi' => 'Sesi 1',
+            'hari' => 'Senin',
+            'jam_mulai' => '08:00:00',
+            'jam_selesai' => '10:00:00',
+            'kuota' => 30,
+        ]);
+
+        $studentA = $this->createStudent($praktikum, $sesi, 'Eko');
+        $studentB = $this->createStudent($praktikum, $sesi, 'Fajar');
+
+        $jadwalSusulan = JadwalPraktikum::create([
+            'praktikum_id' => $praktikum->id,
+            'sesi_id' => null,
+            'judul_modul' => 'Susulan Modul 1&2',
+            'tanggal' => Carbon::yesterday()->toDateString(),
+            'waktu_mulai' => '09:00:00',
+            'waktu_selesai' => '11:00:00',
+            'ruangan' => 'Lab RPL',
+            'is_susulan' => true,
+        ]);
+
+        $jadwalReguler = JadwalPraktikum::create([
+            'praktikum_id' => $praktikum->id,
+            'sesi_id' => $sesi->id,
+            'judul_modul' => 'Modul 3 Reguler',
+            'tanggal' => Carbon::yesterday()->toDateString(),
+            'waktu_mulai' => '13:00:00',
+            'waktu_selesai' => '15:00:00',
+            'ruangan' => 'Lab RPL',
+            'is_susulan' => false,
+        ]);
+
+        app(PresensiAlfaService::class)->markSchedule($jadwalSusulan);
+        $this->assertDatabaseMissing('presensis', [
+            'jadwal_id' => $jadwalSusulan->id,
+            'pendaftaran_id' => $studentA->id,
+        ]);
+
+        // Ketika Student B membuka dashboard, hanya Student B yang dievaluasi; Student A tidak disentuh
+        $userB = $studentB->praktikan->user;
+        $this->actingAs($userB)->get(route('praktikan.dashboard'))->assertStatus(200);
+
+        $this->assertDatabaseHas('presensis', [
+            'jadwal_id' => $jadwalReguler->id,
+            'pendaftaran_id' => $studentB->id,
+            'status' => 'alfa',
+        ]);
+        $this->assertDatabaseMissing('presensis', [
+            'jadwal_id' => $jadwalReguler->id,
+            'pendaftaran_id' => $studentA->id,
+        ]);
+    }
 }

@@ -152,6 +152,11 @@
                                                         Kelas {{ $pendaftaran->asal_kelas_mata_kuliah }}
                                                     </span>
                                                 @endif
+                                                @if(in_array($pendaftaran->id, $alfaPendaftaranIds ?? []))
+                                                    <span class="px-2 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded text-[9px] font-black uppercase tracking-wider">
+                                                        ALFA
+                                                    </span>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

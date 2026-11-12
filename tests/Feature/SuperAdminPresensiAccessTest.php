@@ -297,4 +297,117 @@ class SuperAdminPresensiAccessTest extends TestCase
 
         $response->assertSessionHas('error', 'Akses ditolak.');
     }
+
+    public function test_generate_jadwal_qr_lists_alfa_student_and_store_manual_updates_alfa_to_hadir(): void
+    {
+        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin'], ['display_name' => 'Super Administrator']);
+        $superAdmin = User::factory()->create([
+            'role_id' => $superAdminRole->id,
+            'username' => 'superadmin_'.uniqid(),
+        ]);
+
+        $praktikanRole = Role::firstOrCreate(['name' => 'Praktikan'], ['display_name' => 'Praktikan']);
+        $praktikanUser = User::factory()->create([
+            'role_id' => $praktikanRole->id,
+            'username' => 'praktikan_'.uniqid(),
+        ]);
+        $praktikan = Praktikan::create([
+            'user_id' => $praktikanUser->id,
+            'npm' => '06.2024.1.'.rand(10000, 99999),
+            'no_hp' => '081234567890',
+            'jenis_kelamin' => 'L',
+        ]);
+
+        $praktikum = $this->createPraktikum('Praktikum Manual Alfa '.uniqid());
+        $sesi = SesiPraktikum::create([
+            'praktikum_id' => $praktikum->id,
+            'nama_sesi' => 'Sesi Pagi',
+            'hari' => 'Kamis',
+            'jam_mulai' => '08:00:00',
+            'jam_selesai' => '10:00:00',
+            'kuota' => 30,
+        ]);
+
+        $pendaftaran = PendaftaranPraktikum::create([
+            'praktikan_id' => $praktikan->id,
+            'praktikum_id' => $praktikum->id,
+            'sesi_id' => $sesi->id,
+            'status' => 'verified',
+            'no_hp' => '081234567890',
+            'dosen_pengampu' => 'Dosen Test',
+            'kelas' => 'pagi',
+            'asal_kelas_mata_kuliah' => 'P',
+        ]);
+
+        $jadwal = JadwalPraktikum::create([
+            'praktikum_id' => $praktikum->id,
+            'sesi_id' => $sesi->id,
+            'judul_modul' => 'Modul 3 Alfa Fix',
+            'tanggal' => Carbon::yesterday()->toDateString(),
+            'waktu_mulai' => '08:00:00',
+            'waktu_selesai' => '10:00:00',
+            'ruangan' => 'Lab RPL',
+        ]);
+
+        $alfaPresensi = Presensi::create([
+            'jadwal_id' => $jadwal->id,
+            'pendaftaran_id' => $pendaftaran->id,
+            'jam_masuk' => Carbon::yesterday()->setTime(10, 0),
+            'status' => 'alfa',
+        ]);
+
+        $qrResponse = $this->actingAs($superAdmin)
+            ->get(route('presensi.generate-jadwal-qr', $jadwal->id));
+
+        $qrResponse->assertStatus(200);
+        $this->assertTrue($qrResponse->viewData('notPresentStudents')->contains('id', $pendaftaran->id));
+
+        $manualResponse = $this->actingAs($superAdmin)
+            ->postJson(route('presensi.manual'), [
+                'jadwal_id' => $jadwal->id,
+                'pendaftaran_id' => $pendaftaran->id,
+                'status' => 'hadir',
+            ]);
+
+        $manualResponse->assertStatus(200)->assertJson(['success' => true]);
+        $this->assertEquals('hadir', $alfaPresensi->fresh()->status);
+    }
+
+    public function test_admin_can_update_schedule_to_susulan_without_sesi_id(): void
+    {
+        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin'], ['display_name' => 'Super Administrator']);
+        $superAdmin = User::factory()->create([
+            'role_id' => $superAdminRole->id,
+            'username' => 'superadmin_'.uniqid(),
+        ]);
+
+        $praktikum = $this->createPraktikum('Praktikum Edit Susulan '.uniqid());
+
+        $jadwal = JadwalPraktikum::create([
+            'praktikum_id' => $praktikum->id,
+            'sesi_id' => null,
+            'judul_modul' => 'Susulan Modul 1&2',
+            'tanggal' => Carbon::yesterday()->toDateString(),
+            'waktu_mulai' => '09:00:00',
+            'waktu_selesai' => '11:20:00',
+            'ruangan' => 'Lab LCSE',
+            'is_susulan' => false,
+        ]);
+
+        $response = $this->actingAs($superAdmin)
+            ->patch(route('admin.jadwal-praktikum.update', $jadwal->id), [
+                'praktikum_id' => $praktikum->id,
+                'judul_modul' => 'Susulan Modul 1&2',
+                'tanggal' => Carbon::yesterday()->toDateString(),
+                'waktu_mulai' => '09:00',
+                'waktu_selesai' => '11:20',
+                'ruangan' => 'Lab LCSE',
+                'is_susulan' => '1',
+            ]);
+
+        $response->assertSessionHas('success');
+        $jadwal->refresh();
+        $this->assertTrue($jadwal->is_susulan);
+        $this->assertNull($jadwal->sesi_id);
+    }
 }
