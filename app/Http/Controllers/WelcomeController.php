@@ -207,4 +207,13 @@ class WelcomeController extends Controller
 
         return view('kegiatan.show', compact('kegiatan', 'recentKegiatans'));
     }
+
+    public function aslabPortfolio($slug)
+    {
+        $aslab = Aslab::with(['user', 'achievements', 'experiences', 'activities'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return view('aslab-portfolio', compact('aslab'));
+    }
 }

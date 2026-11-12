@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Aslab;
 use App\Models\GuestVisit;
 use App\Models\Kegiatan;
 use App\Models\Pengumuman;
@@ -382,5 +383,37 @@ class GuestRoleWhiteboxTest extends TestCase
         $loginPost = $routes->getByName('login.post');
         $this->assertNotNull($loginPost);
         $this->assertContains('throttle:10,1', $loginPost->middleware());
+    }
+
+    public function test_aslab_portfolio_page_renders_for_valid_slug_and_returns_404_for_unknown_slug(): void
+    {
+        $role = Role::firstOrCreate(['name' => 'Aslab']);
+        $uniqueId = rand(10000, 99999);
+        $npm = '06.'.date('Y').'.1.'.$uniqueId;
+
+        $user = User::factory()->create([
+            'role_id' => $role->id,
+            'username' => $npm,
+            'name' => 'Aslab Portfolio Test '.$uniqueId,
+        ]);
+
+        $slug = 'aslab-portfolio-test-'.$uniqueId;
+        Aslab::create([
+            'user_id' => $user->id,
+            'npm' => $npm,
+            'slug' => $slug,
+            'jabatan' => 'Anggota Laboratorium',
+            'no_hp' => '081234567891',
+            'jurusan' => 'Teknik Informatika',
+            'angkatan' => date('Y'),
+        ]);
+
+        $response = $this->get(route('aslab.portfolio', $slug));
+        $response->assertStatus(200);
+        $response->assertViewIs('aslab-portfolio');
+        $response->assertSee($user->name);
+
+        $notFound = $this->get(route('aslab.portfolio', 'slug-tidak-ditemukan-99999'));
+        $notFound->assertStatus(404);
     }
 }
