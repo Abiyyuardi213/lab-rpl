@@ -35,16 +35,69 @@ class PendaftaranController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
+        $pendaftaran = PendaftaranPraktikum::with('praktikan.user')->findOrFail($id);
+
+        // Jika form mengirimkan status 2-step verification (Lembar Kuning & Berkas)
+        if ($request->has('status_lembar_kuning') || $request->has('status_berkas')) {
+            $request->validate([
+                'status_lembar_kuning' => 'required|in:pending,verified,rejected',
+                'catatan_lembar_kuning' => 'required_if:status_lembar_kuning,rejected|nullable|string',
+                'status_berkas' => 'required|in:pending,verified,rejected',
+                'catatan' => 'required_if:status_berkas,rejected|nullable|string',
+            ]);
+
+            $statusLembarKuning = $request->status_lembar_kuning;
+            $statusBerkas = $request->status_berkas;
+
+            // Logika Gatekeeper 2-Step:
+            // 1. Jika salah satu rejected -> Master status rejected
+            // 2. Jika KEDUA verifikasi verified -> Master status verified (praktikan aktif)
+            // 3. Jika salah satu atau keduanya pending -> Master status pending (belum boleh praktikum)
+            if ($statusLembarKuning === 'rejected' || $statusBerkas === 'rejected') {
+                $computedStatus = 'rejected';
+            } elseif ($statusLembarKuning === 'verified' && $statusBerkas === 'verified') {
+                $computedStatus = 'verified';
+            } else {
+                $computedStatus = 'pending';
+            }
+
+            $pendaftaran->update([
+                'status_lembar_kuning' => $statusLembarKuning,
+                'catatan_lembar_kuning' => $request->catatan_lembar_kuning,
+                'status_berkas' => $statusBerkas,
+                'status' => $computedStatus,
+                'catatan' => $request->catatan,
+            ]);
+
+            $this->logActivity(
+                'Verifikasi Pendaftaran 2-Step',
+                "Memperbarui verifikasi 2-step praktikan {$pendaftaran->praktikan?->user?->name}: Lembar Kuning [{$statusLembarKuning}], Berkas [{$statusBerkas}] => Status Akhir [{$computedStatus}]",
+                ['pendaftaran_id' => $pendaftaran->id, 'praktikum_id' => $pendaftaran->praktikum_id]
+            );
+
+            return redirect()->route('admin.pendaftaran.index')->with('success', 'Hasil verifikasi 2-step pendaftaran berhasil diperbarui.');
+        }
+
+        // Jalur cepat / kompatibilitas legacy (misal tombol centang verified / tolak langsung dari index)
         $request->validate([
             'status' => 'required|in:verified,rejected',
             'catatan' => 'required_if:status,rejected|nullable|string',
         ]);
 
-        $pendaftaran = PendaftaranPraktikum::findOrFail($id);
-        $pendaftaran->update([
-            'status' => $request->status,
-            'catatan' => $request->catatan,
-        ]);
+        if ($request->status === 'verified') {
+            $pendaftaran->update([
+                'status_lembar_kuning' => 'verified',
+                'status_berkas' => 'verified',
+                'status' => 'verified',
+                'catatan' => $request->catatan,
+            ]);
+        } else {
+            $pendaftaran->update([
+                'status_berkas' => 'rejected',
+                'status' => 'rejected',
+                'catatan' => $request->catatan,
+            ]);
+        }
 
         return redirect()->route('admin.pendaftaran.index')->with('success', 'Status pendaftaran berhasil diperbarui.');
     }

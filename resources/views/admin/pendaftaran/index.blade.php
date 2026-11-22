@@ -113,10 +113,24 @@
                                             'class' => 'bg-zinc-50 text-zinc-500 border-zinc-100',
                                         ];
                                     @endphp
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase border {{ $st['class'] }}">
-                                        {{ $st['label'] }}
-                                    </span>
+                                    <div class="space-y-1">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase border {{ $st['class'] }}">
+                                            {{ $st['label'] }}
+                                        </span>
+                                        <div class="flex items-center gap-1 text-[8px] font-bold font-mono">
+                                            @php
+                                                $lkColor = ($p->status_lembar_kuning ?? 'pending') === 'verified' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : (($p->status_lembar_kuning ?? 'pending') === 'rejected' ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-amber-700 bg-amber-50 border-amber-200');
+                                                $berkasColor = ($p->status_berkas ?? 'pending') === 'verified' ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : (($p->status_berkas ?? 'pending') === 'rejected' ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-amber-700 bg-amber-50 border-amber-200');
+                                            @endphp
+                                            <span class="px-1.5 py-0.5 rounded border {{ $lkColor }}" title="Status Lembar Kuning (Kwitansi Bayar)">
+                                                LK: {{ strtoupper($p->status_lembar_kuning ?? 'pending') }}
+                                            </span>
+                                            <span class="px-1.5 py-0.5 rounded border {{ $berkasColor }}" title="Status Berkas Pendaftaran">
+                                                Berkas: {{ strtoupper($p->status_berkas ?? 'pending') }}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center justify-center gap-2">
