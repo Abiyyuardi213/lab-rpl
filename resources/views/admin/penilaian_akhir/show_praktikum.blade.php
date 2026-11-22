@@ -656,6 +656,10 @@
 
                 let searchTimeout = null;
 
+                filterForm.addEventListener('submit', function () {
+                    clearTimeout(searchTimeout);
+                });
+
                 searchInput.addEventListener('input', function () {
                     const query = this.value.toLowerCase().trim();
 
@@ -681,11 +685,14 @@
                         noDataRow.style.display = (visibleCount === 0 && rows.length > 0) ? '' : 'none';
                     }
 
-                    // 2. Debounced Form Submission (Auto submit after 400ms typing pause)
+                    // 2. Debounced Server-side Fetch (Jeda 5 detik jika tidak ada interaksi baru submit)
                     clearTimeout(searchTimeout);
                     searchTimeout = setTimeout(function () {
-                        filterForm.submit();
-                    }, 400);
+                        const currentUrlParam = (new URLSearchParams(window.location.search).get('search') || '').toLowerCase().trim();
+                        if (query !== currentUrlParam) {
+                            filterForm.submit();
+                        }
+                    }, 5000);
                 });
             }
         });

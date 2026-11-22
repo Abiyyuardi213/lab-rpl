@@ -24,9 +24,17 @@ class PendaftaranPraktikum extends Model
         'foto_almamater',
         'is_mengulang',
         'is_google_form',
+        'status_lembar_kuning',
+        'catatan_lembar_kuning',
+        'status_berkas',
         'status',
         'catatan',
     ];
+
+    public function isFullyVerified(): bool
+    {
+        return $this->status_lembar_kuning === 'verified' && $this->status_berkas === 'verified';
+    }
 
     public $incrementing = false;
 
